@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Eye, Edit, FileText, Download } from 'lucide-react';
+import { Search, Eye, Edit, FileText, Download, CheckCircle, Clock, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EditableAgreementDialog from './EditableAgreementDialog';
 
@@ -106,11 +107,11 @@ const RentalAgreements = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => handleSummaryCardClick('all')}>
-          <CardContent className="p-6">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200" onClick={() => handleSummaryCardClick('all')}>
+          <CardContent className="p-6 bg-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Total Agreements</p>
@@ -123,43 +124,43 @@ const RentalAgreements = () => {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => handleSummaryCardClick('active')}>
-          <CardContent className="p-6">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200" onClick={() => handleSummaryCardClick('active')}>
+          <CardContent className="p-6 bg-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Active Leases</p>
                 <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'active').length}</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                <div className="h-6 w-6 rounded-full bg-green-600"></div>
+                <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => handleSummaryCardClick('expiring')}>
-          <CardContent className="p-6">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200" onClick={() => handleSummaryCardClick('expiring')}>
+          <CardContent className="p-6 bg-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Expiring Soon</p>
                 <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'expiring').length}</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                <div className="h-6 w-6 rounded-full bg-orange-500"></div>
+                <Clock className="h-6 w-6 text-orange-500" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200">
-          <CardContent className="p-6">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200">
+          <CardContent className="p-6 bg-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Monthly Revenue</p>
                 <p className="text-heading-2 font-semibold text-gray-900">₹{agreements.filter(a => a.status === 'active').reduce((sum, a) => sum + a.monthlyRent, 0).toLocaleString()}</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-[#E74C3C]/10 flex items-center justify-center">
-                <div className="h-6 w-6 rounded-full bg-[#E74C3C]"></div>
+                <DollarSign className="h-6 w-6 text-[#E74C3C]" />
               </div>
             </div>
           </CardContent>
@@ -167,11 +168,11 @@ const RentalAgreements = () => {
       </div>
 
       {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Rental Agreements</CardTitle>
+      <Card className="bg-white border border-gray-200">
+        <CardHeader className="bg-white border-b border-gray-200">
+          <CardTitle className="text-[#1a1a1a]">Rental Agreements</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -180,12 +181,12 @@ const RentalAgreements = () => {
                   placeholder="Search by tenant, property, or agreement ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white border-gray-200"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 bg-white border-gray-200">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-200 shadow-lg">
@@ -201,31 +202,31 @@ const RentalAgreements = () => {
           <div className="border border-gray-200 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Agreement ID</TableHead>
-                  <TableHead>Property</TableHead>
-                  <TableHead>Tenant</TableHead>
-                  <TableHead>Lease Period</TableHead>
-                  <TableHead>Monthly Rent</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-gray-50 border-b border-gray-200">
+                  <TableHead className="text-[#1a1a1a] font-medium">Agreement ID</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Tenant</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Monthly Rent</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="bg-white">
                 {filteredAgreements.map((agreement) => (
-                  <TableRow key={agreement.id} className="hover:bg-gray-50">
-                    <TableCell className="font-medium">{agreement.id}</TableCell>
-                    <TableCell>{agreement.propertyName}</TableCell>
-                    <TableCell>{agreement.tenantName}</TableCell>
-                    <TableCell>
+                  <TableRow key={agreement.id} className="hover:bg-gray-50 bg-white border-b border-gray-100">
+                    <TableCell className="font-medium bg-white">{agreement.id}</TableCell>
+                    <TableCell className="bg-white">{agreement.propertyName}</TableCell>
+                    <TableCell className="bg-white">{agreement.tenantName}</TableCell>
+                    <TableCell className="bg-white">
                       <div className="text-body">
                         <div>{new Date(agreement.startDate).toLocaleDateString()} -</div>
                         <div>{new Date(agreement.endDate).toLocaleDateString()}</div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">₹{agreement.monthlyRent.toLocaleString()}</TableCell>
-                    <TableCell>{getStatusBadge(agreement.status)}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium bg-white">₹{agreement.monthlyRent.toLocaleString()}</TableCell>
+                    <TableCell className="bg-white">{getStatusBadge(agreement.status)}</TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
                         <Button 
                           variant="ghost" 
