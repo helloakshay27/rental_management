@@ -86,15 +86,15 @@ const MyRentals = () => {
   const totalSecurityDeposit = myRentals.reduce((sum, rental) => sum + rental.securityDeposit, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Properties</p>
-                <p className="text-2xl font-bold">{myRentals.length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Total Properties</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{myRentals.length}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-blue-600"></div>
@@ -103,24 +103,24 @@ const MyRentals = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Monthly Rent</p>
-                <p className="text-2xl font-bold">₹{totalMonthlyRent.toLocaleString()}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Monthly Rent</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalMonthlyRent.toLocaleString()}</p>
               </div>
               <CreditCard className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Security Deposits</p>
-                <p className="text-2xl font-bold">₹{totalSecurityDeposit.toLocaleString()}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Security Deposits</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalSecurityDeposit.toLocaleString()}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-yellow-600"></div>
@@ -129,12 +129,12 @@ const MyRentals = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Active Leases</p>
-                <p className="text-2xl font-bold">{myRentals.filter(r => r.status === 'active').length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Active Leases</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{myRentals.filter(r => r.status === 'active').length}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-green-600"></div>
@@ -145,11 +145,11 @@ const MyRentals = () => {
       </div>
 
       {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle>My Rental Properties</CardTitle>
+      <Card className="bg-white">
+        <CardHeader className="bg-[#f6f4ee]">
+          <CardTitle className="text-[#1a1a1a]">My Rental Properties</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -158,15 +158,15 @@ const MyRentals = () => {
                   placeholder="Search by property, landlord, or address..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white text-[#1a1a1a]"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="expiring">Expiring Soon</SelectItem>
@@ -176,64 +176,64 @@ const MyRentals = () => {
           </div>
 
           {/* Rentals Table */}
-          <div className="border rounded-lg">
+          <div className="border rounded-lg bg-white">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Property Details</TableHead>
-                  <TableHead>Landlord</TableHead>
-                  <TableHead>Lease Period</TableHead>
-                  <TableHead>Monthly Rent</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-[#f6f4ee]">
+                  <TableHead className="text-[#1a1a1a] font-medium">Property Details</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Landlord</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Monthly Rent</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="bg-white">
                 {filteredRentals.map((rental) => (
-                  <TableRow key={rental.id}>
-                    <TableCell>
+                  <TableRow key={rental.id} className="bg-white">
+                    <TableCell className="bg-white">
                       <div>
-                        <div className="font-medium">{rental.propertyName}</div>
-                        <div className="text-sm text-gray-600 flex items-center mt-1">
+                        <div className="font-medium text-[#1a1a1a]">{rental.propertyName}</div>
+                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
                           <MapPin className="h-3 w-3 mr-1" />
                           {rental.address}
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">{rental.propertyType}</div>
+                        <div className="text-sm text-[#1a1a1a]/60 mt-1">{rental.propertyType}</div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">
                       <div>
-                        <div className="font-medium">{rental.landlordName}</div>
-                        <div className="text-sm text-gray-600 flex items-center mt-1">
+                        <div className="font-medium text-[#1a1a1a]">{rental.landlordName}</div>
+                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
                           <Phone className="h-3 w-3 mr-1" />
                           {rental.landlordPhone}
                         </div>
-                        <div className="text-sm text-gray-600 flex items-center mt-1">
+                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
                           <Mail className="h-3 w-3 mr-1" />
                           {rental.landlordEmail}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">
                       <div className="text-sm">
-                        <div>{new Date(rental.leaseStart).toLocaleDateString()} -</div>
-                        <div>{new Date(rental.leaseEnd).toLocaleDateString()}</div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-[#1a1a1a]">{new Date(rental.leaseStart).toLocaleDateString()} -</div>
+                        <div className="text-[#1a1a1a]">{new Date(rental.leaseEnd).toLocaleDateString()}</div>
+                        <div className="text-xs text-[#1a1a1a]/60 mt-1">
                           Next payment: {new Date(rental.nextPaymentDue).toLocaleDateString()}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">₹{rental.monthlyRent.toLocaleString()}</TableCell>
-                    <TableCell>{getStatusBadge(rental.status)}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium text-[#1a1a1a] bg-white">₹{rental.monthlyRent.toLocaleString()}</TableCell>
+                    <TableCell className="bg-white">{getStatusBadge(rental.status)}</TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" title="View Details">
+                        <Button variant="ghost" size="sm" title="View Details" className="text-[#C72030] hover:bg-[#C72030]/10">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" title="View Contract">
+                        <Button variant="ghost" size="sm" title="View Contract" className="text-[#C72030] hover:bg-[#C72030]/10">
                           <FileText className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" title="Pay Rent">
+                        <Button variant="ghost" size="sm" title="Pay Rent" className="text-[#C72030] hover:bg-[#C72030]/10">
                           <CreditCard className="h-4 w-4" />
                         </Button>
                       </div>

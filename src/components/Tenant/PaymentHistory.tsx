@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -102,27 +101,27 @@ const PaymentHistory = () => {
   const totalPending = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Payments</p>
-                <p className="text-2xl font-bold">{payments.length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Total Payments</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{payments.length}</p>
               </div>
               <Receipt className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Paid</p>
-                <p className="text-2xl font-bold">₹{totalPaid.toLocaleString()}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Total Paid</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalPaid.toLocaleString()}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-green-600"></div>
@@ -131,12 +130,12 @@ const PaymentHistory = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending Amount</p>
-                <p className="text-2xl font-bold">₹{totalPending.toLocaleString()}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Pending Amount</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalPending.toLocaleString()}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-yellow-600"></div>
@@ -145,12 +144,12 @@ const PaymentHistory = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#f6f4ee]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">This Month</p>
-                <p className="text-2xl font-bold">₹{payments.filter(p => new Date(p.dueDate).getMonth() === new Date().getMonth()).reduce((sum, p) => sum + p.amount, 0).toLocaleString()}</p>
+                <p className="text-sm text-[#1a1a1a]/70">This Month</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">₹{payments.filter(p => new Date(p.dueDate).getMonth() === new Date().getMonth()).reduce((sum, p) => sum + p.amount, 0).toLocaleString()}</p>
               </div>
               <Calendar className="h-8 w-8 text-purple-600" />
             </div>
@@ -159,11 +158,11 @@ const PaymentHistory = () => {
       </div>
 
       {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment History</CardTitle>
+      <Card className="bg-white">
+        <CardHeader className="bg-[#f6f4ee]">
+          <CardTitle className="text-[#1a1a1a]">Payment History</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -172,15 +171,15 @@ const PaymentHistory = () => {
                   placeholder="Search by property, landlord, or transaction ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white text-[#1a1a1a]"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
@@ -190,55 +189,55 @@ const PaymentHistory = () => {
           </div>
 
           {/* Payments Table */}
-          <div className="border rounded-lg">
+          <div className="border rounded-lg bg-white">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Property & Landlord</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Payment Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-[#f6f4ee]">
+                  <TableHead className="text-[#1a1a1a] font-medium">Property & Landlord</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Type</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Amount</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Due Date</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Payment Date</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="bg-white">
                 {filteredPayments.map((payment) => (
-                  <TableRow key={payment.id}>
-                    <TableCell>
+                  <TableRow key={payment.id} className="bg-white">
+                    <TableCell className="bg-white">
                       <div>
-                        <div className="font-medium">{payment.propertyName}</div>
-                        <div className="text-sm text-gray-600">{payment.landlordName}</div>
+                        <div className="font-medium text-[#1a1a1a]">{payment.propertyName}</div>
+                        <div className="text-sm text-[#1a1a1a]/70">{payment.landlordName}</div>
                         {payment.transactionId && (
-                          <div className="text-xs text-gray-500 mt-1">ID: {payment.transactionId}</div>
+                          <div className="text-xs text-[#1a1a1a]/60 mt-1">ID: {payment.transactionId}</div>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{getPaymentTypeBadge(payment.type)}</TableCell>
-                    <TableCell className="font-medium">₹{payment.amount.toLocaleString()}</TableCell>
-                    <TableCell>{new Date(payment.dueDate).toLocaleDateString()}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">{getPaymentTypeBadge(payment.type)}</TableCell>
+                    <TableCell className="font-medium text-[#1a1a1a] bg-white">₹{payment.amount.toLocaleString()}</TableCell>
+                    <TableCell className="text-[#1a1a1a] bg-white">{new Date(payment.dueDate).toLocaleDateString()}</TableCell>
+                    <TableCell className="bg-white">
                       {payment.paymentDate ? (
                         <div>
-                          <div>{new Date(payment.paymentDate).toLocaleDateString()}</div>
+                          <div className="text-[#1a1a1a]">{new Date(payment.paymentDate).toLocaleDateString()}</div>
                           {payment.paymentMethod && (
-                            <div className="text-xs text-gray-500">{payment.paymentMethod}</div>
+                            <div className="text-xs text-[#1a1a1a]/60">{payment.paymentMethod}</div>
                           )}
                         </div>
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}
                     </TableCell>
-                    <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">{getStatusBadge(payment.status)}</TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
                         {payment.status === 'paid' ? (
-                          <Button variant="ghost" size="sm" title="Download Receipt">
+                          <Button variant="ghost" size="sm" title="Download Receipt" className="text-[#C72030] hover:bg-[#C72030]/10">
                             <Download className="h-4 w-4" />
                           </Button>
                         ) : (
-                          <Button variant="ghost" size="sm" title="Pay Now">
+                          <Button variant="ghost" size="sm" title="Pay Now" className="text-[#C72030] hover:bg-[#C72030]/10">
                             <CreditCard className="h-4 w-4" />
                           </Button>
                         )}
