@@ -42,19 +42,19 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   return (
     <div className={cn(
-      "bg-white border-r border-tertiary-1 transition-all duration-300 flex flex-col h-screen shadow-card",
+      "bg-[#1B2B3D] transition-all duration-300 flex flex-col h-screen",
       isCollapsed ? "w-16" : "w-64"
     )}>
-      <div className="p-4 border-b border-tertiary-1">
+      <div className="p-4 border-b border-[#2A3F54]">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <h2 className="text-heading-3 font-semibold text-primary">PropertyFlow</h2>
+            <h2 className="text-heading-3 font-semibold text-white">PropertyFlow</h2>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggle}
-            className="text-gray-600 hover:bg-base-white"
+            className="text-gray-300 hover:bg-[#2A3F54] hover:text-white"
           >
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </Button>
@@ -74,8 +74,8 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                   className={cn(
                     "flex items-center p-3 rounded-lg transition-all duration-200 font-medium",
                     isActive 
-                      ? "bg-primary text-white shadow-sm" 
-                      : "text-gray-700 hover:bg-base-white hover:text-primary"
+                      ? "bg-[#E74C3C] text-white shadow-sm" 
+                      : "text-gray-300 hover:bg-[#2A3F54] hover:text-white"
                   )}
                 >
                   <Icon size={20} />

@@ -7,13 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Eye, Edit, FileText, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import AgreementDetailsDialog from './AgreementDetailsDialog';
+import EditableAgreementDialog from './EditableAgreementDialog';
 
 const RentalAgreements = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedAgreement, setSelectedAgreement] = useState(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Mock data for rental agreements
@@ -67,13 +67,13 @@ const RentalAgreements = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge variant="accepted">Active</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Active</Badge>;
       case 'expiring':
-        return <Badge variant="warning">Expiring Soon</Badge>;
+        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Expiring Soon</Badge>;
       case 'terminated':
-        return <Badge variant="rejected">Terminated</Badge>;
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Terminated</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Unknown</Badge>;
     }
   };
 
@@ -85,16 +85,9 @@ const RentalAgreements = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleViewDetails = (agreement) => {
+  const handleViewEdit = (agreement) => {
     setSelectedAgreement(agreement);
-    setIsDetailsDialogOpen(true);
-  };
-
-  const handleEditAgreement = (agreement) => {
-    toast({
-      title: "Edit Agreement",
-      description: `Opening edit form for agreement ${agreement.id}`,
-    });
+    setIsEditDialogOpen(true);
   };
 
   const handleDownloadAgreement = (agreement) => {
@@ -116,57 +109,57 @@ const RentalAgreements = () => {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200" onClick={() => handleSummaryCardClick('all')}>
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => handleSummaryCardClick('all')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Total Agreements</p>
                 <p className="text-heading-2 font-semibold text-gray-900">{agreements.length}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-primary" />
+              <div className="h-12 w-12 rounded-lg bg-[#E74C3C]/10 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-[#E74C3C]" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200" onClick={() => handleSummaryCardClick('active')}>
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => handleSummaryCardClick('active')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Active Leases</p>
                 <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'active').length}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-                <div className="h-6 w-6 rounded-full bg-success"></div>
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <div className="h-6 w-6 rounded-full bg-green-600"></div>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200" onClick={() => handleSummaryCardClick('expiring')}>
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => handleSummaryCardClick('expiring')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Expiring Soon</p>
                 <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'expiring').length}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
-                <div className="h-6 w-6 rounded-full bg-warning"></div>
+              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                <div className="h-6 w-6 rounded-full bg-orange-500"></div>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Monthly Revenue</p>
                 <p className="text-heading-2 font-semibold text-gray-900">₹{agreements.filter(a => a.status === 'active').reduce((sum, a) => sum + a.monthlyRent, 0).toLocaleString()}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <div className="h-6 w-6 rounded-full bg-primary"></div>
+              <div className="h-12 w-12 rounded-lg bg-[#E74C3C]/10 flex items-center justify-center">
+                <div className="h-6 w-6 rounded-full bg-[#E74C3C]"></div>
               </div>
             </div>
           </CardContent>
@@ -195,7 +188,7 @@ const RentalAgreements = () => {
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-tertiary-1 shadow-dropdown">
+              <SelectContent className="bg-white border-gray-200 shadow-lg">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="expiring">Expiring Soon</SelectItem>
@@ -205,7 +198,7 @@ const RentalAgreements = () => {
           </div>
 
           {/* Agreements Table */}
-          <div className="border border-tertiary-1 rounded-lg overflow-hidden">
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -220,7 +213,7 @@ const RentalAgreements = () => {
               </TableHeader>
               <TableBody>
                 {filteredAgreements.map((agreement) => (
-                  <TableRow key={agreement.id} className="hover:bg-base-white">
+                  <TableRow key={agreement.id} className="hover:bg-gray-50">
                     <TableCell className="font-medium">{agreement.id}</TableCell>
                     <TableCell>{agreement.propertyName}</TableCell>
                     <TableCell>{agreement.tenantName}</TableCell>
@@ -237,16 +230,16 @@ const RentalAgreements = () => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => handleViewDetails(agreement)}
-                          className="hover:bg-primary/10 hover:text-primary"
+                          onClick={() => handleViewEdit(agreement)}
+                          className="hover:bg-[#E74C3C]/10 hover:text-[#E74C3C]"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => handleEditAgreement(agreement)}
-                          className="hover:bg-success/10 hover:text-success-foreground"
+                          onClick={() => handleViewEdit(agreement)}
+                          className="hover:bg-green-50 hover:text-green-600"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -268,10 +261,10 @@ const RentalAgreements = () => {
         </CardContent>
       </Card>
 
-      <AgreementDetailsDialog 
+      <EditableAgreementDialog 
         agreement={selectedAgreement}
-        open={isDetailsDialogOpen}
-        onOpenChange={setIsDetailsDialogOpen}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
       />
     </div>
   );

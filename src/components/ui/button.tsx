@@ -6,18 +6,18 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E74C3C] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm hover:shadow-md",
-        destructive: "bg-error text-error-foreground hover:bg-error/90 shadow-sm hover:shadow-md",
-        outline: "border border-primary bg-background text-primary hover:bg-primary hover:text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow-md",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        success: "bg-success text-success-foreground hover:bg-success/90 shadow-sm hover:shadow-md",
-        warning: "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm hover:shadow-md",
+        default: "bg-[#E74C3C] text-white hover:bg-[#C0392B] shadow-sm hover:shadow-md",
+        destructive: "bg-[#E74C3C] text-white hover:bg-[#C0392B] shadow-sm hover:shadow-md",
+        outline: "border border-[#E74C3C] bg-white text-[#E74C3C] hover:bg-[#E74C3C] hover:text-white",
+        secondary: "bg-[#1B2B3D] text-white hover:bg-[#2A3F54] shadow-sm hover:shadow-md",
+        ghost: "hover:bg-gray-100 hover:text-gray-900",
+        link: "text-[#E74C3C] underline-offset-4 hover:underline",
+        success: "bg-green-600 text-white hover:bg-green-700 shadow-sm hover:shadow-md",
+        warning: "bg-orange-500 text-white hover:bg-orange-600 shadow-sm hover:shadow-md",
       },
       size: {
         default: "h-10 px-6 py-3",
