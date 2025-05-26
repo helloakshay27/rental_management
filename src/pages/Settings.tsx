@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Shield, Bell, Palette, Database, Globe, Key, Mail, Clock, GitBranch, Send, Cron } from 'lucide-react';
+import { User, Shield, Bell, Palette, Database, Globe, Key, Mail, Clock, GitBranch, Send, Plus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
