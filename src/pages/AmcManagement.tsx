@@ -30,28 +30,28 @@ const AmcManagement = () => {
         <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger 
             value="overview" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Wrench className="h-4 w-4" />
             Overview
           </TabsTrigger>
           <TabsTrigger 
             value="contracts" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <FileText className="h-4 w-4" />
             Contracts
           </TabsTrigger>
           <TabsTrigger 
             value="scheduling" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Calendar className="h-4 w-4" />
             Scheduling
           </TabsTrigger>
           <TabsTrigger 
             value="vendors" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Users className="h-4 w-4" />
             Vendors

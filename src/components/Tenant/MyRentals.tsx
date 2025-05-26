@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, MapPin, Phone, Mail, Eye, FileText, CreditCard } from 'lucide-react';
+import { Search, MapPin, Phone, Mail, Eye, FileText, CreditCard, Home, Users, DollarSign, CheckCircle } from 'lucide-react';
 
 const MyRentals = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -103,55 +104,57 @@ const MyRentals = () => {
     <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Total Properties</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{myRentals.length}</p>
+                <p className="text-body text-gray-600">Total Properties</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{myRentals.length}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-blue-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <Home className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Monthly Rent</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalMonthlyRent.toLocaleString()}</p>
+                <p className="text-body text-gray-600">Monthly Rent</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{totalMonthlyRent.toLocaleString()}</p>
               </div>
-              <CreditCard className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#1a1a1a]/70">Security Deposits</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalSecurityDeposit.toLocaleString()}</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-yellow-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Active Leases</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{myRentals.filter(r => r.status === 'active').length}</p>
+                <p className="text-body text-gray-600">Security Deposits</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{totalSecurityDeposit.toLocaleString()}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-green-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
+                <CreditCard className="h-6 w-6 text-yellow-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body text-gray-600">Active Leases</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{myRentals.filter(r => r.status === 'active').length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>
@@ -193,7 +196,7 @@ const MyRentals = () => {
           <div className="border rounded-lg bg-white border-gray-200">
             <Table>
               <TableHeader>
-                <TableRow className="bg-white border-b border-gray-200">
+                <TableRow className="bg-gray-50 border-b border-gray-200">
                   <TableHead className="text-[#1a1a1a] font-medium">Property Details</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Landlord</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>

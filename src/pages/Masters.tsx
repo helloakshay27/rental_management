@@ -55,8 +55,8 @@ const Masters = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Masters</h1>
-          <p className="text-gray-600">Manage all master data and system configurations</p>
+          <h1 className="text-2xl font-bold text-[#FFFFFF]">Masters</h1>
+          <p className="text-[#FFFFFF]">Manage all master data and system configurations</p>
         </div>
       </div>
 
@@ -69,8 +69,8 @@ const Masters = () => {
                 <div className={`w-12 h-12 rounded-lg ${module.color} flex items-center justify-center mb-3`}>
                   <Icon className="h-6 w-6" />
                 </div>
-                <CardTitle className="text-lg">{module.title}</CardTitle>
-                <CardDescription>{module.description}</CardDescription>
+                <CardTitle className="text-lg text-[#FFFFFF]">{module.title}</CardTitle>
+                <CardDescription className="text-[#FFFFFF]">{module.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link to={module.path}>

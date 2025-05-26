@@ -30,28 +30,28 @@ const UtilityManagement = () => {
         <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger 
             value="overview" 
-            className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Zap className="h-4 w-4" />
             Overview
           </TabsTrigger>
           <TabsTrigger 
             value="bills" 
-            className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Droplets className="h-4 w-4" />
             Bill Management
           </TabsTrigger>
           <TabsTrigger 
             value="consumption" 
-            className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Activity className="h-4 w-4" />
             Consumption
           </TabsTrigger>
           <TabsTrigger 
             value="reports" 
-            className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Thermometer className="h-4 w-4" />
             Reports

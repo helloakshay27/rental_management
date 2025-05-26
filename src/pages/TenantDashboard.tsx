@@ -29,28 +29,28 @@ const TenantDashboard = () => {
         <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger 
             value="rentals" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Home className="h-4 w-4" />
             My Rentals
           </TabsTrigger>
           <TabsTrigger 
             value="payments" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <CreditCard className="h-4 w-4" />
             Payment History
           </TabsTrigger>
           <TabsTrigger 
             value="maintenance" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Calendar className="h-4 w-4" />
             Maintenance
           </TabsTrigger>
           <TabsTrigger 
             value="documents" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <FileText className="h-4 w-4" />
             Documents
