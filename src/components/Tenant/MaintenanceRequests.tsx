@@ -135,48 +135,48 @@ const MaintenanceRequests = () => {
     <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Requests</p>
-                <p className="text-2xl font-bold">{maintenanceRequests.length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Total Requests</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.length}</p>
               </div>
               <AlertCircle className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending</p>
-                <p className="text-2xl font-bold">{maintenanceRequests.filter(r => r.status === 'pending').length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Pending</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.filter(r => r.status === 'pending').length}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">In Progress</p>
-                <p className="text-2xl font-bold">{maintenanceRequests.filter(r => r.status === 'in-progress').length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">In Progress</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.filter(r => r.status === 'in-progress').length}</p>
               </div>
               <AlertCircle className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Completed</p>
-                <p className="text-2xl font-bold">{maintenanceRequests.filter(r => r.status === 'completed').length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Completed</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.filter(r => r.status === 'completed').length}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
@@ -185,8 +185,8 @@ const MaintenanceRequests = () => {
       </div>
 
       {/* Main Content Card */}
-      <Card className="bg-white">
-        <CardHeader className="bg-[#f6f4ee] pb-6">
+      <Card className="bg-white border border-gray-200">
+        <CardHeader className="bg-white border-b border-gray-200 pb-6">
           <div className="flex justify-between items-center">
             <CardTitle className="text-[#1a1a1a]">Maintenance Requests</CardTitle>
             <Button 
@@ -207,12 +207,12 @@ const MaintenanceRequests = () => {
                   placeholder="Search by title, property, or issue type..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white text-[#1a1a1a]"
+                  className="pl-10 bg-white text-[#1a1a1a] border border-gray-200"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
+              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a] border border-gray-200">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -225,10 +225,10 @@ const MaintenanceRequests = () => {
           </div>
 
           {/* Maintenance Requests Table */}
-          <div className="border rounded-lg bg-white">
+          <div className="border rounded-lg bg-white border-gray-200">
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#f6f4ee]">
+                <TableRow className="bg-white border-b border-gray-200">
                   <TableHead className="text-[#1a1a1a] font-medium">Request Details</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Priority</TableHead>
@@ -239,40 +239,40 @@ const MaintenanceRequests = () => {
               </TableHeader>
               <TableBody className="bg-white">
                 {filteredRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>
+                  <TableRow key={request.id} className="bg-white border-b border-gray-100">
+                    <TableCell className="bg-white">
                       <div>
                         <div className="font-medium flex items-center gap-2">
                           {getStatusIcon(request.status)}
                           {request.title}
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">{request.issueType}</div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-sm text-[#1a1a1a]/70 mt-1">{request.issueType}</div>
+                        <div className="text-xs text-[#1a1a1a]/60 mt-1">
                           Created: {new Date(request.createdDate).toLocaleDateString()}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">
                       <div>
-                        <div className="font-medium">{request.propertyName}</div>
-                        <div className="text-sm text-gray-600">{request.landlordName}</div>
+                        <div className="font-medium text-[#1a1a1a]">{request.propertyName}</div>
+                        <div className="text-sm text-[#1a1a1a]/70">{request.landlordName}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{getPriorityBadge(request.priority)}</TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">{getPriorityBadge(request.priority)}</TableCell>
+                    <TableCell className="bg-white">{getStatusBadge(request.status)}</TableCell>
+                    <TableCell className="bg-white">
                       <div>
                         {request.assignedTo ? (
                           <div>
-                            <div className="text-sm">{request.assignedTo}</div>
+                            <div className="text-sm text-[#1a1a1a]">{request.assignedTo}</div>
                             {request.estimatedCompletion && (
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-[#1a1a1a]/60">
                                 ETA: {new Date(request.estimatedCompletion).toLocaleDateString()}
                               </div>
                             )}
                           </div>
                         ) : (
-                          <span className="text-gray-400">Not assigned</span>
+                          <span className="text-[#1a1a1a]/60">Not assigned</span>
                         )}
                       </div>
                     </TableCell>
@@ -293,19 +293,19 @@ const MaintenanceRequests = () => {
                           title="Messages"
                           className="text-[#C72030] hover:bg-[#C72030]/10"
                           onClick={() => handleViewMessages('request.id')}
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </CardContent>
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
       </Card>
-    </div >
+    </div>
   );
 };
 

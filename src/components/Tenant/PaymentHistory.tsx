@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PaymentSummaryCards from './PaymentSummaryCards';
@@ -83,8 +82,8 @@ const PaymentHistory = () => {
     <div className="space-y-6 bg-white">
       <PaymentSummaryCards payments={payments} />
 
-      <Card className="bg-white">
-        <CardHeader className="bg-[#f6f4ee] pb-6">
+      <Card className="bg-white border border-gray-200">
+        <CardHeader className="bg-white border-b border-gray-200 pb-6">
           <CardTitle className="text-[#1a1a1a]">Payment History</CardTitle>
         </CardHeader>
         <CardContent className="bg-white pt-6">

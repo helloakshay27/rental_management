@@ -24,10 +24,10 @@ interface PaymentTableProps {
 
 const PaymentTable: React.FC<PaymentTableProps> = ({ payments, onDownloadReceipt, onPayNow }) => {
   return (
-    <div className="border rounded-lg bg-white">
+    <div className="border rounded-lg bg-white border-gray-200">
       <Table>
         <TableHeader>
-          <TableRow className="bg-[#f6f4ee]">
+          <TableRow className="bg-white border-b border-gray-200">
             <TableHead className="text-[#1a1a1a] font-medium">Property & Landlord</TableHead>
             <TableHead className="text-[#1a1a1a] font-medium">Type</TableHead>
             <TableHead className="text-[#1a1a1a] font-medium">Amount</TableHead>

@@ -140,24 +140,24 @@ const Documents = () => {
     <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Documents</p>
-                <p className="text-2xl font-bold">{documents.length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Total Documents</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{documents.length}</p>
               </div>
               <FileText className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Contracts</p>
-                <p className="text-2xl font-bold">{documents.filter(d => d.type === 'contract').length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Contracts</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{documents.filter(d => d.type === 'contract').length}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-blue-600"></div>
@@ -166,24 +166,24 @@ const Documents = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Photos</p>
-                <p className="text-2xl font-bold">{documents.filter(d => d.type === 'photo').length}</p>
+                <p className="text-sm text-[#1a1a1a]/70">Photos</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{documents.filter(d => d.type === 'photo').length}</p>
               </div>
               <FileImage className="h-8 w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Size</p>
-                <p className="text-2xl font-bold">{totalSize.toFixed(1)} MB</p>
+                <p className="text-sm text-[#1a1a1a]/70">Total Size</p>
+                <p className="text-2xl font-bold text-[#1a1a1a]">{totalSize.toFixed(1)} MB</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-green-600"></div>
@@ -194,8 +194,8 @@ const Documents = () => {
       </div>
 
       {/* Main Content Card */}
-      <Card className="bg-white">
-        <CardHeader className="bg-[#f6f4ee] pb-6">
+      <Card className="bg-white border border-gray-200">
+        <CardHeader className="bg-white border-b border-gray-200 pb-6">
           <div className="flex justify-between items-center">
             <CardTitle className="text-[#1a1a1a]">Documents</CardTitle>
             <Button 
@@ -216,12 +216,12 @@ const Documents = () => {
                   placeholder="Search by document name, property, or landlord..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white text-[#1a1a1a]"
+                  className="pl-10 bg-white text-[#1a1a1a] border border-gray-200"
                 />
               </div>
             </div>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
+              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a] border border-gray-200">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -237,10 +237,10 @@ const Documents = () => {
           </div>
 
           {/* Documents Table */}
-          <div className="border rounded-lg bg-white">
+          <div className="border rounded-lg bg-white border-gray-200">
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#f6f4ee]">
+                <TableRow className="bg-white border-b border-gray-200">
                   <TableHead className="text-[#1a1a1a] font-medium">Document</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Type</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
@@ -251,28 +251,28 @@ const Documents = () => {
               </TableHeader>
               <TableBody className="bg-white">
                 {filteredDocuments.map((doc) => (
-                  <TableRow key={doc.id}>
-                    <TableCell>
+                  <TableRow key={doc.id} className="bg-white border-b border-gray-100">
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-3">
                         {getDocumentIcon(doc.type)}
                         <div>
-                          <div className="font-medium">{doc.name}</div>
-                          <div className="text-xs text-gray-500">ID: {doc.id}</div>
+                          <div className="font-medium text-[#1a1a1a]">{doc.name}</div>
+                          <div className="text-xs text-[#1a1a1a]/60">ID: {doc.id}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{getTypeBadge(doc.type)}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">{getTypeBadge(doc.type)}</TableCell>
+                    <TableCell className="bg-white">
                       <div>
-                        <div className="font-medium">{doc.propertyName}</div>
-                        <div className="text-sm text-gray-600">{doc.landlordName}</div>
+                        <div className="font-medium text-[#1a1a1a]">{doc.propertyName}</div>
+                        <div className="text-sm text-[#1a1a1a]/70">{doc.landlordName}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(doc.uploadDate).toLocaleDateString()}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white text-[#1a1a1a]">{new Date(doc.uploadDate).toLocaleDateString()}</TableCell>
+                    <TableCell className="bg-white">
                       <div>
-                        <div className="text-sm">{doc.fileType}</div>
-                        <div className="text-xs text-gray-500">{doc.fileSize}</div>
+                        <div className="text-sm text-[#1a1a1a]">{doc.fileType}</div>
+                        <div className="text-xs text-[#1a1a1a]/60">{doc.fileSize}</div>
                       </div>
                     </TableCell>
                     <TableCell className="bg-white">

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -104,7 +103,7 @@ const MyRentals = () => {
     <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-[#f6f4ee]">
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -118,7 +117,7 @@ const MyRentals = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#f6f4ee]">
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -130,7 +129,7 @@ const MyRentals = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#f6f4ee]">
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -144,7 +143,7 @@ const MyRentals = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#f6f4ee]">
+        <Card className="bg-white border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -160,8 +159,8 @@ const MyRentals = () => {
       </div>
 
       {/* Main Content Card */}
-      <Card className="bg-white">
-        <CardHeader className="bg-[#f6f4ee] pb-6">
+      <Card className="bg-white border border-gray-200">
+        <CardHeader className="bg-white border-b border-gray-200 pb-6">
           <CardTitle className="text-[#1a1a1a]">My Rental Properties</CardTitle>
         </CardHeader>
         <CardContent className="bg-white pt-6">
@@ -173,12 +172,12 @@ const MyRentals = () => {
                   placeholder="Search by property, landlord, or address..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white text-[#1a1a1a]"
+                  className="pl-10 bg-white text-[#1a1a1a] border border-gray-200"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
+              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a] border border-gray-200">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -191,10 +190,10 @@ const MyRentals = () => {
           </div>
 
           {/* Rentals Table */}
-          <div className="border rounded-lg bg-white">
+          <div className="border rounded-lg bg-white border-gray-200">
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#f6f4ee]">
+                <TableRow className="bg-white border-b border-gray-200">
                   <TableHead className="text-[#1a1a1a] font-medium">Property Details</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Landlord</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>
@@ -205,7 +204,7 @@ const MyRentals = () => {
               </TableHeader>
               <TableBody className="bg-white">
                 {filteredRentals.map((rental) => (
-                  <TableRow key={rental.id} className="bg-white">
+                  <TableRow key={rental.id} className="bg-white border-b border-gray-100">
                     <TableCell className="bg-white">
                       <div>
                         <div className="font-medium text-[#1a1a1a]">{rental.propertyName}</div>

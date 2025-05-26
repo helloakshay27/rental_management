@@ -26,12 +26,12 @@ const PaymentFilters: React.FC<PaymentFiltersProps> = ({
             placeholder="Search by property, landlord, or transaction ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-white text-[#1a1a1a]"
+            className="pl-10 bg-white text-[#1a1a1a] border border-gray-200"
           />
         </div>
       </div>
       <Select value={statusFilter} onValueChange={setStatusFilter}>
-        <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
+        <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a] border border-gray-200">
           <SelectValue placeholder="Filter by status" />
         </SelectTrigger>
         <SelectContent className="bg-white">
