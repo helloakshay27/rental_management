@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,7 +25,7 @@ const TenantDashboard = () => {
       </div>
 
       <Tabs defaultValue="rentals" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-4 bg-[#D5DbDB] border border-gray-200 rounded-lg p-1">
           <TabsTrigger 
             value="rentals" 
             className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
