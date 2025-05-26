@@ -7,7 +7,7 @@ interface StatCardProps {
   title: string;
   value: string | number;
   change?: string;
-  changeType?: 'positive' | 'negative' | 'neutral';
+  changeType?: 'positive' | 'negative' | 'neutral' | 'warning';
   icon: LucideIcon;
   color: string;
 }
@@ -17,6 +17,7 @@ const StatCard = ({ title, value, change, changeType, icon: Icon, color }: StatC
     switch (changeType) {
       case 'positive': return 'text-green-600';
       case 'negative': return 'text-red-600';
+      case 'warning': return 'text-yellow-600';
       default: return 'text-gray-600';
     }
   };
