@@ -9,6 +9,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Properties from "./pages/Properties";
 import PropertyDetails from "./pages/PropertyDetails";
+import RentalManagement from "./pages/RentalManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,7 +27,7 @@ const App = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="properties" element={<Properties />} />
                 <Route path="properties/:id" element={<PropertyDetails />} />
-                <Route path="rentals" element={<div className="p-6"><h1 className="text-2xl font-bold">Rental Management</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
+                <Route path="rentals" element={<RentalManagement />} />
                 <Route path="opex" element={<div className="p-6"><h1 className="text-2xl font-bold">OPEX Management</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
                 <Route path="utilities" element={<div className="p-6"><h1 className="text-2xl font-bold">Utility Management</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
                 <Route path="amc" element={<div className="p-6"><h1 className="text-2xl font-bold">AMC Management</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
