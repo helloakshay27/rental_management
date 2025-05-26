@@ -44,18 +44,13 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Design System Colors */
+    /* Updated Design System Colors */
     --red-primary: #C72030;
-    --red-secondary: #101518;
-    --tertiary-1: #DDDEDF;
-    --tertiary-2: #C7A27C;
-    --tertiary-3: #B0C4C3;
-    --success: #4AF3E7;
-    --warning: #F3C94A;
-    --error: #E74C3C;
-    --base-white: #F9F9F9;
+    --navigation-fill: #C4b89D;
+    --card-fill: #f6f4ee;
+    --text-color: #D5DbDB;
+    --base-white: #f6f4ee;
     --base-black: #060504;
-    --exception: #8AB5C5;
   }
 
   .dark {
@@ -95,7 +90,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#f6f4ee] text-[#D5DbDB];
     font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-weight: 400;
     line-height: 1.5;
@@ -105,6 +100,7 @@
     font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-weight: 600;
     line-height: 1.2;
+    color: #D5DbDB;
   }
 
   h1 { font-size: 2rem; }
@@ -116,22 +112,22 @@
 }
 
 @layer components {
-  /* Design System Button Styles */
+  /* Updated Design System Button Styles */
   .btn-primary {
     @apply bg-[#C72030] text-white hover:bg-[#A01825] border-0 rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md;
   }
 
   .btn-secondary {
-    @apply bg-[#101518] text-white hover:bg-[#2A2F35] border-0 rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply bg-[#C4b89D] text-[#D5DbDB] hover:bg-[#B4A88D] border-0 rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md;
   }
 
   .btn-outline {
-    @apply bg-white text-[#C72030] border border-[#C72030] hover:bg-[#C72030] hover:text-white rounded-lg px-6 py-3 font-medium transition-all duration-200;
+    @apply bg-transparent text-[#C72030] border border-[#C72030] hover:bg-[#C72030] hover:text-white rounded-lg px-6 py-3 font-medium transition-all duration-200;
   }
 
-  /* Design System Card Styles */
+  /* Updated Design System Card Styles */
   .card-primary {
-    @apply bg-white border border-[#DDDEDF] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6;
+    @apply bg-[#f6f4ee] border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6;
   }
 
   /* Design System Status Styles */
@@ -140,7 +136,7 @@
   }
 
   .status-rejected {
-    @apply bg-[#E74C3C] text-white px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-[#C72030] text-white px-3 py-1 rounded-full text-sm font-medium;
   }
 
   .status-accepted {
@@ -149,21 +145,21 @@
 
   /* Search Bar Styles */
   .search-input {
-    @apply w-full px-4 py-3 border border-[#DDDEDF] rounded-lg bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#C72030] focus:border-transparent;
+    @apply w-full px-4 py-3 border border-gray-200 rounded-lg bg-[#f6f4ee] placeholder-[#D5DbDB]/60 text-[#D5DbDB] focus:outline-none focus:ring-2 focus:ring-[#C72030] focus:border-transparent;
   }
 
   /* Table Styles */
   .table-header {
-    @apply bg-[#F9F9F9] border-b border-[#DDDEDF] px-4 py-3 text-left text-sm font-medium text-gray-700;
+    @apply bg-[#f6f4ee] border-b border-gray-200 px-4 py-3 text-left text-sm font-medium text-[#D5DbDB];
   }
 
   .table-cell {
-    @apply px-4 py-3 border-b border-[#DDDEDF] text-sm text-gray-900;
+    @apply px-4 py-3 border-b border-gray-200 text-sm text-[#D5DbDB];
   }
 
   /* Sidebar Styles */
   .sidebar-item {
-    @apply flex items-center px-4 py-3 text-gray-700 hover:bg-[#F9F9F9] hover:text-[#C72030] rounded-lg transition-all duration-200 font-medium;
+    @apply flex items-center px-4 py-3 text-[#D5DbDB] hover:bg-[#B4A88D] hover:text-[#D5DbDB] rounded-lg transition-all duration-200 font-medium;
   }
 
   .sidebar-item-active {

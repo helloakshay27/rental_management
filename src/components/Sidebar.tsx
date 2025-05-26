@@ -42,19 +42,19 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   return (
     <div className={cn(
-      "bg-[#1B2B3D] transition-all duration-300 flex flex-col h-screen",
+      "bg-[#C4b89D] transition-all duration-300 flex flex-col h-screen",
       isCollapsed ? "w-16" : "w-64"
     )}>
-      <div className="p-4 border-b border-[#2A3F54]">
+      <div className="p-4 border-b border-[#B4A88D]">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <h2 className="text-heading-3 font-semibold text-white">PropertyFlow</h2>
+            <h2 className="text-heading-3 font-semibold text-[#D5DbDB]">PropertyFlow</h2>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggle}
-            className="text-gray-300 hover:bg-[#2A3F54] hover:text-white"
+            className="text-[#D5DbDB] hover:bg-[#B4A88D] hover:text-[#D5DbDB]"
           >
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </Button>
@@ -74,8 +74,8 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                   className={cn(
                     "flex items-center p-3 rounded-lg transition-all duration-200 font-medium",
                     isActive 
-                      ? "bg-[#E74C3C] text-white shadow-sm" 
-                      : "text-gray-300 hover:bg-[#2A3F54] hover:text-white"
+                      ? "bg-[#C72030] text-white shadow-sm" 
+                      : "text-[#D5DbDB] hover:bg-[#B4A88D] hover:text-[#D5DbDB]"
                   )}
                 >
                   <Icon size={20} />
