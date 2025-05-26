@@ -7,10 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Eye, Edit, FileText, Download } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import AgreementDetailsDialog from './AgreementDetailsDialog';
 
 const RentalAgreements = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedAgreement, setSelectedAgreement] = useState(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   // Mock data for rental agreements
   const agreements = [
@@ -81,11 +86,38 @@ const RentalAgreements = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const handleViewDetails = (agreement) => {
+    setSelectedAgreement(agreement);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleEditAgreement = (agreement) => {
+    toast({
+      title: "Edit Agreement",
+      description: `Opening edit form for agreement ${agreement.id}`,
+    });
+  };
+
+  const handleDownloadAgreement = (agreement) => {
+    toast({
+      title: "Download Started",
+      description: `Downloading agreement ${agreement.id}`,
+    });
+  };
+
+  const handleSummaryCardClick = (filterType) => {
+    setStatusFilter(filterType);
+    toast({
+      title: "Filter Applied",
+      description: `Showing ${filterType === 'all' ? 'all' : filterType} agreements`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSummaryCardClick('all')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -97,7 +129,7 @@ const RentalAgreements = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSummaryCardClick('active')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -111,7 +143,7 @@ const RentalAgreements = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSummaryCardClick('expiring')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -125,7 +157,7 @@ const RentalAgreements = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -187,7 +219,7 @@ const RentalAgreements = () => {
               </TableHeader>
               <TableBody>
                 {filteredAgreements.map((agreement) => (
-                  <TableRow key={agreement.id}>
+                  <TableRow key={agreement.id} className="hover:bg-gray-50">
                     <TableCell className="font-medium">{agreement.id}</TableCell>
                     <TableCell>{agreement.propertyName}</TableCell>
                     <TableCell>{agreement.tenantName}</TableCell>
@@ -201,13 +233,28 @@ const RentalAgreements = () => {
                     <TableCell>{getStatusBadge(agreement.status)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleViewDetails(agreement)}
+                          className="hover:bg-blue-50"
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleEditAgreement(agreement)}
+                          className="hover:bg-green-50"
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleDownloadAgreement(agreement)}
+                          className="hover:bg-gray-50"
+                        >
                           <Download className="h-4 w-4" />
                         </Button>
                       </div>
@@ -219,6 +266,12 @@ const RentalAgreements = () => {
           </div>
         </CardContent>
       </Card>
+
+      <AgreementDetailsDialog 
+        agreement={selectedAgreement}
+        open={isDetailsDialogOpen}
+        onOpenChange={setIsDetailsDialogOpen}
+      />
     </div>
   );
 };

@@ -17,7 +17,7 @@ const RentalManagement = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Rental Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Landlord Dashboard</h1>
           <p className="text-gray-600 mt-2">Manage rental agreements, tenants, and rent collection</p>
         </div>
         <Button onClick={() => setIsAddDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
