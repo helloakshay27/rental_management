@@ -1,0 +1,282 @@
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Search, Download, Upload, FileText, FileImage, File, Eye } from 'lucide-react';
+
+const Documents = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+
+  // Mock data for documents
+  const documents = [
+    {
+      id: 'DOC001',
+      name: 'Rental Agreement - Sunset Apartments',
+      type: 'contract',
+      propertyName: 'Sunset Apartments - Unit 2A',
+      landlordName: 'John Smith Properties',
+      uploadDate: '2024-01-15',
+      fileSize: '2.5 MB',
+      fileType: 'PDF',
+      downloadUrl: '#'
+    },
+    {
+      id: 'DOC002',
+      name: 'Security Deposit Receipt',
+      type: 'receipt',
+      propertyName: 'Sunset Apartments - Unit 2A',
+      landlordName: 'John Smith Properties',
+      uploadDate: '2024-01-15',
+      fileSize: '0.8 MB',
+      fileType: 'PDF',
+      downloadUrl: '#'
+    },
+    {
+      id: 'DOC003',
+      name: 'Property Inspection Report',
+      type: 'inspection',
+      propertyName: 'Green Valley Villa',
+      landlordName: 'Sarah Johnson Realty',
+      uploadDate: '2023-08-01',
+      fileSize: '15.2 MB',
+      fileType: 'PDF',
+      downloadUrl: '#'
+    },
+    {
+      id: 'DOC004',
+      name: 'Utility Bills - January 2024',
+      type: 'bill',
+      propertyName: 'City Center Office Space',
+      landlordName: 'Metro Commercial',
+      uploadDate: '2024-01-31',
+      fileSize: '1.2 MB',
+      fileType: 'PDF',
+      downloadUrl: '#'
+    },
+    {
+      id: 'DOC005',
+      name: 'Property Photos - Move-in',
+      type: 'photo',
+      propertyName: 'Green Valley Villa',
+      landlordName: 'Sarah Johnson Realty',
+      uploadDate: '2023-08-01',
+      fileSize: '25.8 MB',
+      fileType: 'ZIP',
+      downloadUrl: '#'
+    },
+    {
+      id: 'DOC006',
+      name: 'Insurance Policy',
+      type: 'insurance',
+      propertyName: 'Sunset Apartments - Unit 2A',
+      landlordName: 'John Smith Properties',
+      uploadDate: '2024-01-20',
+      fileSize: '3.1 MB',
+      fileType: 'PDF',
+      downloadUrl: '#'
+    }
+  ];
+
+  const getDocumentIcon = (type: string) => {
+    switch (type) {
+      case 'photo':
+        return <FileImage className="h-5 w-5 text-blue-600" />;
+      case 'contract':
+      case 'receipt':
+      case 'bill':
+      case 'insurance':
+      case 'inspection':
+        return <FileText className="h-5 w-5 text-green-600" />;
+      default:
+        return <File className="h-5 w-5 text-gray-600" />;
+    }
+  };
+
+  const getTypeBadge = (type: string) => {
+    const typeMap = {
+      contract: { label: 'Contract', color: 'bg-blue-100 text-blue-800' },
+      receipt: { label: 'Receipt', color: 'bg-green-100 text-green-800' },
+      bill: { label: 'Bill', color: 'bg-yellow-100 text-yellow-800' },
+      photo: { label: 'Photos', color: 'bg-purple-100 text-purple-800' },
+      insurance: { label: 'Insurance', color: 'bg-orange-100 text-orange-800' },
+      inspection: { label: 'Inspection', color: 'bg-teal-100 text-teal-800' }
+    };
+    
+    const config = typeMap[type as keyof typeof typeMap] || { label: 'Other', color: 'bg-gray-100 text-gray-800' };
+    return <Badge className={config.color}>{config.label}</Badge>;
+  };
+
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.landlordName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'all' || doc.type === typeFilter;
+    return matchesSearch && matchesType;
+  });
+
+  const documentTypes = ['contract', 'receipt', 'bill', 'photo', 'insurance', 'inspection'];
+  const totalSize = documents.reduce((sum, doc) => sum + parseFloat(doc.fileSize), 0);
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Documents</p>
+                <p className="text-2xl font-bold">{documents.length}</p>
+              </div>
+              <FileText className="h-8 w-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Contracts</p>
+                <p className="text-2xl font-bold">{documents.filter(d => d.type === 'contract').length}</p>
+              </div>
+              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <div className="h-4 w-4 rounded-full bg-blue-600"></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Photos</p>
+                <p className="text-2xl font-bold">{documents.filter(d => d.type === 'photo').length}</p>
+              </div>
+              <FileImage className="h-8 w-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Size</p>
+                <p className="text-2xl font-bold">{totalSize.toFixed(1)} MB</p>
+              </div>
+              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                <div className="h-4 w-4 rounded-full bg-green-600"></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters and Search */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Documents</CardTitle>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Document
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by document name, property, or landlord..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="contract">Contracts</SelectItem>
+                <SelectItem value="receipt">Receipts</SelectItem>
+                <SelectItem value="bill">Bills</SelectItem>
+                <SelectItem value="photo">Photos</SelectItem>
+                <SelectItem value="insurance">Insurance</SelectItem>
+                <SelectItem value="inspection">Inspection</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Documents Table */}
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Document</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Property</TableHead>
+                  <TableHead>Upload Date</TableHead>
+                  <TableHead>File Info</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDocuments.map((doc) => (
+                  <TableRow key={doc.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {getDocumentIcon(doc.type)}
+                        <div>
+                          <div className="font-medium">{doc.name}</div>
+                          <div className="text-xs text-gray-500">ID: {doc.id}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getTypeBadge(doc.type)}</TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{doc.propertyName}</div>
+                        <div className="text-sm text-gray-600">{doc.landlordName}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{new Date(doc.uploadDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="text-sm">{doc.fileType}</div>
+                        <div className="text-xs text-gray-500">{doc.fileSize}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" title="View Document">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" title="Download">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default Documents;
