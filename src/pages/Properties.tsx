@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { Building2, MapPin, Calendar, Plus, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Building2, MapPin, Calendar, Filter } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import AddPropertyDialog from '@/components/Properties/AddPropertyDialog';
 
 const properties = [
   {
@@ -54,6 +56,8 @@ const properties = [
 ];
 
 const Properties = () => {
+  const navigate = useNavigate();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active': return 'bg-green-100 text-green-800';
@@ -63,6 +67,15 @@ const Properties = () => {
     }
   };
 
+  const handlePropertyClick = (propertyId: number) => {
+    navigate(`/properties/${propertyId}`);
+  };
+
+  const handlePropertyAdded = () => {
+    // In a real app, this would refresh the properties list
+    console.log('Property added - refreshing list');
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -70,10 +83,7 @@ const Properties = () => {
           <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
           <p className="text-gray-600 mt-2">Manage your property portfolio</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Property
-        </Button>
+        <AddPropertyDialog onPropertyAdded={handlePropertyAdded} />
       </div>
 
       {/* Filters and Search */}
@@ -92,7 +102,11 @@ const Properties = () => {
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {properties.map((property) => (
-          <Card key={property.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card 
+            key={property.id} 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => handlePropertyClick(property.id)}
+          >
             <div className="aspect-video w-full overflow-hidden rounded-t-lg">
               <img
                 src={property.image}
@@ -134,10 +148,25 @@ const Properties = () => {
               )}
               
               <div className="mt-4 flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePropertyClick(property.id);
+                  }}
+                >
                   View Details
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Handle edit action
+                  }}
+                >
                   Edit
                 </Button>
               </div>
