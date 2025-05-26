@@ -30,28 +30,28 @@ const RentalManagement = () => {
         <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger 
             value="agreements" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <FileText className="h-4 w-4" />
             Agreements
           </TabsTrigger>
           <TabsTrigger 
             value="tenants" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Users className="h-4 w-4" />
             Tenants
           </TabsTrigger>
           <TabsTrigger 
             value="collection" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <DollarSign className="h-4 w-4" />
             Rent Collection
           </TabsTrigger>
           <TabsTrigger 
             value="renewals" 
-            className="flex items-center gap-2 text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Calendar className="h-4 w-4" />
             Renewals

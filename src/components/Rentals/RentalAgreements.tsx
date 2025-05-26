@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -110,8 +109,8 @@ const RentalAgreements = () => {
     <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200" onClick={() => handleSummaryCardClick('all')}>
-          <CardContent className="p-6 bg-white">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('all')}>
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Total Agreements</p>
@@ -124,8 +123,8 @@ const RentalAgreements = () => {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200" onClick={() => handleSummaryCardClick('active')}>
-          <CardContent className="p-6 bg-white">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('active')}>
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Active Leases</p>
@@ -138,8 +137,8 @@ const RentalAgreements = () => {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200" onClick={() => handleSummaryCardClick('expiring')}>
-          <CardContent className="p-6 bg-white">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('expiring')}>
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Expiring Soon</p>
@@ -152,8 +151,8 @@ const RentalAgreements = () => {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200">
-          <CardContent className="p-6 bg-white">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Monthly Revenue</p>
