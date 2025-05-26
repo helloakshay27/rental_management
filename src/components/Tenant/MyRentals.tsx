@@ -74,6 +74,21 @@ const MyRentals = () => {
     }
   };
 
+  const handleViewDetails = (rentalId: string) => {
+    console.log('Viewing details for rental:', rentalId);
+    // Add navigation or modal logic here
+  };
+
+  const handleViewContract = (rentalId: string) => {
+    console.log('Viewing contract for rental:', rentalId);
+    // Add contract viewing logic here
+  };
+
+  const handlePayRent = (rentalId: string) => {
+    console.log('Initiating payment for rental:', rentalId);
+    // Add payment logic here
+  };
+
   const filteredRentals = myRentals.filter(rental => {
     const matchesSearch = rental.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          rental.landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,12 +159,12 @@ const MyRentals = () => {
         </Card>
       </div>
 
-      {/* Filters and Search */}
+      {/* Main Content Card */}
       <Card className="bg-white">
-        <CardHeader className="bg-[#f6f4ee]">
+        <CardHeader className="bg-[#f6f4ee] pb-6">
           <CardTitle className="text-[#1a1a1a]">My Rental Properties</CardTitle>
         </CardHeader>
-        <CardContent className="bg-white">
+        <CardContent className="bg-white pt-6">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -227,13 +242,31 @@ const MyRentals = () => {
                     <TableCell className="bg-white">{getStatusBadge(rental.status)}</TableCell>
                     <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" title="View Details" className="text-[#C72030] hover:bg-[#C72030]/10">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title="View Details" 
+                          className="text-[#C72030] hover:bg-[#C72030]/10"
+                          onClick={() => handleViewDetails(rental.id)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" title="View Contract" className="text-[#C72030] hover:bg-[#C72030]/10">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title="View Contract" 
+                          className="text-[#C72030] hover:bg-[#C72030]/10"
+                          onClick={() => handleViewContract(rental.id)}
+                        >
                           <FileText className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" title="Pay Rent" className="text-[#C72030] hover:bg-[#C72030]/10">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title="Pay Rent" 
+                          className="text-[#C72030] hover:bg-[#C72030]/10"
+                          onClick={() => handlePayRent(rental.id)}
+                        >
                           <CreditCard className="h-4 w-4" />
                         </Button>
                       </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -122,8 +121,23 @@ const Documents = () => {
   const documentTypes = ['contract', 'receipt', 'bill', 'photo', 'insurance', 'inspection'];
   const totalSize = documents.reduce((sum, doc) => sum + parseFloat(doc.fileSize), 0);
 
+  const handleViewDocument = (docId: string) => {
+    console.log('Viewing document:', docId);
+    // Add view document logic here
+  };
+
+  const handleDownloadDocument = (docId: string) => {
+    console.log('Downloading document:', docId);
+    // Add download logic here
+  };
+
+  const handleUploadDocument = () => {
+    console.log('Opening upload dialog');
+    // Add upload logic here
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
@@ -179,18 +193,21 @@ const Documents = () => {
         </Card>
       </div>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardHeader>
+      {/* Main Content Card */}
+      <Card className="bg-white">
+        <CardHeader className="bg-[#f6f4ee] pb-6">
           <div className="flex justify-between items-center">
-            <CardTitle>Documents</CardTitle>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <CardTitle className="text-[#1a1a1a]">Documents</CardTitle>
+            <Button 
+              className="bg-[#C72030] hover:bg-[#A01825]"
+              onClick={handleUploadDocument}
+            >
               <Upload className="h-4 w-4 mr-2" />
               Upload Document
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white pt-6">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -199,15 +216,15 @@ const Documents = () => {
                   placeholder="Search by document name, property, or landlord..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white text-[#1a1a1a]"
                 />
               </div>
             </div>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="contract">Contracts</SelectItem>
                 <SelectItem value="receipt">Receipts</SelectItem>
@@ -220,19 +237,19 @@ const Documents = () => {
           </div>
 
           {/* Documents Table */}
-          <div className="border rounded-lg">
+          <div className="border rounded-lg bg-white">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Document</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Property</TableHead>
-                  <TableHead>Upload Date</TableHead>
-                  <TableHead>File Info</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-[#f6f4ee]">
+                  <TableHead className="text-[#1a1a1a] font-medium">Document</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Type</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Upload Date</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">File Info</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="bg-white">
                 {filteredDocuments.map((doc) => (
                   <TableRow key={doc.id}>
                     <TableCell>
@@ -258,12 +275,24 @@ const Documents = () => {
                         <div className="text-xs text-gray-500">{doc.fileSize}</div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" title="View Document">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title="View Document"
+                          className="text-[#C72030] hover:bg-[#C72030]/10"
+                          onClick={() => handleViewDocument(doc.id)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" title="Download">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title="Download"
+                          className="text-[#C72030] hover:bg-[#C72030]/10"
+                          onClick={() => handleDownloadDocument(doc.id)}
+                        >
                           <Download className="h-4 w-4" />
                         </Button>
                       </div>

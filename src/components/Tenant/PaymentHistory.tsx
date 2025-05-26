@@ -89,6 +89,16 @@ const PaymentHistory = () => {
     }
   };
 
+  const handleDownloadReceipt = (paymentId: string) => {
+    console.log('Downloading receipt for payment:', paymentId);
+    // Add download logic here
+  };
+
+  const handlePayNow = (paymentId: string) => {
+    console.log('Initiating payment for:', paymentId);
+    // Add payment logic here
+  };
+
   const filteredPayments = payments.filter(payment => {
     const matchesSearch = payment.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          payment.landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -157,12 +167,12 @@ const PaymentHistory = () => {
         </Card>
       </div>
 
-      {/* Filters and Search */}
+      {/* Main Content Card */}
       <Card className="bg-white">
-        <CardHeader className="bg-[#f6f4ee]">
+        <CardHeader className="bg-[#f6f4ee] pb-6">
           <CardTitle className="text-[#1a1a1a]">Payment History</CardTitle>
         </CardHeader>
-        <CardContent className="bg-white">
+        <CardContent className="bg-white pt-6">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -233,11 +243,23 @@ const PaymentHistory = () => {
                     <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
                         {payment.status === 'paid' ? (
-                          <Button variant="ghost" size="sm" title="Download Receipt" className="text-[#C72030] hover:bg-[#C72030]/10">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Download Receipt" 
+                            className="text-[#C72030] hover:bg-[#C72030]/10"
+                            onClick={() => handleDownloadReceipt(payment.id)}
+                          >
                             <Download className="h-4 w-4" />
                           </Button>
                         ) : (
-                          <Button variant="ghost" size="sm" title="Pay Now" className="text-[#C72030] hover:bg-[#C72030]/10">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Pay Now" 
+                            className="text-[#C72030] hover:bg-[#C72030]/10"
+                            onClick={() => handlePayNow(payment.id)}
+                          >
                             <CreditCard className="h-4 w-4" />
                           </Button>
                         )}

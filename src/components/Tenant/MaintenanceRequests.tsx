@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -109,6 +108,21 @@ const MaintenanceRequests = () => {
     }
   };
 
+  const handleViewDetails = (requestId: string) => {
+    console.log('Viewing details for request:', requestId);
+    // Add view details logic here
+  };
+
+  const handleViewMessages = (requestId: string) => {
+    console.log('Viewing messages for request:', requestId);
+    // Add messages logic here
+  };
+
+  const handleCreateRequest = () => {
+    console.log('Creating new maintenance request');
+    // Add create request logic here
+  };
+
   const filteredRequests = maintenanceRequests.filter(request => {
     const matchesSearch = request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          request.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -118,7 +132,7 @@ const MaintenanceRequests = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
@@ -170,18 +184,21 @@ const MaintenanceRequests = () => {
         </Card>
       </div>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardHeader>
+      {/* Main Content Card */}
+      <Card className="bg-white">
+        <CardHeader className="bg-[#f6f4ee] pb-6">
           <div className="flex justify-between items-center">
-            <CardTitle>Maintenance Requests</CardTitle>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <CardTitle className="text-[#1a1a1a]">Maintenance Requests</CardTitle>
+            <Button 
+              className="bg-[#C72030] hover:bg-[#A01825]"
+              onClick={handleCreateRequest}
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Request
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white pt-6">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -190,15 +207,15 @@ const MaintenanceRequests = () => {
                   placeholder="Search by title, property, or issue type..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white text-[#1a1a1a]"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="in-progress">In Progress</SelectItem>
@@ -208,19 +225,19 @@ const MaintenanceRequests = () => {
           </div>
 
           {/* Maintenance Requests Table */}
-          <div className="border rounded-lg">
+          <div className="border rounded-lg bg-white">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Request Details</TableHead>
-                  <TableHead>Property</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Assigned To</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-[#f6f4ee]">
+                  <TableHead className="text-[#1a1a1a] font-medium">Request Details</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Priority</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Assigned To</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="bg-white">
                 {filteredRequests.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell>
@@ -259,24 +276,36 @@ const MaintenanceRequests = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" title="View Details">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title="View Details"
+                          className="text-[#C72030] hover:bg-[#C72030]/10"
+                          onClick={() => handleViewDetails('request.id')}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" title="Messages">
-                          <MessageCircle className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          title="Messages"
+                          className="text-[#C72030] hover:bg-[#C72030]/10"
+                          onClick={() => handleViewMessages('request.id')}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </CardContent>
       </Card>
-    </div>
+    </div >
   );
 };
 

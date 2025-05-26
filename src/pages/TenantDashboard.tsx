@@ -57,19 +57,19 @@ const TenantDashboard = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="rentals" className="bg-white">
+        <TabsContent value="rentals" className="bg-[#D5DbDB] p-6 rounded-lg">
           <MyRentals />
         </TabsContent>
         
-        <TabsContent value="payments" className="bg-white">
+        <TabsContent value="payments" className="bg-[#D5DbDB] p-6 rounded-lg">
           <PaymentHistory />
         </TabsContent>
         
-        <TabsContent value="maintenance" className="bg-white">
+        <TabsContent value="maintenance" className="bg-[#D5DbDB] p-6 rounded-lg">
           <MaintenanceRequests />
         </TabsContent>
         
-        <TabsContent value="documents" className="bg-white">
+        <TabsContent value="documents" className="bg-[#D5DbDB] p-6 rounded-lg">
           <Documents />
         </TabsContent>
       </Tabs>
