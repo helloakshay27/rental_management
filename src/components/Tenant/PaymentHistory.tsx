@@ -1,11 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Download, Receipt, CreditCard, Calendar } from 'lucide-react';
+import PaymentSummaryCards from './PaymentSummaryCards';
+import PaymentFilters from './PaymentFilters';
+import PaymentTable from './PaymentTable';
 
 const PaymentHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -63,32 +61,6 @@ const PaymentHistory = () => {
     }
   ];
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge className="bg-green-100 text-green-800">Paid</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'overdue':
-        return <Badge className="bg-red-100 text-red-800">Overdue</Badge>;
-      default:
-        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
-    }
-  };
-
-  const getPaymentTypeBadge = (type: string) => {
-    switch (type) {
-      case 'rent':
-        return <Badge variant="outline" className="text-blue-600 border-blue-200">Rent</Badge>;
-      case 'maintenance':
-        return <Badge variant="outline" className="text-orange-600 border-orange-200">Maintenance</Badge>;
-      case 'deposit':
-        return <Badge variant="outline" className="text-purple-600 border-purple-200">Deposit</Badge>;
-      default:
-        return <Badge variant="outline">Other</Badge>;
-    }
-  };
-
   const handleDownloadReceipt = (paymentId: string) => {
     console.log('Downloading receipt for payment:', paymentId);
     // Add download logic here
@@ -107,169 +79,27 @@ const PaymentHistory = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const totalPaid = payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
-  const totalPending = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
-
   return (
     <div className="space-y-6 bg-white">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-[#f6f4ee]">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#1a1a1a]/70">Total Payments</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{payments.length}</p>
-              </div>
-              <Receipt className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-[#f6f4ee]">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#1a1a1a]/70">Total Paid</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalPaid.toLocaleString()}</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-green-600"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-[#f6f4ee]">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#1a1a1a]/70">Pending Amount</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">₹{totalPending.toLocaleString()}</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-yellow-600"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-[#f6f4ee]">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#1a1a1a]/70">This Month</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">₹{payments.filter(p => new Date(p.dueDate).getMonth() === new Date().getMonth()).reduce((sum, p) => sum + p.amount, 0).toLocaleString()}</p>
-              </div>
-              <Calendar className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <PaymentSummaryCards payments={payments} />
 
-      {/* Main Content Card */}
       <Card className="bg-white">
         <CardHeader className="bg-[#f6f4ee] pb-6">
           <CardTitle className="text-[#1a1a1a]">Payment History</CardTitle>
         </CardHeader>
         <CardContent className="bg-white pt-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search by property, landlord, or transaction ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white text-[#1a1a1a]"
-                />
-              </div>
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <PaymentFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+          />
 
-          {/* Payments Table */}
-          <div className="border rounded-lg bg-white">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-[#f6f4ee]">
-                  <TableHead className="text-[#1a1a1a] font-medium">Property & Landlord</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Type</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Amount</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Due Date</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Payment Date</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="bg-white">
-                {filteredPayments.map((payment) => (
-                  <TableRow key={payment.id} className="bg-white">
-                    <TableCell className="bg-white">
-                      <div>
-                        <div className="font-medium text-[#1a1a1a]">{payment.propertyName}</div>
-                        <div className="text-sm text-[#1a1a1a]/70">{payment.landlordName}</div>
-                        {payment.transactionId && (
-                          <div className="text-xs text-[#1a1a1a]/60 mt-1">ID: {payment.transactionId}</div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="bg-white">{getPaymentTypeBadge(payment.type)}</TableCell>
-                    <TableCell className="font-medium text-[#1a1a1a] bg-white">₹{payment.amount.toLocaleString()}</TableCell>
-                    <TableCell className="text-[#1a1a1a] bg-white">{new Date(payment.dueDate).toLocaleDateString()}</TableCell>
-                    <TableCell className="bg-white">
-                      {payment.paymentDate ? (
-                        <div>
-                          <div className="text-[#1a1a1a]">{new Date(payment.paymentDate).toLocaleDateString()}</div>
-                          {payment.paymentMethod && (
-                            <div className="text-xs text-[#1a1a1a]/60">{payment.paymentMethod}</div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="bg-white">{getStatusBadge(payment.status)}</TableCell>
-                    <TableCell className="bg-white">
-                      <div className="flex items-center gap-2">
-                        {payment.status === 'paid' ? (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            title="Download Receipt" 
-                            className="text-[#C72030] hover:bg-[#C72030]/10"
-                            onClick={() => handleDownloadReceipt(payment.id)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            title="Pay Now" 
-                            className="text-[#C72030] hover:bg-[#C72030]/10"
-                            onClick={() => handlePayNow(payment.id)}
-                          >
-                            <CreditCard className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <PaymentTable
+            payments={filteredPayments}
+            onDownloadReceipt={handleDownloadReceipt}
+            onPayNow={handlePayNow}
+          />
         </CardContent>
       </Card>
     </div>
