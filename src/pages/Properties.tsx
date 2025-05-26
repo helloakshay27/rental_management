@@ -77,11 +77,11 @@ const Properties = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-white min-h-full">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
-          <p className="text-gray-600 mt-2">Manage your property portfolio</p>
+          <h1 className="text-3xl font-bold text-[#D5DbDB]">Properties</h1>
+          <p className="text-[#D5DbDB]/80 mt-2">Manage your property portfolio</p>
         </div>
         <AddPropertyDialog onPropertyAdded={handlePropertyAdded} />
       </div>
@@ -89,7 +89,7 @@ const Properties = () => {
       {/* Filters and Search */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
-          <Input placeholder="Search properties..." className="w-full" />
+          <Input placeholder="Search properties..." className="w-full bg-white border-gray-200 text-[#D5DbDB] placeholder-gray-400" />
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -116,13 +116,13 @@ const Properties = () => {
             </div>
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-gray-900">{property.name}</h3>
+                <h3 className="text-lg font-semibold text-[#D5DbDB]">{property.name}</h3>
                 <Badge className={getStatusColor(property.status)}>
                   {property.status}
                 </Badge>
               </div>
               
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-[#D5DbDB]/80">
                 <div className="flex items-center">
                   <Building2 size={14} className="mr-2" />
                   {property.type} • {property.area}
@@ -140,8 +140,8 @@ const Properties = () => {
               </div>
               
               {property.status === 'Active' && (
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-lg font-semibold text-gray-900">
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-lg font-semibold text-[#D5DbDB]">
                     ₹{property.monthlyRent.toLocaleString()}/month
                   </p>
                 </div>

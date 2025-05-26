@@ -10,11 +10,11 @@ import QuickActions from '@/components/Dashboard/QuickActions';
 
 const Dashboard = () => {
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="p-8 space-y-8 max-w-7xl mx-auto bg-white min-h-full">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white">
-        <h1 className="text-4xl font-bold">Property Dashboard</h1>
-        <p className="text-blue-100 mt-2 text-lg">Welcome back! Here's your property portfolio overview.</p>
+      <div className="bg-[#f6f4ee] rounded-2xl p-8 border border-gray-200">
+        <h1 className="text-4xl font-bold text-[#D5DbDB]">Property Dashboard</h1>
+        <p className="text-[#D5DbDB]/80 mt-2 text-lg">Welcome back! Here's your property portfolio overview.</p>
       </div>
 
       {/* Stats Grid */}
@@ -25,7 +25,7 @@ const Dashboard = () => {
           change="+2 this month"
           changeType="positive"
           icon={Building2}
-          color="bg-gradient-to-r from-blue-500 to-blue-600"
+          color="bg-[#f6f4ee]"
         />
         <StatCard
           title="Active Agreements"
@@ -33,7 +33,7 @@ const Dashboard = () => {
           change="3 expiring soon"
           changeType="warning"
           icon={FileText}
-          color="bg-gradient-to-r from-emerald-500 to-emerald-600"
+          color="bg-[#f6f4ee]"
         />
         <StatCard
           title="Monthly Income"
@@ -41,7 +41,7 @@ const Dashboard = () => {
           change="+8.2% from last month"
           changeType="positive"
           icon={DollarSign}
-          color="bg-gradient-to-r from-purple-500 to-purple-600"
+          color="bg-[#f6f4ee]"
         />
         <StatCard
           title="Pending Actions"
@@ -49,7 +49,7 @@ const Dashboard = () => {
           change="2 urgent items"
           changeType="negative"
           icon={AlertTriangle}
-          color="bg-gradient-to-r from-red-500 to-red-600"
+          color="bg-[#f6f4ee]"
         />
       </div>
 

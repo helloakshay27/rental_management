@@ -39,23 +39,23 @@ const Header = () => {
   ] : [];
 
   return (
-    <header className="bg-[#C4b89D] px-6 py-4 shadow-lg">
+    <header className="bg-[#f6f4ee] px-6 py-4 shadow-sm border-b border-gray-200">
       <div className="flex items-center justify-between">
         {/* Location Selectors */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <MapPin className="h-4 w-4 text-[#D5DbDB]" />
+            <MapPin className="h-4 w-4 text-[#1a1a1a]" />
             <Select value={selectedRegion} onValueChange={(value) => {
               setSelectedRegion(value);
               setSelectedZone('');
               setSelectedProperty('');
             }}>
-              <SelectTrigger className="w-48 bg-[#B4A88D] border-[#B4A88D] text-[#D5DbDB] focus:ring-[#C72030]">
+              <SelectTrigger className="w-48 bg-white border-gray-200 text-[#1a1a1a] focus:ring-[#C72030]">
                 <SelectValue placeholder="Select Region" />
               </SelectTrigger>
-              <SelectContent className="bg-[#f6f4ee] border-gray-200 shadow-dropdown">
+              <SelectContent className="bg-white border-gray-200 shadow-dropdown">
                 {regions.map((region) => (
-                  <SelectItem key={region.id} value={region.id} className="hover:bg-gray-50 text-[#D5DbDB]">
+                  <SelectItem key={region.id} value={region.id} className="hover:bg-gray-50 text-[#1a1a1a]">
                     {region.name}
                   </SelectItem>
                 ))}
@@ -65,17 +65,17 @@ const Header = () => {
 
           {selectedRegion && (
             <div className="flex items-center space-x-2">
-              <div className="text-[#D5DbDB]">→</div>
+              <div className="text-[#1a1a1a]">→</div>
               <Select value={selectedZone} onValueChange={(value) => {
                 setSelectedZone(value);
                 setSelectedProperty('');
               }}>
-                <SelectTrigger className="w-40 bg-[#B4A88D] border-[#B4A88D] text-[#D5DbDB] focus:ring-[#C72030]">
+                <SelectTrigger className="w-40 bg-white border-gray-200 text-[#1a1a1a] focus:ring-[#C72030]">
                   <SelectValue placeholder="Select Zone" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#f6f4ee] border-gray-200 shadow-dropdown">
+                <SelectContent className="bg-white border-gray-200 shadow-dropdown">
                   {zones.map((zone) => (
-                    <SelectItem key={zone.id} value={zone.id} className="hover:bg-gray-50 text-[#D5DbDB]">
+                    <SelectItem key={zone.id} value={zone.id} className="hover:bg-gray-50 text-[#1a1a1a]">
                       {zone.name}
                     </SelectItem>
                   ))}
@@ -86,15 +86,15 @@ const Header = () => {
 
           {selectedZone && (
             <div className="flex items-center space-x-2">
-              <div className="text-[#D5DbDB]">→</div>
-              <Building className="h-4 w-4 text-[#D5DbDB]" />
+              <div className="text-[#1a1a1a]">→</div>
+              <Building className="h-4 w-4 text-[#1a1a1a]" />
               <Select value={selectedProperty} onValueChange={setSelectedProperty}>
-                <SelectTrigger className="w-48 bg-[#B4A88D] border-[#B4A88D] text-[#D5DbDB] focus:ring-[#C72030]">
+                <SelectTrigger className="w-48 bg-white border-gray-200 text-[#1a1a1a] focus:ring-[#C72030]">
                   <SelectValue placeholder="Select Property" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#f6f4ee] border-gray-200 shadow-dropdown">
+                <SelectContent className="bg-white border-gray-200 shadow-dropdown">
                   {properties.map((property) => (
-                    <SelectItem key={property.id} value={property.id} className="hover:bg-gray-50 text-[#D5DbDB]">
+                    <SelectItem key={property.id} value={property.id} className="hover:bg-gray-50 text-[#1a1a1a]">
                       {property.name}
                     </SelectItem>
                   ))}
@@ -107,14 +107,14 @@ const Header = () => {
         {/* Search and User Actions */}
         <div className="flex items-center space-x-4">
           <div className="relative w-80">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#D5DbDB]" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a1a1a]" size={18} />
             <Input
               placeholder="Search properties, agreements, vendors..."
-              className="pl-10 w-full bg-[#B4A88D] border-[#B4A88D] text-[#D5DbDB] placeholder-[#D5DbDB]/60 focus:ring-[#C72030]"
+              className="pl-10 w-full bg-white border-gray-200 text-[#1a1a1a] placeholder-gray-400 focus:ring-[#C72030]"
             />
           </div>
           
-          <Button variant="ghost" size="sm" className="relative text-[#D5DbDB] hover:bg-[#B4A88D] hover:text-[#D5DbDB]">
+          <Button variant="ghost" size="sm" className="relative text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a]">
             <Bell size={20} />
             <span className="absolute -top-1 -right-1 bg-[#C72030] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               3
@@ -123,22 +123,22 @@ const Header = () => {
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="flex items-center space-x-3 text-[#D5DbDB] hover:bg-[#B4A88D] hover:text-[#D5DbDB] px-3 py-2">
+              <Button variant="ghost" size="sm" className="flex items-center space-x-3 text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a] px-3 py-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-[#C72030] text-white font-medium">JD</AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block text-left">
-                  <p className="text-body font-medium text-[#D5DbDB]">John Doe</p>
-                  <p className="text-body-sm text-[#D5DbDB]/80">Property Manager</p>
+                  <p className="text-body font-medium text-[#1a1a1a]">John Doe</p>
+                  <p className="text-body-sm text-gray-500">Property Manager</p>
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-[#f6f4ee] border-gray-200 shadow-dropdown">
-              <DropdownMenuItem className="flex items-center space-x-2 hover:bg-gray-50 text-[#D5DbDB]">
+            <DropdownMenuContent align="end" className="w-56 bg-white border-gray-200 shadow-dropdown">
+              <DropdownMenuItem className="flex items-center space-x-2 hover:bg-gray-50 text-[#1a1a1a]">
                 <User size={16} />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center space-x-2 hover:bg-gray-50 text-[#D5DbDB]">
+              <DropdownMenuItem className="flex items-center space-x-2 hover:bg-gray-50 text-[#1a1a1a]">
                 <Settings size={16} />
                 <span>Account Preferences</span>
               </DropdownMenuItem>

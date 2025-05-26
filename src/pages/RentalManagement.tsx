@@ -14,7 +14,7 @@ const RentalManagement = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   return (
-    <div className="p-6 space-y-6 bg-[#f6f4ee] min-h-full">
+    <div className="p-6 space-y-6 bg-white min-h-full">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-heading-1 font-semibold text-[#D5DbDB]">Landlord Dashboard</h1>
