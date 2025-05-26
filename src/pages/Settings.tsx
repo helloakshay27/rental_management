@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { User, Shield, Bell, Palette, Database, Globe, Key, Mail } from 'lucide-react';
+import { User, Shield, Bell, Palette, Database, Globe, Key, Mail, Clock, GitBranch, Send, Cron } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +9,68 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 const Settings = () => {
   const [activeSection, setActiveSection] = useState('profile');
+
+  const approvalFlows = [
+    {
+      id: 'AF001',
+      name: 'Expense Approval',
+      description: 'Approval flow for operational expenses',
+      threshold: '₹50,000',
+      levels: 3,
+      status: 'Active'
+    },
+    {
+      id: 'AF002',
+      name: 'Lease Agreement',
+      description: 'Approval flow for new lease agreements',
+      threshold: 'All',
+      levels: 2,
+      status: 'Active'
+    },
+    {
+      id: 'AF003',
+      name: 'Maintenance Requests',
+      description: 'Approval flow for high-value maintenance',
+      threshold: '₹25,000',
+      levels: 2,
+      status: 'Active'
+    }
+  ];
+
+  const emailReports = [
+    {
+      id: 'ER001',
+      name: 'Daily Revenue Summary',
+      description: 'Daily revenue and collection summary',
+      frequency: 'Daily',
+      time: '08:00 AM',
+      recipients: 'admin@propertyflow.com',
+      status: 'Active'
+    },
+    {
+      id: 'ER002',
+      name: 'Weekly Occupancy Report',
+      description: 'Weekly property occupancy analytics',
+      frequency: 'Weekly',
+      time: 'Monday 09:00 AM',
+      recipients: 'reports@propertyflow.com',
+      status: 'Active'
+    },
+    {
+      id: 'ER003',
+      name: 'Monthly Financial Report',
+      description: 'Comprehensive monthly financial analysis',
+      frequency: 'Monthly',
+      time: '1st Day 10:00 AM',
+      recipients: 'finance@propertyflow.com',
+      status: 'Active'
+    }
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -24,13 +82,15 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-white border border-gray-200 grid w-full grid-cols-6">
+        <TabsList className="bg-white border border-gray-200 grid w-full grid-cols-8">
           <TabsTrigger value="profile" className="text-gray-700">Profile</TabsTrigger>
           <TabsTrigger value="security" className="text-gray-700">Security</TabsTrigger>
           <TabsTrigger value="notifications" className="text-gray-700">Notifications</TabsTrigger>
           <TabsTrigger value="appearance" className="text-gray-700">Appearance</TabsTrigger>
           <TabsTrigger value="integrations" className="text-gray-700">Integrations</TabsTrigger>
           <TabsTrigger value="billing" className="text-gray-700">Billing</TabsTrigger>
+          <TabsTrigger value="approval" className="text-gray-700">Approvals</TabsTrigger>
+          <TabsTrigger value="email-reports" className="text-gray-700">Email Reports</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6">
@@ -393,6 +453,203 @@ const Settings = () => {
                   ))}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="approval" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <GitBranch className="h-5 w-5" />
+                <span>Approval Flows & Escalation Matrix</span>
+              </CardTitle>
+              <CardDescription>Configure approval workflows and escalation paths</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium text-gray-900">Active Approval Flows</h4>
+                <Button className="bg-[#C72030] hover:bg-[#A01825]">Add New Flow</Button>
+              </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Flow Name</TableHead>
+                    <TableHead>Threshold</TableHead>
+                    <TableHead>Approval Levels</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {approvalFlows.map((flow) => (
+                    <TableRow key={flow.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{flow.name}</p>
+                          <p className="text-sm text-gray-500">{flow.description}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{flow.threshold}</TableCell>
+                      <TableCell>{flow.levels} levels</TableCell>
+                      <TableCell>
+                        <Badge variant="default">{flow.status}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">Edit</Button>
+                          <Button variant="outline" size="sm">Configure</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="font-medium text-gray-900 mb-4">Escalation Settings</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="escalation-time">Default Escalation Time</Label>
+                    <Select>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select time" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="24">24 Hours</SelectItem>
+                        <SelectItem value="48">48 Hours</SelectItem>
+                        <SelectItem value="72">72 Hours</SelectItem>
+                        <SelectItem value="168">1 Week</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reminder-frequency">Reminder Frequency</Label>
+                    <Select>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select frequency" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="every-2-days">Every 2 Days</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Approval Settings</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="email-reports" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Send className="h-5 w-5" />
+                <span>Email Reports & Cron Settings</span>
+              </CardTitle>
+              <CardDescription>Configure automated email reports and scheduling</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium text-gray-900">Scheduled Email Reports</h4>
+                <Button className="bg-[#C72030] hover:bg-[#A01825]">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Report
+                </Button>
+              </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Report Name</TableHead>
+                    <TableHead>Frequency</TableHead>
+                    <TableHead>Schedule</TableHead>
+                    <TableHead>Recipients</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {emailReports.map((report) => (
+                    <TableRow key={report.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{report.name}</p>
+                          <p className="text-sm text-gray-500">{report.description}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{report.frequency}</TableCell>
+                      <TableCell>{report.time}</TableCell>
+                      <TableCell className="max-w-48 truncate">{report.recipients}</TableCell>
+                      <TableCell>
+                        <Badge variant="default">{report.status}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">Edit</Button>
+                          <Button variant="outline" size="sm">Test</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="font-medium text-gray-900 mb-4">SMTP Configuration</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="smtp-host">SMTP Host</Label>
+                    <Input id="smtp-host" placeholder="smtp.gmail.com" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtp-port">SMTP Port</Label>
+                    <Input id="smtp-port" placeholder="587" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtp-username">Username</Label>
+                    <Input id="smtp-username" placeholder="your-email@domain.com" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtp-password">Password</Label>
+                    <Input id="smtp-password" type="password" placeholder="Your password" className="bg-white" />
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch id="smtp-ssl" />
+                    <Label htmlFor="smtp-ssl">Enable SSL/TLS</Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="font-medium text-gray-900 mb-4">Global Settings</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="enable-reports">Enable Automated Reports</Label>
+                      <p className="text-sm text-gray-500">Master switch for all email reports</p>
+                    </div>
+                    <Switch id="enable-reports" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="retry-failed">Retry Failed Deliveries</Label>
+                      <p className="text-sm text-gray-500">Automatically retry failed email deliveries</p>
+                    </div>
+                    <Switch id="retry-failed" defaultChecked />
+                  </div>
+                </div>
+              </div>
+
+              <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Email Settings</Button>
             </CardContent>
           </Card>
         </TabsContent>

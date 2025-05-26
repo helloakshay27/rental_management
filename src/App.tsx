@@ -18,6 +18,13 @@ import AmcManagement from "./pages/AmcManagement";
 import Notifications from "./pages/Notifications";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Masters from "./pages/Masters";
+import TenantsManagement from "./pages/masters/TenantsManagement";
+import LandlordsManagement from "./pages/masters/LandlordsManagement";
+import PropertiesMaster from "./pages/masters/PropertiesMaster";
+import UsersManagement from "./pages/masters/UsersManagement";
+import RolesManagement from "./pages/masters/RolesManagement";
+import AccessManagement from "./pages/masters/AccessManagement";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +49,13 @@ const App = () => {
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="masters" element={<Masters />} />
+                <Route path="masters/tenants" element={<TenantsManagement />} />
+                <Route path="masters/landlords" element={<LandlordsManagement />} />
+                <Route path="masters/properties" element={<PropertiesMaster />} />
+                <Route path="masters/users" element={<UsersManagement />} />
+                <Route path="masters/roles" element={<RolesManagement />} />
+                <Route path="masters/access" element={<AccessManagement />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -14,7 +14,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  Database
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
     { icon: DollarSign, label: 'OPEX Management', path: '/opex' },
     { icon: Zap, label: 'Utilities', path: '/utilities' },
     { icon: Wrench, label: 'AMC Management', path: '/amc' },
+    { icon: Database, label: 'Masters', path: '/masters' },
     { icon: Bell, label: 'Notifications', path: '/notifications' },
     { icon: BarChart3, label: 'Reports', path: '/reports' },
     { icon: Settings, label: 'Settings', path: '/settings' },

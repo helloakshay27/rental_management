@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { BarChart3, TrendingUp, Download, Calendar, FileText, PieChart, DollarSign } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,12 +11,12 @@ const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
 
   const revenueData = [
-    { month: 'Jan', revenue: 45000, expenses: 18000 },
-    { month: 'Feb', revenue: 48000, expenses: 19500 },
-    { month: 'Mar', revenue: 52000, expenses: 21000 },
-    { month: 'Apr', revenue: 49000, expenses: 20000 },
-    { month: 'May', revenue: 55000, expenses: 22000 },
-    { month: 'Jun', revenue: 58000, expenses: 23500 }
+    { month: 'Jan', revenue: 4500000, expenses: 1800000 },
+    { month: 'Feb', revenue: 4800000, expenses: 1950000 },
+    { month: 'Mar', revenue: 5200000, expenses: 2100000 },
+    { month: 'Apr', revenue: 4900000, expenses: 2000000 },
+    { month: 'May', revenue: 5500000, expenses: 2200000 },
+    { month: 'Jun', revenue: 5800000, expenses: 2350000 }
   ];
 
   const occupancyData = [
@@ -28,11 +29,11 @@ const Reports = () => {
   ];
 
   const expenseBreakdown = [
-    { name: 'Maintenance', value: 35, amount: 8750 },
-    { name: 'Utilities', value: 25, amount: 6250 },
-    { name: 'Security', value: 20, amount: 5000 },
-    { name: 'Cleaning', value: 15, amount: 3750 },
-    { name: 'Others', value: 5, amount: 1250 }
+    { name: 'Maintenance', value: 35, amount: 875000 },
+    { name: 'Utilities', value: 25, amount: 625000 },
+    { name: 'Security', value: 20, amount: 500000 },
+    { name: 'Cleaning', value: 15, amount: 375000 },
+    { name: 'Others', value: 5, amount: 125000 }
   ];
 
   const COLORS = ['#C72030', '#FF6B35', '#F7931E', '#FFD23F', '#6BCF7F'];
@@ -109,7 +110,7 @@ const Reports = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                    <p className="text-2xl font-bold text-gray-900">$318K</p>
+                    <p className="text-2xl font-bold text-gray-900">₹3.18Cr</p>
                     <p className="text-sm text-green-600">+12.5% from last month</p>
                   </div>
                   <DollarSign className="h-8 w-8 text-[#C72030]" />
@@ -135,7 +136,7 @@ const Reports = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                    <p className="text-2xl font-bold text-gray-900">$127K</p>
+                    <p className="text-2xl font-bold text-gray-900">₹1.27Cr</p>
                     <p className="text-sm text-red-600">+5.3% from last month</p>
                   </div>
                   <BarChart3 className="h-8 w-8 text-[#C72030]" />
@@ -148,7 +149,7 @@ const Reports = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Net Income</p>
-                    <p className="text-2xl font-bold text-gray-900">$191K</p>
+                    <p className="text-2xl font-bold text-gray-900">₹1.91Cr</p>
                     <p className="text-sm text-green-600">+18.2% from last month</p>
                   </div>
                   <PieChart className="h-8 w-8 text-[#C72030]" />
@@ -244,7 +245,7 @@ const Reports = () => {
                         <span className="font-medium text-gray-700">{expense.name}</span>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-gray-900">${expense.amount.toLocaleString()}</p>
+                        <p className="font-medium text-gray-900">₹{(expense.amount / 100000).toFixed(1)}L</p>
                         <p className="text-sm text-gray-500">{expense.value}%</p>
                       </div>
                     </div>
