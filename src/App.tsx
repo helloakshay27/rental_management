@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,6 +11,9 @@ import PropertyDetails from "./pages/PropertyDetails";
 import RentalManagement from "./pages/RentalManagement";
 import TenantDashboard from "./pages/TenantDashboard";
 import NotFound from "./pages/NotFound";
+import OpexManagement from "./pages/OpexManagement";
+import UtilityManagement from "./pages/UtilityManagement";
+import AmcManagement from "./pages/AmcManagement";
 
 const queryClient = new QueryClient();
 
@@ -30,9 +32,9 @@ const App = () => {
                 <Route path="properties/:id" element={<PropertyDetails />} />
                 <Route path="rentals" element={<RentalManagement />} />
                 <Route path="tenant-dashboard" element={<TenantDashboard />} />
-                <Route path="opex" element={<div className="p-6"><h1 className="text-2xl font-bold">OPEX Management</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
-                <Route path="utilities" element={<div className="p-6"><h1 className="text-2xl font-bold">Utility Management</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
-                <Route path="amc" element={<div className="p-6"><h1 className="text-2xl font-bold">AMC Management</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
+                <Route path="opex" element={<OpexManagement />} />
+                <Route path="utilities" element={<UtilityManagement />} />
+                <Route path="amc" element={<AmcManagement />} />
                 <Route path="notifications" element={<div className="p-6"><h1 className="text-2xl font-bold">Notifications</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
                 <Route path="reports" element={<div className="p-6"><h1 className="text-2xl font-bold">Reports & Analytics</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
                 <Route path="settings" element={<div className="p-6"><h1 className="text-2xl font-bold">Settings</h1><p className="text-gray-600 mt-2">Coming soon...</p></div>} />
