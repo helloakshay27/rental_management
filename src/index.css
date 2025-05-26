@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,47 +36,45 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Design System Colors */
+    --red-primary: #C72030;
+    --red-secondary: #101518;
+    --tertiary-1: #DDDEDF;
+    --tertiary-2: #C7A27C;
+    --tertiary-3: #B0C4C3;
+    --success: #4AF3E7;
+    --warning: #F3C94A;
+    --error: #E74C3C;
+    --base-white: #F9F9F9;
+    --base-black: #060504;
+    --exception: #8AB5C5;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
@@ -97,5 +96,77 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.125rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.875rem; }
+}
+
+@layer components {
+  /* Design System Button Styles */
+  .btn-primary {
+    @apply bg-[#C72030] text-white hover:bg-[#A01825] border-0 rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+
+  .btn-secondary {
+    @apply bg-[#101518] text-white hover:bg-[#2A2F35] border-0 rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+
+  .btn-outline {
+    @apply bg-white text-[#C72030] border border-[#C72030] hover:bg-[#C72030] hover:text-white rounded-lg px-6 py-3 font-medium transition-all duration-200;
+  }
+
+  /* Design System Card Styles */
+  .card-primary {
+    @apply bg-white border border-[#DDDEDF] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6;
+  }
+
+  /* Design System Status Styles */
+  .status-pending {
+    @apply bg-[#F3C94A] text-[#8B5A00] px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-rejected {
+    @apply bg-[#E74C3C] text-white px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-accepted {
+    @apply bg-[#4AF3E7] text-[#006B5F] px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  /* Search Bar Styles */
+  .search-input {
+    @apply w-full px-4 py-3 border border-[#DDDEDF] rounded-lg bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#C72030] focus:border-transparent;
+  }
+
+  /* Table Styles */
+  .table-header {
+    @apply bg-[#F9F9F9] border-b border-[#DDDEDF] px-4 py-3 text-left text-sm font-medium text-gray-700;
+  }
+
+  .table-cell {
+    @apply px-4 py-3 border-b border-[#DDDEDF] text-sm text-gray-900;
+  }
+
+  /* Sidebar Styles */
+  .sidebar-item {
+    @apply flex items-center px-4 py-3 text-gray-700 hover:bg-[#F9F9F9] hover:text-[#C72030] rounded-lg transition-all duration-200 font-medium;
+  }
+
+  .sidebar-item-active {
+    @apply flex items-center px-4 py-3 bg-[#C72030] text-white rounded-lg font-medium;
   }
 }

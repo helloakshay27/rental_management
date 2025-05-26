@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -68,13 +67,13 @@ const RentalAgreements = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+        return <Badge variant="accepted">Active</Badge>;
       case 'expiring':
-        return <Badge className="bg-yellow-100 text-yellow-800">Expiring Soon</Badge>;
+        return <Badge variant="warning">Expiring Soon</Badge>;
       case 'terminated':
-        return <Badge className="bg-red-100 text-red-800">Terminated</Badge>;
+        return <Badge variant="rejected">Terminated</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
+        return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
@@ -117,55 +116,57 @@ const RentalAgreements = () => {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSummaryCardClick('all')}>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200" onClick={() => handleSummaryCardClick('all')}>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Agreements</p>
-                <p className="text-2xl font-bold">{agreements.length}</p>
+                <p className="text-body text-gray-600">Total Agreements</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{agreements.length}</p>
               </div>
-              <FileText className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSummaryCardClick('active')}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Leases</p>
-                <p className="text-2xl font-bold">{agreements.filter(a => a.status === 'active').length}</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-green-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSummaryCardClick('expiring')}>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200" onClick={() => handleSummaryCardClick('active')}>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Expiring Soon</p>
-                <p className="text-2xl font-bold">{agreements.filter(a => a.status === 'expiring').length}</p>
+                <p className="text-body text-gray-600">Active Leases</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'active').length}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-yellow-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <div className="h-6 w-6 rounded-full bg-success"></div>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200" onClick={() => handleSummaryCardClick('expiring')}>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Monthly Revenue</p>
-                <p className="text-2xl font-bold">₹{agreements.filter(a => a.status === 'active').reduce((sum, a) => sum + a.monthlyRent, 0).toLocaleString()}</p>
+                <p className="text-body text-gray-600">Expiring Soon</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'expiring').length}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-blue-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
+                <div className="h-6 w-6 rounded-full bg-warning"></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="cursor-pointer hover:shadow-card-hover transition-all duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body text-gray-600">Monthly Revenue</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{agreements.filter(a => a.status === 'active').reduce((sum, a) => sum + a.monthlyRent, 0).toLocaleString()}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="h-6 w-6 rounded-full bg-primary"></div>
               </div>
             </div>
           </CardContent>
@@ -194,7 +195,7 @@ const RentalAgreements = () => {
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-tertiary-1 shadow-dropdown">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="expiring">Expiring Soon</SelectItem>
@@ -204,7 +205,7 @@ const RentalAgreements = () => {
           </div>
 
           {/* Agreements Table */}
-          <div className="border rounded-lg">
+          <div className="border border-tertiary-1 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -219,12 +220,12 @@ const RentalAgreements = () => {
               </TableHeader>
               <TableBody>
                 {filteredAgreements.map((agreement) => (
-                  <TableRow key={agreement.id} className="hover:bg-gray-50">
+                  <TableRow key={agreement.id} className="hover:bg-base-white">
                     <TableCell className="font-medium">{agreement.id}</TableCell>
                     <TableCell>{agreement.propertyName}</TableCell>
                     <TableCell>{agreement.tenantName}</TableCell>
                     <TableCell>
-                      <div className="text-sm">
+                      <div className="text-body">
                         <div>{new Date(agreement.startDate).toLocaleDateString()} -</div>
                         <div>{new Date(agreement.endDate).toLocaleDateString()}</div>
                       </div>
@@ -237,7 +238,7 @@ const RentalAgreements = () => {
                           variant="ghost" 
                           size="sm" 
                           onClick={() => handleViewDetails(agreement)}
-                          className="hover:bg-blue-50"
+                          className="hover:bg-primary/10 hover:text-primary"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -245,7 +246,7 @@ const RentalAgreements = () => {
                           variant="ghost" 
                           size="sm" 
                           onClick={() => handleEditAgreement(agreement)}
-                          className="hover:bg-green-50"
+                          className="hover:bg-success/10 hover:text-success-foreground"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>

@@ -42,19 +42,19 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   return (
     <div className={cn(
-      "bg-white border-r border-gray-200 transition-all duration-300 flex flex-col h-screen shadow-sm",
+      "bg-white border-r border-tertiary-1 transition-all duration-300 flex flex-col h-screen shadow-card",
       isCollapsed ? "w-16" : "w-64"
     )}>
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-tertiary-1">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <h2 className="text-xl font-bold text-blue-600">PropertyFlow</h2>
+            <h2 className="text-heading-3 font-semibold text-primary">PropertyFlow</h2>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggle}
-            className="text-gray-600 hover:bg-gray-100"
+            className="text-gray-600 hover:bg-base-white"
           >
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </Button>
@@ -72,10 +72,10 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center p-3 rounded-lg transition-colors font-medium",
+                    "flex items-center p-3 rounded-lg transition-all duration-200 font-medium",
                     isActive 
-                      ? "bg-blue-50 text-blue-700 border border-blue-200" 
-                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                      ? "bg-primary text-white shadow-sm" 
+                      : "text-gray-700 hover:bg-base-white hover:text-primary"
                   )}
                 >
                   <Icon size={20} />

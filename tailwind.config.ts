@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,13 +26,36 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#C72030',
+					foreground: '#FFFFFF',
+					hover: '#A01825'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: '#101518',
+					foreground: '#FFFFFF'
 				},
+				tertiary: {
+					1: '#DDDEDF',
+					2: '#C7A27C',
+					3: '#B0C4C3'
+				},
+				success: {
+					DEFAULT: '#4AF3E7',
+					foreground: '#006B5F'
+				},
+				warning: {
+					DEFAULT: '#F3C94A',
+					foreground: '#8B5A00'
+				},
+				error: {
+					DEFAULT: '#E74C3C',
+					foreground: '#FFFFFF'
+				},
+				base: {
+					white: '#F9F9F9',
+					black: '#060504'
+				},
+				exception: '#8AB5C5',
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
@@ -63,10 +87,28 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
+			fontFamily: {
+				sans: ['Work Sans', 'system-ui', 'sans-serif'],
+				body: ['Work Sans', 'system-ui', 'sans-serif'],
+			},
+			fontSize: {
+				'heading-1': ['2rem', { lineHeight: '1.2', fontWeight: '600' }],
+				'heading-2': ['1.5rem', { lineHeight: '1.2', fontWeight: '600' }],
+				'heading-3': ['1.25rem', { lineHeight: '1.2', fontWeight: '600' }],
+				'heading-4': ['1.125rem', { lineHeight: '1.2', fontWeight: '600' }],
+				'body-lg': ['1rem', { lineHeight: '1.5', fontWeight: '400' }],
+				'body': ['0.875rem', { lineHeight: '1.5', fontWeight: '400' }],
+				'body-sm': ['0.75rem', { lineHeight: '1.5', fontWeight: '400' }],
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+				'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+				'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
 			},
 			keyframes: {
 				'accordion-down': {

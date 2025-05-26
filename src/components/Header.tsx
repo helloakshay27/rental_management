@@ -39,7 +39,7 @@ const Header = () => {
   ] : [];
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+    <header className="bg-white border-b border-tertiary-1 px-6 py-4 shadow-card">
       <div className="flex items-center justify-between">
         {/* Location Selectors */}
         <div className="flex items-center space-x-4">
@@ -50,12 +50,12 @@ const Header = () => {
               setSelectedZone('');
               setSelectedProperty('');
             }}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48 border-tertiary-1 focus:ring-primary">
                 <SelectValue placeholder="Select Region" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-tertiary-1 shadow-dropdown">
                 {regions.map((region) => (
-                  <SelectItem key={region.id} value={region.id}>
+                  <SelectItem key={region.id} value={region.id} className="hover:bg-base-white">
                     {region.name}
                   </SelectItem>
                 ))}
@@ -70,12 +70,12 @@ const Header = () => {
                 setSelectedZone(value);
                 setSelectedProperty('');
               }}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 border-tertiary-1 focus:ring-primary">
                   <SelectValue placeholder="Select Zone" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-tertiary-1 shadow-dropdown">
                   {zones.map((zone) => (
-                    <SelectItem key={zone.id} value={zone.id}>
+                    <SelectItem key={zone.id} value={zone.id} className="hover:bg-base-white">
                       {zone.name}
                     </SelectItem>
                   ))}
@@ -89,12 +89,12 @@ const Header = () => {
               <div className="text-gray-400">→</div>
               <Building className="h-4 w-4 text-gray-500" />
               <Select value={selectedProperty} onValueChange={setSelectedProperty}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-48 border-tertiary-1 focus:ring-primary">
                   <SelectValue placeholder="Select Property" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-tertiary-1 shadow-dropdown">
                   {properties.map((property) => (
-                    <SelectItem key={property.id} value={property.id}>
+                    <SelectItem key={property.id} value={property.id} className="hover:bg-base-white">
                       {property.name}
                     </SelectItem>
                   ))}
@@ -110,40 +110,40 @@ const Header = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
               placeholder="Search properties, agreements, vendors..."
-              className="pl-10 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              className="pl-10 w-full search-input"
             />
           </div>
           
-          <Button variant="ghost" size="sm" className="relative hover:bg-gray-100">
+          <Button variant="ghost" size="sm" className="relative hover:bg-base-white">
             <Bell size={20} className="text-gray-600" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               3
             </span>
           </Button>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="flex items-center space-x-3 hover:bg-gray-100 px-3 py-2">
+              <Button variant="ghost" size="sm" className="flex items-center space-x-3 hover:bg-base-white px-3 py-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-blue-100 text-blue-600 font-medium">JD</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium">JD</AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-gray-900">John Doe</p>
-                  <p className="text-xs text-gray-500">Property Manager</p>
+                  <p className="text-body font-medium text-gray-900">John Doe</p>
+                  <p className="text-body-sm text-gray-500">Property Manager</p>
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="flex items-center space-x-2">
+            <DropdownMenuContent align="end" className="w-56 bg-white border-tertiary-1 shadow-dropdown">
+              <DropdownMenuItem className="flex items-center space-x-2 hover:bg-base-white">
                 <User size={16} />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center space-x-2">
+              <DropdownMenuItem className="flex items-center space-x-2 hover:bg-base-white">
                 <Settings size={16} />
                 <span>Account Preferences</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuSeparator className="bg-tertiary-1" />
+              <DropdownMenuItem className="text-error hover:bg-base-white">
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
