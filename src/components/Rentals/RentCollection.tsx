@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Download, Send, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { Search, Download, Send, CheckCircle, AlertCircle, Clock, DollarSign, TrendingUp } from 'lucide-react';
 
 const RentCollection = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -122,62 +122,62 @@ const RentCollection = () => {
   const lateFees = rentRecords.reduce((sum, record) => sum + record.lateFee, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Rent Due</p>
-                <p className="text-2xl font-bold">₹{totalRent.toLocaleString()}</p>
+                <p className="text-body text-gray-600">Total Rent Due</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{totalRent.toLocaleString()}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-blue-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Collected</p>
-                <p className="text-2xl font-bold">₹{collectedRent.toLocaleString()}</p>
+                <p className="text-body text-gray-600">Collected</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{collectedRent.toLocaleString()}</p>
                 <p className="text-xs text-green-600">{Math.round((collectedRent/totalRent)*100)}% collected</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Overdue Amount</p>
-                <p className="text-2xl font-bold">₹{overdueAmount.toLocaleString()}</p>
+                <p className="text-body text-gray-600">Overdue Amount</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{overdueAmount.toLocaleString()}</p>
                 <p className="text-xs text-red-600">{rentRecords.filter(r => r.status === 'overdue').length} properties</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertCircle className="h-4 w-4 text-red-600" />
+              <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-red-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Late Fees</p>
-                <p className="text-2xl font-bold">₹{lateFees.toLocaleString()}</p>
+                <p className="text-body text-gray-600">Late Fees</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{lateFees.toLocaleString()}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-orange-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </CardContent>
@@ -185,10 +185,10 @@ const RentCollection = () => {
       </div>
 
       {/* Rent Collection Table */}
-      <Card>
-        <CardHeader>
+      <Card className="bg-white border border-gray-200">
+        <CardHeader className="bg-white border-b border-gray-200">
           <div className="flex justify-between items-center">
-            <CardTitle>Rent Collection - May 2024</CardTitle>
+            <CardTitle className="text-[#1a1a1a]">Rent Collection - May 2024</CardTitle>
             <div className="flex gap-2">
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-2" />
@@ -201,7 +201,7 @@ const RentCollection = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -210,15 +210,15 @@ const RentCollection = () => {
                   placeholder="Search by tenant or property..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white border-gray-200"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 bg-white border-gray-200">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-gray-200 shadow-lg">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
@@ -227,10 +227,10 @@ const RentCollection = () => {
               </SelectContent>
             </Select>
             <Select value={monthFilter} onValueChange={setMonthFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 bg-white border-gray-200">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-gray-200 shadow-lg">
                 <SelectItem value="current">May 2024</SelectItem>
                 <SelectItem value="previous">April 2024</SelectItem>
                 <SelectItem value="march">March 2024</SelectItem>
@@ -238,27 +238,27 @@ const RentCollection = () => {
             </Select>
           </div>
 
-          <div className="border rounded-lg">
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Tenant</TableHead>
-                  <TableHead>Property</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Amount Due</TableHead>
-                  <TableHead>Paid Amount</TableHead>
-                  <TableHead>Payment Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-gray-50 border-b border-gray-200">
+                  <TableHead className="text-[#1a1a1a] font-medium">Tenant</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Due Date</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Amount Due</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Paid Amount</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Payment Date</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="bg-white">
                 {filteredRecords.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell className="font-medium">{record.tenantName}</TableCell>
-                    <TableCell>{record.propertyName}</TableCell>
-                    <TableCell>{new Date(record.dueDate).toLocaleDateString()}</TableCell>
-                    <TableCell>
+                  <TableRow key={record.id} className="hover:bg-gray-50 bg-white border-b border-gray-100">
+                    <TableCell className="font-medium bg-white">{record.tenantName}</TableCell>
+                    <TableCell className="bg-white">{record.propertyName}</TableCell>
+                    <TableCell className="bg-white">{new Date(record.dueDate).toLocaleDateString()}</TableCell>
+                    <TableCell className="bg-white">
                       <div>
                         <div className="font-medium">₹{record.amount.toLocaleString()}</div>
                         {record.lateFee > 0 && (
@@ -266,14 +266,14 @@ const RentCollection = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium bg-white">
                       {record.paidAmount > 0 ? `₹${record.paidAmount.toLocaleString()}` : '-'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">
                       {record.paidDate ? new Date(record.paidDate).toLocaleDateString() : '-'}
                     </TableCell>
-                    <TableCell>{getStatusBadge(record.status)}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">{getStatusBadge(record.status)}</TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
                         {record.status !== 'paid' && (
                           <Button variant="ghost" size="sm" className="text-blue-600">

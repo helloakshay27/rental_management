@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, Search, FileText, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Calendar, Search, FileText, Clock, AlertTriangle, CheckCircle, Users, TrendingDown } from 'lucide-react';
 
 const LeaseRenewals = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -121,61 +121,61 @@ const LeaseRenewals = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Expiring Soon</p>
-                <p className="text-2xl font-bold">{renewals.filter(r => r.daysUntilExpiry <= 30 && r.daysUntilExpiry >= 0).length}</p>
+                <p className="text-body text-gray-600">Expiring Soon</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{renewals.filter(r => r.daysUntilExpiry <= 30 && r.daysUntilExpiry >= 0).length}</p>
                 <p className="text-xs text-orange-600">Within 30 days</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-                <Clock className="h-4 w-4 text-orange-600" />
+              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending Response</p>
-                <p className="text-2xl font-bold">{renewals.filter(r => r.renewalStatus === 'pending_tenant').length}</p>
+                <p className="text-body text-gray-600">Pending Response</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{renewals.filter(r => r.renewalStatus === 'pending_tenant').length}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              <div className="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-yellow-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Under Negotiation</p>
-                <p className="text-2xl font-bold">{renewals.filter(r => r.renewalStatus === 'under_negotiation').length}</p>
+                <p className="text-body text-gray-600">Under Negotiation</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{renewals.filter(r => r.renewalStatus === 'under_negotiation').length}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <FileText className="h-4 w-4 text-blue-600" />
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Renewed</p>
-                <p className="text-2xl font-bold">{renewals.filter(r => r.renewalStatus === 'renewed').length}</p>
+                <p className="text-body text-gray-600">Renewed</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{renewals.filter(r => r.renewalStatus === 'renewed').length}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>
@@ -183,11 +183,11 @@ const LeaseRenewals = () => {
       </div>
 
       {/* Lease Renewals Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Lease Renewals & Expirations</CardTitle>
+      <Card className="bg-white border border-gray-200">
+        <CardHeader className="bg-white border-b border-gray-200">
+          <CardTitle className="text-[#1a1a1a]">Lease Renewals & Expirations</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -196,40 +196,40 @@ const LeaseRenewals = () => {
                   placeholder="Search by tenant or property..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white border-gray-200"
                 />
               </div>
             </div>
           </div>
 
-          <div className="border rounded-lg">
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Tenant</TableHead>
-                  <TableHead>Property</TableHead>
-                  <TableHead>Current Lease End</TableHead>
-                  <TableHead>Days Until Expiry</TableHead>
-                  <TableHead>Current Rent</TableHead>
-                  <TableHead>Proposed Rent</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-gray-50 border-b border-gray-200">
+                  <TableHead className="text-[#1a1a1a] font-medium">Tenant</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Current Lease End</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Days Until Expiry</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Current Rent</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Proposed Rent</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="bg-white">
                 {filteredRenewals.map((renewal) => (
-                  <TableRow key={renewal.id}>
-                    <TableCell className="font-medium">{renewal.tenantName}</TableCell>
-                    <TableCell>{renewal.propertyName}</TableCell>
-                    <TableCell>
+                  <TableRow key={renewal.id} className="hover:bg-gray-50 bg-white border-b border-gray-100">
+                    <TableCell className="font-medium bg-white">{renewal.tenantName}</TableCell>
+                    <TableCell className="bg-white">{renewal.propertyName}</TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-gray-400" />
                         {new Date(renewal.currentLeaseEnd).toLocaleDateString()}
                       </div>
                     </TableCell>
-                    <TableCell>{getDaysUntilExpiryBadge(renewal.daysUntilExpiry)}</TableCell>
-                    <TableCell className="font-medium">₹{renewal.currentRent.toLocaleString()}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">{getDaysUntilExpiryBadge(renewal.daysUntilExpiry)}</TableCell>
+                    <TableCell className="font-medium bg-white">₹{renewal.currentRent.toLocaleString()}</TableCell>
+                    <TableCell className="bg-white">
                       <div>
                         <div className="font-medium">₹{renewal.proposedRent.toLocaleString()}</div>
                         <div className="text-xs text-green-600">
@@ -237,8 +237,8 @@ const LeaseRenewals = () => {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(renewal.renewalStatus)}</TableCell>
-                    <TableCell>
+                    <TableCell className="bg-white">{getStatusBadge(renewal.renewalStatus)}</TableCell>
+                    <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
                         {renewal.renewalStatus === 'draft' && (
                           <Button variant="ghost" size="sm" className="text-blue-600">
