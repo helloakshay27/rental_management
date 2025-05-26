@@ -10,42 +10,36 @@ const QuickActions = () => {
       title: 'Add Property',
       description: 'Register a new property',
       icon: Plus,
-      color: 'bg-blue-500 hover:bg-blue-600',
-      href: '/properties'
+      href: '/masters/properties'
     },
     {
       title: 'Upload Bills',
       description: 'Upload utility bills',
       icon: Upload,
-      color: 'bg-emerald-500 hover:bg-emerald-600',
       href: '/utilities'
     },
     {
       title: 'New Agreement',
       description: 'Create rental agreement',
       icon: FileText,
-      color: 'bg-purple-500 hover:bg-purple-600',
       href: '/rentals'
     },
     {
       title: 'Set Reminder',
       description: 'Configure notifications',
       icon: Bell,
-      color: 'bg-amber-500 hover:bg-amber-600',
       href: '/notifications'
     },
     {
       title: 'View Reports',
       description: 'Generate analytics',
       icon: BarChart3,
-      color: 'bg-indigo-500 hover:bg-indigo-600',
       href: '/reports'
     },
     {
       title: 'Settings',
       description: 'System configuration',
       icon: Settings,
-      color: 'bg-gray-500 hover:bg-gray-600',
       href: '/settings'
     }
   ];
@@ -53,7 +47,7 @@ const QuickActions = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-900">Quick Actions</CardTitle>
+        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -63,11 +57,11 @@ const QuickActions = () => {
               <Button
                 key={action.title}
                 variant="outline"
-                className={`h-24 flex flex-col items-center justify-center space-y-2 border-2 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200`}
+                className={`h-24 flex flex-col items-center justify-center space-y-2 border-2 hover:border-[#C72030] hover:bg-[#C72030]/10 transition-all duration-200`}
               >
-                <Icon size={24} className="text-blue-600" />
+                <Icon size={24} className="text-[#C72030]" />
                 <div className="text-center">
-                  <p className="text-sm font-medium text-gray-900">{action.title}</p>
+                  <p className="text-sm font-medium text-[#1a1a1a]">{action.title}</p>
                   <p className="text-xs text-gray-500">{action.description}</p>
                 </div>
               </Button>

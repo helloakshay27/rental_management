@@ -69,7 +69,7 @@ const RecentActivity = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-900">Recent Activity</CardTitle>
+        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -81,7 +81,7 @@ const RecentActivity = () => {
                   <Icon size={18} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                  <p className="text-sm font-medium text-[#1a1a1a]">{activity.message}</p>
                   <div className="flex items-center space-x-2 mt-2">
                     <Clock size={12} className="text-gray-400" />
                     <p className="text-xs text-gray-500">{activity.time}</p>

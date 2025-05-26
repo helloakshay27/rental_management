@@ -28,7 +28,7 @@ const StatCard = ({ title, value, change, changeType, icon: Icon, color }: StatC
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">{title}</p>
-            <p className="text-3xl font-bold text-gray-900 mt-3">{value}</p>
+            <p className="text-3xl font-bold text-[#1a1a1a] mt-3">{value}</p>
             {change && (
               <p className={`text-sm mt-2 font-medium ${getChangeColor()}`}>
                 {change}

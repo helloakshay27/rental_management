@@ -16,7 +16,7 @@ const IncomeExpenseChart = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-900">Income vs Expense Trends</CardTitle>
+        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Income vs Expense Trends</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
@@ -34,7 +34,7 @@ const IncomeExpenseChart = () => {
               }}
             />
             <Legend />
-            <Bar dataKey="income" fill="#3b82f6" name="Income" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="income" fill="#C72030" name="Income" radius={[4, 4, 0, 0]} />
             <Bar dataKey="expense" fill="#ef4444" name="Expense" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>

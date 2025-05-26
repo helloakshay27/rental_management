@@ -10,11 +10,13 @@ import QuickActions from '@/components/Dashboard/QuickActions';
 
 const Dashboard = () => {
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto bg-white min-h-full">
+    <div className="p-6 space-y-6 bg-white min-h-full">
       {/* Header Section */}
-      <div className="bg-[#f6f4ee] rounded-2xl p-8 border border-gray-200">
-        <h1 className="text-4xl font-bold text-[#D5DbDB]">Property Dashboard</h1>
-        <p className="text-[#D5DbDB]/80 mt-2 text-lg">Welcome back! Here's your property portfolio overview.</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-[#1a1a1a]">Property Dashboard</h1>
+          <p className="text-[#1a1a1a]/70 mt-2">Welcome back! Here's your property portfolio overview.</p>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -25,7 +27,7 @@ const Dashboard = () => {
           change="+2 this month"
           changeType="positive"
           icon={Building2}
-          color="bg-[#f6f4ee]"
+          color="bg-[#C72030]"
         />
         <StatCard
           title="Active Agreements"
@@ -33,7 +35,7 @@ const Dashboard = () => {
           change="3 expiring soon"
           changeType="warning"
           icon={FileText}
-          color="bg-[#f6f4ee]"
+          color="bg-[#C72030]"
         />
         <StatCard
           title="Monthly Income"
@@ -41,7 +43,7 @@ const Dashboard = () => {
           change="+8.2% from last month"
           changeType="positive"
           icon={DollarSign}
-          color="bg-[#f6f4ee]"
+          color="bg-[#C72030]"
         />
         <StatCard
           title="Pending Actions"
@@ -49,7 +51,7 @@ const Dashboard = () => {
           change="2 urgent items"
           changeType="negative"
           icon={AlertTriangle}
-          color="bg-[#f6f4ee]"
+          color="bg-[#C72030]"
         />
       </div>
 

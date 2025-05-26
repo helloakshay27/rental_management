@@ -30,7 +30,6 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/' },
-    { icon: Building2, label: 'Properties', path: '/properties' },
     { icon: UserCheck, label: 'Landlord Dashboard', path: '/rentals' },
     { icon: User, label: 'Tenant Dashboard', path: '/tenant-dashboard' },
     { icon: DollarSign, label: 'OPEX Management', path: '/opex' },
