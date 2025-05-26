@@ -17,26 +17,26 @@ const StatCard = ({ title, value, change, changeType, icon: Icon, color }: StatC
     switch (changeType) {
       case 'positive': return 'text-green-600';
       case 'negative': return 'text-red-600';
-      case 'warning': return 'text-yellow-600';
+      case 'warning': return 'text-amber-600';
       default: return 'text-gray-600';
     }
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="bg-white border border-gray-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600">{title}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-2">{value}</p>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">{title}</p>
+            <p className="text-3xl font-bold text-gray-900 mt-3">{value}</p>
             {change && (
-              <p className={`text-sm mt-1 ${getChangeColor()}`}>
+              <p className={`text-sm mt-2 font-medium ${getChangeColor()}`}>
                 {change}
               </p>
             )}
           </div>
-          <div className={`p-3 rounded-full ${color}`}>
-            <Icon className="h-6 w-6 text-white" />
+          <div className={`p-4 rounded-xl ${color} shadow-lg`}>
+            <Icon className="h-7 w-7 text-white" />
           </div>
         </div>
       </CardContent>

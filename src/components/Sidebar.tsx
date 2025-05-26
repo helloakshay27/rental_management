@@ -39,19 +39,19 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   return (
     <div className={cn(
-      "bg-slate-900 text-white transition-all duration-300 flex flex-col h-screen",
+      "bg-white border-r border-gray-200 transition-all duration-300 flex flex-col h-screen shadow-sm",
       isCollapsed ? "w-16" : "w-64"
     )}>
-      <div className="p-4 border-b border-slate-700">
+      <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <h2 className="text-xl font-bold text-blue-400">PropertyFlow</h2>
+            <h2 className="text-xl font-bold text-blue-600">PropertyFlow</h2>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggle}
-            className="text-white hover:bg-slate-700"
+            className="text-gray-600 hover:bg-gray-100"
           >
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </Button>
@@ -69,15 +69,15 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center p-3 rounded-lg transition-colors",
+                    "flex items-center p-3 rounded-lg transition-colors font-medium",
                     isActive 
-                      ? "bg-blue-600 text-white" 
-                      : "text-slate-300 hover:bg-slate-700 hover:text-white"
+                      ? "bg-blue-50 text-blue-700 border border-blue-200" 
+                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                   )}
                 >
                   <Icon size={20} />
                   {!isCollapsed && (
-                    <span className="ml-3 font-medium">{item.label}</span>
+                    <span className="ml-3">{item.label}</span>
                   )}
                 </Link>
               </li>

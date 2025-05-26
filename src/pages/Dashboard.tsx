@@ -5,13 +5,16 @@ import StatCard from '@/components/Dashboard/StatCard';
 import IncomeExpenseChart from '@/components/Dashboard/IncomeExpenseChart';
 import RecentActivity from '@/components/Dashboard/RecentActivity';
 import UpcomingRenewals from '@/components/Dashboard/UpcomingRenewals';
+import PropertyStatusOverview from '@/components/Dashboard/PropertyStatusOverview';
+import QuickActions from '@/components/Dashboard/QuickActions';
 
 const Dashboard = () => {
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome back! Here's your property portfolio overview.</p>
+    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white">
+        <h1 className="text-4xl font-bold">Property Dashboard</h1>
+        <p className="text-blue-100 mt-2 text-lg">Welcome back! Here's your property portfolio overview.</p>
       </div>
 
       {/* Stats Grid */}
@@ -22,7 +25,7 @@ const Dashboard = () => {
           change="+2 this month"
           changeType="positive"
           icon={Building2}
-          color="bg-blue-500"
+          color="bg-gradient-to-r from-blue-500 to-blue-600"
         />
         <StatCard
           title="Active Agreements"
@@ -30,7 +33,7 @@ const Dashboard = () => {
           change="3 expiring soon"
           changeType="warning"
           icon={FileText}
-          color="bg-green-500"
+          color="bg-gradient-to-r from-emerald-500 to-emerald-600"
         />
         <StatCard
           title="Monthly Income"
@@ -38,7 +41,7 @@ const Dashboard = () => {
           change="+8.2% from last month"
           changeType="positive"
           icon={DollarSign}
-          color="bg-purple-500"
+          color="bg-gradient-to-r from-purple-500 to-purple-600"
         />
         <StatCard
           title="Pending Actions"
@@ -46,18 +49,24 @@ const Dashboard = () => {
           change="2 urgent items"
           changeType="negative"
           icon={AlertTriangle}
-          color="bg-red-500"
+          color="bg-gradient-to-r from-red-500 to-red-600"
         />
       </div>
 
-      {/* Charts and Data */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Property Status Overview */}
+      <PropertyStatusOverview />
+
+      {/* Charts and Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <IncomeExpenseChart />
         <UpcomingRenewals />
       </div>
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-8">
         <RecentActivity />
       </div>
     </div>
