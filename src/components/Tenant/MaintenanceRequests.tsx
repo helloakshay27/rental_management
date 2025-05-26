@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Eye, MessageCircle, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Search, Plus, Eye, MessageCircle, Clock, CheckCircle, AlertCircle, Wrench } from 'lucide-react';
 
 const MaintenanceRequests = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -135,50 +136,58 @@ const MaintenanceRequests = () => {
     <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Total Requests</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.length}</p>
+                <p className="text-body text-gray-600">Total Requests</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{maintenanceRequests.length}</p>
               </div>
-              <AlertCircle className="h-8 w-8 text-blue-600" />
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <Wrench className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Pending</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.filter(r => r.status === 'pending').length}</p>
+                <p className="text-body text-gray-600">Pending</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{maintenanceRequests.filter(r => r.status === 'pending').length}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-600" />
+              <div className="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-yellow-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">In Progress</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.filter(r => r.status === 'in-progress').length}</p>
+                <p className="text-body text-gray-600">In Progress</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{maintenanceRequests.filter(r => r.status === 'in-progress').length}</p>
               </div>
-              <AlertCircle className="h-8 w-8 text-blue-600" />
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Completed</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{maintenanceRequests.filter(r => r.status === 'completed').length}</p>
+                <p className="text-body text-gray-600">Completed</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{maintenanceRequests.filter(r => r.status === 'completed').length}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -228,7 +237,7 @@ const MaintenanceRequests = () => {
           <div className="border rounded-lg bg-white border-gray-200">
             <Table>
               <TableHeader>
-                <TableRow className="bg-white border-b border-gray-200">
+                <TableRow className="bg-gray-50 border-b border-gray-200">
                   <TableHead className="text-[#1a1a1a] font-medium">Request Details</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Priority</TableHead>
@@ -283,7 +292,7 @@ const MaintenanceRequests = () => {
                           size="sm" 
                           title="View Details"
                           className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handleViewDetails('request.id')}
+                          onClick={() => handleViewDetails(request.id)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -292,7 +301,7 @@ const MaintenanceRequests = () => {
                           size="sm" 
                           title="Messages"
                           className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handleViewMessages('request.id')}
+                          onClick={() => handleViewMessages(request.id)}
                         >
                           <MessageCircle className="h-4 w-4" />
                         </Button>

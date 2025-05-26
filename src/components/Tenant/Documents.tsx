@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Download, Upload, FileText, FileImage, File, Eye } from 'lucide-react';
+import { Search, Download, Upload, FileText, FileImage, File, Eye, Folder } from 'lucide-react';
 
 const Documents = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -140,53 +141,57 @@ const Documents = () => {
     <div className="space-y-6 bg-white">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Total Documents</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{documents.length}</p>
+                <p className="text-body text-gray-600">Total Documents</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{documents.length}</p>
               </div>
-              <FileText className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#1a1a1a]/70">Contracts</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{documents.filter(d => d.type === 'contract').length}</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-blue-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Photos</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{documents.filter(d => d.type === 'photo').length}</p>
+                <p className="text-body text-gray-600">Contracts</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{documents.filter(d => d.type === 'contract').length}</p>
               </div>
-              <FileImage className="h-8 w-8 text-purple-600" />
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <Folder className="h-6 w-6 text-green-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#1a1a1a]/70">Total Size</p>
-                <p className="text-2xl font-bold text-[#1a1a1a]">{totalSize.toFixed(1)} MB</p>
+                <p className="text-body text-gray-600">Photos</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{documents.filter(d => d.type === 'photo').length}</p>
               </div>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-green-600"></div>
+              <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                <FileImage className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body text-gray-600">Total Size</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{totalSize.toFixed(1)} MB</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                <File className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </CardContent>
@@ -240,7 +245,7 @@ const Documents = () => {
           <div className="border rounded-lg bg-white border-gray-200">
             <Table>
               <TableHeader>
-                <TableRow className="bg-white border-b border-gray-200">
+                <TableRow className="bg-gray-50 border-b border-gray-200">
                   <TableHead className="text-[#1a1a1a] font-medium">Document</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Type</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>

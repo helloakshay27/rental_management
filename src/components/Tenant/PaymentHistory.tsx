@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import PaymentSummaryCards from './PaymentSummaryCards';
+import { CreditCard, DollarSign, Clock, CheckCircle } from 'lucide-react';
 import PaymentFilters from './PaymentFilters';
 import PaymentTable from './PaymentTable';
 
@@ -78,9 +79,69 @@ const PaymentHistory = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const totalPaid = payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
+  const totalPending = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
+
   return (
     <div className="space-y-6 bg-white">
-      <PaymentSummaryCards payments={payments} />
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body text-gray-600">Total Payments</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{payments.length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <CreditCard className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body text-gray-600">Total Paid</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{totalPaid.toLocaleString()}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body text-gray-600">Pending Amount</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{totalPending.toLocaleString()}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
+          <CardContent className="p-6 bg-[#f6f4ee]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body text-gray-600">This Month</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{payments.filter(p => p.paymentDate && new Date(p.paymentDate).getMonth() === new Date().getMonth()).reduce((sum, p) => sum + p.amount, 0).toLocaleString()}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card className="bg-white border border-gray-200">
         <CardHeader className="bg-white border-b border-gray-200 pb-6">
