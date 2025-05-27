@@ -11,6 +11,7 @@ import Properties from "./pages/Properties";
 import PropertyDetails from "./pages/PropertyDetails";
 import RentalManagement from "./pages/RentalManagement";
 import TenantDashboard from "./pages/TenantDashboard";
+import Invoicing from "./pages/Invoicing";
 import NotFound from "./pages/NotFound";
 import OpexManagement from "./pages/OpexManagement";
 import UtilityManagement from "./pages/UtilityManagement";
@@ -43,6 +44,7 @@ const App = () => {
                 <Route path="properties/:id" element={<PropertyDetails />} />
                 <Route path="rentals" element={<RentalManagement />} />
                 <Route path="tenant-dashboard" element={<TenantDashboard />} />
+                <Route path="invoicing" element={<Invoicing />} />
                 <Route path="opex" element={<OpexManagement />} />
                 <Route path="utilities" element={<UtilityManagement />} />
                 <Route path="amc" element={<AmcManagement />} />
