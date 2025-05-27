@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Calendar, ArrowLeft, Edit, Trash2, FileText, Users, DollarSign, FileCheck, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AddPropertyComplianceDialog from '@/components/Properties/AddPropertyComplianceDialog';
 
 // Mock data - in real app this would come from API
 const properties = [
@@ -128,9 +129,10 @@ const propertyCompliances = {
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [showAddComplianceDialog, setShowAddComplianceDialog] = useState(false);
+  const [compliances, setCompliances] = useState(propertyCompliances[parseInt(id || '0')] || []);
   
   const property = properties.find(p => p.id === parseInt(id || '0'));
-  const compliances = propertyCompliances[parseInt(id || '0')] || [];
   
   if (!property) {
     return (
@@ -145,6 +147,11 @@ const PropertyDetails = () => {
       </div>
     );
   }
+
+  const handleAddCompliance = (complianceData: any) => {
+    console.log('Adding compliance:', complianceData);
+    setCompliances(prev => [...prev, complianceData]);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -366,7 +373,11 @@ const PropertyDetails = () => {
                   <FileCheck className="mr-2 h-5 w-5" />
                   Property Compliances
                 </div>
-                <Button size="sm" className="bg-[#C72030] hover:bg-[#A01825]">
+                <Button 
+                  size="sm" 
+                  className="bg-[#C72030] hover:bg-[#A01825]"
+                  onClick={() => setShowAddComplianceDialog(true)}
+                >
                   Add Compliance
                 </Button>
               </CardTitle>
@@ -436,7 +447,10 @@ const PropertyDetails = () => {
                 <div className="text-center py-8">
                   <FileCheck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">No compliances assigned to this property</p>
-                  <Button className="mt-4 bg-[#C72030] hover:bg-[#A01825]">
+                  <Button 
+                    className="mt-4 bg-[#C72030] hover:bg-[#A01825]"
+                    onClick={() => setShowAddComplianceDialog(true)}
+                  >
                     Add First Compliance
                   </Button>
                 </div>
@@ -456,6 +470,14 @@ const PropertyDetails = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Add Compliance Dialog */}
+      <AddPropertyComplianceDialog
+        isOpen={showAddComplianceDialog}
+        onClose={() => setShowAddComplianceDialog(false)}
+        onSave={handleAddCompliance}
+        propertyId={id || ''}
+      />
     </div>
   );
 };
