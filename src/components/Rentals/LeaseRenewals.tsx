@@ -239,23 +239,23 @@ const LeaseRenewals = () => {
                     </TableCell>
                     <TableCell className="bg-white">{getStatusBadge(renewal.renewalStatus)}</TableCell>
                     <TableCell className="bg-white">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         {renewal.renewalStatus === 'draft' && (
-                          <Button variant="ghost" size="sm" className="text-blue-600">
+                          <Button variant="ghost" size="sm" className="text-blue-600 p-1">
                             Send Offer
                           </Button>
                         )}
                         {renewal.renewalStatus === 'pending_tenant' && (
-                          <Button variant="ghost" size="sm" className="text-orange-600">
+                          <Button variant="ghost" size="sm" className="text-orange-600 p-1">
                             Follow Up
                           </Button>
                         )}
                         {renewal.renewalStatus === 'under_negotiation' && (
-                          <Button variant="ghost" size="sm" className="text-blue-600">
+                          <Button variant="ghost" size="sm" className="text-blue-600 p-1">
                             Negotiate
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="p-1">
                           <FileText className="h-4 w-4" />
                         </Button>
                       </div>

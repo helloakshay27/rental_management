@@ -98,7 +98,7 @@ const TenantTable = ({
               <TableCell className="font-medium bg-white">₹{tenant.rent.toLocaleString()}</TableCell>
               <TableCell className="bg-white">{getStatusBadge(tenant.status)}</TableCell>
               <TableCell className="bg-white">
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1">
                   <Button 
                     variant="ghost" 
                     size="sm"

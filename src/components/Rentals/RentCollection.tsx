@@ -189,12 +189,12 @@ const RentCollection = () => {
         <CardHeader className="bg-white border-b border-gray-200">
           <div className="flex justify-between items-center">
             <CardTitle className="text-[#1a1a1a]">Rent Collection - May 2024</CardTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+            <div className="flex gap-1">
+              <Button variant="outline" size="sm" className="p-1">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="p-1">
                 <Send className="h-4 w-4 mr-2" />
                 Send Reminders
               </Button>
@@ -274,14 +274,14 @@ const RentCollection = () => {
                     </TableCell>
                     <TableCell className="bg-white">{getStatusBadge(record.status)}</TableCell>
                     <TableCell className="bg-white">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         {record.status !== 'paid' && (
-                          <Button variant="ghost" size="sm" className="text-blue-600">
+                          <Button variant="ghost" size="sm" className="text-blue-600 p-1">
                             Record Payment
                           </Button>
                         )}
                         {record.status === 'overdue' && (
-                          <Button variant="ghost" size="sm" className="text-orange-600">
+                          <Button variant="ghost" size="sm" className="text-orange-600 p-1">
                             <Send className="h-4 w-4" />
                           </Button>
                         )}
