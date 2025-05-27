@@ -64,15 +64,15 @@ const Masters = () => {
         {masterModules.map((module) => {
           const Icon = module.icon;
           return (
-            <Card key={module.path} className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader className="pb-4">
+            <Card key={module.path} className="bg-[#FFFFFF] hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 flex flex-col">
+              <CardHeader className="pb-4 flex-1">
                 <div className={`w-12 h-12 rounded-lg ${module.color} flex items-center justify-center mb-3`}>
                   <Icon className="h-6 w-6" />
                 </div>
-                <CardTitle className="text-lg text-[#FFFFFF]">{module.title}</CardTitle>
-                <CardDescription className="text-[#FFFFFF]">{module.description}</CardDescription>
+                <CardTitle className="text-lg text-[#1a1a1a]">{module.title}</CardTitle>
+                <CardDescription className="text-[#1a1a1a]">{module.description}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <Link to={module.path}>
                   <Button className="w-full bg-[#C72030] hover:bg-[#A01825]">
                     Manage {module.title.split(' ')[0]}
