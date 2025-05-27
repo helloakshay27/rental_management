@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Bell, AlertCircle, CheckCircle, Clock, Trash2, Settings as SettingsIcon, Filter } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -126,7 +125,7 @@ const Notifications = () => {
 
         <TabsContent value="all" className="space-y-4">
           {filteredNotifications.map((notification) => (
-            <Card key={notification.id} className={`transition-all duration-200 hover:shadow-md ${!notification.read ? 'border-l-4 border-l-[#C72030]' : ''}`}>
+            <Card key={notification.id} className={`transition-all duration-200 hover:shadow-md ${!notification.read ? 'border-l-4 border-l-[#C72030] bg-[#f6f4ee]' : 'bg-[#FFFFFF]'}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3 flex-1">
@@ -159,7 +158,7 @@ const Notifications = () => {
 
         <TabsContent value="unread" className="space-y-4">
           {filteredNotifications.filter(n => !n.read).map((notification) => (
-            <Card key={notification.id} className="border-l-4 border-l-[#C72030] transition-all duration-200 hover:shadow-md">
+            <Card key={notification.id} className="border-l-4 border-l-[#C72030] bg-[#f6f4ee] transition-all duration-200 hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3 flex-1">
