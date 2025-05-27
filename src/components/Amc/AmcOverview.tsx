@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wrench, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
@@ -23,7 +24,7 @@ const AmcOverview = () => {
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index} className="bg-white border border-gray-200">
+            <Card key={index} className="bg-[#f6f4ee] border border-gray-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-600">{stat.title}</CardTitle>
                 <Icon className="h-4 w-4 text-[#C72030]" />
