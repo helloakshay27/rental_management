@@ -65,7 +65,7 @@ const PropertyStatusOverview = () => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {properties.map((property) => (
-            <div key={property.id} className="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow">
+            <div key={property.id} className="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
               <div className="flex items-start justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 text-lg">{property.name}</h3>
                 <Badge className={getStatusColor(property.status)}>
@@ -73,7 +73,7 @@ const PropertyStatusOverview = () => {
                 </Badge>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-3 flex-1">
                 <div className="flex items-center text-sm text-gray-600">
                   <MapPin size={14} className="mr-2 text-blue-500" />
                   {property.location}
@@ -95,7 +95,7 @@ const PropertyStatusOverview = () => {
               </div>
               
               {property.status === 'Active' && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-auto pt-4 border-t border-gray-200">
                   <p className="text-lg font-bold text-gray-900">
                     ₹{property.monthlyRent.toLocaleString()}/month
                   </p>

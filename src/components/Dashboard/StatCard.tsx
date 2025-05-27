@@ -10,9 +10,10 @@ interface StatCardProps {
   changeType?: 'positive' | 'negative' | 'neutral' | 'warning';
   icon: LucideIcon;
   color: string;
+  backgroundColor?: string;
 }
 
-const StatCard = ({ title, value, change, changeType, icon: Icon, color }: StatCardProps) => {
+const StatCard = ({ title, value, change, changeType, icon: Icon, color, backgroundColor = 'bg-white' }: StatCardProps) => {
   const getChangeColor = () => {
     switch (changeType) {
       case 'positive': return 'text-green-600';
@@ -23,7 +24,7 @@ const StatCard = ({ title, value, change, changeType, icon: Icon, color }: StatC
   };
 
   return (
-    <Card className="bg-white border border-gray-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+    <Card className={`${backgroundColor} border border-gray-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1`}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">

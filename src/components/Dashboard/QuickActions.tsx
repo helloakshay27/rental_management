@@ -3,8 +3,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Upload, FileText, Bell, BarChart3, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const QuickActions = () => {
+  const navigate = useNavigate();
+
   const actions = [
     {
       title: 'Add Property',
@@ -44,6 +47,10 @@ const QuickActions = () => {
     }
   ];
 
+  const handleActionClick = (href: string) => {
+    navigate(href);
+  };
+
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
@@ -58,6 +65,7 @@ const QuickActions = () => {
                 key={action.title}
                 variant="outline"
                 className={`h-24 flex flex-col items-center justify-center space-y-2 border-2 hover:border-[#C72030] hover:bg-[#C72030]/10 transition-all duration-200`}
+                onClick={() => handleActionClick(action.href)}
               >
                 <Icon size={24} className="text-[#C72030]" />
                 <div className="text-center">

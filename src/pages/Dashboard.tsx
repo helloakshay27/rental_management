@@ -28,6 +28,7 @@ const Dashboard = () => {
           changeType="positive"
           icon={Building2}
           color="bg-[#C72030]"
+          backgroundColor="bg-[#f6f4ee]"
         />
         <StatCard
           title="Active Agreements"
@@ -36,6 +37,7 @@ const Dashboard = () => {
           changeType="warning"
           icon={FileText}
           color="bg-[#C72030]"
+          backgroundColor="bg-[#f6f4ee]"
         />
         <StatCard
           title="Monthly Income"
@@ -44,6 +46,7 @@ const Dashboard = () => {
           changeType="positive"
           icon={DollarSign}
           color="bg-[#C72030]"
+          backgroundColor="bg-[#f6f4ee]"
         />
         <StatCard
           title="Pending Actions"
@@ -52,6 +55,7 @@ const Dashboard = () => {
           changeType="negative"
           icon={AlertTriangle}
           color="bg-[#C72030]"
+          backgroundColor="bg-[#f6f4ee]"
         />
       </div>
 
