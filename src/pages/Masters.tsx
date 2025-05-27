@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Building2, User, Shield, Key } from 'lucide-react';
+import { Users, UserCheck, Building2, User, Shield, Key, Palette } from 'lucide-react';
 
 const Masters = () => {
   const masterModules = [
@@ -27,6 +26,13 @@ const Masters = () => {
       icon: Building2,
       path: '/masters/properties',
       color: 'bg-purple-50 text-purple-600'
+    },
+    {
+      title: 'Branding Management',
+      description: 'Manage invoice branding and company profiles',
+      icon: Palette,
+      path: '/masters/branding',
+      color: 'bg-pink-50 text-pink-600'
     },
     {
       title: 'Users Management',

@@ -23,6 +23,7 @@ import Masters from "./pages/Masters";
 import TenantsManagement from "./pages/masters/TenantsManagement";
 import LandlordsManagement from "./pages/masters/LandlordsManagement";
 import PropertiesMaster from "./pages/masters/PropertiesMaster";
+import BrandingManagement from "./pages/masters/BrandingManagement";
 import UsersManagement from "./pages/masters/UsersManagement";
 import RolesManagement from "./pages/masters/RolesManagement";
 import AccessManagement from "./pages/masters/AccessManagement";
@@ -55,6 +56,7 @@ const App = () => {
                 <Route path="masters/tenants" element={<TenantsManagement />} />
                 <Route path="masters/landlords" element={<LandlordsManagement />} />
                 <Route path="masters/properties" element={<PropertiesMaster />} />
+                <Route path="masters/branding" element={<BrandingManagement />} />
                 <Route path="masters/users" element={<UsersManagement />} />
                 <Route path="masters/roles" element={<RolesManagement />} />
                 <Route path="masters/access" element={<AccessManagement />} />

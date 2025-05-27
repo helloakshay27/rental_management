@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -33,10 +32,10 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
     { icon: Home, label: 'Dashboard', path: '/' },
     { icon: UserCheck, label: 'Landlord Dashboard', path: '/rentals' },
     { icon: User, label: 'Tenant Dashboard', path: '/tenant-dashboard' },
-    { icon: Receipt, label: 'Invoicing', path: '/invoicing' },
     { icon: DollarSign, label: 'OPEX Management', path: '/opex' },
     { icon: Zap, label: 'Utilities', path: '/utilities' },
     { icon: Wrench, label: 'AMC Management', path: '/amc' },
+    { icon: Receipt, label: 'Invoicing', path: '/invoicing' },
     { icon: Database, label: 'Masters', path: '/masters' },
     { icon: Bell, label: 'Notifications', path: '/notifications' },
     { icon: BarChart3, label: 'Reports', path: '/reports' },
