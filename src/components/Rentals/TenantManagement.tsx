@@ -79,6 +79,29 @@ const TenantManagement = () => {
     }
   };
 
+  // Action handlers
+  const handleViewTenant = (tenantId: string) => {
+    console.log('Viewing tenant details for:', tenantId);
+    // Add view tenant logic here - could open a modal or navigate to detail page
+  };
+
+  const handleEditTenant = (tenantId: string) => {
+    console.log('Editing tenant:', tenantId);
+    // Add edit tenant logic here - could open edit form or navigate to edit page
+  };
+
+  const handleCallTenant = (tenantId: string, phone: string) => {
+    console.log('Calling tenant:', tenantId, 'at', phone);
+    // Add call functionality - could open phone dialer or show call interface
+    window.open(`tel:${phone}`);
+  };
+
+  const handleEmailTenant = (tenantId: string, email: string) => {
+    console.log('Emailing tenant:', tenantId, 'at', email);
+    // Add email functionality - could open email client or show email composer
+    window.open(`mailto:${email}`);
+  };
+
   const filteredTenants = tenants.filter(tenant => 
     tenant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tenant.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -223,25 +246,41 @@ const TenantManagement = () => {
                     <TableCell className="font-medium bg-white">₹{tenant.rent.toLocaleString()}</TableCell>
                     <TableCell className="bg-white">{getStatusBadge(tenant.status)}</TableCell>
                     <TableCell className="bg-white">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          className="hover:bg-[#E74C3C]/10 hover:text-[#E74C3C]"
+                          className="hover:bg-[#E74C3C]/10 hover:text-[#E74C3C] p-1"
+                          onClick={() => handleViewTenant(tenant.id)}
+                          title="View Details"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          className="hover:bg-green-50 hover:text-green-600"
+                          className="hover:bg-green-50 hover:text-green-600 p-1"
+                          onClick={() => handleEditTenant(tenant.id)}
+                          title="Edit Tenant"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="hover:bg-blue-50 hover:text-blue-600 p-1"
+                          onClick={() => handleCallTenant(tenant.id, tenant.phone)}
+                          title="Call Tenant"
+                        >
                           <Phone className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="hover:bg-purple-50 hover:text-purple-600 p-1"
+                          onClick={() => handleEmailTenant(tenant.id, tenant.email)}
+                          title="Email Tenant"
+                        >
                           <Mail className="h-4 w-4" />
                         </Button>
                       </div>
