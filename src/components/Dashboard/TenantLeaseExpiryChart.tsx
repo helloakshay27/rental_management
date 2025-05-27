@@ -50,8 +50,8 @@ const TenantLeaseExpiryChart = () => {
               />
               <Legend 
                 formatter={(value, entry) => {
-                  const payload = entry.payload;
-                  return `${payload.category}: ${payload.count} properties`;
+                  const data = leaseData.find(item => item.count === entry.payload?.value);
+                  return data ? `${data.category}: ${data.count} properties` : value;
                 }}
               />
             </PieChart>

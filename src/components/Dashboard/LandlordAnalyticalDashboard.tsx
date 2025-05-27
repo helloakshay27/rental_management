@@ -1,15 +1,19 @@
 
 import React from 'react';
-import { Building2, DollarSign, Users, AlertTriangle, TrendingUp, MapPin, Calendar, FileText } from 'lucide-react';
+import { Building2, DollarSign, Users, AlertTriangle, TrendingUp, MapPin, Calendar, FileText, Shield, Wrench } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
 import RecentActivity from './RecentActivity';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LandlordVacancyChart from './LandlordVacancyChart';
 import LandlordRevenueChart from './LandlordRevenueChart';
 import LandlordRegionalAnalytics from './LandlordRegionalAnalytics';
 import LandlordPortfolioSummary from './LandlordPortfolioSummary';
 import LandlordMaintenanceChart from './LandlordMaintenanceChart';
 import LandlordRentRollChart from './LandlordRentRollChart';
+import FitoutAnalytics from './FitoutAnalytics';
+import SecurityDepositAnalytics from './SecurityDepositAnalytics';
+import KYCManagement from './KYCManagement';
 
 const LandlordAnalyticalDashboard = () => {
   return (
@@ -100,20 +104,60 @@ const LandlordAnalyticalDashboard = () => {
       {/* Portfolio Summary */}
       <LandlordPortfolioSummary />
 
-      {/* Analytics Charts - Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <LandlordRevenueChart />
-        <LandlordVacancyChart />
-      </div>
+      {/* Tabbed Analytics Section */}
+      <Tabs defaultValue="analytics" className="w-full">
+        <TabsList className="grid w-full grid-cols-5 bg-white border border-gray-200 rounded-lg p-1">
+          <TabsTrigger value="analytics" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="fitout" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <Wrench className="h-4 w-4 mr-2" />
+            Fitout & Lockin
+          </TabsTrigger>
+          <TabsTrigger value="deposits" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <Shield className="h-4 w-4 mr-2" />
+            Security Deposits
+          </TabsTrigger>
+          <TabsTrigger value="kyc" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <FileText className="h-4 w-4 mr-2" />
+            KYC Management
+          </TabsTrigger>
+          <TabsTrigger value="regional" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <MapPin className="h-4 w-4 mr-2" />
+            Regional
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Analytics Charts - Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <LandlordMaintenanceChart />
-        <LandlordRentRollChart />
-      </div>
+        <TabsContent value="analytics" className="space-y-8">
+          {/* Analytics Charts - Row 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <LandlordRevenueChart />
+            <LandlordVacancyChart />
+          </div>
 
-      {/* Regional Analytics */}
-      <LandlordRegionalAnalytics />
+          {/* Analytics Charts - Row 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <LandlordMaintenanceChart />
+            <LandlordRentRollChart />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="fitout" className="space-y-6">
+          <FitoutAnalytics />
+        </TabsContent>
+
+        <TabsContent value="deposits" className="space-y-6">
+          <SecurityDepositAnalytics />
+        </TabsContent>
+
+        <TabsContent value="kyc" className="space-y-6">
+          <KYCManagement />
+        </TabsContent>
+
+        <TabsContent value="regional" className="space-y-6">
+          <LandlordRegionalAnalytics />
+        </TabsContent>
+      </Tabs>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 gap-8">

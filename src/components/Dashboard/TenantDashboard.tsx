@@ -1,15 +1,18 @@
-
 import React from 'react';
-import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building } from 'lucide-react';
+import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building, Shield, Wrench } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
 import RecentActivity from './RecentActivity';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TenantIncomeExpenseChart from './TenantIncomeExpenseChart';
 import TenantLeaseExpiryChart from './TenantLeaseExpiryChart';
 import TenantRegionalAnalytics from './TenantRegionalAnalytics';
+import FitoutAnalytics from './FitoutAnalytics';
+import SecurityDepositAnalytics from './SecurityDepositAnalytics';
+import KYCManagement from './KYCManagement';
 
 const TenantDashboard = () => {
   // Mock data for large-scale tenant operations
@@ -145,175 +148,215 @@ const TenantDashboard = () => {
       {/* Quick Actions for Tenant Operations */}
       <QuickActions />
 
-      {/* Regional Analytics and Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <TenantIncomeExpenseChart />
-        <TenantLeaseExpiryChart />
-      </div>
+      {/* Tabbed Analytics Section */}
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-5 bg-white border border-gray-200 rounded-lg p-1">
+          <TabsTrigger value="overview" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="fitout" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <Wrench className="h-4 w-4 mr-2" />
+            Fitout & Lockin
+          </TabsTrigger>
+          <TabsTrigger value="deposits" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <Shield className="h-4 w-4 mr-2" />
+            Security Deposits
+          </TabsTrigger>
+          <TabsTrigger value="kyc" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <FileText className="h-4 w-4 mr-2" />
+            KYC Management
+          </TabsTrigger>
+          <TabsTrigger value="regional" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <MapPin className="h-4 w-4 mr-2" />
+            Regional
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Regional Analytics Overview */}
-      <TenantRegionalAnalytics />
+        <TabsContent value="overview" className="space-y-6">
+          {/* Regional Analytics and Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <TenantIncomeExpenseChart />
+            <TenantLeaseExpiryChart />
+          </div>
 
-      {/* Critical Alerts and Upcoming Payments */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Critical Alerts */}
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="bg-white border-b border-gray-200">
-            <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              Critical Alerts & Compliance
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-white p-6">
-            <div className="space-y-4">
-              {criticalAlerts.map((alert) => (
-                <div key={alert.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border-l-4 border-red-400">
-                  <div>
-                    <p className="font-medium text-gray-900">{alert.property}</p>
-                    <p className="text-sm text-gray-600">{alert.message}</p>
-                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                      <MapPin className="h-3 w-3" />
-                      {alert.region}
-                    </p>
+          {/* Critical Alerts and Upcoming Payments */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Critical Alerts */}
+            <Card className="bg-white border border-gray-200">
+              <CardHeader className="bg-white border-b border-gray-200">
+                <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  Critical Alerts & Compliance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="bg-white p-6">
+                <div className="space-y-4">
+                  {criticalAlerts.map((alert) => (
+                    <div key={alert.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border-l-4 border-red-400">
+                      <div>
+                        <p className="font-medium text-gray-900">{alert.property}</p>
+                        <p className="text-sm text-gray-600">{alert.message}</p>
+                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                          <MapPin className="h-3 w-3" />
+                          {alert.region}
+                        </p>
+                      </div>
+                      <div>
+                        {getUrgencyBadge(alert.urgency)}
+                      </div>
+                    </div>
+                  ))}
+                  <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
+                    View All Alerts
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Rent Payments */}
+            <Card className="bg-white border border-gray-200">
+              <CardHeader className="bg-white border-b border-gray-200">
+                <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Upcoming Rent Payments
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="bg-white p-6">
+                <div className="space-y-4">
+                  {upcomingPayments.map((payment) => (
+                    <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">{payment.property}</p>
+                        <p className="text-sm text-gray-600">Landlord: {payment.landlord}</p>
+                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                          <MapPin className="h-3 w-3" />
+                          {payment.region} • Due: {new Date(payment.dueDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">₹{(payment.amount / 100000).toFixed(1)}L</p>
+                        {getStatusBadge(payment.status)}
+                      </div>
+                    </div>
+                  ))}
+                  <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
+                    Bulk Payment Processing
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Portfolio Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-white border border-gray-200">
+              <CardHeader className="bg-white border-b border-gray-200">
+                <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Regional Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="bg-white p-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Mumbai</span>
+                    <span className="font-medium">142 properties</span>
                   </div>
-                  <div>
-                    {getUrgencyBadge(alert.urgency)}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Delhi NCR</span>
+                    <span className="font-medium">126 properties</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Bangalore</span>
+                    <span className="font-medium">98 properties</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Others</span>
+                    <span className="font-medium">157 properties</span>
                   </div>
                 </div>
-              ))}
-              <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
-                View All Alerts
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Upcoming Rent Payments */}
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="bg-white border-b border-gray-200">
-            <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Upcoming Rent Payments
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-white p-6">
-            <div className="space-y-4">
-              {upcomingPayments.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{payment.property}</p>
-                    <p className="text-sm text-gray-600">Landlord: {payment.landlord}</p>
-                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                      <MapPin className="h-3 w-3" />
-                      {payment.region} • Due: {new Date(payment.dueDate).toLocaleDateString()}
-                    </p>
+            <Card className="bg-white border border-gray-200">
+              <CardHeader className="bg-white border-b border-gray-200">
+                <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Landlord Partners
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="bg-white p-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total Partners</span>
+                    <span className="font-medium">89</span>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-lg">₹{(payment.amount / 100000).toFixed(1)}L</p>
-                    {getStatusBadge(payment.status)}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Corporate Partners</span>
+                    <span className="font-medium">34</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Individual Owners</span>
+                    <span className="font-medium">55</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">New This Quarter</span>
+                    <span className="font-medium text-green-600">+7</span>
                   </div>
                 </div>
-              ))}
-              <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
-                Bulk Payment Processing
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border border-gray-200">
+              <CardHeader className="bg-white border-b border-gray-200">
+                <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Lease Schedule
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="bg-white p-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Expiring in 30 days</span>
+                    <span className="font-medium text-red-600">8</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Expiring in 90 days</span>
+                    <span className="font-medium text-orange-600">25</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Renewals Pending</span>
+                    <span className="font-medium">12</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Auto-Renewals</span>
+                    <span className="font-medium text-green-600">156</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="fitout" className="space-y-6">
+          <FitoutAnalytics />
+        </TabsContent>
+
+        <TabsContent value="deposits" className="space-y-6">
+          <SecurityDepositAnalytics />
+        </TabsContent>
+
+        <TabsContent value="kyc" className="space-y-6">
+          <KYCManagement />
+        </TabsContent>
+
+        <TabsContent value="regional" className="space-y-6">
+          <TenantRegionalAnalytics />
+        </TabsContent>
+      </Tabs>
 
       {/* Recent Activity for Tenant Operations */}
       <RecentActivity />
-
-      {/* Portfolio Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="bg-white border-b border-gray-200">
-            <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Regional Distribution
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-white p-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Mumbai</span>
-                <span className="font-medium">142 properties</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Delhi NCR</span>
-                <span className="font-medium">126 properties</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Bangalore</span>
-                <span className="font-medium">98 properties</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Others</span>
-                <span className="font-medium">157 properties</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="bg-white border-b border-gray-200">
-            <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Landlord Partners
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-white p-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Partners</span>
-                <span className="font-medium">89</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Corporate Partners</span>
-                <span className="font-medium">34</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Individual Owners</span>
-                <span className="font-medium">55</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">New This Quarter</span>
-                <span className="font-medium text-green-600">+7</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="bg-white border-b border-gray-200">
-            <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Lease Schedule
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-white p-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Expiring in 30 days</span>
-                <span className="font-medium text-red-600">8</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Expiring in 90 days</span>
-                <span className="font-medium text-orange-600">25</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Renewals Pending</span>
-                <span className="font-medium">12</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Auto-Renewals</span>
-                <span className="font-medium text-green-600">156</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
