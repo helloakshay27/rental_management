@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wrench, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
@@ -53,7 +52,7 @@ const AmcOverview = () => {
                 { category: 'Security Systems', contracts: 3, value: '$15,200' },
                 { category: 'Pest Control', contracts: 3, value: '$14,200' }
               ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 bg-white">
                   <div>
                     <div className="text-sm font-medium text-gray-900">{item.category}</div>
                     <div className="text-xs text-gray-500">{item.contracts} contracts</div>
@@ -73,7 +72,7 @@ const AmcOverview = () => {
           <CardContent>
             <div className="space-y-4">
               {recentServices.map((service, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 bg-white">
                   <div>
                     <div className="text-sm font-medium text-gray-900">{service.service}</div>
                     <div className="text-xs text-gray-500">{service.property} • {service.vendor}</div>
