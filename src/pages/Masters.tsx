@@ -70,7 +70,7 @@ const Masters = () => {
                   <Icon className="h-6 w-6" />
                 </div>
                 <CardTitle className="text-lg text-[#1a1a1a]">{module.title}</CardTitle>
-                <CardDescription className="text-[#1a1a1a]">{module.description}</CardDescription>
+                <CardDescription className="text-[#D5DbDB]">{module.description}</CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <Link to={module.path}>
