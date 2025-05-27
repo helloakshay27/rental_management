@@ -9,9 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PropertiesMaster = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingProperty, setEditingProperty] = useState(null);
+  const navigate = useNavigate();
 
   const properties = [
     {
@@ -63,6 +66,21 @@ const PropertiesMaster = () => {
     property.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.landlord.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleViewProperty = (property) => {
+    // Navigate to property details page - using a mock ID for now
+    const mockId = property.id === 'P001' ? '1' : property.id === 'P002' ? '2' : '3';
+    navigate(`/properties/${mockId}`);
+  };
+
+  const handleEditProperty = (property) => {
+    setEditingProperty(property);
+  };
+
+  const handleDeleteProperty = (property) => {
+    // Add delete functionality here
+    console.log('Delete property:', property.id);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -211,13 +229,13 @@ const PropertiesMaster = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleViewProperty(property)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditProperty(property)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
+                      <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteProperty(property)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -228,6 +246,62 @@ const PropertiesMaster = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit Property Dialog */}
+      <Dialog open={!!editingProperty} onOpenChange={() => setEditingProperty(null)}>
+        <DialogContent className="max-w-3xl bg-white">
+          <DialogHeader>
+            <DialogTitle>Edit Property</DialogTitle>
+            <DialogDescription>Update property information</DialogDescription>
+          </DialogHeader>
+          {editingProperty && (
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-property-name">Property Name</Label>
+                <Input id="edit-property-name" defaultValue={editingProperty.name} className="bg-white" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-property-type">Property Type</Label>
+                <Select defaultValue={editingProperty.type.toLowerCase()}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="residential">Residential</SelectItem>
+                    <SelectItem value="commercial">Commercial</SelectItem>
+                    <SelectItem value="villa">Villa</SelectItem>
+                    <SelectItem value="warehouse">Warehouse</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="edit-address">Address</Label>
+                <Input id="edit-address" defaultValue={editingProperty.address} className="bg-white" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-landlord">Landlord</Label>
+                <Input id="edit-landlord" defaultValue={editingProperty.landlord} className="bg-white" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-total-units">Total Units</Label>
+                <Input id="edit-total-units" type="number" defaultValue={editingProperty.totalUnits} className="bg-white" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-total-area">Total Area</Label>
+                <Input id="edit-total-area" defaultValue={editingProperty.totalArea} className="bg-white" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-construction-year">Construction Year</Label>
+                <Input id="edit-construction-year" type="number" defaultValue={editingProperty.constructionYear} className="bg-white" />
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setEditingProperty(null)}>Cancel</Button>
+            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setEditingProperty(null)}>Update Property</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
