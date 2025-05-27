@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Bell, Search, User, Settings, MapPin, Building } from 'lucide-react';
+import { Bell, Search, User, Settings, MapPin, Building, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,11 +11,17 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedZone, setSelectedZone] = useState('');
   const [selectedProperty, setSelectedProperty] = useState('');
+  const navigate = useNavigate();
+
+  const handleBackClick = () => {
+    navigate(-1);
+  };
 
   // Mock data for regions, zones, and properties
   const regions = [
@@ -41,8 +46,17 @@ const Header = () => {
   return (
     <header className="bg-[#f6f4ee] px-6 py-4 shadow-sm border-b border-gray-200">
       <div className="flex items-center justify-between">
-        {/* Location Selectors */}
+        {/* Back Button and Location Selectors */}
         <div className="flex items-center space-x-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBackClick}
+            className="text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a] p-2"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          
           <div className="flex items-center space-x-2">
             <MapPin className="h-4 w-4 text-[#1a1a1a]" />
             <Select value={selectedRegion} onValueChange={(value) => {
