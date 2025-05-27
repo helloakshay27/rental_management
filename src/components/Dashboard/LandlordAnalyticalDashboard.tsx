@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Building2, DollarSign, Users, AlertTriangle, TrendingUp, MapPin, Calendar, FileText, Shield, Wrench } from 'lucide-react';
+import { Building2, DollarSign, Users, AlertTriangle, TrendingUp, MapPin, Calendar, FileText, Shield, Wrench, Receipt } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
 import RecentActivity from './RecentActivity';
@@ -14,6 +14,7 @@ import LandlordRentRollChart from './LandlordRentRollChart';
 import FitoutAnalytics from './FitoutAnalytics';
 import SecurityDepositAnalytics from './SecurityDepositAnalytics';
 import KYCManagement from './KYCManagement';
+import InvoiceManagement from './InvoiceManagement';
 
 const LandlordAnalyticalDashboard = () => {
   return (
@@ -106,7 +107,7 @@ const LandlordAnalyticalDashboard = () => {
 
       {/* Tabbed Analytics Section */}
       <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-6 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger value="analytics" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
             Analytics
           </TabsTrigger>
@@ -117,6 +118,10 @@ const LandlordAnalyticalDashboard = () => {
           <TabsTrigger value="deposits" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
             <Shield className="h-4 w-4 mr-2" />
             Security Deposits
+          </TabsTrigger>
+          <TabsTrigger value="invoicing" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <Receipt className="h-4 w-4 mr-2" />
+            Invoicing
           </TabsTrigger>
           <TabsTrigger value="kyc" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
             <FileText className="h-4 w-4 mr-2" />
@@ -148,6 +153,10 @@ const LandlordAnalyticalDashboard = () => {
 
         <TabsContent value="deposits" className="space-y-6">
           <SecurityDepositAnalytics />
+        </TabsContent>
+
+        <TabsContent value="invoicing" className="space-y-6">
+          <InvoiceManagement />
         </TabsContent>
 
         <TabsContent value="kyc" className="space-y-6">
