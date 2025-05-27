@@ -49,7 +49,10 @@ const TenantLeaseExpiryChart = () => {
                 formatter={(value, name) => [`${value} properties`, name]}
               />
               <Legend 
-                formatter={(value, entry) => `${entry.payload.category}: ${entry.payload.count} properties`}
+                formatter={(value, entry) => {
+                  const payload = entry.payload;
+                  return `${payload.category}: ${payload.count} properties`;
+                }}
               />
             </PieChart>
           </ResponsiveContainer>
