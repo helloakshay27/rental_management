@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,9 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Eye, Edit, Phone, Mail, MapPin, Plus, Users, UserCheck, UserX, TrendingUp } from 'lucide-react';
+import TenantViewDialog from './TenantViewDialog';
+import TenantEditDialog from './TenantEditDialog';
+import { useToast } from '@/hooks/use-toast';
 
 const TenantManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTenant, setSelectedTenant] = useState(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   // Mock data for tenants
   const tenants = [
@@ -81,25 +87,39 @@ const TenantManagement = () => {
 
   // Action handlers
   const handleViewTenant = (tenantId: string) => {
-    console.log('Viewing tenant details for:', tenantId);
-    // Add view tenant logic here - could open a modal or navigate to detail page
+    const tenant = tenants.find(t => t.id === tenantId);
+    setSelectedTenant(tenant || null);
+    setIsViewDialogOpen(true);
   };
 
   const handleEditTenant = (tenantId: string) => {
-    console.log('Editing tenant:', tenantId);
-    // Add edit tenant logic here - could open edit form or navigate to edit page
+    const tenant = tenants.find(t => t.id === tenantId);
+    setSelectedTenant(tenant || null);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveTenant = (updatedTenant) => {
+    // In a real app, this would update the database
+    console.log('Saving updated tenant:', updatedTenant);
+    // You could also update local state here if needed
   };
 
   const handleCallTenant = (tenantId: string, phone: string) => {
     console.log('Calling tenant:', tenantId, 'at', phone);
-    // Add call functionality - could open phone dialer or show call interface
     window.open(`tel:${phone}`);
+    toast({
+      title: "Calling Tenant",
+      description: `Initiating call to ${phone}`,
+    });
   };
 
   const handleEmailTenant = (tenantId: string, email: string) => {
     console.log('Emailing tenant:', tenantId, 'at', email);
-    // Add email functionality - could open email client or show email composer
     window.open(`mailto:${email}`);
+    toast({
+      title: "Opening Email Client",
+      description: `Composing email to ${email}`,
+    });
   };
 
   const filteredTenants = tenants.filter(tenant => 
@@ -292,6 +312,20 @@ const TenantManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialogs */}
+      <TenantViewDialog 
+        tenant={selectedTenant}
+        open={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+      />
+      
+      <TenantEditDialog 
+        tenant={selectedTenant}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSave={handleSaveTenant}
+      />
     </div>
   );
 };
