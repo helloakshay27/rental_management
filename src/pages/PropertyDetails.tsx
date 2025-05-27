@@ -180,6 +180,82 @@ const PropertyDetails = () => {
     }
   };
 
+  // Get unique compliance types for sub-tabs
+  const complianceTypes = [...new Set(compliances.map(c => c.type))];
+  
+  // Get latest compliance for each type for "All" tab
+  const getLatestCompliancesByType = () => {
+    const typeGroups = compliances.reduce((acc, compliance) => {
+      if (!acc[compliance.type] || new Date(compliance.expiryDate) > new Date(acc[compliance.type].expiryDate)) {
+        acc[compliance.type] = compliance;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+    return Object.values(typeGroups);
+  };
+
+  const renderComplianceTable = (compliancesToShow: any[]) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Compliance</TableHead>
+          <TableHead>Type</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Validity</TableHead>
+          <TableHead>Authority</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {compliancesToShow.map((compliance) => (
+          <TableRow key={compliance.id}>
+            <TableCell>
+              <div className="flex items-center space-x-2">
+                {getComplianceIcon(compliance.status)}
+                <div>
+                  <p className="font-medium">{compliance.name}</p>
+                  <p className="text-sm text-gray-500">Cert: {compliance.certificateNumber}</p>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <Badge variant="outline">{compliance.type}</Badge>
+            </TableCell>
+            <TableCell>
+              <Badge className={getComplianceStatusColor(compliance.status)}>
+                {compliance.status}
+              </Badge>
+              {compliance.daysToExpiry <= compliance.renewalNotice && compliance.status !== 'Expired' && (
+                <p className="text-xs text-yellow-600 mt-1">
+                  Expires in {compliance.daysToExpiry} days
+                </p>
+              )}
+            </TableCell>
+            <TableCell>
+              <div className="text-sm">
+                <p>Issue: {new Date(compliance.issueDate).toLocaleDateString()}</p>
+                <p>Expiry: {new Date(compliance.expiryDate).toLocaleDateString()}</p>
+              </div>
+            </TableCell>
+            <TableCell>
+              <p className="text-sm">{compliance.authority}</p>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm">
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -384,65 +460,32 @@ const PropertyDetails = () => {
             </CardHeader>
             <CardContent>
               {compliances.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Compliance</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Validity</TableHead>
-                      <TableHead>Authority</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {compliances.map((compliance) => (
-                      <TableRow key={compliance.id}>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            {getComplianceIcon(compliance.status)}
-                            <div>
-                              <p className="font-medium">{compliance.name}</p>
-                              <p className="text-sm text-gray-500">Cert: {compliance.certificateNumber}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{compliance.type}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getComplianceStatusColor(compliance.status)}>
-                            {compliance.status}
-                          </Badge>
-                          {compliance.daysToExpiry <= compliance.renewalNotice && compliance.status !== 'Expired' && (
-                            <p className="text-xs text-yellow-600 mt-1">
-                              Expires in {compliance.daysToExpiry} days
-                            </p>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            <p>Issue: {new Date(compliance.issueDate).toLocaleDateString()}</p>
-                            <p>Expiry: {new Date(compliance.expiryDate).toLocaleDateString()}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-sm">{compliance.authority}</p>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button variant="ghost" size="sm">
-                              <FileText className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                <Tabs defaultValue="all" className="w-full">
+                  <TabsList className="grid w-full grid-cols-auto" style={{gridTemplateColumns: `repeat(${complianceTypes.length + 1}, minmax(0, 1fr))`}}>
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    {complianceTypes.map((type) => (
+                      <TabsTrigger key={type} value={type.toLowerCase()}>
+                        {type}
+                      </TabsTrigger>
                     ))}
-                  </TableBody>
-                </Table>
+                  </TabsList>
+
+                  <TabsContent value="all" className="mt-4">
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Latest Compliance by Type</h4>
+                    </div>
+                    {renderComplianceTable(getLatestCompliancesByType())}
+                  </TabsContent>
+
+                  {complianceTypes.map((type) => (
+                    <TabsContent key={type} value={type.toLowerCase()} className="mt-4">
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">{type} Compliances</h4>
+                      </div>
+                      {renderComplianceTable(compliances.filter(c => c.type === type))}
+                    </TabsContent>
+                  ))}
+                </Tabs>
               ) : (
                 <div className="text-center py-8">
                   <FileCheck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
