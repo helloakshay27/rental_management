@@ -82,7 +82,7 @@ const UtilityOverview = () => {
                 { utility: 'Water', provider: 'AquaCity', due: '2024-01-28', amount: '$168', status: 'Pending' },
                 { utility: 'Gas', provider: 'GasPlus', due: '2024-02-02', amount: '$425', status: 'Scheduled' }
               ].map((bill, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-[#f6f4ee]">
+                <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white">
                   <div>
                     <div className="text-sm font-medium text-[#1a1a1a]">{bill.utility}</div>
                     <div className="text-xs text-[#D5DbDB]">{bill.provider} • Due {bill.due}</div>

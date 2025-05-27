@@ -51,7 +51,7 @@ const UtilityReporting = () => {
                 'Efficiency Benchmarking',
                 'Billing Reconciliation'
               ].map((report, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-[#f6f4ee] bg-[#f6f4ee]">
+                <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 bg-white">
                   <span className="text-sm text-[#1a1a1a]">{report}</span>
                   <Button variant="ghost" size="sm" className="text-[#C72030] hover:text-[#A01825] hover:bg-white">
                     <Download className="h-4 w-4" />
@@ -72,7 +72,7 @@ const UtilityReporting = () => {
           </CardHeader>
           <CardContent className="bg-white">
             <div className="space-y-4">
-              <div className="p-4 border border-gray-200 rounded-lg bg-[#f6f4ee]">
+              <div className="p-4 border border-gray-200 rounded-lg bg-white">
                 <h4 className="text-sm font-medium text-[#1a1a1a] mb-2 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-[#C72030]" />
                   Usage Trends
@@ -80,7 +80,7 @@ const UtilityReporting = () => {
                 <p className="text-xs text-[#D5DbDB] mb-3">View consumption patterns and identify anomalies</p>
                 <Button size="sm" className="bg-[#C72030] hover:bg-[#A01825] text-white">View Dashboard</Button>
               </div>
-              <div className="p-4 border border-gray-200 rounded-lg bg-[#f6f4ee]">
+              <div className="p-4 border border-gray-200 rounded-lg bg-white">
                 <h4 className="text-sm font-medium text-[#1a1a1a] mb-2 flex items-center gap-2">
                   <BarChart3 className="h-4 w-4 text-[#C72030]" />
                   Cost Optimization
