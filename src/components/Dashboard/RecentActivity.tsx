@@ -2,49 +2,82 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, AlertTriangle, CheckCircle, FileText, Upload, DollarSign } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle, FileText, Upload, DollarSign, Calendar, Users, MapPin } from 'lucide-react';
 
+// Enhanced activities for both landlord and tenant perspectives
 const activities = [
   {
     id: 1,
-    type: 'lease_expiry',
-    message: 'Lease agreement for Mumbai Office expires in 30 days',
-    time: '2 hours ago',
-    status: 'warning',
-    icon: AlertTriangle,
+    type: 'payment_processed',
+    message: 'Rent payment processed for Mumbai Corporate Tower - ₹8.5L',
+    time: '1 hour ago',
+    status: 'success',
+    icon: DollarSign,
+    region: 'Mumbai'
   },
   {
     id: 2,
-    type: 'amc_completed',
-    message: 'AMC service completed for Delhi Warehouse - Fire Safety',
-    time: '4 hours ago',
-    status: 'success',
-    icon: CheckCircle,
+    type: 'lease_expiry_alert',
+    message: 'Lease for Chennai IT Park expires in 15 days - Renewal needed',
+    time: '2 hours ago',
+    status: 'warning',
+    icon: AlertTriangle,
+    region: 'Chennai'
   },
   {
     id: 3,
-    type: 'utility_bill',
-    message: 'New electricity bill uploaded for Bangalore Store',
-    time: '6 hours ago',
-    status: 'info',
-    icon: Upload,
+    type: 'compliance_update',
+    message: 'Fire safety compliance completed for Bangalore Tech Hub',
+    time: '4 hours ago',
+    status: 'success',
+    icon: CheckCircle,
+    region: 'Bangalore'
   },
   {
     id: 4,
-    type: 'rent_due',
-    message: 'Rent payment due for Pune Office in 5 days',
-    time: '1 day ago',
-    status: 'warning',
-    icon: DollarSign,
+    type: 'new_property_added',
+    message: 'New property onboarded in Pune - Commercial Complex Block B',
+    time: '6 hours ago',
+    status: 'info',
+    icon: Upload,
+    region: 'Pune'
   },
   {
     id: 5,
+    type: 'escalation_notice',
+    message: 'Rent escalation notice received for Delhi Business Park - 12% increase',
+    time: '1 day ago',
+    status: 'warning',
+    icon: Calendar,
+    region: 'Delhi'
+  },
+  {
+    id: 6,
+    type: 'landlord_meeting',
+    message: 'Quarterly review meeting scheduled with DLF Commercial',
+    time: '1 day ago',
+    status: 'info',
+    icon: Users,
+    region: 'Multiple'
+  },
+  {
+    id: 7,
     type: 'document_upload',
-    message: 'New rental agreement signed for Chennai Store',
+    message: 'Updated lease agreement signed for Hyderabad Business Center',
     time: '2 days ago',
     status: 'success',
     icon: FileText,
+    region: 'Hyderabad'
   },
+  {
+    id: 8,
+    type: 'regional_analysis',
+    message: 'Q2 regional expense analysis report generated',
+    time: '3 days ago',
+    status: 'info',
+    icon: MapPin,
+    region: 'All Regions'
+  }
 ];
 
 const RecentActivity = () => {
@@ -85,6 +118,15 @@ const RecentActivity = () => {
                   <div className="flex items-center space-x-2 mt-2">
                     <Clock size={12} className="text-gray-400" />
                     <p className="text-xs text-gray-500">{activity.time}</p>
+                    {activity.region && (
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                          <MapPin size={10} />
+                          {activity.region}
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
                 <Badge variant="secondary" className={getStatusColor(activity.status)}>

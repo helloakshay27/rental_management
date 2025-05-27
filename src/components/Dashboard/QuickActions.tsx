@@ -2,13 +2,14 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload, FileText, Bell, BarChart3, Settings } from 'lucide-react';
+import { Plus, Upload, FileText, Bell, BarChart3, Settings, CreditCard, Calendar, MapPin, AlertTriangle, Users, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const QuickActions = () => {
   const navigate = useNavigate();
 
-  const actions = [
+  // Different actions based on current dashboard context
+  const landlordActions = [
     {
       title: 'Add Property',
       description: 'Register a new property',
@@ -46,6 +47,53 @@ const QuickActions = () => {
       href: '/settings'
     }
   ];
+
+  const tenantActions = [
+    {
+      title: 'Pay Rent',
+      description: 'Process rent payments',
+      icon: CreditCard,
+      href: '/tenant-dashboard'
+    },
+    {
+      title: 'Lease Tracker',
+      description: 'Track lease expiries',
+      icon: Calendar,
+      href: '/tenant-dashboard'
+    },
+    {
+      title: 'Property Search',
+      description: 'Find new properties',
+      icon: Search,
+      href: '/properties'
+    },
+    {
+      title: 'Regional Analysis',
+      description: 'View regional trends',
+      icon: MapPin,
+      href: '/reports'
+    },
+    {
+      title: 'Compliance Check',
+      description: 'Monitor compliance',
+      icon: AlertTriangle,
+      href: '/tenant-dashboard'
+    },
+    {
+      title: 'Landlord Relations',
+      description: 'Manage relationships',
+      icon: Users,
+      href: '/masters/landlords'
+    }
+  ];
+
+  // Determine which actions to show (this could be dynamic based on user role)
+  const currentPath = window.location.pathname;
+  const isOnMainDashboard = currentPath === '/';
+  
+  // For the main dashboard, we'll show different actions based on the active role
+  // This could be enhanced to check actual user context
+  const actions = isOnMainDashboard ? landlordActions : tenantActions;
 
   const handleActionClick = (href: string) => {
     navigate(href);
