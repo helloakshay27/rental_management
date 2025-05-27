@@ -1,11 +1,11 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Calendar, ArrowLeft, Edit, Trash2, FileText, Users, DollarSign } from 'lucide-react';
+import { Building2, MapPin, Calendar, ArrowLeft, Edit, Trash2, FileText, Users, DollarSign, FileCheck, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 // Mock data - in real app this would come from API
 const properties = [
@@ -75,11 +75,62 @@ const properties = [
   },
 ];
 
+// Mock compliance data for properties
+const propertyCompliances = {
+  1: [
+    {
+      id: 'PC001',
+      complianceId: 'C001',
+      name: 'Fire Safety NOC',
+      type: 'Safety',
+      status: 'Active',
+      issueDate: '2023-01-15',
+      expiryDate: '2025-01-15',
+      renewalNotice: 30,
+      daysToExpiry: 120,
+      authority: 'Fire Department',
+      certificateNumber: 'FS-2023-001',
+      documents: ['fire-noc-2023.pdf', 'fire-safety-plan.pdf']
+    },
+    {
+      id: 'PC002',
+      complianceId: 'C002',
+      name: 'Municipal Operating License',
+      type: 'Operating',
+      status: 'Expiring Soon',
+      issueDate: '2022-06-01',
+      expiryDate: '2024-06-01',
+      renewalNotice: 60,
+      daysToExpiry: 15,
+      authority: 'Municipal Corporation',
+      certificateNumber: 'MOL-2022-456',
+      documents: ['operating-license-2022.pdf']
+    }
+  ],
+  2: [
+    {
+      id: 'PC003',
+      complianceId: 'C003',
+      name: 'Environmental Clearance',
+      type: 'Environmental',
+      status: 'Active',
+      issueDate: '2023-03-10',
+      expiryDate: '2026-03-10',
+      renewalNotice: 90,
+      daysToExpiry: 450,
+      authority: 'Pollution Control Board',
+      certificateNumber: 'ENV-2023-789',
+      documents: ['environmental-clearance-2023.pdf']
+    }
+  ]
+};
+
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
   const property = properties.find(p => p.id === parseInt(id || '0'));
+  const compliances = propertyCompliances[parseInt(id || '0')] || [];
   
   if (!property) {
     return (
@@ -101,6 +152,24 @@ const PropertyDetails = () => {
       case 'Vacant': return 'bg-yellow-100 text-yellow-800';
       case 'Maintenance': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getComplianceStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active': return 'bg-green-100 text-green-800';
+      case 'Expiring Soon': return 'bg-yellow-100 text-yellow-800';
+      case 'Expired': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getComplianceIcon = (status: string) => {
+    switch (status) {
+      case 'Active': return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'Expiring Soon': return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+      case 'Expired': return <AlertTriangle className="h-4 w-4 text-red-600" />;
+      default: return <FileCheck className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -203,10 +272,11 @@ const PropertyDetails = () => {
 
       {/* Tabs for detailed information */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="financial">Financial</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="compliances">Compliances</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
         </TabsList>
 
@@ -284,6 +354,93 @@ const PropertyDetails = () => {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">Property documents and lease agreements will be displayed here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="compliances">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <FileCheck className="mr-2 h-5 w-5" />
+                  Property Compliances
+                </div>
+                <Button size="sm" className="bg-[#C72030] hover:bg-[#A01825]">
+                  Add Compliance
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {compliances.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Compliance</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Validity</TableHead>
+                      <TableHead>Authority</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {compliances.map((compliance) => (
+                      <TableRow key={compliance.id}>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            {getComplianceIcon(compliance.status)}
+                            <div>
+                              <p className="font-medium">{compliance.name}</p>
+                              <p className="text-sm text-gray-500">Cert: {compliance.certificateNumber}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{compliance.type}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getComplianceStatusColor(compliance.status)}>
+                            {compliance.status}
+                          </Badge>
+                          {compliance.daysToExpiry <= compliance.renewalNotice && compliance.status !== 'Expired' && (
+                            <p className="text-xs text-yellow-600 mt-1">
+                              Expires in {compliance.daysToExpiry} days
+                            </p>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <p>Issue: {new Date(compliance.issueDate).toLocaleDateString()}</p>
+                            <p>Expiry: {new Date(compliance.expiryDate).toLocaleDateString()}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm">{compliance.authority}</p>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button variant="ghost" size="sm">
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-8">
+                  <FileCheck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No compliances assigned to this property</p>
+                  <Button className="mt-4 bg-[#C72030] hover:bg-[#A01825]">
+                    Add First Compliance
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
