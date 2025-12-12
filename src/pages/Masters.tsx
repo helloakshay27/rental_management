@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck } from 'lucide-react';
+import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck } from 'lucide-react';
 
 const Masters = () => {
   const masterModules = [
@@ -56,12 +56,33 @@ const Masters = () => {
       path: '/masters/roles',
       color: 'bg-red-50 text-red-600'
     },
+    // {
+    //   title: 'Access Management',
+    //   description: 'Control user permissions and access levels',
+    //   icon: Key,
+    //   path: '/masters/access',
+    //   color: 'bg-indigo-50 text-indigo-600'
+    // },
     {
-      title: 'Access Management',
-      description: 'Control user permissions and access levels',
-      icon: Key,
-      path: '/masters/access',
-      color: 'bg-indigo-50 text-indigo-600'
+      title: 'Country Master',
+      description: 'Manage countries with codes and currency information',
+      icon: Globe2,
+      path: '/masters/countries',
+      color: 'bg-cyan-50 text-cyan-600'
+    },
+    {
+      title: 'States Master',
+      description: 'Manage states and their association with countries',
+      icon: MapPin,
+      path: '/masters/states',
+      color: 'bg-teal-50 text-teal-600'
+    },
+    {
+      title: 'Vendor Master',
+      description: 'Manage vendors, suppliers, and contractor details',
+      icon: Truck,
+      path: '/masters/vendors',
+      color: 'bg-amber-50 text-amber-600'
     }
   ];
 

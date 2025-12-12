@@ -9,65 +9,167 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, Calendar, Shield } from 'lucide-react';
+import { getAuth, postAuth, patchAuth } from '@/lib/api';
+import { toast } from 'sonner';
+
+interface UserRole {
+  id: number;
+  name: string;
+}
+
+interface User {
+  id: number;
+  full_name: string;
+  email: string;
+  phone: string;
+  department: string;
+  designation: string;
+  joining_date: string;
+  status: string;
+  is_active: boolean;
+  roles: UserRole[];
+  created_at: string;
+  updated_at: string;
+}
 
 const UsersManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [users, setUsers] = useState<User[]>([]); // To store fetched users
+  const [rolesList, setRolesList] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
-  const users = [
-    {
-      id: 'U001',
-      name: 'Amit Sharma',
-      email: 'amit.sharma@propertyflow.com',
-      phone: '+91 98765 43210',
-      role: 'Administrator',
-      department: 'IT',
-      joiningDate: '2023-01-15',
-      lastLogin: '2024-01-20 10:30 AM',
-      status: 'Active',
-      permissions: ['Full Access']
-    },
-    {
-      id: 'U002',
-      name: 'Priya Patel',
-      email: 'priya.patel@propertyflow.com',
-      phone: '+91 87654 32109',
-      role: 'Property Manager',
-      department: 'Operations',
-      joiningDate: '2023-03-10',
-      lastLogin: '2024-01-20 09:15 AM',
-      status: 'Active',
-      permissions: ['Properties', 'Tenants', 'Reports']
-    },
-    {
-      id: 'U003',
-      name: 'Rajesh Kumar',
-      email: 'rajesh.kumar@propertyflow.com',
-      phone: '+91 76543 21098',
-      role: 'Accountant',
-      department: 'Finance',
-      joiningDate: '2023-05-20',
-      lastLogin: '2024-01-19 05:45 PM',
-      status: 'Active',
-      permissions: ['Financial Reports', 'OPEX', 'Billing']
-    },
-    {
-      id: 'U004',
-      name: 'Neha Singh',
-      email: 'neha.singh@propertyflow.com',
-      phone: '+91 65432 10987',
-      role: 'Leasing Agent',
-      department: 'Sales',
-      joiningDate: '2023-08-01',
-      lastLogin: '2024-01-15 02:20 PM',
-      status: 'Inactive',
-      permissions: ['Tenants', 'Rental Agreements']
+  // Form State
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    role_id: '',
+    department: '',
+    joining_date: ''
+  });
+
+  const fetchUsers = async () => {
+    try {
+      const data = await getAuth('/users');
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else {
+        // Handle case where data might be wrapped
+        setUsers([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users', error);
+      toast.error('Failed to load users');
     }
-  ];
+  };
+
+  const handleEditUser = async (userId: number) => {
+    try {
+      setIsLoading(true);
+      const userData = await getAuth(`/users/${userId}`);
+
+      setEditingUser(userData);
+
+      // Map data to form
+      setFormData({
+        full_name: userData.full_name || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        role_id: userData.roles && userData.roles.length > 0 ? userData.roles[0].id.toString() : '',
+        department: userData.department || '',
+        joining_date: userData.joining_date || ''
+      });
+
+      setIsDialogOpen(true);
+    } catch (error) {
+      toast.error('Failed to fetch user details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchUsers();
+    const fetchRoles = async () => {
+      try {
+        const data = await getAuth('/roles');
+        if (Array.isArray(data)) {
+          setRolesList(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch roles', error);
+        toast.error('Failed to load roles');
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      setIsLoading(true);
+
+      // Validation
+      if (!formData.full_name || !formData.email || !formData.role_id) {
+        toast.error("Please fill in all required fields (Name, Email, Role)");
+        return;
+      }
+
+      const payload = {
+        user: {
+          full_name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone,
+          role_ids: [parseInt(formData.role_id)],
+          department: formData.department,
+          joining_date: formData.joining_date
+        }
+      };
+
+      if (editingUser) {
+        await patchAuth(`/users/${editingUser.id}`, payload);
+        toast.success("User updated successfully");
+      } else {
+        await postAuth('/users', payload);
+        toast.success("User created successfully");
+      }
+
+      // Reset and Close
+      handleCloseDialog();
+      fetchUsers(); // Refresh list
+
+    } catch (error: any) {
+      let errorMessage = editingUser ? "Failed to update user" : "Failed to create user";
+      if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
+        errorMessage = error.response.errors.join(", ");
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingUser(null);
+    setFormData({
+      full_name: '',
+      email: '',
+      phone: '',
+      role_id: '',
+      department: '',
+      joining_date: ''
+    });
+  };
+
+
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -77,69 +179,102 @@ const UsersManagement = () => {
           <h1 className="text-2xl font-bold text-gray-900">Users Management</h1>
           <p className="text-gray-600">Manage system users and their basic information</p>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]">
+            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add User
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl bg-white">
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>Create a new user account with basic information</DialogDescription>
+              <DialogTitle className="text-gray-900 font-semibold text-xl">{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
+              <DialogDescription className="text-gray-600">{editingUser ? 'Update user account information' : 'Create a new user account with basic information'}</DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="user-name">Full Name</Label>
-                <Input id="user-name" placeholder="Enter full name" className="bg-white" />
+                <Label htmlFor="user-name" className="text-gray-900 font-medium">Full Name</Label>
+                <Input
+                  id="user-name"
+                  placeholder="Enter full name"
+                  className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="user-email">Email</Label>
-                <Input id="user-email" type="email" placeholder="Enter email" className="bg-white" />
+                <Label htmlFor="user-email" className="text-gray-900 font-medium">Email</Label>
+                <Input
+                  id="user-email"
+                  type="email"
+                  placeholder="Enter email"
+                  className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="user-phone">Phone</Label>
-                <Input id="user-phone" placeholder="Enter phone number" className="bg-white" />
+                <Label htmlFor="user-phone" className="text-gray-900 font-medium">Phone</Label>
+                <Input
+                  id="user-phone"
+                  placeholder="Enter phone number"
+                  className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="user-role">Role</Label>
-                <Select>
-                  <SelectTrigger className="bg-white">
+                <Label htmlFor="user-role" className="text-gray-900 font-medium">Role</Label>
+                <Select
+                  value={formData.role_id}
+                  onValueChange={(value) => setFormData({ ...formData, role_id: value })}
+                >
+                  <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    <SelectItem value="admin">Administrator</SelectItem>
-                    <SelectItem value="manager">Property Manager</SelectItem>
-                    <SelectItem value="accountant">Accountant</SelectItem>
-                    <SelectItem value="agent">Leasing Agent</SelectItem>
-                    <SelectItem value="maintenance">Maintenance Staff</SelectItem>
+                    {rolesList.map((role) => (
+                      <SelectItem key={role.id} value={role.id.toString()}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="user-department">Department</Label>
-                <Select>
-                  <SelectTrigger className="bg-white">
+                <Label htmlFor="user-department" className="text-gray-900 font-medium">Department</Label>
+                <Select
+                  value={formData.department}
+                  onValueChange={(value) => setFormData({ ...formData, department: value })}
+                >
+                  <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    <SelectItem value="it">IT</SelectItem>
-                    <SelectItem value="operations">Operations</SelectItem>
-                    <SelectItem value="finance">Finance</SelectItem>
-                    <SelectItem value="sales">Sales</SelectItem>
-                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                    <SelectItem value="IT">IT</SelectItem>
+                    <SelectItem value="Operations">Operations</SelectItem>
+                    <SelectItem value="Finance">Finance</SelectItem>
+                    <SelectItem value="Sales">Sales</SelectItem>
+                    <SelectItem value="Maintenance">Maintenance</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="joining-date">Joining Date</Label>
-                <Input id="joining-date" type="date" className="bg-white" />
+                <Label htmlFor="joining-date" className="text-gray-900 font-medium">Joining Date</Label>
+                <Input
+                  id="joining-date"
+                  type="date"
+                  className="bg-white border-gray-300 text-gray-900"
+                  value={formData.joining_date}
+                  onChange={(e) => setFormData({ ...formData, joining_date: e.target.value })}
+                />
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline">Cancel</Button>
-              <Button className="bg-[#C72030] hover:bg-[#A01825]">Create User</Button>
+              <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleCloseDialog}>Cancel</Button>
+              <Button className="bg-[#C72030] hover:bg-[#A01825] text-white" onClick={handleSubmit} disabled={isLoading}>
+                {isLoading ? (editingUser ? 'Updating...' : 'Creating...') : (editingUser ? 'Update User' : 'Create User')}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -182,11 +317,11 @@ const UsersManagement = () => {
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{user.name}</p>
+                      <p className="font-medium">{user.full_name}</p>
                       <p className="text-sm text-gray-500">ID: {user.id}</p>
                       <div className="flex items-center text-sm text-gray-500">
                         <Calendar className="h-3 w-3 mr-1" />
-                        Joined: {user.joiningDate}
+                        Joined: {user.joining_date ? new Date(user.joining_date).toLocaleDateString() : 'N/A'}
                       </div>
                     </div>
                   </TableCell>
@@ -194,11 +329,11 @@ const UsersManagement = () => {
                     <div className="space-y-1">
                       <div className="flex items-center text-sm">
                         <Mail className="h-3 w-3 mr-1" />
-                        {user.email}
+                        {user.email || 'N/A'}
                       </div>
                       <div className="flex items-center text-sm">
                         <Phone className="h-3 w-3 mr-1" />
-                        {user.phone}
+                        {user.phone || 'N/A'}
                       </div>
                     </div>
                   </TableCell>
@@ -206,17 +341,26 @@ const UsersManagement = () => {
                     <div>
                       <div className="flex items-center mb-1">
                         <Shield className="h-3 w-3 mr-1" />
-                        <span className="font-medium text-sm">{user.role}</span>
+                        <span className="font-medium text-sm">
+                          {user.roles && user.roles.length > 0
+                            ? user.roles.map(r => r.name).join(', ')
+                            : 'No Role'}
+                        </span>
                       </div>
-                      <Badge variant="outline">{user.department}</Badge>
+                      <Badge variant="outline">{user.department || 'General'}</Badge>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className="text-sm">{user.lastLogin}</p>
+                    <div className="text-sm">
+                      <p className="text-gray-900">Updated</p>
+                      <p className="text-gray-500 text-xs">{new Date(user.updated_at).toLocaleDateString()}</p>
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={user.status === 'Active' ? 'default' : 'secondary'}>
-                      {user.status}
+                    <Badge
+                      className={user.status === 'active' ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500'}
+                    >
+                      {user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Unknown'}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -224,7 +368,7 @@ const UsersManagement = () => {
                       <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditUser(user.id)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="sm" className="text-red-600">

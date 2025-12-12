@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,56 +9,175 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, Building } from 'lucide-react';
+import { postAuth, getAuth, patchAuth } from '@/lib/api';
+import { toast } from 'sonner';
 
 const LandlordsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [landlords, setLandlords] = useState<any[]>([]);
+  const [loadingLandlords, setLoadingLandlords] = useState(true);
+  const [editingLandlord, setEditingLandlord] = useState<any>(null);
 
-  const landlords = [
-    {
-      id: 'L001',
-      name: 'Suresh Enterprises',
-      contactPerson: 'Mr. Suresh Gupta',
-      email: 'suresh@enterprises.com',
-      phone: '+91 98765 43210',
-      pan: 'ABCDE1234F',
-      gst: '27ABCDE1234F1Z5',
-      propertiesCount: 5,
-      totalValue: 25000000,
-      status: 'Active',
-      bankAccount: 'HDFC Bank - ****5678'
-    },
-    {
-      id: 'L002',
-      name: 'Sharma Properties',
-      contactPerson: 'Mrs. Kavita Sharma',
-      email: 'kavita@sharmaproperties.com',
-      phone: '+91 87654 32109',
-      pan: 'BCDEF2345G',
-      gst: '27BCDEF2345G1Z5',
-      propertiesCount: 3,
-      totalValue: 18000000,
-      status: 'Active',
-      bankAccount: 'ICICI Bank - ****9012'
-    },
-    {
-      id: 'L003',
-      name: 'Metro Real Estate',
-      contactPerson: 'Mr. Rajesh Patel',
-      email: 'rajesh@metrorealestate.com',
-      phone: '+91 76543 21098',
-      pan: 'CDEFG3456H',
-      gst: '27CDEFG3456H1Z5',
-      propertiesCount: 8,
-      totalValue: 40000000,
-      status: 'Active',
-      bankAccount: 'SBI Bank - ****3456'
+  const [formData, setFormData] = useState({
+    company_name: '',
+    contact_person: '',
+    email: '',
+    phone: '',
+    pan: '',
+    gst: '',
+    aadhaar_number: '',
+    user_id: 1,
+    // Bank Details
+    bank_account_number: '',
+    bank_name: '',
+    bank_ifsc_code: '',
+    bank_account_type: '',
+    bank_branch: ''
+  });
+
+  const fetchLandlords = async () => {
+    try {
+      setLoadingLandlords(true);
+      const data = await getAuth('/landlords');
+      if (Array.isArray(data)) {
+        setLandlords(data);
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch landlords', error);
+      toast.error('Failed to load landlords');
+    } finally {
+      setLoadingLandlords(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchLandlords();
+  }, []);
+
+  const handleEditLandlord = async (landlordId: number) => {
+    try {
+      setIsLoading(true);
+      const landlordData = await getAuth(`/landlords/${landlordId}`);
+      const data = landlordData?.landlord || landlordData;
+
+      setEditingLandlord(data);
+      setFormData({
+        company_name: data.company_name || '',
+        contact_person: data.contact_person || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        pan: data.pan || '',
+        gst: data.gst || '',
+        aadhaar_number: data.aadhaar_number || '',
+        user_id: data.user_id || 1,
+        // Bank Details - get first bank detail if exists
+        bank_account_number: data.bank_details?.[0]?.account_number || '',
+        bank_name: data.bank_details?.[0]?.bank_name || '',
+        bank_ifsc_code: data.bank_details?.[0]?.ifsc_code || '',
+        bank_account_type: data.bank_details?.[0]?.account_type || '',
+        bank_branch: data.bank_details?.[0]?.bank_branch || ''
+      });
+      setIsDialogOpen(true);
+    } catch (error: any) {
+      toast.error('Failed to fetch landlord details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingLandlord(null);
+    setFormData({
+      company_name: '',
+      contact_person: '',
+      email: '',
+      phone: '',
+      pan: '',
+      gst: '',
+      aadhaar_number: '',
+      user_id: 1,
+      bank_account_number: '',
+      bank_name: '',
+      bank_ifsc_code: '',
+      bank_account_type: '',
+      bank_branch: ''
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setIsLoading(true);
+
+      // Validation
+      if (!formData.company_name.trim() || !formData.contact_person.trim() || !formData.email.trim() || !formData.phone.trim()) {
+        toast.error('Company name, contact person, email, and phone are required');
+        return;
+      }
+
+      // Prepare payload
+      const payload: any = {
+        landlord: {
+          company_name: formData.company_name,
+          contact_person: formData.contact_person,
+          email: formData.email,
+          phone: formData.phone,
+          pan: formData.pan,
+          gst: formData.gst,
+          aadhaar_number: formData.aadhaar_number,
+          user_id: formData.user_id
+        }
+      };
+
+      // Add bank details if any field is filled
+      if (formData.bank_account_number) {
+        payload.landlord.bank_details_attributes = [
+          {
+            account_number: formData.bank_account_number,
+            bank_name: formData.bank_name,
+            ifsc_code: formData.bank_ifsc_code,
+            account_type: formData.bank_account_type,
+            bank_branch: formData.bank_branch
+          }
+        ];
+      }
+
+      // Make API call - PATCH for editing, POST for creating
+      if (editingLandlord) {
+        await patchAuth(`/landlords/${editingLandlord.id}`, payload);
+        toast.success('Landlord updated successfully');
+      } else {
+        await postAuth('/landlords', payload);
+        toast.success('Landlord created successfully');
+      }
+
+      // Reset form and close dialog
+      handleCloseDialog();
+
+      // Refresh landlords list
+      fetchLandlords();
+
+    } catch (error: any) {
+      let errorMessage = editingLandlord ? 'Failed to update landlord' : 'Failed to create landlord';
+
+      if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
+        errorMessage = error.response.errors.join(', ');
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredLandlords = landlords.filter(landlord =>
-    landlord.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    landlord.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    landlord.email.toLowerCase().includes(searchTerm.toLowerCase())
+    landlord.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    landlord.contact_person?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    landlord.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -68,47 +187,182 @@ const LandlordsManagement = () => {
           <h1 className="text-2xl font-bold text-gray-900">Landlords Management</h1>
           <p className="text-gray-600">Manage landlord profiles, properties, and contact details</p>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]">
+            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Landlord
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl bg-white">
+          <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Add New Landlord</DialogTitle>
-              <DialogDescription>Enter landlord business and contact information</DialogDescription>
+              <DialogTitle className="text-gray-900 font-semibold text-xl">
+                {editingLandlord ? 'Edit Landlord' : 'Add New Landlord'}
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                {editingLandlord ? 'Update landlord information' : 'Enter landlord business and contact information'}
+              </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="company-name">Company/Business Name</Label>
-                <Input id="company-name" placeholder="Enter business name" className="bg-white" />
+            <div className="space-y-4 py-4">
+              {/* Basic Information */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="company-name" className="text-gray-900 font-medium">Company/Business Name *</Label>
+                  <Input
+                    id="company-name"
+                    placeholder="Enter business name"
+                    value={formData.company_name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
+                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-person" className="text-gray-900 font-medium">Contact Person *</Label>
+                  <Input
+                    id="contact-person"
+                    placeholder="Enter contact person"
+                    value={formData.contact_person}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
+                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-gray-900 font-medium">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-gray-900 font-medium">Phone *</Label>
+                  <Input
+                    id="phone"
+                    placeholder="Enter phone number"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="contact-person">Contact Person</Label>
-                <Input id="contact-person" placeholder="Enter contact person" className="bg-white" />
+
+              {/* Tax & Identity Details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pan" className="text-gray-900 font-medium">PAN Number</Label>
+                  <Input
+                    id="pan"
+                    placeholder="Enter PAN number"
+                    value={formData.pan}
+                    onChange={(e) => setFormData(prev => ({ ...prev, pan: e.target.value.toUpperCase() }))}
+                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    maxLength={10}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gst" className="text-gray-900 font-medium">GST Number</Label>
+                  <Input
+                    id="gst"
+                    placeholder="Enter GST number"
+                    value={formData.gst}
+                    onChange={(e) => setFormData(prev => ({ ...prev, gst: e.target.value.toUpperCase() }))}
+                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="aadhar" className="text-gray-900 font-medium">Aadhar Number</Label>
+                  <Input
+                    id="aadhar"
+                    placeholder="Enter Aadhar number"
+                    value={formData.aadhaar_number}
+                    onChange={(e) => setFormData(prev => ({ ...prev, aadhaar_number: e.target.value }))}
+                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    maxLength={12}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter email" className="bg-white" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" placeholder="Enter phone number" className="bg-white" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pan">PAN Number</Label>
-                <Input id="pan" placeholder="Enter PAN number" className="bg-white" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="gst">GST Number</Label>
-                <Input id="gst" placeholder="Enter GST number" className="bg-white" />
+
+              {/* Bank Details */}
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Bank Details</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="account-number" className="text-gray-900 font-medium">Account Number</Label>
+                    <Input
+                      id="account-number"
+                      placeholder="Enter account number"
+                      value={formData.bank_account_number}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bank_account_number: e.target.value }))}
+                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bank-name" className="text-gray-900 font-medium">Bank Name</Label>
+                    <Input
+                      id="bank-name"
+                      placeholder="e.g., HDFC Bank"
+                      value={formData.bank_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bank_name: e.target.value }))}
+                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ifsc-code" className="text-gray-900 font-medium">IFSC Code</Label>
+                    <Input
+                      id="ifsc-code"
+                      placeholder="e.g., HDFC0001234"
+                      value={formData.bank_ifsc_code}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bank_ifsc_code: e.target.value.toUpperCase() }))}
+                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="account-type" className="text-gray-900 font-medium">Account Type</Label>
+                    <select
+                      id="account-type"
+                      value={formData.bank_account_type}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bank_account_type: e.target.value }))}
+                      className="w-full p-2 border-2 border-gray-300 hover:border-[#C72030] rounded-md bg-white text-gray-900 focus:border-[#C72030] focus:ring-[#C72030] focus:outline-none"
+                    >
+                      <option value="">Select account type</option>
+                      <option value="Savings">Savings</option>
+                      <option value="Current">Current</option>
+                      <option value="Cash Credit">Cash Credit</option>
+                      <option value="Overdraft">Overdraft</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="bank-branch" className="text-gray-900 font-medium">Bank Branch</Label>
+                    <Input
+                      id="bank-branch"
+                      placeholder="e.g., Mumbai - Andheri East"
+                      value={formData.bank_branch}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bank_branch: e.target.value }))}
+                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline">Cancel</Button>
-              <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Landlord</Button>
+              <Button
+                variant="outline"
+                onClick={handleCloseDialog}
+                disabled={isLoading}
+                className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={isLoading}
+                className="bg-[#C72030] hover:bg-[#A01825] text-white"
+              >
+                {isLoading ? 'Saving...' : (editingLandlord ? 'Update Landlord' : 'Save Landlord')}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -141,66 +395,71 @@ const LandlordsManagement = () => {
                 <TableHead>Business Details</TableHead>
                 <TableHead>Contact Info</TableHead>
                 <TableHead>Tax Details</TableHead>
-                <TableHead>Portfolio</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLandlords.map((landlord) => (
-                <TableRow key={landlord.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{landlord.name}</p>
-                      <p className="text-sm text-gray-500">Contact: {landlord.contactPerson}</p>
-                      <p className="text-sm text-gray-500">ID: {landlord.id}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm">
-                        <Mail className="h-3 w-3 mr-1" />
-                        {landlord.email}
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <Phone className="h-3 w-3 mr-1" />
-                        {landlord.phone}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="text-sm">PAN: {landlord.pan}</p>
-                      <p className="text-sm">GST: {landlord.gst}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="flex items-center text-sm">
-                        <Building className="h-3 w-3 mr-1" />
-                        {landlord.propertiesCount} Properties
-                      </div>
-                      <p className="text-sm font-medium">₹{(landlord.totalValue / 10000000).toFixed(1)}Cr</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="default">{landlord.status}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {loadingLandlords ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                    Loading landlords...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : filteredLandlords.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                    No landlords found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredLandlords.map((landlord) => (
+                  <TableRow key={landlord.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{landlord.company_name}</p>
+                        <p className="text-sm text-gray-500">Contact: {landlord.contact_person}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-sm">
+                          <Mail className="h-3 w-3 mr-1" />
+                          {landlord.email}
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <Phone className="h-3 w-3 mr-1" />
+                          {landlord.phone}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        {landlord.pan && <p className="text-sm">PAN: {landlord.pan}</p>}
+                        {landlord.gst && <p className="text-sm">GST: {landlord.gst}</p>}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={landlord.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}>
+                        {landlord.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleEditLandlord(landlord.id)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-red-600">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

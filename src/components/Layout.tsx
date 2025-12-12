@@ -9,13 +9,13 @@ const Layout = () => {
 
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar 
-        isCollapsed={sidebarCollapsed} 
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+      <Sidebar
+        isCollapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-auto bg-white">
+        <main className="flex-1 overflow-y-auto bg-white p-0 m-0">
           <Outlet />
         </main>
       </div>
