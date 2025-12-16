@@ -17,63 +17,18 @@ const RentalDashboard = () => {
         <div className="p-6 space-y-6 bg-white min-h-full">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#1a1a1a]">Rental Dashboard</h1>
+                    <h1 className="text-3xl font-bold text-[#1a1a1a]">Rental Agreement</h1>
                     <p className="text-[#1a1a1a]/70 mt-2">Manage your rental properties and agreements</p>
                 </div>
                 <Button onClick={() => navigate('/rental/new')} className="bg-[#C72030] hover:bg-[#A01825] text-white">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add New Rental
+                    Add Rental Agreement
                 </Button>
             </div>
 
-            <Tabs defaultValue="rentals" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
-                    <TabsTrigger
-                        value="rentals"
-                        className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
-                    >
-                        <Home className="h-4 w-4" />
-                        My Rentals
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="payments"
-                        className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
-                    >
-                        <CreditCard className="h-4 w-4" />
-                        Payment History
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="maintenance"
-                        className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
-                    >
-                        <Calendar className="h-4 w-4" />
-                        Maintenance
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="documents"
-                        className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
-                    >
-                        <FileText className="h-4 w-4" />
-                        Documents
-                    </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="rentals" className="bg-white">
-                    <MyRentals />
-                </TabsContent>
-
-                <TabsContent value="payments" className="bg-white">
-                    <PaymentHistory />
-                </TabsContent>
-
-                <TabsContent value="maintenance" className="bg-white">
-                    <MaintenanceRequests />
-                </TabsContent>
-
-                <TabsContent value="documents" className="bg-white">
-                    <Documents />
-                </TabsContent>
-            </Tabs>
+            <div className="bg-white">
+                <MyRentals />
+            </div>
         </div>
     );
 };

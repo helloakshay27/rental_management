@@ -31,7 +31,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: UserCheck, label: 'Landlord Dashboard', path: '/rentals' },
-    { icon: Home, label: 'Rental Dashboard', path: '/rental-dashboard' },
+    { icon: Home, label: 'Rental Agreement', path: '/rental-dashboard' },
     { icon: User, label: 'Tenant Dashboard', path: '/tenant-dashboard' },
     { icon: DollarSign, label: 'OPEX Management', path: '/opex' },
     { icon: Zap, label: 'Utilities', path: '/utilities' },

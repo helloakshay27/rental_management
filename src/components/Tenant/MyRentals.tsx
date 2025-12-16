@@ -162,11 +162,7 @@ const MyRentals = () => {
       </div>
 
       {/* Main Content Card */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="bg-white border-b border-gray-200 pb-6">
-          <CardTitle className="text-[#1a1a1a]">My Rental Properties</CardTitle>
-        </CardHeader>
-        <CardContent className="bg-white pt-6">
+        <CardContent className="bg-white pt-6 px-0 mx-0">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
@@ -279,7 +275,6 @@ const MyRentals = () => {
             </Table>
           </div>
         </CardContent>
-      </Card>
     </div>
   );
 };
