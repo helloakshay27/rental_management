@@ -22,6 +22,7 @@ const AddRentalPage = () => {
         property: '',
         leaseStart: '',
         leaseEnd: '',
+        status: 'active',
         area: 30000,
         perSqFtRate: 0,
         basicRent: 0,
@@ -38,6 +39,8 @@ const AddRentalPage = () => {
         rentPaymentType: 'advance',
         rentDueDate: '1st',
         escalationPercentage: 0,
+        escalation_type: 'annual',
+        escalation_interval: 1,
         applyLatePenalty: false,
         penaltyPercentage: 0,
         applyLateInterest: false,
@@ -142,7 +145,7 @@ const AddRentalPage = () => {
                     monthly_rent: formData.totalMonthlyRent.toString(),
                     basic_rent: formData.basicRent.toString(),
                     security_deposit: formData.securityDeposit.toString(),
-                    status: 'active',
+                    status: formData.status,
                     lease_type: 'commercial',
                     charges: '0',
                     late_fee_percentage: formData.penaltyPercentage.toString(),
@@ -156,6 +159,10 @@ const AddRentalPage = () => {
                     tds_amount: formData.tdsAmount,
                     tds_percentage: formData.tdsPercentage,
                     gst_amount: formData.gstAmount,
+                    gst_applicable: formData.gstApplicable,
+                    cgst_percentage: formData.cgst,
+                    sgst_percentage: formData.sgst,
+                    igst_percentage: formData.igst,
                     annual_escalation_percentage: formData.escalationPercentage,
                     penalty_percentage: formData.penaltyPercentage,
                     interest_percentage: formData.interestPercentage,
@@ -164,8 +171,8 @@ const AddRentalPage = () => {
                     interest_applicable: formData.applyLateInterest,
                     rent_due_type: 'monthly',
                     rent_due_date: parseInt(formData.rentDueDate) || 1,
-                    escalation_interval: 12,
-                    escalation_type: 'annual',
+                    escalation_interval: formData.escalation_interval,
+                    escalation_type: formData.escalation_type,
                     notice_terms: {
                         from_landlord_days: formData.from_landlord_days,
                         from_vil_days: formData.from_vil_days,
@@ -416,7 +423,7 @@ const AddRentalPage = () => {
                                                             step="0.01"
                                                             className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                                             placeholder="0"
-                                                            value={formData.cgst}
+                                                            value={formData.cgst || ''}
                                                             disabled={formData.igst > 0}
                                                             onChange={(e) => {
                                                                 const cgst = parseFloat(e.target.value) || 0;
@@ -437,7 +444,7 @@ const AddRentalPage = () => {
                                                             step="0.01"
                                                             className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                                             placeholder="0"
-                                                            value={formData.sgst}
+                                                            value={formData.sgst || ''}
                                                             disabled={formData.igst > 0}
                                                             onChange={(e) => {
                                                                 const sgst = parseFloat(e.target.value) || 0;
@@ -459,7 +466,7 @@ const AddRentalPage = () => {
                                                         step="0.01"
                                                         className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                                         placeholder="0"
-                                                        value={formData.igst}
+                                                        value={formData.igst || ''}
                                                         disabled={formData.cgst > 0 || formData.sgst > 0}
                                                         onChange={(e) => {
                                                             const igst = parseFloat(e.target.value) || 0;
@@ -510,7 +517,7 @@ const AddRentalPage = () => {
                                                             step="0.01"
                                                             className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                                             placeholder="10"
-                                                            value={formData.tdsPercentage}
+                                                            value={formData.tdsPercentage || ''}
                                                             onChange={(e) => {
                                                                 const tdsPercentage = parseFloat(e.target.value) || 0;
                                                                 const tdsAmount = (tdsPercentage * formData.basicRent / 100);
@@ -543,7 +550,7 @@ const AddRentalPage = () => {
                                                         step="0.01"
                                                         className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                                         placeholder="0"
-                                                        value={formData.securityDeposit}
+                                                        value={formData.securityDeposit || ''}
                                                         onChange={(e) => setFormData(prev => ({ ...prev, securityDeposit: parseFloat(e.target.value) || 0 }))}
                                                     />
                                                 </div>
@@ -597,6 +604,19 @@ const AddRentalPage = () => {
                                 />
                             </div>
                         </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-gray-900 font-medium">Status</Label>
+                            <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                                <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
                     <div className="space-y-4">
@@ -644,8 +664,37 @@ const AddRentalPage = () => {
                     <div className="p-6 bg-[#FAF9F6] rounded-lg border border-gray-100 space-y-6">
                         <h3 className="font-semibold text-lg mb-6 text-gray-900">Escalation & Penalty Settings</h3>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-gray-900 font-medium">Escalation Type</Label>
+                                <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))}>
+                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectValue placeholder="Select escalation type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="monthly">Monthly</SelectItem>
+                                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                                        <SelectItem value="annual">Annual</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-gray-900 font-medium">Escalation Interval</Label>
+                                <Input
+                                    type="number"
+                                    min="1"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    placeholder="1"
+                                    value={formData.escalation_interval || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, escalation_interval: parseInt(e.target.value) || 1 }))}
+                                />
+                                <p className="text-xs text-gray-500">Rent increases every {formData.escalation_interval} {formData.escalation_type === 'monthly' ? 'month(s)' : formData.escalation_type === 'quarterly' ? 'quarter(s)' : 'year(s)'}</p>
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Annual Escalation Percentage (%)</Label>
+                            <Label className="text-gray-900 font-medium">Escalation Percentage (%)</Label>
                             <Input
                                 type="number"
                                 min="0"
@@ -653,10 +702,10 @@ const AddRentalPage = () => {
                                 step="0.01"
                                 className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                 placeholder="0"
-                                value={formData.escalationPercentage}
+                                value={formData.escalationPercentage || ''}
                                 onChange={(e) => setFormData(prev => ({ ...prev, escalationPercentage: parseFloat(e.target.value) || 0 }))}
                             />
-                            <p className="text-xs text-gray-500">Rent will increase by this percentage annually</p>
+                            <p className="text-xs text-gray-500">Rent will increase by this percentage</p>
                         </div>
 
                         <div className="space-y-3">
@@ -680,7 +729,7 @@ const AddRentalPage = () => {
                                             step="0.01"
                                             className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                             placeholder="0"
-                                            value={formData.penaltyPercentage}
+                                            value={formData.penaltyPercentage || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, penaltyPercentage: parseFloat(e.target.value) || 0 }))}
                                         />
                                     </div>
@@ -710,7 +759,7 @@ const AddRentalPage = () => {
                                             step="0.01"
                                             className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                             placeholder="0"
-                                            value={formData.interestPercentage}
+                                            value={formData.interestPercentage || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, interestPercentage: parseFloat(e.target.value) || 0 }))}
                                         />
                                     </div>
@@ -784,7 +833,7 @@ const AddRentalPage = () => {
                             min="0"
                             className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                             placeholder="e.g., 30"
-                            value={formData.rent_free_period_days}
+                            value={formData.rent_free_period_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, rent_free_period_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
@@ -796,7 +845,7 @@ const AddRentalPage = () => {
                             min="0"
                             className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                             placeholder="e.g., 180"
-                            value={formData.lock_in_period_days}
+                            value={formData.lock_in_period_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
@@ -814,7 +863,7 @@ const AddRentalPage = () => {
                             min="0"
                             className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                             placeholder="30"
-                            value={formData.from_landlord_days}
+                            value={formData.from_landlord_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, from_landlord_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
@@ -826,7 +875,7 @@ const AddRentalPage = () => {
                             min="0"
                             className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                             placeholder="60"
-                            value={formData.from_vil_days}
+                            value={formData.from_vil_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, from_vil_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>

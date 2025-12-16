@@ -12,6 +12,8 @@ import PropertyDetails from "./pages/PropertyDetails";
 import RentalManagement from "./pages/RentalManagement";
 import RentalDashboard from "./pages/RentalDashboard";
 import AddRentalPage from "./pages/AddRentalPage";
+import EditRentalPage from "./pages/EditRentalPage";
+import RentalDetailsPage from "./pages/RentalDetailsPage";
 import TenantDashboard from "./pages/TenantDashboard";
 import Invoicing from "./pages/Invoicing";
 import NotFound from "./pages/NotFound";
@@ -55,6 +57,8 @@ const App = () => {
                 <Route path="rentals" element={<RentalManagement />} />
                 <Route path="rental-dashboard" element={<RentalDashboard />} />
                 <Route path="rental/new" element={<AddRentalPage />} />
+                <Route path="rental/edit/:id" element={<EditRentalPage />} />
+                <Route path="rental/:id" element={<RentalDetailsPage />} />
                 <Route path="tenant-dashboard" element={<TenantDashboard />} />
                 <Route path="invoicing" element={<Invoicing />} />
                 <Route path="opex" element={<OpexManagement />} />

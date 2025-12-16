@@ -1,65 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, MapPin, Phone, Mail, Eye, FileText, CreditCard, Home, Users, DollarSign, CheckCircle } from 'lucide-react';
+import { Search, MapPin, Phone, Mail, Eye, FileText, CreditCard, Home, Users, DollarSign, CheckCircle, Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth, getToken } from '@/lib/api';
 
 const MyRentals = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
+  const [myRentals, setMyRentals] = useState<any[]>([]);
+  const navigate = useNavigate();
 
-  // Mock data for tenant's rentals
-  const myRentals = [
-    {
-      id: 'TR001',
-      propertyName: 'Sunset Apartments - Unit 2A',
-      address: '123 Sunset Blvd, Downtown',
-      landlordName: 'John Smith Properties',
-      landlordPhone: '+91 98765 43210',
-      landlordEmail: 'john@smithproperties.com',
-      monthlyRent: 25000,
-      securityDeposit: 50000,
-      leaseStart: '2024-01-15',
-      leaseEnd: '2024-12-31',
-      status: 'active',
-      nextPaymentDue: '2024-02-01',
-      propertyType: '2BHK Apartment'
-    },
-    {
-      id: 'TR002',
-      propertyName: 'Green Valley Villa',
-      address: '456 Green Valley Road, Suburbs',
-      landlordName: 'Sarah Johnson Realty',
-      landlordPhone: '+91 87654 32109',
-      landlordEmail: 'sarah@johnsonrealty.com',
-      monthlyRent: 35000,
-      securityDeposit: 70000,
-      leaseStart: '2023-08-01',
-      leaseEnd: '2025-07-31',
-      status: 'active',
-      nextPaymentDue: '2024-02-01',
-      propertyType: '3BHK Villa'
-    },
-    {
-      id: 'TR003',
-      propertyName: 'City Center Office Space',
-      address: '789 Business District, City Center',
-      landlordName: 'Metro Commercial',
-      landlordPhone: '+91 76543 21098',
-      landlordEmail: 'info@metrocommercial.com',
-      monthlyRent: 45000,
-      securityDeposit: 135000,
-      leaseStart: '2024-01-01',
-      leaseEnd: '2026-12-31',
-      status: 'active',
-      nextPaymentDue: '2024-02-01',
-      propertyType: 'Commercial Office'
-    }
-  ];
+  
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -77,10 +35,12 @@ const MyRentals = () => {
   const handleViewDetails = (rentalId: string) => {
     console.log('Viewing details for rental:', rentalId);
     // Add navigation or modal logic here
+    navigate(`/rental/${rentalId}`);
   };
 
-  const handleViewContract = (rentalId: string) => {
+  const handleEdit = (rentalId: string) => {
     console.log('Viewing contract for rental:', rentalId);
+    navigate(`/rental/edit/${rentalId}`);
     // Add contract viewing logic here
   };
 
@@ -90,15 +50,36 @@ const MyRentals = () => {
   };
 
   const filteredRentals = myRentals.filter(rental => {
-    const matchesSearch = rental.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         rental.landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         rental.address.toLowerCase().includes(searchTerm.toLowerCase());
+    const propertyName = rental.property?.name || '';
+    const landlordName = rental.property?.landlord?.company_name || rental.property?.landlord?.contact_person || rental.tenant?.company_name || '';
+    const address = rental.property?.address || '';
+    
+    const matchesSearch = propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         address.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const totalMonthlyRent = myRentals.reduce((sum, rental) => sum + rental.monthlyRent, 0);
-  const totalSecurityDeposit = myRentals.reduce((sum, rental) => sum + rental.securityDeposit, 0);
+  const totalMonthlyRent = myRentals.reduce((sum, rental) => sum + parseFloat(rental.monthly_rent || rental.basic_rent || 0), 0);
+  const totalSecurityDeposit = myRentals.reduce((sum, rental) => sum + parseFloat(rental.security_deposit || 0), 0);
+
+  useEffect(() => {
+    const fetchRentals = async () => {
+      try {
+        setLoading(true);
+        const response = await getAuth('/leases');
+        setMyRentals(response.leases || []);
+      } catch (error) {
+        console.error('Error fetching rentals:', error);
+        setMyRentals([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRentals();
+  }, []);
 
   return (
     <div className="space-y-6 bg-white">
@@ -202,75 +183,101 @@ const MyRentals = () => {
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
-                {filteredRentals.map((rental) => (
-                  <TableRow key={rental.id} className="bg-white border-b border-gray-100">
-                    <TableCell className="bg-white">
-                      <div>
-                        <div className="font-medium text-[#1a1a1a]">{rental.propertyName}</div>
-                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {rental.address}
-                        </div>
-                        <div className="text-sm text-[#1a1a1a]/60 mt-1">{rental.propertyType}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="bg-white">
-                      <div>
-                        <div className="font-medium text-[#1a1a1a]">{rental.landlordName}</div>
-                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
-                          <Phone className="h-3 w-3 mr-1" />
-                          {rental.landlordPhone}
-                        </div>
-                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
-                          <Mail className="h-3 w-3 mr-1" />
-                          {rental.landlordEmail}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="bg-white">
-                      <div className="text-sm">
-                        <div className="text-[#1a1a1a]">{new Date(rental.leaseStart).toLocaleDateString()} -</div>
-                        <div className="text-[#1a1a1a]">{new Date(rental.leaseEnd).toLocaleDateString()}</div>
-                        <div className="text-xs text-[#1a1a1a]/60 mt-1">
-                          Next payment: {new Date(rental.nextPaymentDue).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium text-[#1a1a1a] bg-white">₹{rental.monthlyRent.toLocaleString()}</TableCell>
-                    <TableCell className="bg-white">{getStatusBadge(rental.status)}</TableCell>
-                    <TableCell className="bg-white">
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          title="View Details" 
-                          className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handleViewDetails(rental.id)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          title="View Contract" 
-                          className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handleViewContract(rental.id)}
-                        >
-                          <FileText className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          title="Pay Rent" 
-                          className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handlePayRent(rental.id)}
-                        >
-                          <CreditCard className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                      Loading rentals...
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : filteredRentals.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                      No rentals found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredRentals.map((rental) => (
+                    <TableRow key={rental.id} className="bg-white border-b border-gray-100">
+                      <TableCell className="bg-white">
+                        <div>
+                          <div className="font-medium text-[#1a1a1a]">
+                            {rental.property?.name || rental.lease_number || 'N/A'}
+                          </div>
+                          <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {rental.property?.address || 'N/A'}
+                          </div>
+                          <div className="text-sm text-[#1a1a1a]/60 mt-1">
+                            {rental.property?.city || ''} {rental.property?.state || ''}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="bg-white">
+                        <div>
+                          <div className="font-medium text-[#1a1a1a]">
+                            {rental.property?.landlord?.company_name || rental.property?.landlord?.contact_person || rental.tenant?.company_name || 'N/A'}
+                          </div>
+                          <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
+                            <Phone className="h-3 w-3 mr-1" />
+                            {rental.property?.landlord?.phone || rental.tenant?.phone || 'N/A'}
+                          </div>
+                          <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
+                            <Mail className="h-3 w-3 mr-1" />
+                            {rental.property?.landlord?.email || rental.tenant?.email || 'N/A'}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="bg-white">
+                        <div className="text-sm">
+                          <div className="text-[#1a1a1a]">
+                            {rental.start_date ? new Date(rental.start_date).toLocaleDateString() : 'N/A'} -
+                          </div>
+                          <div className="text-[#1a1a1a]">
+                            {rental.end_date ? new Date(rental.end_date).toLocaleDateString() : 'N/A'}
+                          </div>
+                          <div className="text-xs text-[#1a1a1a]/60 mt-1">
+                            Rent due: Day {rental.rent_due_date || 'N/A'} of month
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium text-[#1a1a1a] bg-white">
+                        ₹{parseFloat(rental.monthly_rent || rental.basic_rent || 0).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="bg-white">{getStatusBadge(rental.status)}</TableCell>
+                      <TableCell className="bg-white">
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="View Details" 
+                            className="text-[#C72030] hover:bg-[#C72030]/10"
+                            onClick={() => handleViewDetails(rental.id)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="View Contract" 
+                            className="text-[#C72030] hover:bg-[#C72030]/10"
+                            onClick={() => handleEdit(String(rental.id))}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Pay Rent" 
+                            className="text-[#C72030] hover:bg-[#C72030]/10"
+                            onClick={() => handlePayRent(rental.id)}
+                          >
+                            <CreditCard className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
