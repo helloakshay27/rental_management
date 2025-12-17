@@ -36,6 +36,7 @@ const AddRentalPage = () => {
         tdsAmount: 0,
         securityDeposit: 0,
         totalMonthlyRent: 0,
+        maintenanceCharges: 0,
         rentPaymentType: 'advance',
         rentDueDate: '1st',
         escalationPercentage: 0,
@@ -142,12 +143,12 @@ const AddRentalPage = () => {
                     property_id: parseInt(formData.property) || 1,
                     start_date: formData.leaseStart,
                     end_date: formData.leaseEnd,
-                    monthly_rent: formData.totalMonthlyRent.toString(),
+                    monthly_rent: (formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2),
                     basic_rent: formData.basicRent.toString(),
                     security_deposit: formData.securityDeposit.toString(),
                     status: formData.status,
                     lease_type: 'commercial',
-                    charges: '0',
+                    charges: formData.maintenanceCharges?.toString() || '0',
                     late_fee_percentage: formData.penaltyPercentage.toString(),
                     purpose_of_agreement: formData.purpose_of_agreement,
                     stamp_duty_sharing: formData.stamp_duty_sharing,
@@ -540,6 +541,9 @@ const AddRentalPage = () => {
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
+                                    )}
+                                </div>
                                             <div className="space-y-2">
                                                 <Label className="text-gray-900 font-medium">Security Deposit (₹)</Label>
                                                 <div className="relative">
@@ -555,9 +559,21 @@ const AddRentalPage = () => {
                                                     />
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-gray-900 font-medium">Maintenance Charges (₹)</Label>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                                    <Input
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                        placeholder="0"
+                                                        value={formData.maintenanceCharges || ''}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
+                                                    />
+                                                </div>
+                                            </div>
                             </div>
 
                             <div className="space-y-2">
@@ -647,14 +663,14 @@ const AddRentalPage = () => {
 
                         <div className="space-y-2">
                             <Label className="flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date</Label>
-                            <Select defaultValue="1st">
+                            <Select value={formData.rentDueDate} onValueChange={val => setFormData(prev => ({ ...prev, rentDueDate: val }))}>
                                 <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                     <SelectValue placeholder="Select date" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="1st">1st of every month</SelectItem>
-                                    <SelectItem value="5th">5th of every month</SelectItem>
-                                    <SelectItem value="10th">10th of every month</SelectItem>
+                                    {Array.from({ length: 31 }, (_, i) => (
+                                        <SelectItem key={i+1} value={`${i+1}`}>{`${i+1}${['st','nd','rd'][((i+1)%10)-1] && ![11,12,13].includes(i+1) ? ['st','nd','rd'][((i+1)%10)-1] : 'th'} of every month`}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                             <p className="text-xs text-gray-500">Rent will be due on this date before each month begins</p>

@@ -174,6 +174,7 @@ const MyRentals = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 border-b border-gray-200">
+                  <TableHead className="text-[#1a1a1a] font-medium">Agreement ID</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Property Details</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Landlord</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>
@@ -185,19 +186,24 @@ const MyRentals = () => {
               <TableBody className="bg-white">
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                       Loading rentals...
                     </TableCell>
                   </TableRow>
                 ) : filteredRentals.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                       No rentals found
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredRentals.map((rental) => (
                     <TableRow key={rental.id} className="bg-white border-b border-gray-100">
+                      <TableCell className="bg-white">
+                        <div className="font-medium text-[#1a1a1a]">
+                          {rental.lease_number || 'N/A'}
+                        </div>
+                      </TableCell>
                       <TableCell className="bg-white">
                         <div>
                           <div className="font-medium text-[#1a1a1a]">
