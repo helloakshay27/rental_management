@@ -11,9 +11,11 @@ import { Switch } from '@/components/ui/switch';
 import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, getToken } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 const AddRentalPage = () => {
     const navigate = useNavigate();
+    const { toast } = useToast();
     const [properties, setProperties] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
     const [loadingProperties, setLoadingProperties] = useState(true);
@@ -68,8 +70,8 @@ const AddRentalPage = () => {
     const [parkings, setParkings] = useState([{
         vehicle_type: '2wheeler',
         parking_type: 'free',
-        count: 0,
-        charge: 0
+        count: '',
+        charge: ''
     }]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,8 +110,8 @@ const AddRentalPage = () => {
         setParkings([...parkings, {
             vehicle_type: '2wheeler',
             parking_type: 'free',
-            count: 0,
-            charge: 0
+            count: '',
+            charge: ''
         }]);
     };
 
@@ -125,6 +127,24 @@ const AddRentalPage = () => {
 
     const handleSubmit = async () => {
         try {
+            // Validation
+            if (formData.signing_authority_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.signing_authority_email)) {
+                toast({
+                    variant: "destructive",
+                    title: "Invalid Email",
+                    description: "Please enter a valid email for the signing authority.",
+                });
+                return;
+            }
+            if (formData.signing_authority_phone && !/^\d{10}$/.test(formData.signing_authority_phone)) {
+                toast({
+                    variant: "destructive",
+                    title: "Invalid Phone",
+                    description: "Please enter a valid 10-digit phone number for the signing authority.",
+                });
+                return;
+            }
+
             setIsSubmitting(true);
 
             // Convert file to base64 if exists
@@ -146,10 +166,11 @@ const AddRentalPage = () => {
                     monthly_rent: (formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2),
                     basic_rent: formData.basicRent.toString(),
                     security_deposit: formData.securityDeposit.toString(),
-                    status: formData.status,
+                    status: 'active',
                     lease_type: 'commercial',
                     charges: formData.maintenanceCharges?.toString() || '0',
                     late_fee_percentage: formData.penaltyPercentage.toString(),
+                    terms_conditions: formData.notes,
                     purpose_of_agreement: formData.purpose_of_agreement,
                     stamp_duty_sharing: formData.stamp_duty_sharing,
                     agreement_sign_off_date: formData.agreement_sign_off_date,
@@ -202,19 +223,26 @@ const AddRentalPage = () => {
                     parkings_attributes: parkings.map(p => ({
                         vehicle_type: p.vehicle_type === '2wheeler' ? 'bike' : 'car',
                         parking_type: p.parking_type,
-                        count: p.count,
-                        charge: p.charge.toString()
+                        count: parseInt(p.count as string) || 0,
+                        charge: (p.charge || 0).toString()
                     }))
                 }
             };
 
             const response = await postAuth('/leases', payload);
             console.log('Lease created:', response);
-            alert('Rental added successfully!');
+            toast({
+                title: "Success",
+                description: "Rental added successfully!",
+            });
             navigate(-1);
         } catch (error: any) {
             console.error('Error creating lease:', error);
-            alert(error.message || 'Failed to create rental');
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: error.message || 'Failed to create rental',
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -324,10 +352,15 @@ const AddRentalPage = () => {
                                             <div>
                                                 <p className="text-xs text-gray-500">Landlord:</p>
                                                 <p className="text-sm text-gray-900 text-capitalize">
-                                                    Landlord:
-                                                    <span style={{ textTransform: 'capitalize', marginLeft: '4px' }}>
-                                                        { selectedPropertyDetails.landlord.contact_person}
+                                                    <span style={{ textTransform: 'capitalize' }}>
+                                                        {selectedPropertyDetails.landlord.contact_person}
                                                     </span>
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {selectedPropertyDetails.landlord.email}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {selectedPropertyDetails.landlord.phone}
                                                 </p>
                                             </div>
                                         </div>
@@ -544,36 +577,36 @@ const AddRentalPage = () => {
                                         </div>
                                     )}
                                 </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-gray-900 font-medium">Security Deposit (₹)</Label>
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                                                    <Input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                                        placeholder="0"
-                                                        value={formData.securityDeposit || ''}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, securityDeposit: parseFloat(e.target.value) || 0 }))}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-gray-900 font-medium">Maintenance Charges (₹)</Label>
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                                                    <Input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                                        placeholder="0"
-                                                        value={formData.maintenanceCharges || ''}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
-                                                    />
-                                                </div>
-                                            </div>
+                                <div className="space-y-2">
+                                    <Label className="text-gray-900 font-medium">Security Deposit (₹)</Label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            placeholder="0"
+                                            value={formData.securityDeposit || ''}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, securityDeposit: parseFloat(e.target.value) || 0 }))}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-gray-900 font-medium">Maintenance Charges (₹)</Label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            placeholder="0"
+                                            value={formData.maintenanceCharges || ''}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="space-y-2">
@@ -633,6 +666,16 @@ const AddRentalPage = () => {
                                 </SelectContent>
                             </Select>
                         </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-gray-900 font-medium">Additional Notes</Label>
+                            <Textarea
+                                placeholder="Any additional notes or comments"
+                                className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                value={formData.notes}
+                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-4">
@@ -669,7 +712,7 @@ const AddRentalPage = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                     {Array.from({ length: 31 }, (_, i) => (
-                                        <SelectItem key={i+1} value={`${i+1}`}>{`${i+1}${['st','nd','rd'][((i+1)%10)-1] && ![11,12,13].includes(i+1) ? ['st','nd','rd'][((i+1)%10)-1] : 'th'} of every month`}</SelectItem>
+                                        <SelectItem key={i + 1} value={`${i + 1}`}>{`${i + 1}${['st', 'nd', 'rd'][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ['st', 'nd', 'rd'][((i + 1) % 10) - 1] : 'th'} of every month`}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -1028,10 +1071,13 @@ const AddRentalPage = () => {
                                 <Select
                                     value={parking.parking_type}
                                     onValueChange={(value) => {
-                                        updateParking(index, 'parking_type', value);
-                                        if (value === 'free') {
-                                            updateParking(index, 'charge', 0);
-                                        }
+                                        const updated = [...parkings];
+                                        updated[index] = {
+                                            ...updated[index],
+                                            parking_type: value,
+                                            charge: value === 'free' ? '' : updated[index].charge
+                                        };
+                                        setParkings(updated);
                                     }}
                                 >
                                     <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
@@ -1052,7 +1098,7 @@ const AddRentalPage = () => {
                                     className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="0"
                                     value={parking.count}
-                                    onChange={(e) => updateParking(index, 'count', parseInt(e.target.value) || 0)}
+                                    onChange={(e) => updateParking(index, 'count', e.target.value)}
                                 />
                             </div>
 
@@ -1066,7 +1112,7 @@ const AddRentalPage = () => {
                                     placeholder="0"
                                     value={parking.charge}
                                     disabled={parking.parking_type === 'free'}
-                                    onChange={(e) => updateParking(index, 'charge', parseFloat(e.target.value) || 0)}
+                                    onChange={(e) => updateParking(index, 'charge', e.target.value)}
                                 />
                             </div>
 
@@ -1097,15 +1143,7 @@ const AddRentalPage = () => {
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <Label className="text-gray-900 font-medium">Additional Notes</Label>
-                    <Textarea
-                        placeholder="Any additional notes or comments"
-                        className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                        value={formData.notes}
-                        onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                    />
-                </div>
+
             </div>
 
             <div className="flex justify-end gap-3 mt-8">
@@ -1118,7 +1156,7 @@ const AddRentalPage = () => {
                     {isSubmitting ? 'Adding...' : 'Add Rental'}
                 </Button>
             </div>
-        </div>
+        </div >
     );
 };
 

@@ -11,9 +11,11 @@ import { Switch } from '@/components/ui/switch';
 import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth, patchAuth, getToken } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 const EditRentalPage = () => {
     const navigate = useNavigate();
+    const { toast } = useToast();
     const { id } = useParams();
     const [properties, setProperties] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
@@ -58,6 +60,7 @@ const EditRentalPage = () => {
         rent_commencement_date: '',
         rent_free_period_days: 0,
         lock_in_period_days: 0,
+        signing_authority_id: null,
         signing_authority_name: '',
         signing_authority_designation: '',
         signing_authority_email: '',
@@ -66,12 +69,13 @@ const EditRentalPage = () => {
         notes: ''
     });
 
-    const [parkings, setParkings] = useState([{
+    const [parkings, setParkings] = useState<any[]>([{
         vehicle_type: '2wheeler',
         parking_type: 'free',
-        count: 0,
-        charge: 0
+        count: '',
+        charge: ''
     }]);
+    const [deletedParkings, setDeletedParkings] = useState<number[]>([]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -98,11 +102,11 @@ const EditRentalPage = () => {
     useEffect(() => {
         const fetchLease = async () => {
             if (!id) return;
-            
+
             try {
                 setLoadingLease(true);
                 const data = await getAuth(`/leases/${id}`);
-                
+
                 // Map API response to formData
                 if (data) {
                     setFormData({
@@ -143,6 +147,7 @@ const EditRentalPage = () => {
                         rent_commencement_date: data.rent_commencement_date || '',
                         rent_free_period_days: data.rent_free_period_days || 0,
                         lock_in_period_days: data.lock_in_period_days || 0,
+                        signing_authority_id: data.signing_authorities?.[0]?.id || null,
                         signing_authority_name: data.signing_authorities?.[0]?.name || '',
                         signing_authority_designation: data.signing_authorities?.[0]?.designation || '',
                         signing_authority_email: data.signing_authorities?.[0]?.email || '',
@@ -154,10 +159,11 @@ const EditRentalPage = () => {
                     // Set parkings if available
                     if (data.parkings && data.parkings.length > 0) {
                         setParkings(data.parkings.map((p: any) => ({
+                            id: p.id,
                             vehicle_type: p.vehicle_type === 'bike' ? '2wheeler' : '4wheeler',
                             parking_type: p.parking_type,
-                            count: p.count || 0,
-                            charge: parseFloat(p.charge) || 0
+                            count: p.count || '',
+                            charge: parseFloat(p.charge) || ''
                         })));
                     }
 
@@ -173,7 +179,11 @@ const EditRentalPage = () => {
                 }
             } catch (error) {
                 console.error('Failed to fetch lease:', error);
-                alert('Failed to load lease data');
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Failed to load lease data",
+                });
             } finally {
                 setLoadingLease(false);
             }
@@ -198,12 +208,16 @@ const EditRentalPage = () => {
         setParkings([...parkings, {
             vehicle_type: '2wheeler',
             parking_type: 'free',
-            count: 0,
-            charge: 0
+            count: '',
+            charge: ''
         }]);
     };
 
     const removeParking = (index: number) => {
+        const parkingToRemove = parkings[index];
+        if (parkingToRemove.id) {
+            setDeletedParkings(prev => [...prev, parkingToRemove.id]);
+        }
         setParkings(parkings.filter((_, i) => i !== index));
     };
 
@@ -215,6 +229,24 @@ const EditRentalPage = () => {
 
     const handleSubmit = async () => {
         try {
+            // Validation
+            if (formData.signing_authority_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.signing_authority_email)) {
+                toast({
+                    variant: "destructive",
+                    title: "Invalid Email",
+                    description: "Please enter a valid email for the signing authority.",
+                });
+                return;
+            }
+            if (formData.signing_authority_phone && !/^\d{10}$/.test(formData.signing_authority_phone)) {
+                toast({
+                    variant: "destructive",
+                    title: "Invalid Phone",
+                    description: "Please enter a valid 10-digit phone number for the signing authority.",
+                });
+                return;
+            }
+
             setIsSubmitting(true);
 
             // Convert file to base64 if exists
@@ -274,6 +306,7 @@ const EditRentalPage = () => {
                     },
                     signing_authorities_attributes: [
                         {
+                            ...(formData.signing_authority_id ? { id: formData.signing_authority_id } : {}),
                             name: formData.signing_authority_name,
                             designation: formData.signing_authority_designation,
                             email: formData.signing_authority_email,
@@ -289,22 +322,36 @@ const EditRentalPage = () => {
                             base64_data: base64File
                         }
                     ] : [],
-                    parkings_attributes: parkings.map(p => ({
-                        vehicle_type: p.vehicle_type === '2wheeler' ? 'bike' : 'car',
-                        parking_type: p.parking_type,
-                        count: p.count,
-                        charge: p.charge.toString()
-                    }))
+                    parkings_attributes: [
+                        ...parkings.map((p: any) => ({
+                            id: p.id,
+                            vehicle_type: p.vehicle_type === '2wheeler' ? 'bike' : 'car',
+                            parking_type: p.parking_type,
+                            count: parseInt(p.count as string) || 0,
+                            charge: (p.charge || 0).toString()
+                        })),
+                        ...deletedParkings.map(id => ({
+                            id,
+                            _destroy: true
+                        }))
+                    ]
                 }
             };
 
             const response = await patchAuth(`/leases/${id}`, payload);
             console.log('Lease updated:', response);
-            alert('Rental updated successfully!');
+            toast({
+                title: "Success",
+                description: "Rental updated successfully!",
+            });
             navigate(-1);
         } catch (error: any) {
             console.error('Error updating lease:', error);
-            alert(error.message || 'Failed to update rental');
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: error.message || 'Failed to update rental',
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -414,10 +461,15 @@ const EditRentalPage = () => {
                                             <div>
                                                 <p className="text-xs text-gray-500">Landlord:</p>
                                                 <p className="text-sm text-gray-900 text-capitalize">
-                                                    Landlord:
-                                                    <span style={{ textTransform: 'capitalize', marginLeft: '4px' }}>
-                                                        { selectedPropertyDetails.landlord.contact_person}
+                                                    <span style={{ textTransform: 'capitalize' }}>
+                                                        {selectedPropertyDetails.landlord.contact_person}
                                                     </span>
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {selectedPropertyDetails.landlord.email}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {selectedPropertyDetails.landlord.phone}
                                                 </p>
                                             </div>
                                         </div>
@@ -707,6 +759,16 @@ const EditRentalPage = () => {
                                     <SelectItem value="inactive">Inactive</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-gray-900 font-medium">Additional Notes</Label>
+                            <Textarea
+                                placeholder="Any additional notes or comments"
+                                className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                value={formData.notes}
+                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                            />
                         </div>
                     </div>
 
@@ -1103,10 +1165,13 @@ const EditRentalPage = () => {
                                 <Select
                                     value={parking.parking_type}
                                     onValueChange={(value) => {
-                                        updateParking(index, 'parking_type', value);
-                                        if (value === 'free') {
-                                            updateParking(index, 'charge', 0);
-                                        }
+                                        const updated = [...parkings];
+                                        updated[index] = {
+                                            ...updated[index],
+                                            parking_type: value,
+                                            charge: value === 'free' ? '' : updated[index].charge
+                                        };
+                                        setParkings(updated);
                                     }}
                                 >
                                     <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
@@ -1127,7 +1192,7 @@ const EditRentalPage = () => {
                                     className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="0"
                                     value={parking.count}
-                                    onChange={(e) => updateParking(index, 'count', parseInt(e.target.value) || 0)}
+                                    onChange={(e) => updateParking(index, 'count', e.target.value)}
                                 />
                             </div>
 
@@ -1141,7 +1206,7 @@ const EditRentalPage = () => {
                                     placeholder="0"
                                     value={parking.charge}
                                     disabled={parking.parking_type === 'free'}
-                                    onChange={(e) => updateParking(index, 'charge', parseFloat(e.target.value) || 0)}
+                                    onChange={(e) => updateParking(index, 'charge', e.target.value)}
                                 />
                             </div>
 
@@ -1172,16 +1237,8 @@ const EditRentalPage = () => {
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <Label className="text-gray-900 font-medium">Additional Notes</Label>
-                    <Textarea
-                        placeholder="Any additional notes or comments"
-                        className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                        value={formData.notes}
-                        onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                    />
-                </div>
-            </div>
+
+            </div >
 
             <div className="flex justify-end gap-3 mt-8">
                 <Button variant="outline" onClick={() => navigate(-1)} className="border-red-600 text-red-600 hover:bg-red-50" disabled={isSubmitting || loadingLease}>Cancel</Button>
@@ -1193,7 +1250,7 @@ const EditRentalPage = () => {
                     {isSubmitting ? 'Updating...' : loadingLease ? 'Loading...' : 'Update Rental'}
                 </Button>
             </div>
-        </div>
+        </div >
     );
 };
 

@@ -29,7 +29,6 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
     title: '',
     description: '',
     regulatory_body: '',
-    due_date: '',
     status: 'pending',
     responsible_party: '',
     assigned_to: '',
@@ -50,7 +49,6 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
         title: compliance.title || '',
         description: compliance.description || '',
         regulatory_body: compliance.regulatory_body || '',
-        due_date: compliance.due_date || '',
         status: compliance.status || 'pending',
         responsible_party: compliance.responsible_party || '',
         assigned_to: compliance.assigned_to?.toString() || '',
@@ -100,7 +98,6 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
           title: formData.title,
           description: formData.description,
           regulatory_body: formData.regulatory_body,
-          due_date: formData.due_date || null,
           status: formData.status,
           responsible_party: formData.responsible_party,
           assigned_to: formData.assigned_to ? parseInt(formData.assigned_to) : null,
@@ -126,7 +123,6 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
         title: '',
         description: '',
         regulatory_body: '',
-        due_date: '',
         status: 'pending',
         responsible_party: '',
         assigned_to: '',
@@ -236,24 +232,20 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="due-date" className="text-gray-900 font-medium">Due Date</Label>
-        <Input
-          id="due-date"
-          type="date"
-          className="bg-white border-gray-300 text-gray-900"
-          value={formData.due_date}
-          onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-        />
-      </div>
-      <div className="space-y-2">
         <Label htmlFor="responsible-party" className="text-gray-900 font-medium">Responsible Party</Label>
-        <Input
-          id="responsible-party"
-          placeholder="e.g., Maintenance Team"
-          className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+        <Select
           value={formData.responsible_party}
-          onChange={(e) => setFormData({ ...formData, responsible_party: e.target.value })}
-        />
+          onValueChange={(value) => setFormData({ ...formData, responsible_party: value })}
+        >
+          <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+            <SelectValue placeholder="Select responsible party" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="Tenant">Tenant</SelectItem>
+            <SelectItem value="Landlord">Landlord</SelectItem>
+            <SelectItem value="Both">Both</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-2 col-span-2">
         <Label className="text-gray-900 font-medium">Applicable Property Types</Label>

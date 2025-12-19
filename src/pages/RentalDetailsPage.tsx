@@ -15,7 +15,7 @@ export default function RentalDetailsPage() {
   useEffect(() => {
     const fetchLeaseDetails = async () => {
       if (!id) return;
-      
+
       try {
         setLoading(true);
         const data = await getAuth(`/leases/${id}`);
@@ -59,18 +59,18 @@ export default function RentalDetailsPage() {
     const today = new Date();
     const diffTime = endDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return 'Expired';
-    
+
     const years = Math.floor(diffDays / 365);
     const months = Math.floor((diffDays % 365) / 30);
     const days = diffDays % 30;
-    
+
     let result = [];
     if (years > 0) result.push(`${years}Y`);
     if (months > 0) result.push(`${months}M`);
     if (days > 0) result.push(`${days}D`);
-    
+
     return result.join(' ') || '0 days';
   };
 
@@ -94,8 +94,8 @@ export default function RentalDetailsPage() {
     <div className="p-8 w-full bg-gray-50 min-h-screen">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate(-1)}
             className="text-gray-600 hover:text-gray-900"
           >
@@ -107,7 +107,7 @@ export default function RentalDetailsPage() {
             <p className="text-gray-500">{lease.lease_number}</p>
           </div>
         </div>
-        <Button 
+        <Button
           onClick={() => navigate(`/rental/edit/${id}`)}
           className="bg-[#C72030] hover:bg-[#A01825] text-white"
         >
@@ -154,11 +154,10 @@ export default function RentalDetailsPage() {
                   <Building2 className="h-4 w-4 mt-1 text-gray-600" />
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">Status:</p>
-                    <Badge className={`${
-                      lease.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
+                    <Badge className={`${lease.status === 'active'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
-                    }`}>
+                      }`}>
                       {lease.status || 'N/A'}
                     </Badge>
                   </div>
@@ -222,7 +221,7 @@ export default function RentalDetailsPage() {
                 <p className="text-gray-600">Monthly Rent:</p>
                 <p className="text-xl font-bold text-[#C72030]">₹{monthlyRent.toLocaleString()}</p>
               </div>
-              
+
               {isPaymentOverdue() && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
                   <div className="flex items-start gap-2">
@@ -234,7 +233,7 @@ export default function RentalDetailsPage() {
                   </div>
                 </div>
               )}
-              
+
               {parseFloat(lease.annual_escalation_percentage || 0) > 0 && (
                 <div className="flex justify-between items-center">
                   <p className="text-gray-600">Escalated Rent (+{lease.annual_escalation_percentage}%):</p>
@@ -288,9 +287,8 @@ export default function RentalDetailsPage() {
               </div>
               <div className="col-span-2">
                 <p className="text-sm text-gray-500 mb-1">Time Remaining</p>
-                <p className={`text-2xl font-bold ${
-                  calculateTimeRemaining() === 'Expired' ? 'text-red-600' : 'text-gray-900'
-                }`}>
+                <p className={`text-2xl font-bold ${calculateTimeRemaining() === 'Expired' ? 'text-red-600' : 'text-gray-900'
+                  }`}>
                   {calculateTimeRemaining()}
                 </p>
                 <p className="text-xs text-gray-400 mt-1">YY:MM:DD</p>
@@ -322,25 +320,8 @@ export default function RentalDetailsPage() {
                 <p className="text-3xl font-bold text-[#C72030]">₹{calculateTotalContractValue().toLocaleString()}</p>
                 <p className="text-xs text-gray-400 mt-1">Based on lease period × monthly rent</p>
               </div>
-              
-              <div className="pt-4 border-t border-gray-100 space-y-3">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Full Name</p>
-                  <p className="font-medium text-gray-900">{lease.tenant.full_name || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Company Name</p>
-                  <p className="font-medium text-gray-900">{lease.tenant.company_name || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Email</p>
-                  <p className="font-medium text-gray-900">{lease.tenant.email || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Phone</p>
-                  <p className="font-medium text-gray-900">{lease.tenant.phone || 'N/A'}</p>
-                </div>
-              </div>
+
+
             </div>
           </CardContent>
         </Card>
