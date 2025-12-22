@@ -37,6 +37,10 @@ import CountryMaster from "./pages/masters/CountryMaster";
 import StatesMaster from "./pages/masters/StatesMaster";
 import VendorMaster from "./pages/masters/VendorMaster";
 import AddEditVendor from "./pages/masters/AddEditVendor";
+import MonitoryCompliancePage from "./pages/MonitoryCompliancePage";
+import AddMonitoryCompliancePage from "./pages/AddMonitoryCompliancePage";
+import EditMonitoryCompliancePage from "./pages/EditMonitoryCompliancePage";
+import ViewMonitoryCompliancePage from "./pages/ViewMonitoryCompliancePage";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +64,10 @@ const App = () => {
                 <Route path="rental/edit/:id" element={<EditRentalPage />} />
                 <Route path="rental/:id" element={<RentalDetailsPage />} />
                 <Route path="tenant-dashboard" element={<TenantDashboard />} />
+                <Route path="monitor-compliance" element={<MonitoryCompliancePage />} />
+                <Route path="monitory-compliance/new" element={<AddMonitoryCompliancePage />} />
+                <Route path="monitory-compliance/edit/:id" element={<EditMonitoryCompliancePage />} />
+                <Route path="monitory-compliance/view/:id" element={<ViewMonitoryCompliancePage />} />
                 <Route path="invoicing" element={<Invoicing />} />
                 <Route path="opex" element={<OpexManagement />} />
                 <Route path="utilities" element={<UtilityManagement />} />

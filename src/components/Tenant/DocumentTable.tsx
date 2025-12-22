@@ -2,16 +2,17 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, Edit } from 'lucide-react';
 import { getDocumentIcon, getTypeBadge } from './DocumentUtils';
 
 interface DocumentTableProps {
   documents: any[];
   onViewDocument: (docId: string) => void;
   onDownloadDocument: (docId: string) => void;
+  onEditDocument?: (docId: string) => void;
 }
 
-const DocumentTable = ({ documents, onViewDocument, onDownloadDocument }: DocumentTableProps) => {
+const DocumentTable = ({ documents, onViewDocument, onDownloadDocument, onEditDocument }: DocumentTableProps) => {
   return (
     <div className="border rounded-lg bg-white border-gray-200">
       <Table>
@@ -53,18 +54,29 @@ const DocumentTable = ({ documents, onViewDocument, onDownloadDocument }: Docume
               </TableCell>
               <TableCell className="bg-white">
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     title="View Document"
                     className="text-[#C72030] hover:bg-[#C72030]/10"
                     onClick={() => onViewDocument(doc.id)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  {onEditDocument && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      title="Edit Compliance"
+                      className="text-[#C72030] hover:bg-[#C72030]/10"
+                      onClick={() => onEditDocument(doc.id)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     title="Download"
                     className="text-[#C72030] hover:bg-[#C72030]/10"
                     onClick={() => onDownloadDocument(doc.id)}

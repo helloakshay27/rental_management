@@ -9,7 +9,7 @@ import PaymentHistory from '@/components/Tenant/PaymentHistory';
 import MaintenanceRequests from '@/components/Tenant/MaintenanceRequests';
 import Documents from '@/components/Tenant/Documents';
 
-const TenantDashboard = () => {
+const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   return (
@@ -25,31 +25,31 @@ const TenantDashboard = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="rentals" className="space-y-6">
+      <Tabs defaultValue={initialTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
-          <TabsTrigger 
-            value="rentals" 
+          <TabsTrigger
+            value="rentals"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Home className="h-4 w-4" />
             My Rentals
           </TabsTrigger>
-          <TabsTrigger 
-            value="payments" 
+          <TabsTrigger
+            value="payments"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <CreditCard className="h-4 w-4" />
             Payment History
           </TabsTrigger>
-          <TabsTrigger 
-            value="maintenance" 
+          <TabsTrigger
+            value="maintenance"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Calendar className="h-4 w-4" />
             Maintenance
           </TabsTrigger>
-          <TabsTrigger 
-            value="documents" 
+          <TabsTrigger
+            value="documents"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <FileText className="h-4 w-4" />
@@ -60,15 +60,15 @@ const TenantDashboard = () => {
         <TabsContent value="rentals" className="bg-white">
           <MyRentals />
         </TabsContent>
-        
+
         <TabsContent value="payments" className="bg-white">
           <PaymentHistory />
         </TabsContent>
-        
+
         <TabsContent value="maintenance" className="bg-white">
           <MaintenanceRequests />
         </TabsContent>
-        
+
         <TabsContent value="documents" className="bg-white">
           <Documents />
         </TabsContent>
