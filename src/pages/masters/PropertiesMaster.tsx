@@ -7,8 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, ChevronLeft } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, ChevronLeft, Upload, FileText, X, Building, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -29,10 +32,15 @@ interface Property {
   amenities: string[];
   zone_id: number;
   landlord_id: number;
+  circuit: string;
+  property_takeover_condition_id: number;
+  property_takeover_condition_name?: string;
+  pms_site_facilities?: any[];
   carpet_area: string;
-  area_efficiency: string;
-  created_at: string;
   updated_at: string;
+  ites_certification?: string;
+  ites_valid_till?: string;
+  ownership_type?: string;
 }
 
 const PropertiesMaster = () => {
@@ -49,12 +57,18 @@ const PropertiesMaster = () => {
   const [states, setStates] = useState<any[]>([]);
   const [regions, setRegions] = useState<any[]>([]);
   const [zones, setZones] = useState<any[]>([]);
+  const [propertyTypes, setPropertyTypes] = useState<any[]>([]);
+  const [landlords, setLandlords] = useState<any[]>([]);
+  const [facilityTypes, setFacilityTypes] = useState<any[]>([]);
+  const [takeoverConditions, setTakeoverConditions] = useState<any[]>([]);
+  const [selectedDocuments, setSelectedDocuments] = useState<any[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
     landlord_id: '',
     name: '',
     property_type: '',
+    property_type_id: '',
     country_id: '',
     country: '',
     state_id: '',
@@ -70,7 +84,13 @@ const PropertiesMaster = () => {
     area_efficiency: '',
     built_year: '',
     description: '',
-    amenities: [] as string[]
+    amenities: [] as string[],
+    facility_type_ids: [] as number[],
+    circuit: '',
+    property_takeover_condition_id: '',
+    ites_certification: 'No',
+    ites_valid_till: '',
+    ownership_type: 'Owned'
   });
 
   // Fetch countries on component mount
@@ -86,8 +106,94 @@ const PropertiesMaster = () => {
         toast.error('Failed to load countries');
       }
     };
+
+    const fetchPropertyTypes = async () => {
+      try {
+        const data = await getAuth('/compliance_requirements/property_types');
+        if (Array.isArray(data)) {
+          setPropertyTypes(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch property types', error);
+        toast.error('Failed to load property types');
+      }
+    };
+
+    const fetchLandlords = async () => {
+      try {
+        const data = await getAuth('/landlords');
+        if (Array.isArray(data)) {
+          setLandlords(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch landlords', error);
+      }
+    };
+
+    const fetchFacilityTypes = async () => {
+      try {
+        const data = await getAuth('/facility_types');
+        if (Array.isArray(data)) {
+          setFacilityTypes(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch facility types', error);
+      }
+    };
+
+    const fetchTakeoverConditions = async () => {
+      try {
+        const data = await getAuth('/property_takeover_conditions');
+        if (Array.isArray(data)) {
+          setTakeoverConditions(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch takeover conditions', error);
+      }
+    };
+
     fetchCountries();
+    fetchPropertyTypes();
+    fetchLandlords();
+    fetchFacilityTypes();
+    fetchTakeoverConditions();
   }, []);
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        // Remove the data:image/jpeg;base64, prefix
+        const base64Data = base64String.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, documentType: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const base64Data = await convertFileToBase64(file);
+        const newDoc = {
+          file_name: file.name,
+          document_type: documentType,
+          base64_data: base64Data,
+          preview: URL.createObjectURL(file)
+        };
+        setSelectedDocuments(prev => [...prev, newDoc]);
+      } catch (error) {
+        toast.error('Failed to process file');
+      }
+    }
+  };
+
+  const removeDocument = (index: number) => {
+    setSelectedDocuments(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Fetch states when country changes
   React.useEffect(() => {
@@ -204,6 +310,7 @@ const PropertiesMaster = () => {
         landlord_id: siteData.landlord_id?.toString() || '',
         name: siteData.name || '',
         property_type: siteData.property_type || '',
+        property_type_id: siteData.property_type_id?.toString() || '',
         country_id: '', // Logic to match country ID/Names would go here if needed, or rely on cascading effect if you implement it fully
         country: siteData.country || '',
         state_id: '',
@@ -219,7 +326,13 @@ const PropertiesMaster = () => {
         area_efficiency: siteData.area_efficiency?.toString() || '',
         built_year: siteData.built_year?.toString() || '',
         description: siteData.description || '',
-        amenities: siteData.amenities || []
+        amenities: siteData.amenities || [],
+        facility_type_ids: siteData.facility_type_ids || siteData.pms_site_facilities?.map((f: any) => f.facility_type_id) || [],
+        circuit: siteData.circuit || '',
+        property_takeover_condition_id: siteData.property_takeover_condition_id?.toString() || '',
+        ites_certification: siteData.ites_certification || 'No',
+        ites_valid_till: siteData.ites_valid_till || '',
+        ownership_type: siteData.ownership_type || 'Owned'
       });
 
       setEditingProperty(siteData);
@@ -268,7 +381,18 @@ const PropertiesMaster = () => {
           postal_code: formData.postal_code,
           country: formData.country,
           property_type: formData.property_type,
+          property_type_id: formData.property_type_id ? parseInt(formData.property_type_id) : null,
           description: formData.description,
+          pms_site_facilities_attributes: formData.facility_type_ids.map(id => ({ facility_type_id: id })),
+          documents: selectedDocuments.map(doc => ({
+            file_name: doc.file_name,
+            document_type: doc.document_type,
+            base64_data: doc.base64_data
+          })),
+          property_takeover_condition_id: formData.property_takeover_condition_id ? parseInt(formData.property_takeover_condition_id) : null,
+          ites_certification: formData.ites_certification,
+          ites_valid_till: formData.ites_certification === 'Yes' ? formData.ites_valid_till : null,
+          ownership_type: formData.ownership_type
         }
       };
 
@@ -309,6 +433,7 @@ const PropertiesMaster = () => {
         landlord_id: '',
         name: '',
         property_type: '',
+        property_type_id: '',
         country_id: '',
         country: '',
         state_id: '',
@@ -324,8 +449,15 @@ const PropertiesMaster = () => {
         area_efficiency: '',
         built_year: '',
         description: '',
-        amenities: []
+        amenities: [],
+        facility_type_ids: [],
+        circuit: '',
+        property_takeover_condition_id: '',
+        ites_certification: 'No',
+        ites_valid_till: '',
+        ownership_type: 'Owned'
       });
+      setSelectedDocuments([]);
       setIsDialogOpen(false);
       fetchProperties(); // Refresh list
 
@@ -384,9 +516,11 @@ const PropertiesMaster = () => {
                     <SelectValue placeholder="-- Select a landlord --" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    <SelectItem value="1">Suresh Enterprises</SelectItem>
-                    <SelectItem value="2">Sharma Properties</SelectItem>
-                    <SelectItem value="3">Metro Real Estate</SelectItem>
+                    {landlords.map((landlord) => (
+                      <SelectItem key={landlord.id} value={landlord.id.toString()}>
+                        {landlord.contact_person || landlord.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -406,17 +540,94 @@ const PropertiesMaster = () => {
                 <div className="space-y-2">
                   <Label htmlFor="property-type" className="text-gray-900 font-medium">Property Type *</Label>
                   <Select
-                    value={formData.property_type}
-                    onValueChange={(value) => setFormData({ ...formData, property_type: value })}
+                    value={formData.property_type_id}
+                    onValueChange={(value) => {
+                      const selectedType = propertyTypes.find(t => t.id.toString() === value);
+                      setFormData({
+                        ...formData,
+                        property_type_id: value,
+                        property_type: selectedType?.name || ''
+                      });
+                    }}
                   >
                     <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white">
-                      <SelectItem value="Residential">Residential</SelectItem>
-                      <SelectItem value="Commercial">Commercial</SelectItem>
-                      <SelectItem value="Villa">Villa</SelectItem>
-                      <SelectItem value="Warehouse">Warehouse</SelectItem>
+                      {propertyTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.id.toString()}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-gray-900 font-medium">Facility Types</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between bg-white border-gray-300 text-gray-900 hover:bg-gray-50 h-10 px-3 font-normal"
+                      >
+                        <span className="truncate">
+                          {formData.facility_type_ids.length > 0
+                            ? facilityTypes
+                              .filter(f => formData.facility_type_ids.includes(f.id))
+                              .map(f => f.name)
+                              .join(', ')
+                            : "Select facilities"}
+                        </span>
+                        <Plus className="h-4 w-4 opacity-50 ml-2" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0 bg-white" align="start">
+                      <ScrollArea className="h-64 p-2">
+                        <div className="space-y-2">
+                          {facilityTypes.map((facility) => (
+                            <div key={facility.id} className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer transition-colors"
+                              onClick={() => {
+                                const isChecked = formData.facility_type_ids.includes(facility.id);
+                                if (!isChecked) {
+                                  setFormData({ ...formData, facility_type_ids: [...formData.facility_type_ids, facility.id] });
+                                } else {
+                                  setFormData({ ...formData, facility_type_ids: formData.facility_type_ids.filter(id => id !== facility.id) });
+                                }
+                              }}
+                            >
+                              <Checkbox
+                                checked={formData.facility_type_ids.includes(facility.id)}
+                                onCheckedChange={(checked) => {
+                                  // The onClick on the parent div handles this, 
+                                  // but we prevent propagation to avoid double triggering if necessary.
+                                }}
+                                className="border-[#C72030] data-[state=checked]:bg-[#C72030]"
+                              />
+                              <span className="text-sm text-gray-700 font-medium">{facility.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="takeover-condition" className="text-gray-900 font-medium">Takeover Condition</Label>
+                  <Select
+                    value={formData.property_takeover_condition_id}
+                    onValueChange={(value) => setFormData({ ...formData, property_takeover_condition_id: value })}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue placeholder="Select condition" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {takeoverConditions.map((condition) => (
+                        <SelectItem key={condition.id} value={condition.id.toString()}>
+                          {condition.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -527,6 +738,16 @@ const PropertiesMaster = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="circuit" className="text-gray-900 font-medium">Circuit</Label>
+                  <Input
+                    id="circuit"
+                    placeholder="Enter circuit"
+                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+                    value={formData.circuit}
+                    onChange={(e) => setFormData({ ...formData, circuit: e.target.value })}
+                  />
+                </div>
               </div>
 
               {/* Address - Full Width */}
@@ -610,6 +831,51 @@ const PropertiesMaster = () => {
                     onChange={(e) => setFormData({ ...formData, built_year: e.target.value })}
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ownership-type" className="text-gray-900 font-medium">Ownership Type</Label>
+                  <Select
+                    value={formData.ownership_type}
+                    onValueChange={(value) => setFormData({ ...formData, ownership_type: value })}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue placeholder="Select ownership" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      <SelectItem value="Owned">Owned</SelectItem>
+                      <SelectItem value="Leased">Leased</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ites-certification" className="text-gray-900 font-medium">ITES Certification</Label>
+                  <Select
+                    value={formData.ites_certification}
+                    onValueChange={(value) => setFormData({ ...formData, ites_certification: value })}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue placeholder="ITES Certified?" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {formData.ites_certification === 'Yes' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="ites-valid-till" className="text-gray-900 font-medium">ITES Certificate Valid Till</Label>
+                    <Input
+                      id="ites-valid-till"
+                      type="date"
+                      className="bg-white border-gray-300 text-gray-900"
+                      value={formData.ites_valid_till}
+                      onChange={(e) => setFormData({ ...formData, ites_valid_till: e.target.value })}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Description - Full Width */}
@@ -647,6 +913,60 @@ const PropertiesMaster = () => {
                     </label>
                   ))}
                 </div>
+              </div>
+
+              {/* Documents & Images */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-between border-t pt-4">
+                  <Label className="text-gray-900 font-semibold text-lg">Documents & Images</Label>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Property Image Upload */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 font-medium">Property Image</Label>
+                    <div
+                      className="border-2 border-dashed border-gray-300 rounded-lg p-6 transition-colors hover:border-[#C72030] bg-gray-50 cursor-pointer text-center"
+                      onClick={() => document.getElementById('property_image_input')?.click()}
+                    >
+                      <Upload className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 font-medium font-outfit">Click to upload Property Image</p>
+                      <p className="text-xs text-gray-400 mt-1">Supports PNG, JPG (Max 5MB)</p>
+                      <input
+                        id="property_image_input"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleFileChange(e, 'site_image')}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Document Previews */}
+                {selectedDocuments.length > 0 && (
+                  <div className="grid grid-cols-3 gap-4 pt-2">
+                    {selectedDocuments.map((doc, index) => (
+                      <div key={index} className="relative group border border-gray-200 rounded-md p-2 bg-white flex flex-col items-center">
+                        <button
+                          onClick={() => removeDocument(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 z-10"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                        <div className="h-24 w-full flex items-center justify-center overflow-hidden rounded bg-gray-50 mb-2">
+                          {doc.document_type === 'site_image' ? (
+                            <img src={doc.preview} alt="Preview" className="h-full w-full object-cover" />
+                          ) : (
+                            <FileText className="h-12 w-12 text-gray-400" />
+                          )}
+                        </div>
+                        <p className="text-[10px] text-gray-500 truncate w-full text-center font-medium">{doc.file_name}</p>
+                        <Badge variant="outline" className="text-[8px] py-0 px-1 mt-1 uppercase">{doc.document_type.replace('_', ' ')}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex justify-end space-x-2">
@@ -699,6 +1019,7 @@ const PropertiesMaster = () => {
                 <TableRow>
                   <TableHead>Property Details</TableHead>
                   <TableHead>Location & Type</TableHead>
+                  <TableHead>Facilities & Tech</TableHead>
                   <TableHead>Area & Year</TableHead>
                   <TableHead>Amenities</TableHead>
                   <TableHead>Actions</TableHead>
@@ -726,6 +1047,39 @@ const PropertiesMaster = () => {
                           <p className="text-xs text-gray-500">{property.city}, {property.state}</p>
                         )}
                         <Badge variant="outline">{property.property_type}</Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="flex items-center text-sm font-medium mb-1">
+                          <Building className="h-3 w-3 mr-1 text-blue-600" />
+                          <span>{property.pms_site_facilities?.length || 0} Facilities</span>
+                        </div>
+                        {property.circuit && (
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Layers className="h-3 w-3 mr-1" />
+                            <span>Circuit: {property.circuit}</span>
+                          </div>
+                        )}
+                        {(property.property_takeover_condition_name || property as any).property_takeover_condition?.name && (
+                          <div className="mt-1">
+                            <Badge variant="secondary" className="text-[10px] bg-amber-50 text-amber-700 border-amber-100 italic">
+                              {property.property_takeover_condition_name || (property as any).property_takeover_condition?.name}
+                            </Badge>
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {property.ownership_type && (
+                            <Badge variant="outline" className="text-[10px] border-blue-200 text-blue-700 bg-blue-50/30">
+                              {property.ownership_type}
+                            </Badge>
+                          )}
+                          {property.ites_certification === 'Yes' && (
+                            <Badge variant="outline" className="text-[10px] border-green-200 text-green-700 bg-green-50/30">
+                              ITES Certified
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>

@@ -33,6 +33,8 @@ import BrandingManagement from "./pages/masters/BrandingManagement";
 import UsersManagement from "./pages/masters/UsersManagement";
 import RolesManagement from "./pages/masters/RolesManagement";
 import AccessManagement from "./pages/masters/AccessManagement";
+import TakeoverConditionsManagement from "./pages/masters/TakeoverConditionsManagement";
+import FacilityTypesManagement from "./pages/masters/FacilityTypesManagement";
 import CountryMaster from "./pages/masters/CountryMaster";
 import StatesMaster from "./pages/masters/StatesMaster";
 import VendorMaster from "./pages/masters/VendorMaster";
@@ -101,6 +103,8 @@ const App = () => {
                 <Route path="masters/roles" element={<RolesManagement />} />
                 <Route path="masters/roles/:id" element={<RoleDetailsPage />} />
                 <Route path="masters/access" element={<AccessManagement />} />
+                <Route path="masters/takeover-conditions" element={<TakeoverConditionsManagement />} />
+                <Route path="masters/facility-types" element={<FacilityTypesManagement />} />
                 <Route path="masters/countries" element={<CountryMaster />} />
                 <Route path="masters/countries/:id" element={<CountryDetailsPage />} />
                 <Route path="masters/states" element={<StatesMaster />} />

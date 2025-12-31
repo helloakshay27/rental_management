@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck } from 'lucide-react';
+import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building } from 'lucide-react';
 
 const Masters = () => {
   const masterModules = [
@@ -83,6 +83,20 @@ const Masters = () => {
       icon: Truck,
       path: '/masters/vendors',
       color: 'bg-amber-50 text-amber-600'
+    },
+    {
+      title: 'Takeover Conditions',
+      description: 'Conditions under which properties are taken over',
+      icon: Layout,
+      path: '/masters/takeover-conditions',
+      color: 'bg-indigo-50 text-indigo-600'
+    },
+    {
+      title: 'Facility Types',
+      description: 'Categories for property facilities and amenities',
+      icon: Building,
+      path: '/masters/facility-types',
+      color: 'bg-rose-50 text-rose-600'
     }
   ];
 

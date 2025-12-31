@@ -154,10 +154,32 @@ const PropertyMasterDetailsPage = () => {
                     <Card className="bg-white border border-gray-200 shadow-sm">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-xs text-gray-500 font-semibold uppercase tracking-wider flex items-center gap-2">
-                                <Info className="h-3 w-3" /> System Trace
+                                <Info className="h-3 w-3" /> Asset Intelligence
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pt-4 space-y-4">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="font-semibold text-gray-500 uppercase tracking-tight">Ownership Type</span>
+                                <span className="font-bold text-gray-900">{property.ownership_type || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="font-semibold text-gray-500 uppercase tracking-tight">ITES Certification</span>
+                                <span className={`font-bold ${property.ites_certification === 'Yes' ? 'text-green-600' : 'text-gray-900'}`}>{property.ites_certification || 'No'}</span>
+                            </div>
+                            {property.ites_certification === 'Yes' && (
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="font-semibold text-gray-500 uppercase tracking-tight">ITES Valid Till</span>
+                                    <span className="font-bold text-gray-900">{property.ites_valid_till || 'N/A'}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center text-xs pt-2 border-t border-gray-50">
+                                <span className="font-semibold text-gray-500 uppercase tracking-tight">Circle</span>
+                                <span className="font-bold text-gray-900">{property.circle || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="font-semibold text-gray-500 uppercase tracking-tight">Takeover Condition</span>
+                                <span className="font-bold text-[#C72030] bg-[#C72030]/10 px-2 py-0.5 rounded text-[10px]">{property.property_takeover_condition_name || property.property_takeover_condition?.name || 'N/A'}</span>
+                            </div>
                             <div className="flex justify-between items-center text-xs">
                                 <span className="font-semibold text-gray-500 uppercase tracking-tight">Record Origin</span>
                                 <span className="font-bold text-gray-900">{new Date(property.created_at).toLocaleDateString()}</span>
@@ -166,8 +188,29 @@ const PropertyMasterDetailsPage = () => {
                                 <span className="font-semibold text-gray-500 uppercase tracking-tight">Last System Sync</span>
                                 <span className="font-bold text-gray-900">{new Date(property.updated_at).toLocaleDateString()}</span>
                             </div>
-                            <div className="pt-4 border-t border-gray-100">
-                                <p className="text-[10px] font-bold uppercase text-[#C72030] bg-red-50 p-2 rounded text-center tracking-wider">Master Record Verified</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+                        <CardHeader className="bg-gray-50/50 border-b border-gray-100">
+                            <CardTitle className="text-xs text-[#C72030] font-bold uppercase tracking-widest flex items-center gap-2">
+                                <Info className="h-4 w-4" /> Registered Facilities
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                            <div className="flex flex-wrap gap-2">
+                                {property.pms_site_facilities && property.pms_site_facilities.length > 0 ? (
+                                    property.pms_site_facilities.map((fac: any, idx: number) => (
+                                        <Badge key={idx} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 font-bold px-3 py-1">
+                                            {fac.facility_type?.name || fac.name}
+                                        </Badge>
+                                    ))
+                                ) : (
+                                    <p className="text-xs text-gray-400 italic text-center w-full py-4">No specialized facilities registered</p>
+                                )}
+                            </div>
+                            <div className="pt-4 mt-4 border-t border-gray-100">
+                                <p className="text-[10px] font-bold uppercase text-[#C72030] bg-red-50 p-2 rounded text-center tracking-wider uppercase">Master Record Verified</p>
                             </div>
                         </CardContent>
                     </Card>
