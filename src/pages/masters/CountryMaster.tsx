@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Globe } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Globe, ChevronLeft, Eye } from 'lucide-react';
 import { postAuth, getAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface Country {
     id: number;
@@ -24,6 +25,7 @@ interface Country {
 }
 
 const CountryMaster = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -161,9 +163,19 @@ const CountryMaster = () => {
     return (
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Country Master</h1>
-                    <p className="text-gray-600">Manage countries with their codes and currency information</p>
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate('/masters')}
+                        className="text-gray-500 hover:text-gray-700"
+                    >
+                        <ChevronLeft className="h-6 w-6" />
+                    </Button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Country Master</h1>
+                        <p className="text-gray-600">Manage countries with their codes and currency information</p>
+                    </div>
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
                     <DialogTrigger asChild>
@@ -360,6 +372,9 @@ const CountryMaster = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center space-x-2">
+                                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/countries/${country.id}`)}>
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
                                                     <Button variant="ghost" size="sm" onClick={() => handleEditCountry(country)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>

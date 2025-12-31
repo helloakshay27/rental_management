@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { postAuth, getAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -186,10 +186,8 @@ const PropertiesMaster = () => {
     property.city?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleViewProperty = (property) => {
-    // Navigate to property details page - using a mock ID for now
-    const mockId = property.id === 'P001' ? '1' : property.id === 'P002' ? '2' : '3';
-    navigate(`/properties/${mockId}`);
+  const handleViewProperty = (property: Property) => {
+    navigate(`/masters/properties/${property.id}`);
   };
 
   const handleEditProperty = async (property: Property) => {
@@ -337,9 +335,19 @@ const PropertiesMaster = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Properties Master</h1>
-          <p className="text-gray-600">Central property database with all property details</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/masters')}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Properties Master</h1>
+            <p className="text-gray-600">Central property database with all property details</p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

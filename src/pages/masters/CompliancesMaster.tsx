@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ComplianceForm from '@/components/Compliances/ComplianceForm';
 import ComplianceTable from '@/components/Compliances/ComplianceTable';
 import ComplianceFilters from '@/components/Compliances/ComplianceFilters';
@@ -40,6 +41,7 @@ interface Compliance {
 }
 
 const CompliancesMaster = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingCompliance, setEditingCompliance] = useState<Compliance | null>(null);
   const [compliances, setCompliances] = useState<Compliance[]>([]);
@@ -106,9 +108,19 @@ const CompliancesMaster = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Compliances Master</h1>
-          <p className="text-gray-600">Manage property compliance requirements and tracking</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/masters')}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Compliances Master</h1>
+            <p className="text-gray-600">Manage property compliance requirements and tracking</p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -151,6 +163,7 @@ const CompliancesMaster = () => {
               compliances={filteredCompliances}
               onEdit={handleEditCompliance}
               onDelete={handleDeleteCompliance}
+              onView={(id) => navigate(`/masters/compliances/${id}`)}
             />
           )}
         </CardContent>

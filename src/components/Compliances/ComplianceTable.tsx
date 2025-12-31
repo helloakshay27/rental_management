@@ -3,15 +3,16 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Edit, Trash2, Calendar, Building2 } from 'lucide-react';
+import { Edit, Trash2, Calendar, Building2, Eye } from 'lucide-react';
 
 interface ComplianceTableProps {
   compliances: any[];
   onEdit: (compliance: any) => void;
   onDelete: (compliance: any) => void;
+  onView: (id: number) => void;
 }
 
-const ComplianceTable = ({ compliances, onEdit, onDelete }: ComplianceTableProps) => {
+const ComplianceTable = ({ compliances, onEdit, onDelete, onView }: ComplianceTableProps) => {
   const getStatusColor = (status: string) => {
     const normalizedStatus = status?.toLowerCase();
     switch (normalizedStatus) {
@@ -92,6 +93,9 @@ const ComplianceTable = ({ compliances, onEdit, onDelete }: ComplianceTableProps
             </TableCell>
             <TableCell>
               <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm" onClick={() => onView(compliance.id)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
                 <Button variant="ghost" size="sm" onClick={() => onEdit(compliance)}>
                   <Edit className="h-4 w-4" />
                 </Button>

@@ -9,10 +9,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, Plus, Edit, Trash2, Shield, Users, Settings } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Shield, Users, Settings, ChevronLeft, Eye } from 'lucide-react';
 
 import { postAuth, getAuth, putAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface Role {
   id: number;
@@ -27,6 +28,7 @@ interface Role {
 }
 
 const RolesManagement = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -176,9 +178,19 @@ const RolesManagement = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Roles Management</h1>
-          <p className="text-gray-600">Define and manage user roles and responsibilities</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/masters')}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Roles Management</h1>
+            <p className="text-gray-600">Define and manage user roles and responsibilities</p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogTrigger asChild>
@@ -350,8 +362,8 @@ const RolesManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm">
-                          <Settings className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/roles/${role.id}`)}>
+                          <Eye className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleEditRole(role.id)}>
                           <Edit className="h-4 w-4" />

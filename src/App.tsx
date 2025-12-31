@@ -37,6 +37,16 @@ import CountryMaster from "./pages/masters/CountryMaster";
 import StatesMaster from "./pages/masters/StatesMaster";
 import VendorMaster from "./pages/masters/VendorMaster";
 import AddEditVendor from "./pages/masters/AddEditVendor";
+import TenantDetailsPage from "./pages/masters/TenantDetailsPage";
+import LandlordDetailsPage from "./pages/masters/LandlordDetailsPage";
+import UserDetailsPage from "./pages/masters/UserDetailsPage";
+import RoleDetailsPage from "./pages/masters/RoleDetailsPage";
+import CountryDetailsPage from "./pages/masters/CountryDetailsPage";
+import StateDetailsPage from "./pages/masters/StateDetailsPage";
+import VendorDetailsPage from "./pages/masters/VendorDetailsPage";
+import BrandingDetailsPage from "./pages/masters/BrandingDetailsPage";
+import ComplianceDetailsPage from "./pages/masters/ComplianceDetailsPage";
+import PropertyMasterDetailsPage from "./pages/masters/PropertyMasterDetailsPage";
 import MonitoryCompliancePage from "./pages/MonitoryCompliancePage";
 import AddMonitoryCompliancePage from "./pages/AddMonitoryCompliancePage";
 import EditMonitoryCompliancePage from "./pages/EditMonitoryCompliancePage";
@@ -77,16 +87,26 @@ const App = () => {
                 <Route path="settings" element={<Settings />} />
                 <Route path="masters" element={<Masters />} />
                 <Route path="masters/tenants" element={<TenantsManagement />} />
+                <Route path="masters/tenants/:id" element={<TenantDetailsPage />} />
                 <Route path="masters/landlords" element={<LandlordsManagement />} />
+                <Route path="masters/landlords/:id" element={<LandlordDetailsPage />} />
                 <Route path="masters/properties" element={<PropertiesMaster />} />
+                <Route path="masters/properties/:id" element={<PropertyMasterDetailsPage />} />
                 <Route path="masters/compliances" element={<CompliancesMaster />} />
+                <Route path="masters/compliances/:id" element={<ComplianceDetailsPage />} />
                 <Route path="masters/branding" element={<BrandingManagement />} />
+                <Route path="masters/branding/:id" element={<BrandingDetailsPage />} />
                 <Route path="masters/users" element={<UsersManagement />} />
+                <Route path="masters/users/:id" element={<UserDetailsPage />} />
                 <Route path="masters/roles" element={<RolesManagement />} />
+                <Route path="masters/roles/:id" element={<RoleDetailsPage />} />
                 <Route path="masters/access" element={<AccessManagement />} />
                 <Route path="masters/countries" element={<CountryMaster />} />
+                <Route path="masters/countries/:id" element={<CountryDetailsPage />} />
                 <Route path="masters/states" element={<StatesMaster />} />
+                <Route path="masters/states/:id" element={<StateDetailsPage />} />
                 <Route path="masters/vendors" element={<VendorMaster />} />
+                <Route path="masters/vendors/:id" element={<VendorDetailsPage />} />
                 <Route path="masters/vendors/add" element={<AddEditVendor />} />
                 <Route path="masters/vendors/edit/:id" element={<AddEditVendor />} />
               </Route>

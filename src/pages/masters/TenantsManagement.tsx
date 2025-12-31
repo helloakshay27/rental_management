@@ -11,11 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, MapPin } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, MapPin, ChevronLeft } from 'lucide-react';
 import { postAuth, getAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const TenantsManagement = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -163,9 +165,19 @@ const TenantsManagement = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tenants Management</h1>
-          <p className="text-gray-600">Manage tenant information, documents, and profiles</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/masters')}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Tenants Management</h1>
+            <p className="text-gray-600">Manage tenant information, documents, and profiles</p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogTrigger asChild>
@@ -387,13 +399,17 @@ const TenantsManagement = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={tenant.status === 'Active' ? 'default' : 'secondary'}>
-                      {tenant.status}
-                    </Badge>
+                    {tenant.status ? (
+                      <Badge variant={tenant.status.toLowerCase() === 'active' ? 'default' : 'secondary'}>
+                        {tenant.status}
+                      </Badge>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/tenants/${tenant.id}`)}>
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEditTenant(tenant.id)}>

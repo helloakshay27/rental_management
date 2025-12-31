@@ -9,11 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, Upload, Palette } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, Upload, Palette, ChevronLeft } from 'lucide-react';
 import { postAuth, getAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const BrandingManagement = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -197,9 +199,19 @@ const BrandingManagement = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Invoice Branding Management</h1>
-          <p className="text-gray-600">Manage branding profiles for invoices and communications</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/masters')}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Invoice Branding Management</h1>
+            <p className="text-gray-600">Manage branding profiles for invoices and communications</p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogTrigger asChild>
@@ -419,7 +431,7 @@ const BrandingManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/branding/${profile.id}`)}>
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleEditProfile(profile.id)}>

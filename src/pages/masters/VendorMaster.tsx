@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Building, Star, Phone, Mail } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Building, Star, Phone, Mail, ChevronLeft, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -88,9 +88,19 @@ const VendorMaster = () => {
     return (
         <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Vendor Master</h1>
-                    <p className="text-gray-600">Manage vendors, suppliers, and their details</p>
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate('/masters')}
+                        className="text-gray-500 hover:text-gray-700"
+                    >
+                        <ChevronLeft className="h-6 w-6" />
+                    </Button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Vendor Master</h1>
+                        <p className="text-gray-600">Manage vendors, suppliers, and their details</p>
+                    </div>
                 </div>
                 <Button
                     className="bg-[#C72030] hover:bg-[#A01825]"
@@ -199,6 +209,9 @@ const VendorMaster = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center space-x-2">
+                                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/vendors/${vendor.id}`)}>
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
                                                     <Button variant="ghost" size="sm" onClick={() => handleEditVendor(vendor.id)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
