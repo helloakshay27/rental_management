@@ -29,7 +29,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
     title: '',
     description: '',
     regulatory_body: '',
-    status: 'pending',
+    status: 'Active',
     responsible_party: '',
     assigned_to: '',
     reminder_days: '',
@@ -49,7 +49,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
         title: compliance.title || '',
         description: compliance.description || '',
         regulatory_body: compliance.regulatory_body || '',
-        status: compliance.status || 'pending',
+        status: compliance.status || 'Active',
         responsible_party: compliance.responsible_party || '',
         assigned_to: compliance.assigned_to?.toString() || '',
         reminder_days: compliance.reminder_days?.toString() || '',
@@ -123,7 +123,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
         title: '',
         description: '',
         regulatory_body: '',
-        status: 'pending',
+        status: 'Active',
         responsible_party: '',
         assigned_to: '',
         reminder_days: '',
@@ -263,6 +263,51 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
               </Label>
             </div>
           ))}
+        </div>
+      </div>
+      <div className="space-y-2 col-span-2">
+        <Label className="text-gray-900 font-medium">Status *</Label>
+        <div className="flex items-center space-x-6 pt-2">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              name="status"
+              checked={formData.status === 'Active'}
+              onChange={() => setFormData(prev => ({ ...prev, status: 'Active' }))}
+              className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+            />
+            <span className="text-sm text-gray-700">Active</span>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              name="status"
+              checked={formData.status === 'Inactive'}
+              onChange={() => setFormData(prev => ({ ...prev, status: 'Inactive' }))}
+              className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+            />
+            <span className="text-sm text-gray-700">Inactive</span>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              name="status"
+              checked={formData.status === 'Pending'}
+              onChange={() => setFormData(prev => ({ ...prev, status: 'Pending' }))}
+              className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+            />
+            <span className="text-sm text-gray-700">Pending</span>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              name="status"
+              checked={formData.status === 'Overdue'}
+              onChange={() => setFormData(prev => ({ ...prev, status: 'Overdue' }))}
+              className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+            />
+            <span className="text-sm text-gray-700">Overdue</span>
+          </label>
         </div>
       </div>
       <div className="flex justify-end space-x-2 col-span-2 pt-4">

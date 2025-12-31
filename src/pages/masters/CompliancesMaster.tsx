@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import ComplianceForm from '@/components/Compliances/ComplianceForm';
 import ComplianceTable from '@/components/Compliances/ComplianceTable';
 import ComplianceFilters from '@/components/Compliances/ComplianceFilters';
-import { getAuth } from '@/lib/api';
+import { getAuth, deleteAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface PropertyType {
@@ -43,6 +43,7 @@ interface Compliance {
 const CompliancesMaster = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [editingCompliance, setEditingCompliance] = useState<Compliance | null>(null);
   const [compliances, setCompliances] = useState<Compliance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +53,16 @@ const CompliancesMaster = () => {
   const fetchCompliances = async () => {
     try {
       setIsLoading(true);
-      const data = await getAuth('/compliance_requirements');
+      let url = '/compliance_requirements';
+      const params = new URLSearchParams();
+      if (statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+      const data = await getAuth(url);
       if (Array.isArray(data)) {
         setCompliances(data);
       }
@@ -66,11 +76,12 @@ const CompliancesMaster = () => {
 
   React.useEffect(() => {
     fetchCompliances();
-  }, []);
+  }, [statusFilter]);
 
 
   const filteredCompliances = compliances.filter(compliance =>
     compliance.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    compliance.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     compliance.requirement_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     compliance.regulatory_body?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -89,8 +100,19 @@ const CompliancesMaster = () => {
     }
   };
 
-  const handleDeleteCompliance = (compliance) => {
-    console.log('Delete compliance:', compliance.id);
+  const handleDeleteCompliance = async (compliance: Compliance) => {
+    if (window.confirm(`Are you sure you want to delete "${compliance.title}"?`)) {
+      try {
+        setIsLoading(true);
+        await deleteAuth(`/compliance_requirements/${compliance.id}`);
+        toast.success('Compliance requirement deleted successfully');
+        fetchCompliances();
+      } catch (error: any) {
+        toast.error('Failed to delete compliance requirement');
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleSaveCompliance = () => {
@@ -100,9 +122,28 @@ const CompliancesMaster = () => {
     fetchCompliances(); // Refresh list after save
   };
 
+  const handleUpdateStatus = async (complianceId: number, newStatus: string) => {
+    try {
+      setIsLoading(true);
+      await patchAuth(`/compliance_requirements/${complianceId}`, {
+        compliance_requirement: { status: newStatus }
+      });
+      toast.success('Status updated successfully');
+      fetchCompliances();
+    } catch (error: any) {
+      toast.error('Failed to update status');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCancelEdit = () => {
     setIsEditDialogOpen(false);
     setEditingCompliance(null);
+  };
+
+  const handleViewCompliance = (id: number) => {
+    navigate(`/masters/compliances/${id}`);
   };
 
   return (
@@ -152,6 +193,8 @@ const CompliancesMaster = () => {
             <ComplianceFilters
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
+              statusFilter={statusFilter}
+              onStatusChange={setStatusFilter}
             />
           </div>
         </CardHeader>
@@ -163,7 +206,8 @@ const CompliancesMaster = () => {
               compliances={filteredCompliances}
               onEdit={handleEditCompliance}
               onDelete={handleDeleteCompliance}
-              onView={(id) => navigate(`/masters/compliances/${id}`)}
+              onView={handleViewCompliance}
+              onStatusUpdate={handleUpdateStatus}
             />
           )}
         </CardContent>

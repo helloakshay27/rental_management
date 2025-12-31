@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, MapPin, ChevronLeft, Eye } from 'lucide-react';
-import { postAuth, getAuth, patchAuth } from '@/lib/api';
+import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +17,7 @@ interface State {
     name: string;
     code: string;
     country_id: number;
+    status: string;
     country?: {
         id: number;
         name: string;
@@ -36,6 +36,7 @@ interface Country {
 const StatesMaster = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [editingState, setEditingState] = useState<State | null>(null);
@@ -46,7 +47,8 @@ const StatesMaster = () => {
     const [formData, setFormData] = useState({
         name: '',
         code: '',
-        country_id: ''
+        country_id: '',
+        status: 'Active'
     });
 
     const fetchCountries = async () => {
@@ -64,7 +66,16 @@ const StatesMaster = () => {
     const fetchStates = async () => {
         try {
             setLoadingStates(true);
-            const data = await getAuth('/pms/states');
+            let url = '/pms/states';
+            const params = new URLSearchParams();
+            if (statusFilter !== 'all') {
+                params.append('status', statusFilter);
+            }
+            const queryString = params.toString();
+            if (queryString) {
+                url += `?${queryString}`;
+            }
+            const data = await getAuth(url);
             if (Array.isArray(data)) {
                 setStates(data);
             }
@@ -84,7 +95,7 @@ const StatesMaster = () => {
     useEffect(() => {
         fetchCountries();
         fetchStates();
-    }, []);
+    }, [statusFilter]);
 
     const filteredStates = states.filter(state =>
         state.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,7 +113,8 @@ const StatesMaster = () => {
             setFormData({
                 name: data.name || '',
                 code: data.code || '',
-                country_id: data.country_id?.toString() || ''
+                country_id: data.country_id?.toString() || '',
+                status: data.status || 'Active'
             });
             setIsDialogOpen(true);
         } catch (error: any) {
@@ -118,7 +130,8 @@ const StatesMaster = () => {
         setFormData({
             name: '',
             code: '',
-            country_id: ''
+            country_id: '',
+            status: 'Active'
         });
     };
 
@@ -137,7 +150,8 @@ const StatesMaster = () => {
                 pms_state: {
                     name: formData.name,
                     code: formData.code,
-                    country_id: parseInt(formData.country_id)
+                    country_id: parseInt(formData.country_id),
+                    status: formData.status
                 }
             };
 
@@ -166,6 +180,35 @@ const StatesMaster = () => {
             }
 
             toast.error(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const handleDeleteState = async (stateId: number) => {
+        if (window.confirm('Are you sure you want to delete this state?')) {
+            try {
+                setIsLoading(true);
+                await deleteAuth(`/pms/states/${stateId}`);
+                toast.success('State deleted successfully');
+                fetchStates();
+            } catch (error: any) {
+                toast.error('Failed to delete state');
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
+    const handleUpdateStatus = async (stateId: number, newStatus: string) => {
+        try {
+            setIsLoading(true);
+            await patchAuth(`/pms/states/${stateId}`, {
+                pms_state: { status: newStatus }
+            });
+            toast.success('Status updated successfully');
+            fetchStates();
+        } catch (error: any) {
+            toast.error('Failed to update status');
         } finally {
             setIsLoading(false);
         }
@@ -246,6 +289,33 @@ const StatesMaster = () => {
                                     />
                                 </div>
                             </div>
+
+                            {/* Status Field */}
+                            <div className="space-y-2">
+                                <Label className="text-gray-900 font-medium">Status *</Label>
+                                <div className="flex items-center space-x-6 pt-2">
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="status"
+                                            checked={formData.status === 'Active'}
+                                            onChange={() => setFormData(prev => ({ ...prev, status: 'Active' }))}
+                                            className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+                                        />
+                                        <span className="text-sm text-gray-700">Active</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="status"
+                                            checked={formData.status === 'Inactive'}
+                                            onChange={() => setFormData(prev => ({ ...prev, status: 'Inactive' }))}
+                                            className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+                                        />
+                                        <span className="text-sm text-gray-700">Inactive</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div className="flex justify-end space-x-2">
                             <Button
@@ -276,6 +346,16 @@ const StatesMaster = () => {
                             <CardDescription>Complete list of all states in the system</CardDescription>
                         </div>
                         <div className="flex items-center space-x-2">
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-40 bg-white">
+                                    <SelectValue placeholder="All Status" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="Active">Active</SelectItem>
+                                    <SelectItem value="Inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
                             <div className="relative">
                                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                 <Input
@@ -332,6 +412,20 @@ const StatesMaster = () => {
                                                 </div>
                                             </TableCell>
                                             <TableCell>
+                                                <Select
+                                                    value={state.status || 'Active'}
+                                                    onValueChange={(value) => handleUpdateStatus(state.id, value)}
+                                                >
+                                                    <SelectTrigger className={`w-32 h-8 ${state.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                                                        <SelectValue placeholder="Status" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-white">
+                                                        <SelectItem value="Active">Active</SelectItem>
+                                                        <SelectItem value="Inactive">Inactive</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                            <TableCell>
                                                 <div className="flex items-center space-x-2">
                                                     <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/states/${state.id}`)}>
                                                         <Eye className="h-4 w-4" />
@@ -339,7 +433,7 @@ const StatesMaster = () => {
                                                     <Button variant="ghost" size="sm" onClick={() => handleEditState(state)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="sm" className="text-red-600">
+                                                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteState(state.id)}>
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>

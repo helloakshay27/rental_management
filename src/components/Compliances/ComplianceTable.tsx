@@ -4,15 +4,17 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Edit, Trash2, Calendar, Building2, Eye } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ComplianceTableProps {
   compliances: any[];
   onEdit: (compliance: any) => void;
   onDelete: (compliance: any) => void;
   onView: (id: number) => void;
+  onStatusUpdate: (id: number, status: string) => void;
 }
 
-const ComplianceTable = ({ compliances, onEdit, onDelete, onView }: ComplianceTableProps) => {
+const ComplianceTable = ({ compliances, onEdit, onDelete, onView, onStatusUpdate }: ComplianceTableProps) => {
   const getStatusColor = (status: string) => {
     const normalizedStatus = status?.toLowerCase();
     switch (normalizedStatus) {
@@ -87,9 +89,20 @@ const ComplianceTable = ({ compliances, onEdit, onDelete, onView }: ComplianceTa
               </div>
             </TableCell>
             <TableCell>
-              <Badge className={getStatusColor(compliance.status)}>
-                {compliance.status ? compliance.status.charAt(0).toUpperCase() + compliance.status.slice(1) : 'Unknown'}
-              </Badge>
+              <Select
+                value={compliance.status ? compliance.status.charAt(0).toUpperCase() + compliance.status.slice(1).toLowerCase() : 'Active'}
+                onValueChange={(value) => onStatusUpdate(compliance.id, value)}
+              >
+                <SelectTrigger className={`w-32 h-8 ${getStatusColor(compliance.status)} border-2`}>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Overdue">Overdue</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
             </TableCell>
             <TableCell>
               <div className="flex items-center space-x-2">

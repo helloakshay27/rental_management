@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Building, Star, Phone, Mail, ChevronLeft, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getAuth } from '@/lib/api';
+import { getAuth, deleteAuth, patchAuth } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 interface BankDetail {
@@ -34,7 +35,7 @@ interface Vendor {
     pan_number: string;
     vendor_type: string;
     rating: number;
-    is_active: boolean;
+    status: string;
     created_by: number;
     bank_detail?: BankDetail;
     created_at: string;
@@ -44,13 +45,24 @@ interface Vendor {
 const VendorMaster = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [vendors, setVendors] = useState<Vendor[]>([]);
     const [loadingVendors, setLoadingVendors] = useState(true);
 
     const fetchVendors = async () => {
         try {
             setLoadingVendors(true);
-            const data = await getAuth('/vendors');
+            let url = '/vendors';
+            const params = new URLSearchParams();
+            if (statusFilter !== 'all') {
+                params.append('status', statusFilter);
+            }
+            const queryString = params.toString();
+            if (queryString) {
+                url += `?${queryString}`;
+            }
+            const data = await getAuth(url);
             if (Array.isArray(data)) {
                 setVendors(data);
             }
@@ -69,7 +81,7 @@ const VendorMaster = () => {
 
     useEffect(() => {
         fetchVendors();
-    }, []);
+    }, [statusFilter]);
 
     const filteredVendors = vendors.filter(vendor =>
         vendor.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,6 +91,30 @@ const VendorMaster = () => {
 
     const handleEditVendor = (vendorId: number) => {
         navigate(`/masters/vendors/edit/${vendorId}`);
+    };
+
+    const handleDeleteVendor = async (vendorId: number) => {
+        if (window.confirm('Are you sure you want to delete this vendor?')) {
+            try {
+                await deleteAuth(`/vendors/${vendorId}`);
+                toast.success('Vendor deleted successfully');
+                fetchVendors();
+            } catch (error: any) {
+                toast.error('Failed to delete vendor');
+            }
+        }
+    };
+
+    const handleUpdateStatus = async (vendorId: number, newStatus: string) => {
+        try {
+            await patchAuth(`/vendors/${vendorId}`, {
+                vendor: { status: newStatus }
+            });
+            toast.success('Status updated successfully');
+            fetchVendors();
+        } catch (error: any) {
+            toast.error('Failed to update status');
+        }
     };
 
     const handleAddVendor = () => {
@@ -119,6 +155,16 @@ const VendorMaster = () => {
                             <CardDescription>Complete list of all vendors in the system</CardDescription>
                         </div>
                         <div className="flex items-center space-x-2">
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-40 bg-white">
+                                    <SelectValue placeholder="All Status" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="Active">Active</SelectItem>
+                                    <SelectItem value="Inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
                             <div className="relative">
                                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                 <Input
@@ -203,9 +249,18 @@ const VendorMaster = () => {
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={vendor.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}>
-                                                    {vendor.is_active ? 'Active' : 'Inactive'}
-                                                </Badge>
+                                                <Select
+                                                    value={vendor.status || 'Active'}
+                                                    onValueChange={(value) => handleUpdateStatus(vendor.id, value)}
+                                                >
+                                                    <SelectTrigger className={`w-32 h-8 ${vendor.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                                                        <SelectValue placeholder="Status" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-white">
+                                                        <SelectItem value="Active">Active</SelectItem>
+                                                        <SelectItem value="Inactive">Inactive</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center space-x-2">
@@ -215,7 +270,7 @@ const VendorMaster = () => {
                                                     <Button variant="ghost" size="sm" onClick={() => handleEditVendor(vendor.id)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="sm" className="text-red-600">
+                                                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteVendor(vendor.id)}>
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>

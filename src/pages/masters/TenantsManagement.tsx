@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, MapPin, ChevronLeft } from 'lucide-react';
-import { postAuth, getAuth, patchAuth } from '@/lib/api';
+import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,6 +21,7 @@ const TenantsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [tenants, setTenants] = useState<any[]>([]);
   const [loadingTenants, setLoadingTenants] = useState(true);
   const [editingTenant, setEditingTenant] = useState<any>(null);
@@ -34,13 +35,23 @@ const TenantsManagement = () => {
     permanent_address: '',
     company_name: '',
     aadhar_number: '',
-    pan_number: ''
+    pan_number: '',
+    status: 'Active'
   });
 
   const fetchTenants = async () => {
     try {
       setLoadingTenants(true);
-      const data = await getAuth('/tenants');
+      let url = '/tenants';
+      const params = new URLSearchParams();
+      if (statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+      const data = await getAuth(url);
       if (Array.isArray(data)) {
         setTenants(data);
       }
@@ -54,7 +65,7 @@ const TenantsManagement = () => {
 
   useEffect(() => {
     fetchTenants();
-  }, []);
+  }, [statusFilter]);
 
   const handleEditTenant = async (tenantId: number) => {
     try {
@@ -73,7 +84,8 @@ const TenantsManagement = () => {
         permanent_address: data.permanent_address || '',
         company_name: data.company_name || '',
         aadhar_number: data.aadhar_number || '',
-        pan_number: data.pan_number || ''
+        pan_number: data.pan_number || '',
+        status: data.status || 'Active'
       });
       setIsDialogOpen(true);
     } catch (error: any) {
@@ -96,7 +108,8 @@ const TenantsManagement = () => {
       permanent_address: '',
       company_name: '',
       aadhar_number: '',
-      pan_number: ''
+      pan_number: '',
+      status: 'Active'
     });
   };
 
@@ -121,7 +134,8 @@ const TenantsManagement = () => {
           permanent_address: formData.permanent_address,
           company_name: formData.company_name,
           aadhar_number: formData.aadhar_number,
-          pan_number: formData.pan_number
+          pan_number: formData.pan_number,
+          status: formData.status
         }
       };
 
@@ -150,6 +164,36 @@ const TenantsManagement = () => {
       }
 
       toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTenant = async (tenantId: number) => {
+    if (window.confirm('Are you sure you want to delete this tenant?')) {
+      try {
+        setIsLoading(true);
+        await deleteAuth(`/tenants/${tenantId}`);
+        toast.success('Tenant deleted successfully');
+        fetchTenants();
+      } catch (error: any) {
+        toast.error('Failed to delete tenant');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleUpdateStatus = async (tenantId: number, newStatus: string) => {
+    try {
+      setIsLoading(true);
+      await patchAuth(`/tenants/${tenantId}`, {
+        tenant: { status: newStatus }
+      });
+      toast.success('Status updated successfully');
+      fetchTenants();
+    } catch (error: any) {
+      toast.error('Failed to update status');
     } finally {
       setIsLoading(false);
     }
@@ -303,6 +347,33 @@ const TenantsManagement = () => {
                   />
                 </div>
               </div>
+
+              {/* Status Field */}
+              <div className="space-y-2">
+                <Label className="text-gray-900 font-medium">Status *</Label>
+                <div className="flex items-center space-x-6 pt-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      checked={formData.status === 'Active'}
+                      onChange={() => setFormData(prev => ({ ...prev, status: 'Active' }))}
+                      className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+                    />
+                    <span className="text-sm text-gray-700">Active</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      checked={formData.status === 'Inactive'}
+                      onChange={() => setFormData(prev => ({ ...prev, status: 'Inactive' }))}
+                      className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+                    />
+                    <span className="text-sm text-gray-700">Inactive</span>
+                  </label>
+                </div>
+              </div>
             </div>
             <div className="flex justify-end space-x-2">
               <Button
@@ -333,6 +404,16 @@ const TenantsManagement = () => {
               <CardDescription>Complete list of all tenants in the system</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 bg-white">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -399,13 +480,18 @@ const TenantsManagement = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    {tenant.status ? (
-                      <Badge variant={tenant.status.toLowerCase() === 'active' ? 'default' : 'secondary'}>
-                        {tenant.status}
-                      </Badge>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
+                    <Select
+                      value={tenant.status || 'Active'}
+                      onValueChange={(value) => handleUpdateStatus(tenant.id, value)}
+                    >
+                      <SelectTrigger className={`w-32 h-8 ${tenant.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -415,7 +501,7 @@ const TenantsManagement = () => {
                       <Button variant="ghost" size="sm" onClick={() => handleEditTenant(tenant.id)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
+                      <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteTenant(tenant.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

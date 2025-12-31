@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Globe, ChevronLeft, Eye } from 'lucide-react';
-import { postAuth, getAuth, patchAuth } from '@/lib/api';
+import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,7 +20,7 @@ interface Country {
     iso_code: string;
     phone_code: string;
     currency_code: string;
-    is_active: boolean;
+    status: string;
     created_at: string;
     updated_at: string;
 }
@@ -27,6 +28,7 @@ interface Country {
 const CountryMaster = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [editingCountry, setEditingCountry] = useState<Country | null>(null);
@@ -39,13 +41,22 @@ const CountryMaster = () => {
         iso_code: '',
         phone_code: '',
         currency_code: '',
-        is_active: true
+        status: 'Active'
     });
 
     const fetchCountries = async () => {
         try {
             setLoadingCountries(true);
-            const data = await getAuth('/pms/countries');
+            let url = '/pms/countries';
+            const params = new URLSearchParams();
+            if (statusFilter !== 'all') {
+                params.append('status', statusFilter);
+            }
+            const queryString = params.toString();
+            if (queryString) {
+                url += `?${queryString}`;
+            }
+            const data = await getAuth(url);
             if (Array.isArray(data)) {
                 setCountries(data);
             }
@@ -64,7 +75,7 @@ const CountryMaster = () => {
 
     useEffect(() => {
         fetchCountries();
-    }, []);
+    }, [statusFilter]);
 
     const filteredCountries = countries.filter(country =>
         country.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,7 +96,7 @@ const CountryMaster = () => {
                 iso_code: data.iso_code || '',
                 phone_code: data.phone_code || '',
                 currency_code: data.currency_code || '',
-                is_active: data.is_active !== undefined ? data.is_active : true
+                status: data.status || 'Active'
             });
             setIsDialogOpen(true);
         } catch (error: any) {
@@ -104,7 +115,7 @@ const CountryMaster = () => {
             iso_code: '',
             phone_code: '',
             currency_code: '',
-            is_active: true
+            status: 'Active'
         });
     };
 
@@ -126,7 +137,7 @@ const CountryMaster = () => {
                     iso_code: formData.iso_code,
                     phone_code: formData.phone_code,
                     currency_code: formData.currency_code,
-                    is_active: formData.is_active
+                    status: formData.status
                 }
             };
 
@@ -155,6 +166,36 @@ const CountryMaster = () => {
             }
 
             toast.error(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteCountry = async (countryId: number) => {
+        if (window.confirm('Are you sure you want to delete this country?')) {
+            try {
+                setIsLoading(true);
+                await deleteAuth(`/pms/countries/${countryId}`);
+                toast.success('Country deleted successfully');
+                fetchCountries();
+            } catch (error: any) {
+                toast.error('Failed to delete country');
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
+    const handleUpdateStatus = async (countryId: number, newStatus: string) => {
+        try {
+            setIsLoading(true);
+            await patchAuth(`/pms/countries/${countryId}`, {
+                pms_country: { status: newStatus }
+            });
+            toast.success('Status updated successfully');
+            fetchCountries();
+        } catch (error: any) {
+            toast.error('Failed to update status');
         } finally {
             setIsLoading(false);
         }
@@ -256,9 +297,9 @@ const CountryMaster = () => {
                                     <label className="flex items-center space-x-2 cursor-pointer">
                                         <input
                                             type="radio"
-                                            name="is_active"
-                                            checked={formData.is_active === true}
-                                            onChange={() => setFormData(prev => ({ ...prev, is_active: true }))}
+                                            name="status"
+                                            checked={formData.status === 'Active'}
+                                            onChange={() => setFormData(prev => ({ ...prev, status: 'Active' }))}
                                             className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
                                         />
                                         <span className="text-sm text-gray-700">Active</span>
@@ -266,9 +307,9 @@ const CountryMaster = () => {
                                     <label className="flex items-center space-x-2 cursor-pointer">
                                         <input
                                             type="radio"
-                                            name="is_active"
-                                            checked={formData.is_active === false}
-                                            onChange={() => setFormData(prev => ({ ...prev, is_active: false }))}
+                                            name="status"
+                                            checked={formData.status === 'Inactive'}
+                                            onChange={() => setFormData(prev => ({ ...prev, status: 'Inactive' }))}
                                             className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
                                         />
                                         <span className="text-sm text-gray-700">Inactive</span>
@@ -305,6 +346,16 @@ const CountryMaster = () => {
                             <CardDescription>Complete list of all countries in the system</CardDescription>
                         </div>
                         <div className="flex items-center space-x-2">
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-40 bg-white">
+                                    <SelectValue placeholder="All Status" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="Active">Active</SelectItem>
+                                    <SelectItem value="Inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
                             <div className="relative">
                                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                 <Input
@@ -366,9 +417,18 @@ const CountryMaster = () => {
                                                 <Badge className="bg-green-600 hover:bg-green-700">{country.currency_code || 'N/A'}</Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={country.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}>
-                                                    {country.is_active ? 'Active' : 'Inactive'}
-                                                </Badge>
+                                                <Select
+                                                    value={country.status || 'Active'}
+                                                    onValueChange={(value) => handleUpdateStatus(country.id, value)}
+                                                >
+                                                    <SelectTrigger className={`w-32 h-8 ${country.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                                                        <SelectValue placeholder="Status" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-white">
+                                                        <SelectItem value="Active">Active</SelectItem>
+                                                        <SelectItem value="Inactive">Inactive</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center space-x-2">
@@ -378,7 +438,7 @@ const CountryMaster = () => {
                                                     <Button variant="ghost" size="sm" onClick={() => handleEditCountry(country)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="sm" className="text-red-600">
+                                                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteCountry(country.id)}>
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>

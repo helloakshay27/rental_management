@@ -11,7 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Search, Plus, Edit, Trash2, Shield, Users, Settings, ChevronLeft, Eye } from 'lucide-react';
 
-import { postAuth, getAuth, putAuth } from '@/lib/api';
+import { postAuth, getAuth, putAuth, deleteAuth, patchAuth } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,7 +21,7 @@ interface Role {
   name: string;
   description: string;
   permissions: string[];
-  is_active: boolean;
+  status: string;
   created_at: string;
   updated_at: string;
   users_count: number | null;
@@ -30,6 +31,7 @@ interface Role {
 const RolesManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
@@ -54,7 +56,16 @@ const RolesManagement = () => {
   const fetchRoles = async () => {
     try {
       setLoadingRoles(true);
-      const data = await getAuth('/roles');
+      let url = '/roles';
+      const params = new URLSearchParams();
+      if (statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+      const data = await getAuth(url);
       setRoles(data);
     } catch (error: any) {
       let errorMessage = "Failed to fetch roles";
@@ -71,7 +82,7 @@ const RolesManagement = () => {
 
   useEffect(() => {
     fetchRoles();
-  }, []);
+  }, [statusFilter]);
 
   const filteredRoles = roles.filter(role =>
     role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,7 +107,7 @@ const RolesManagement = () => {
       setFormData({
         name: roleData.name,
         description: roleData.description,
-        status: roleData.is_active ? 'Active' : 'Inactive',
+        status: roleData.status || (roleData.is_active ? 'Active' : 'Inactive'),
         permissions: roleData.permissions || []
       });
       setIsDialogOpen(true);
@@ -138,9 +149,9 @@ const RolesManagement = () => {
         role: {
           name: formData.name,
           description: formData.description,
-          permissions: formData.permissions
-        },
-        status: formData.status
+          permissions: formData.permissions,
+          status: formData.status
+        }
       };
 
       // Make API call
@@ -170,6 +181,36 @@ const RolesManagement = () => {
       }
 
       toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteRole = async (roleId: number) => {
+    if (window.confirm('Are you sure you want to delete this role?')) {
+      try {
+        setIsLoading(true);
+        await deleteAuth(`/roles/${roleId}`);
+        toast.success('Role deleted successfully');
+        fetchRoles();
+      } catch (error: any) {
+        toast.error('Failed to delete role');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleUpdateStatus = async (roleId: number, newStatus: string) => {
+    try {
+      setIsLoading(true);
+      await patchAuth(`/roles/${roleId}`, {
+        role: { status: newStatus }
+      });
+      toast.success('Status updated successfully');
+      fetchRoles();
+    } catch (error: any) {
+      toast.error('Failed to update status');
     } finally {
       setIsLoading(false);
     }
@@ -216,42 +257,56 @@ const RolesManagement = () => {
                     className="bg-white border-2 border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role-status" className="text-gray-900 font-medium">Status</Label>
-                  <select
-                    className="w-full p-2 border-2 border-gray-300 rounded-md bg-white text-gray-900 focus:border-[#C72030] focus:ring-[#C72030] focus:outline-none"
-                    value={formData.status}
-                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="role-description" className="text-gray-900 font-medium">Description</Label>
-                <Textarea
-                  id="role-description"
-                  placeholder="Enter role description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className="bg-white border-2 border-gray-300 focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 min-h-[100px]"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-900 font-medium">Permissions</Label>
-                <div className="grid grid-cols-3 gap-3 max-h-48 overflow-y-auto p-4 border-2 border-gray-300 rounded-md bg-white">
-                  {availablePermissions.map((permission) => (
-                    <div key={permission} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={permission}
-                        checked={formData.permissions.includes(permission)}
-                        onCheckedChange={() => handlePermissionToggle(permission)}
-                        className="border-2 border-[#C72030] data-[state=checked]:bg-[#C72030] data-[state=checked]:border-[#C72030]"
+                <div className="space-y-2 col-span-2">
+                  <Label className="text-gray-900 font-medium">Status *</Label>
+                  <div className="flex items-center space-x-6 pt-2">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="status"
+                        checked={formData.status === 'Active'}
+                        onChange={() => setFormData(prev => ({ ...prev, status: 'Active' }))}
+                        className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
                       />
-                      <Label htmlFor={permission} className="text-sm text-gray-900 cursor-pointer">{permission}</Label>
-                    </div>
-                  ))}
+                      <span className="text-sm text-gray-700">Active</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="status"
+                        checked={formData.status === 'Inactive'}
+                        onChange={() => setFormData(prev => ({ ...prev, status: 'Inactive' }))}
+                        className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+                      />
+                      <span className="text-sm text-gray-700">Inactive</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role-description" className="text-gray-900 font-medium">Description</Label>
+                  <Textarea
+                    id="role-description"
+                    placeholder="Enter role description"
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    className="bg-white border-2 border-gray-300 focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 min-h-[100px]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-900 font-medium">Permissions</Label>
+                  <div className="grid grid-cols-3 gap-3 max-h-48 overflow-y-auto p-4 border-2 border-gray-300 rounded-md bg-white">
+                    {availablePermissions.map((permission) => (
+                      <div key={permission} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={permission}
+                          checked={formData.permissions.includes(permission)}
+                          onCheckedChange={() => handlePermissionToggle(permission)}
+                          className="border-2 border-[#C72030] data-[state=checked]:bg-[#C72030] data-[state=checked]:border-[#C72030]"
+                        />
+                        <Label htmlFor={permission} className="text-sm text-gray-900 cursor-pointer">{permission}</Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -284,6 +339,16 @@ const RolesManagement = () => {
               <CardDescription >All roles defined in the system with their permissions</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 bg-white">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -354,11 +419,18 @@ const RolesManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={`${role.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-[#C72030] hover:bg-[#A01825]'}`}
+                      <Select
+                        value={role.status || 'Active'}
+                        onValueChange={(value) => handleUpdateStatus(role.id, value)}
                       >
-                        {role.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
+                        <SelectTrigger className={`w-32 h-8 ${role.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
@@ -368,7 +440,7 @@ const RolesManagement = () => {
                         <Button variant="ghost" size="sm" onClick={() => handleEditRole(role.id)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600">
+                        <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteRole(role.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

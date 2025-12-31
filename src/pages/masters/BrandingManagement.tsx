@@ -10,13 +10,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, Upload, Palette, ChevronLeft } from 'lucide-react';
-import { postAuth, getAuth, patchAuth } from '@/lib/api';
+import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 const BrandingManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [profiles, setProfiles] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [brandingProfiles, setBrandingProfiles] = useState<any[]>([]);
@@ -31,13 +33,24 @@ const BrandingManagement = () => {
     billing_email: '',
     company_address: '',
     primary_color: '#C72030',
-    secondary_color: '#1A1A1A'
+    secondary_color: '#1A1A1A',
+    status: 'Active'
   });
 
   const fetchBrandingProfiles = async () => {
     try {
+      setIsLoading(true);
       setLoadingProfiles(true);
-      const data = await getAuth('/branding_profiles');
+      let url = '/branding_profiles';
+      const params = new URLSearchParams();
+      if (statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+      const data = await getAuth(url);
       if (Array.isArray(data)) {
         setBrandingProfiles(data);
       }
@@ -46,12 +59,13 @@ const BrandingManagement = () => {
       toast.error('Failed to load branding profiles');
     } finally {
       setLoadingProfiles(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchBrandingProfiles();
-  }, []);
+  }, [statusFilter]);
 
   const handleEditProfile = async (profileId: number) => {
     try {
@@ -66,7 +80,8 @@ const BrandingManagement = () => {
         billing_email: data.billing_email || '',
         company_address: data.company_address || '',
         primary_color: data.primary_color || '#C72030',
-        secondary_color: data.secondary_color || '#1A1A1A'
+        secondary_color: data.secondary_color || '#1A1A1A',
+        status: data.status || 'Active'
       });
 
       // Set logo preview from documents array if exists
@@ -123,7 +138,8 @@ const BrandingManagement = () => {
       billing_email: '',
       company_address: '',
       primary_color: '#C72030',
-      secondary_color: '#1A1A1A'
+      secondary_color: '#1A1A1A',
+      status: 'Active'
     });
     setLogoFile(null);
     setLogoPreview('');
@@ -147,7 +163,8 @@ const BrandingManagement = () => {
           billing_email: formData.billing_email,
           company_address: formData.company_address,
           primary_color: formData.primary_color,
-          secondary_color: formData.secondary_color
+          secondary_color: formData.secondary_color,
+          status: formData.status
         }
       };
 
@@ -188,6 +205,36 @@ const BrandingManagement = () => {
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (profileId: number, newStatus: string) => {
+    try {
+      setIsLoading(true);
+      await patchAuth(`/branding_profiles/${profileId}`, {
+        branding_profile: { status: newStatus }
+      });
+      toast.success('Status updated successfully');
+      fetchBrandingProfiles();
+    } catch (error: any) {
+      toast.error('Failed to update status');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteProfile = async (profileId: number) => {
+    if (window.confirm('Are you sure you want to delete this branding profile?')) {
+      try {
+        setIsLoading(true);
+        await deleteAuth(`/branding_profiles/${profileId}`);
+        toast.success('Branding profile deleted successfully');
+        fetchBrandingProfiles();
+      } catch (error: any) {
+        toast.error('Failed to delete branding profile');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -322,6 +369,33 @@ const BrandingManagement = () => {
                   </div>
                 )}
               </div>
+
+              {/* Status Field */}
+              <div className="space-y-2">
+                <Label className="text-gray-900 font-medium">Status *</Label>
+                <div className="flex items-center space-x-6 pt-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      checked={formData.status === 'Active'}
+                      onChange={() => setFormData(prev => ({ ...prev, status: 'Active' }))}
+                      className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+                    />
+                    <span className="text-sm text-gray-700">Active</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      checked={formData.status === 'Inactive'}
+                      onChange={() => setFormData(prev => ({ ...prev, status: 'Inactive' }))}
+                      className="w-4 h-4 text-[#C72030] border-gray-300 focus:ring-[#C72030]"
+                    />
+                    <span className="text-sm text-gray-700">Inactive</span>
+                  </label>
+                </div>
+              </div>
             </div>
             <div className="flex justify-end space-x-2">
               <Button
@@ -351,14 +425,26 @@ const BrandingManagement = () => {
               <CardTitle>Branding Profiles</CardTitle>
               <CardDescription>Manage invoice branding and company information</CardDescription>
             </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search branding profiles..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64 bg-white"
-              />
+            <div className="flex items-center space-x-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 bg-white border-gray-300 h-10">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search profiles..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-64 bg-white border-gray-300 h-10"
+                />
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -425,9 +511,18 @@ const BrandingManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={profile.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}>
-                        {profile.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
+                      <Select
+                        value={profile.status || 'Active'}
+                        onValueChange={(value) => handleUpdateStatus(profile.id, value)}
+                      >
+                        <SelectTrigger className={`w-32 h-8 ${profile.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
@@ -437,7 +532,7 @@ const BrandingManagement = () => {
                         <Button variant="ghost" size="sm" onClick={() => handleEditProfile(profile.id)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600">
+                        <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteProfile(profile.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

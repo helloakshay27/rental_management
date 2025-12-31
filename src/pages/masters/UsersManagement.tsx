@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, Calendar, Shield, ChevronLeft } from 'lucide-react';
-import { getAuth, postAuth, patchAuth } from '@/lib/api';
+import { getAuth, postAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,6 +36,7 @@ interface User {
 const UsersManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [users, setUsers] = useState<User[]>([]); // To store fetched users
   const [rolesList, setRolesList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,12 +50,22 @@ const UsersManagement = () => {
     phone: '',
     role_id: '',
     department: '',
-    joining_date: ''
+    joining_date: '',
+    status: 'Active'
   });
 
   const fetchUsers = async () => {
     try {
-      const data = await getAuth('/users');
+      let url = '/users';
+      const params = new URLSearchParams();
+      if (statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+      const data = await getAuth(url);
       if (Array.isArray(data)) {
         setUsers(data);
       } else {
@@ -81,7 +92,8 @@ const UsersManagement = () => {
         phone: userData.phone || '',
         role_id: userData.roles && userData.roles.length > 0 ? userData.roles[0].id.toString() : '',
         department: userData.department || '',
-        joining_date: userData.joining_date || ''
+        joining_date: userData.joining_date || '',
+        status: userData.status || 'Active'
       });
 
       setIsDialogOpen(true);
@@ -106,7 +118,21 @@ const UsersManagement = () => {
       }
     };
     fetchRoles();
-  }, []);
+  }, [statusFilter]);
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingUser(null);
+    setFormData({
+      full_name: '',
+      email: '',
+      phone: '',
+      role_id: '',
+      department: '',
+      joining_date: '',
+      status: 'Active'
+    });
+  };
 
   const handleSubmit = async () => {
     try {
@@ -125,7 +151,8 @@ const UsersManagement = () => {
           phone: formData.phone,
           role_ids: [parseInt(formData.role_id)],
           department: formData.department,
-          joining_date: formData.joining_date
+          joining_date: formData.joining_date,
+          status: formData.status
         }
       };
 
@@ -154,19 +181,35 @@ const UsersManagement = () => {
     }
   };
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setEditingUser(null);
-    setFormData({
-      full_name: '',
-      email: '',
-      phone: '',
-      role_id: '',
-      department: '',
-      joining_date: ''
-    });
+  const handleDeleteUser = async (userId: number) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        setIsLoading(true);
+        await deleteAuth(`/users/${userId}`);
+        toast.success('User deleted successfully');
+        fetchUsers();
+      } catch (error: any) {
+        toast.error('Failed to delete user');
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
+  const handleUpdateStatus = async (userId: number, newStatus: string) => {
+    try {
+      setIsLoading(true);
+      await patchAuth(`/users/${userId}`, {
+        user: { status: newStatus }
+      });
+      toast.success('Status updated successfully');
+      fetchUsers();
+    } catch (error: any) {
+      toast.error('Failed to update status');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   const filteredUsers = users.filter(user =>
@@ -300,6 +343,16 @@ const UsersManagement = () => {
               <CardDescription>All system users and their account information</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 bg-white">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -369,11 +422,18 @@ const UsersManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      className={user.status === 'active' ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500'}
+                    <Select
+                      value={user.status || 'Active'}
+                      onValueChange={(value) => handleUpdateStatus(user.id, value)}
                     >
-                      {user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Unknown'}
-                    </Badge>
+                      <SelectTrigger className={`w-32 h-8 ${user.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -383,7 +443,7 @@ const UsersManagement = () => {
                       <Button variant="ghost" size="sm" onClick={() => handleEditUser(user.id)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
+                      <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteUser(user.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

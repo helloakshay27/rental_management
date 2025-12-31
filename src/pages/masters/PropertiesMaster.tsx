@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { postAuth, getAuth, patchAuth } from '@/lib/api';
+import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface Property {
@@ -232,9 +232,19 @@ const PropertiesMaster = () => {
     }
   };
 
-  const handleDeleteProperty = (property) => {
-    // Add delete functionality here
-    console.log('Delete property:', property.id);
+  const handleDeleteProperty = async (property: Property) => {
+    if (window.confirm(`Are you sure you want to delete "${property.name}"?`)) {
+      try {
+        setIsLoading(true);
+        await deleteAuth(`/pms/sites/${property.id}`);
+        toast.success('Property deleted successfully');
+        fetchProperties();
+      } catch (error: any) {
+        toast.error('Failed to delete property');
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleSubmit = async () => {

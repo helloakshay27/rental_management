@@ -102,6 +102,26 @@ export async function patchAuth(path: string, body: any) {
   return data;
 }
 
+export async function deleteAuth(path: string) {
+  const token = getToken();
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    const message = data?.message || res.statusText || "Request failed";
+    const err: any = new Error(message);
+    err.response = data;
+    throw err;
+  }
+  return data;
+}
+
 export function saveToken(token: string) {
   try {
     localStorage.setItem("authToken", token);
