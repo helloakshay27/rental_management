@@ -17,11 +17,14 @@ const AddRentalPage = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
     const [properties, setProperties] = useState<any[]>([]);
+    const [tenants, setTenants] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
     const [loadingProperties, setLoadingProperties] = useState(true);
+    const [loadingTenants, setLoadingTenants] = useState(true);
 
     const [formData, setFormData] = useState({
         property: '',
+        tenant: '',
         leaseStart: '',
         leaseEnd: '',
         status: 'active',
@@ -93,7 +96,26 @@ const AddRentalPage = () => {
                 setLoadingProperties(false);
             }
         };
+
+        const fetchTenants = async () => {
+            try {
+                setLoadingTenants(true);
+                const token = getToken();
+                const data = await getAuth(`/tenants${token ? `?token=${token}` : ''}`);
+                if (Array.isArray(data)) {
+                    setTenants(data);
+                } else if (data?.tenants) {
+                    setTenants(data.tenants);
+                }
+            } catch (error) {
+                console.error('Failed to fetch tenants:', error);
+            } finally {
+                setLoadingTenants(false);
+            }
+        };
+
         fetchProperties();
+        fetchTenants();
     }, []);
 
     const handlePropertySelect = async (propertyId: string) => {
@@ -159,7 +181,7 @@ const AddRentalPage = () => {
 
             const payload = {
                 lease: {
-                    tenant_id: 2, // This should come from tenant selection
+                    tenant_id: parseInt(formData.tenant) || null,
                     property_id: parseInt(formData.property) || 1,
                     start_date: formData.leaseStart,
                     end_date: formData.leaseEnd,
@@ -268,6 +290,22 @@ const AddRentalPage = () => {
                                 {properties.map((property) => (
                                     <SelectItem key={property.id} value={property.id.toString()}>
                                         {property.name} - {property.city || property.address}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Select Tenant *</Label>
+                        <Select value={formData.tenant} onValueChange={(value) => setFormData(prev => ({ ...prev, tenant: value }))}>
+                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a tenant"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {tenants.map((tenant) => (
+                                    <SelectItem key={tenant.id} value={tenant.id.toString()}>
+                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

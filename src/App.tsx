@@ -53,6 +53,9 @@ import MonitoryCompliancePage from "./pages/MonitoryCompliancePage";
 import AddMonitoryCompliancePage from "./pages/AddMonitoryCompliancePage";
 import EditMonitoryCompliancePage from "./pages/EditMonitoryCompliancePage";
 import ViewMonitoryCompliancePage from "./pages/ViewMonitoryCompliancePage";
+import AmcContractAdd from "./pages/AmcContractAdd";
+import AmcContractDetail from "./pages/AmcContractDetail";
+import AmcContractEdit from "./pages/AmcContractEdit";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +87,9 @@ const App = () => {
                 <Route path="opex" element={<OpexManagement />} />
                 <Route path="utilities" element={<UtilityManagement />} />
                 <Route path="amc" element={<AmcManagement />} />
+                <Route path="amc/new" element={<AmcContractAdd />} />
+                <Route path="amc/:id" element={<AmcContractDetail />} />
+                <Route path="amc/edit/:id" element={<AmcContractEdit />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="settings" element={<Settings />} />

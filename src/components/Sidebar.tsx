@@ -68,7 +68,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
         </div>
       </div>
 
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;

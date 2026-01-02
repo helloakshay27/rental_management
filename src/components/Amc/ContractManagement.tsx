@@ -1,22 +1,62 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Search, Eye, Edit, AlertTriangle } from 'lucide-react';
+import { Search, Eye, Edit, AlertTriangle, Loader2 } from 'lucide-react';
+import { getAuth } from '@/lib/api';
+import { toast } from 'sonner';
 
 const ContractManagement = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [contracts, setContracts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const contracts = [
-    { id: 'AMC001', service: 'HVAC Maintenance', vendor: 'CoolAir Services', property: 'Sunset Apartments', startDate: '2023-06-01', endDate: '2024-05-31', value: 15600, status: 'Active', daysToExpiry: 125 },
-    { id: 'AMC002', service: 'Elevator Service', vendor: 'LiftTech', property: 'Downtown Plaza', startDate: '2023-03-15', endDate: '2024-03-14', value: 18200, status: 'Expiring Soon', daysToExpiry: 47 },
-    { id: 'AMC003', service: 'Fire Safety', vendor: 'SafeGuard Systems', property: 'Green Valley', startDate: '2023-09-01', endDate: '2024-08-31', value: 12400, status: 'Active', daysToExpiry: 218 },
-    { id: 'AMC004', service: 'Security System', vendor: 'SecureWatch', property: 'Sunset Apartments', startDate: '2023-01-01', endDate: '2023-12-31', value: 9800, status: 'Expired', daysToExpiry: -25 }
-  ];
+  const fetchContracts = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAuth('/amc_contracts');
+      if (Array.isArray(data)) {
+        setContracts(data);
+      } else if (data?.amc_contracts) {
+        setContracts(data.amc_contracts);
+      } else {
+        setContracts([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch contracts:', error);
+      toast.error('Failed to load AMC contracts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchContracts();
+  }, []);
+
+  const filteredContracts = contracts.filter(contract => {
+    const matchesSearch =
+      contract.service_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contract.vendor?.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contract.site?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (statusFilter === 'all') return matchesSearch;
+    return matchesSearch && contract.status?.toLowerCase() === statusFilter.toLowerCase();
+  });
+
+  const getDaysToExpiry = (endDate: string) => {
+    if (!endDate) return 0;
+    const end = new Date(endDate);
+    const today = new Date();
+    const diffTime = end.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
 
   return (
     <div className="space-y-6">
@@ -45,7 +85,7 @@ const ContractManagement = () => {
               <SelectContent className="bg-white">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="expiring">Expiring Soon</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
                 <SelectItem value="expired">Expired</SelectItem>
               </SelectContent>
             </Select>
@@ -67,41 +107,60 @@ const ContractManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
-                {contracts.map((contract) => (
-                  <TableRow key={contract.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <TableCell className="text-gray-900 font-medium">{contract.id}</TableCell>
-                    <TableCell className="text-gray-700">{contract.service}</TableCell>
-                    <TableCell className="text-gray-700">{contract.vendor}</TableCell>
-                    <TableCell className="text-gray-700">{contract.property}</TableCell>
-                    <TableCell className="text-gray-700">{contract.startDate}</TableCell>
-                    <TableCell className="text-gray-700">{contract.endDate}</TableCell>
-                    <TableCell className="text-gray-900 font-semibold">${contract.value.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          contract.status === 'Active' ? 'bg-green-100 text-green-800' :
-                          contract.status === 'Expiring Soon' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {contract.status}
-                        </span>
-                        {contract.daysToExpiry <= 60 && contract.daysToExpiry > 0 && (
-                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8">
+                      <div className="flex justify-center items-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-[#C72030]" />
+                        <span className="ml-2 text-gray-500">Loading contracts...</span>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : filteredContracts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                      No contracts found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredContracts.map((contract) => {
+                    const daysToExpiry = getDaysToExpiry(contract.end_date);
+                    return (
+                      <TableRow key={contract.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <TableCell className="text-gray-900 font-medium">AMC{contract.id}</TableCell>
+                        <TableCell className="text-gray-700">{contract.service_type}</TableCell>
+                        <TableCell className="text-gray-700">{contract.vendor?.vendor_name || contract.vendor?.name || 'N/A'}</TableCell>
+                        <TableCell className="text-gray-700">{contract.site?.name || 'N/A'}</TableCell>
+                        <TableCell className="text-gray-700">{contract.start_date}</TableCell>
+                        <TableCell className="text-gray-700">{contract.end_date}</TableCell>
+                        <TableCell className="text-gray-900 font-semibold">₹{parseFloat(contract.contract_value || 0).toLocaleString()}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${contract.status === 'active' ? 'bg-green-100 text-green-800' :
+                              contract.status === 'expired' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                              {contract.status}
+                            </span>
+                            {daysToExpiry <= 60 && daysToExpiry > 0 && contract.status === 'active' && (
+                              <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" onClick={() => navigate(`/amc/${contract.id}`)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" onClick={() => navigate(`/amc/edit/${contract.id}`)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </div>

@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, ChevronLeft, Upload, FileText, X, Building, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
+import { postAuth, getAuth, patchAuth, deleteAuth, API_BASE_URL } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface Property {
@@ -32,7 +32,7 @@ interface Property {
   amenities: string[];
   zone_id: number;
   landlord_id: number;
-  circuit: string;
+  circle: string;
   property_takeover_condition_id: number;
   property_takeover_condition_name?: string;
   pms_site_facilities?: any[];
@@ -51,6 +51,12 @@ const PropertiesMaster = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const navigate = useNavigate();
+
+  const renderValue = (val: any) => {
+    if (!val) return '';
+    if (typeof val === 'object') return val.name || val.id?.toString() || '';
+    return val.toString();
+  };
 
   // Dropdown data state
   const [countries, setCountries] = useState<any[]>([]);
@@ -86,7 +92,7 @@ const PropertiesMaster = () => {
     description: '',
     amenities: [] as string[],
     facility_type_ids: [] as number[],
-    circuit: '',
+    circle: '',
     property_takeover_condition_id: '',
     ites_certification: 'No',
     ites_valid_till: '',
@@ -303,21 +309,56 @@ const PropertiesMaster = () => {
       // But here I'll just fetch.
 
       const detailedData = await getAuth(`/pms/sites/${property.id}`);
-      const siteData = detailedData?.site || detailedData; // Handle potentially nested response if API wraps it in { site: ... }
+      const siteData = detailedData?.site || detailedData;
+
+      // Map documents for preview
+      if (siteData.documents && Array.isArray(siteData.documents)) {
+        const mappedDocs = siteData.documents.map((doc: any) => ({
+          file_name: doc.name || doc.file_name,
+          document_type: doc.document_type || 'site_image',
+          preview: doc.url?.startsWith('http') ? doc.url : `${API_BASE_URL}${doc.url}`,
+          id: doc.id
+        }));
+        setSelectedDocuments(mappedDocs);
+      } else {
+        setSelectedDocuments([]);
+      }
+
+      // Match Country/State IDs from names
+      let matchedCountryId = siteData.country_id?.toString() || '';
+      if (!matchedCountryId && siteData.country) {
+        const matchedCountry = countries.find(c => c.name === siteData.country);
+        if (matchedCountry) matchedCountryId = matchedCountry.id.toString();
+      }
+
+      let matchedStateId = siteData.state_id?.toString() || '';
+      if (matchedCountryId && siteData.state) {
+        try {
+          // Pre-fetch states for this country to match IDs and populate dropdown
+          const statesData = await getAuth(`/pms/states?q[country_id_eq]=${matchedCountryId}`);
+          if (Array.isArray(statesData)) {
+            setStates(statesData);
+            const matchedState = statesData.find((s: any) => s.name === siteData.state);
+            if (matchedState) matchedStateId = matchedState.id.toString();
+          }
+        } catch (e) {
+          console.error("Could not pre-fetch states for matching", e);
+        }
+      }
 
       // Pre-fill the form with fresh API data
       setFormData({
-        landlord_id: siteData.landlord_id?.toString() || '',
+        landlord_id: siteData.landlord_id?.toString() || siteData.landlord?.id?.toString() || '',
         name: siteData.name || '',
-        property_type: siteData.property_type || '',
-        property_type_id: siteData.property_type_id?.toString() || '',
-        country_id: '', // Logic to match country ID/Names would go here if needed, or rely on cascading effect if you implement it fully
+        property_type: siteData.property_type?.name || siteData.property_type || '',
+        property_type_id: siteData.property_type_id?.toString() || siteData.property_type?.id?.toString() || '',
+        country_id: matchedCountryId,
         country: siteData.country || '',
-        state_id: '',
+        state_id: matchedStateId,
         state: siteData.state || '',
-        region_id: '',
-        region: '',
-        zone_id: siteData.zone_id?.toString() || '',
+        region_id: siteData.region_id?.toString() || '',
+        region: siteData.region || '',
+        zone_id: siteData.zone_id?.toString() || siteData.zone?.id?.toString() || '',
         address: siteData.address || '',
         city: siteData.city || '',
         postal_code: siteData.postal_code || '',
@@ -327,11 +368,13 @@ const PropertiesMaster = () => {
         built_year: siteData.built_year?.toString() || '',
         description: siteData.description || '',
         amenities: siteData.amenities || [],
-        facility_type_ids: siteData.facility_type_ids || siteData.pms_site_facilities?.map((f: any) => f.facility_type_id) || [],
-        circuit: siteData.circuit || '',
-        property_takeover_condition_id: siteData.property_takeover_condition_id?.toString() || '',
-        ites_certification: siteData.ites_certification || 'No',
-        ites_valid_till: siteData.ites_valid_till || '',
+        facility_type_ids: siteData.facility_type_ids ||
+          siteData.pms_site_facilities?.map((f: any) => f.facility_type_id) ||
+          siteData.facility_types?.map((f: any) => f.id) || [],
+        circle: siteData.circle || siteData.circuit || '',
+        property_takeover_condition_id: siteData.property_takeover_condition_id?.toString() || siteData.property_takeover_condition?.id?.toString() || '',
+        ites_certification: siteData.ites_certification || (siteData.ites_certified ? 'Yes' : 'No') || 'No',
+        ites_valid_till: siteData.ites_valid_till || siteData.ites_certified_till || '',
         ownership_type: siteData.ownership_type || 'Owned'
       });
 
@@ -389,9 +432,12 @@ const PropertiesMaster = () => {
             document_type: doc.document_type,
             base64_data: doc.base64_data
           })),
+          circle: formData.circle,
           property_takeover_condition_id: formData.property_takeover_condition_id ? parseInt(formData.property_takeover_condition_id) : null,
           ites_certification: formData.ites_certification,
+          ites_certified: formData.ites_certification === 'Yes',
           ites_valid_till: formData.ites_certification === 'Yes' ? formData.ites_valid_till : null,
+          ites_certified_till: formData.ites_certification === 'Yes' ? formData.ites_valid_till : null,
           ownership_type: formData.ownership_type
         }
       };
@@ -451,7 +497,7 @@ const PropertiesMaster = () => {
         description: '',
         amenities: [],
         facility_type_ids: [],
-        circuit: '',
+        circle: '',
         property_takeover_condition_id: '',
         ites_certification: 'No',
         ites_valid_till: '',
@@ -739,13 +785,13 @@ const PropertiesMaster = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="circuit" className="text-gray-900 font-medium">Circuit</Label>
+                  <Label htmlFor="circle" className="text-gray-900 font-medium">Circle</Label>
                   <Input
-                    id="circuit"
-                    placeholder="Enter circuit"
+                    id="circle"
+                    placeholder="Enter circle detail"
                     className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
-                    value={formData.circuit}
-                    onChange={(e) => setFormData({ ...formData, circuit: e.target.value })}
+                    value={formData.circle}
+                    onChange={(e) => setFormData({ ...formData, circle: e.target.value })}
                   />
                 </div>
               </div>
@@ -1041,12 +1087,12 @@ const PropertiesMaster = () => {
                       <div>
                         <div className="flex items-center text-sm mb-1">
                           <MapPin className="h-3 w-3 mr-1" />
-                          <span className="truncate max-w-32">{property.address}</span>
+                          <span className="truncate max-w-32">{renderValue(property.address)}</span>
                         </div>
                         {property.city && (
-                          <p className="text-xs text-gray-500">{property.city}, {property.state}</p>
+                          <p className="text-xs text-gray-500">{renderValue(property.city)}, {renderValue(property.state)}</p>
                         )}
-                        <Badge variant="outline">{property.property_type}</Badge>
+                        <Badge variant="outline">{renderValue(property.property_type)}</Badge>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -1055,10 +1101,10 @@ const PropertiesMaster = () => {
                           <Building className="h-3 w-3 mr-1 text-blue-600" />
                           <span>{property.pms_site_facilities?.length || 0} Facilities</span>
                         </div>
-                        {property.circuit && (
+                        {property.circle && (
                           <div className="flex items-center text-xs text-gray-500">
                             <Layers className="h-3 w-3 mr-1" />
-                            <span>Circuit: {property.circuit}</span>
+                            <span>Circle: {renderValue(property.circle)}</span>
                           </div>
                         )}
                         {(property.property_takeover_condition_name || property as any).property_takeover_condition?.name && (
@@ -1084,10 +1130,10 @@ const PropertiesMaster = () => {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="text-sm font-medium">Area: {property.leasable_area} sq ft</p>
-                        <p className="text-xs text-gray-500">Built: {property.built_year}</p>
+                        <p className="text-sm font-medium">Area: {renderValue(property.leasable_area)} sq ft</p>
+                        <p className="text-xs text-gray-500">Built: {renderValue(property.built_year)}</p>
                         {property.carpet_area && (
-                          <p className="text-xs text-gray-500">Carpet: {property.carpet_area} sq ft</p>
+                          <p className="text-xs text-gray-500">Carpet: {renderValue(property.carpet_area)} sq ft</p>
                         )}
                       </div>
                     </TableCell>
@@ -1096,7 +1142,7 @@ const PropertiesMaster = () => {
                         {property.amenities && property.amenities.length > 0 ? (
                           property.amenities.slice(0, 3).map((amenity, idx) => (
                             <Badge key={idx} variant="secondary" className="text-xs">
-                              {amenity}
+                              {renderValue(amenity)}
                             </Badge>
                           ))
                         ) : (
