@@ -12,6 +12,12 @@ export default function RentalDetailsPage() {
   const [lease, setLease] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const renderValue = (val: any) => {
+    if (val === null || val === undefined) return 'N/A';
+    if (typeof val === 'object') return val.name || val.id?.toString() || JSON.stringify(val);
+    return val.toString();
+  };
+
   useEffect(() => {
     const fetchLeaseDetails = async () => {
       if (!id) return;
@@ -133,9 +139,9 @@ export default function RentalDetailsPage() {
                   <Building2 className="h-4 w-4 mt-1 text-gray-600" />
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">Property:</p>
-                    <p className="font-medium text-gray-900">{lease.property?.name || 'N/A'}</p>
-                    <p className="text-sm text-gray-600 mt-1">{lease.property?.address || 'N/A'}</p>
-                    <p className="text-sm text-gray-600">{lease.property?.property_type || lease.lease_type || 'N/A'}</p>
+                    <p className="font-medium text-gray-900">{renderValue(lease.property?.name)}</p>
+                    <p className="text-sm text-gray-600 mt-1">{renderValue(lease.property?.address)}</p>
+                    <p className="text-sm text-gray-600">{renderValue(lease.property?.property_type || lease.lease_type)}</p>
                   </div>
                 </div>
 
@@ -144,9 +150,9 @@ export default function RentalDetailsPage() {
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">Location:</p>
                     <p className="text-sm text-gray-900">
-                      {lease.property?.city || 'N/A'}, {lease.property?.state || 'N/A'}
+                      {renderValue(lease.property?.city)}, {renderValue(lease.property?.state)}
                     </p>
-                    <p className="text-sm text-gray-600">{lease.property?.postal_code || 'N/A'}</p>
+                    <p className="text-sm text-gray-600">{renderValue(lease.property?.postal_code)}</p>
                   </div>
                 </div>
 
@@ -172,9 +178,9 @@ export default function RentalDetailsPage() {
                     <div className="flex-1">
                       <p className="text-xs text-gray-500 mb-1">Landlord:</p>
                       <p className="font-medium text-gray-900 capitalize">
-                        {lease.property.landlord.contact_person || 'N/A'}
+                        {renderValue(lease.property.landlord.contact_person)}
                       </p>
-                      <p className="text-sm text-gray-600 mt-1">{lease.property.landlord.company_name || 'N/A'}</p>
+                      <p className="text-sm text-gray-600 mt-1">{renderValue(lease.property.landlord.company_name)}</p>
                     </div>
                   </div>
 
@@ -182,8 +188,8 @@ export default function RentalDetailsPage() {
                     <Building2 className="h-4 w-4 mt-1 text-gray-600" />
                     <div className="flex-1">
                       <p className="text-xs text-gray-500 mb-1">Contact:</p>
-                      <p className="text-sm text-gray-900">{lease.property.landlord.email || 'N/A'}</p>
-                      <p className="text-sm text-gray-600">{lease.property.landlord.phone || 'N/A'}</p>
+                      <p className="text-sm text-gray-900">{renderValue(lease.property.landlord.email)}</p>
+                      <p className="text-sm text-gray-600">{renderValue(lease.property.landlord.phone)}</p>
                     </div>
                   </div>
 
@@ -193,10 +199,10 @@ export default function RentalDetailsPage() {
                       <div className="flex-1">
                         <p className="text-xs text-gray-500 mb-1">Tax Details:</p>
                         {lease.property.landlord.pan && (
-                          <p className="text-sm text-gray-900">PAN: {lease.property.landlord.pan}</p>
+                          <p className="text-sm text-gray-900">PAN: {renderValue(lease.property.landlord.pan)}</p>
                         )}
                         {lease.property.landlord.gst && (
-                          <p className="text-sm text-gray-600">GST: {lease.property.landlord.gst}</p>
+                          <p className="text-sm text-gray-600">GST: {renderValue(lease.property.landlord.gst)}</p>
                         )}
                       </div>
                     </div>
@@ -299,7 +305,7 @@ export default function RentalDetailsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Due Date</p>
-                <p className="font-medium text-gray-900">{lease.rent_due_date ? `${lease.rent_due_date} (${lease.rent_due_type || 'monthly'})` : 'N/A'}</p>
+                <p className="font-medium text-gray-900">{lease.rent_due_date ? `${renderValue(lease.rent_due_date)} (${renderValue(lease.rent_due_type || 'monthly')})` : 'N/A'}</p>
               </div>
             </div>
           </CardContent>
@@ -338,15 +344,15 @@ export default function RentalDetailsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Escalation Type</p>
-                <p className="font-medium text-gray-900">{lease.escalation_type || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.escalation_type)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Escalation Interval</p>
-                <p className="font-medium text-gray-900">{lease.escalation_interval || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.escalation_interval)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Escalation Percentage (%)</p>
-                <p className="font-medium text-gray-900">{lease.annual_escalation_percentage || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.annual_escalation_percentage)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Penalty Applicable</p>
@@ -354,7 +360,7 @@ export default function RentalDetailsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Penalty Percentage (%)</p>
-                <p className="font-medium text-gray-900">{lease.penalty_percentage || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.penalty_percentage)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Interest Applicable</p>
@@ -362,7 +368,7 @@ export default function RentalDetailsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Interest Percentage (%)</p>
-                <p className="font-medium text-gray-900">{lease.interest_percentage || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.interest_percentage)}</p>
               </div>
             </div>
           </CardContent>
@@ -380,11 +386,11 @@ export default function RentalDetailsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Purpose of Agreement</p>
-                <p className="font-medium text-gray-900">{lease.purpose_of_agreement || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.purpose_of_agreement)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Stamp Duty Sharing</p>
-                <p className="font-medium text-gray-900">{lease.stamp_duty_sharing || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.stamp_duty_sharing)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Agreement Sign Off Date</p>
@@ -396,11 +402,11 @@ export default function RentalDetailsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Rent Free Period (Days)</p>
-                <p className="font-medium text-gray-900">{lease.rent_free_period_days || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.rent_free_period_days)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Lock-in Period (Days)</p>
-                <p className="font-medium text-gray-900">{lease.lock_in_period_days || 'N/A'}</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.lock_in_period_days)}</p>
               </div>
             </div>
           </CardContent>
@@ -420,15 +426,15 @@ export default function RentalDetailsPage() {
                 {lease.signing_authorities.map((auth: any) => (
                   <div key={auth.id} className="space-y-2 p-4 border border-gray-100 rounded-lg">
                     <p className="text-sm text-gray-500 mb-1">Name</p>
-                    <p className="font-medium text-gray-900">{auth.name || 'N/A'}</p>
+                    <p className="font-medium text-gray-900">{renderValue(auth.name)}</p>
                     <p className="text-sm text-gray-500 mb-1">Designation</p>
-                    <p className="font-medium text-gray-900">{auth.designation || 'N/A'}</p>
+                    <p className="font-medium text-gray-900">{renderValue(auth.designation)}</p>
                     <p className="text-sm text-gray-500 mb-1">Email</p>
-                    <p className="font-medium text-gray-900">{auth.email || 'N/A'}</p>
+                    <p className="font-medium text-gray-900">{renderValue(auth.email)}</p>
                     <p className="text-sm text-gray-500 mb-1">Phone</p>
-                    <p className="font-medium text-gray-900">{auth.phone_number || 'N/A'}</p>
+                    <p className="font-medium text-gray-900">{renderValue(auth.phone_number)}</p>
                     <p className="text-sm text-gray-500 mb-1">Authority Type</p>
-                    <p className="font-medium text-gray-900">{auth.authority_type || 'N/A'}</p>
+                    <p className="font-medium text-gray-900">{renderValue(auth.authority_type)}</p>
                     <p className="text-sm text-gray-500 mb-1">Signed At</p>
                     <p className="font-medium text-gray-900">{auth.signed_at ? new Date(auth.signed_at).toLocaleDateString() : 'N/A'}</p>
                   </div>
@@ -454,9 +460,9 @@ export default function RentalDetailsPage() {
                     <div className="flex items-center gap-3">
                       <FileText className="h-8 w-8 text-gray-400" />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">{doc.name}</p>
+                        <p className="font-medium text-gray-900">{renderValue(doc.name)}</p>
                         <p className="text-xs text-gray-500">
-                          {doc.document_type} • {(doc.file_size / 1024).toFixed(0)} KB
+                          {renderValue(doc.document_type)} • {(doc.file_size / 1024).toFixed(0)} KB
                         </p>
                         <div className="flex items-center gap-4 mt-2">
                           <a
@@ -504,7 +510,7 @@ export default function RentalDetailsPage() {
                   <div key={parking.id || index} className="p-4 border border-gray-200 rounded-lg">
                     <div className="flex items-center gap-2 mb-3">
                       <Building2 className="h-5 w-5 text-gray-600" />
-                      <p className="font-semibold text-gray-900 capitalize">{parking.vehicle_type}</p>
+                      <p className="font-semibold text-gray-900 capitalize">{renderValue(parking.vehicle_type)}</p>
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
@@ -540,27 +546,27 @@ export default function RentalDetailsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">From Landlord (Days)</p>
-                  <p className="font-medium text-gray-900">{lease.notice_terms.from_landlord_days ?? 'N/A'}</p>
+                  <p className="font-medium text-gray-900">{renderValue(lease.notice_terms.from_landlord_days)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">From VIL (Days)</p>
-                  <p className="font-medium text-gray-900">{lease.notice_terms.from_vil_days ?? 'N/A'}</p>
+                  <p className="font-medium text-gray-900">{renderValue(lease.notice_terms.from_vil_days)}</p>
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Termination Rights with LESSEE</p>
-                  <p className="font-medium text-gray-900">{lease.notice_terms.termination_rights_lessee || 'N/A'}</p>
+                  <p className="font-medium text-gray-900">{renderValue(lease.notice_terms.termination_rights_lessee)}</p>
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Termination Rights with LESSOR</p>
-                  <p className="font-medium text-gray-900">{lease.notice_terms.termination_rights_lessor || 'N/A'}</p>
+                  <p className="font-medium text-gray-900">{renderValue(lease.notice_terms.termination_rights_lessor)}</p>
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Handover Condition</p>
-                  <p className="font-medium text-gray-900">{lease.notice_terms.handover_condition || 'N/A'}</p>
+                  <p className="font-medium text-gray-900">{renderValue(lease.notice_terms.handover_condition)}</p>
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Additional Notes</p>
-                  <p className="font-medium text-gray-900">{lease.notice_terms.additional_notes || 'N/A'}</p>
+                  <p className="font-medium text-gray-900">{renderValue(lease.notice_terms.additional_notes)}</p>
                 </div>
               </div>
             </CardContent>

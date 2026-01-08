@@ -19,6 +19,12 @@ const AddRentalPage = () => {
     const [properties, setProperties] = useState<any[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
+
+    const renderValue = (val: any) => {
+        if (val === null || val === undefined) return '';
+        if (typeof val === 'object') return val.name || val.id?.toString() || JSON.stringify(val);
+        return val.toString();
+    };
     const [loadingProperties, setLoadingProperties] = useState(true);
     const [loadingTenants, setLoadingTenants] = useState(true);
 
@@ -323,13 +329,13 @@ const AddRentalPage = () => {
                                         <div>
                                             <p className="text-xs text-gray-500">Property:</p>
                                             <p className="font-medium text-gray-900">
-                                                {selectedPropertyDetails.name}
+                                                {renderValue(selectedPropertyDetails.name)}
                                             </p>
                                             <p className="text-sm text-gray-600">
-                                                {selectedPropertyDetails.address}
+                                                {renderValue(selectedPropertyDetails.address)}
                                             </p>
                                             <p className="text-sm text-gray-600">
-                                                {selectedPropertyDetails.property_type}
+                                                {renderValue(selectedPropertyDetails.property_type)}
                                             </p>
                                         </div>
                                     </div>
@@ -339,10 +345,10 @@ const AddRentalPage = () => {
                                         <div>
                                             <p className="text-xs text-gray-500">Location:</p>
                                             <p className="text-sm text-gray-900">
-                                                {selectedPropertyDetails.city}, {selectedPropertyDetails.state}
+                                                {renderValue(selectedPropertyDetails.city)}, {renderValue(selectedPropertyDetails.state)}
                                             </p>
                                             <p className="text-sm text-gray-600">
-                                                {selectedPropertyDetails.postal_code}
+                                                {renderValue(selectedPropertyDetails.postal_code)}
                                             </p>
                                         </div>
                                     </div>
@@ -354,19 +360,19 @@ const AddRentalPage = () => {
                                         <div>
                                             <p className="text-xs text-gray-500">Area Details:</p>
                                             <p className="text-sm text-gray-900">
-                                                Leasable Area: {selectedPropertyDetails.leasable_area} sq ft
+                                                Leasable Area: {renderValue(selectedPropertyDetails.leasable_area)} sq ft
                                             </p>
                                             {selectedPropertyDetails.carpet_area && (
                                                 <p className="text-sm text-gray-600">
-                                                    Carpet Area: {selectedPropertyDetails.carpet_area} sq ft
+                                                    Carpet Area: {renderValue(selectedPropertyDetails.carpet_area)} sq ft
                                                 </p>
                                             )}
                                             <p className="text-sm text-gray-600">
-                                                Built: {selectedPropertyDetails.built_year}
+                                                Built: {renderValue(selectedPropertyDetails.built_year)}
                                             </p>
                                             {selectedPropertyDetails.area_efficiency && (
                                                 <p className="text-sm text-gray-600">
-                                                    Efficiency: {selectedPropertyDetails.area_efficiency}%
+                                                    Efficiency: {renderValue(selectedPropertyDetails.area_efficiency)}%
                                                 </p>
                                             )}
                                         </div>
@@ -391,14 +397,14 @@ const AddRentalPage = () => {
                                                 <p className="text-xs text-gray-500">Landlord:</p>
                                                 <p className="text-sm text-gray-900 text-capitalize">
                                                     <span style={{ textTransform: 'capitalize' }}>
-                                                        {selectedPropertyDetails.landlord.contact_person}
+                                                        {renderValue(selectedPropertyDetails.landlord.contact_person)}
                                                     </span>
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {selectedPropertyDetails.landlord.email}
+                                                    {renderValue(selectedPropertyDetails.landlord.email)}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {selectedPropertyDetails.landlord.phone}
+                                                    {renderValue(selectedPropertyDetails.landlord.phone)}
                                                 </p>
                                             </div>
                                         </div>
