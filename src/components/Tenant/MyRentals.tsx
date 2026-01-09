@@ -8,7 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, MapPin, Phone, Mail, Eye, FileText, CreditCard, Home, Users, DollarSign, CheckCircle, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, getToken } from '@/lib/api';
+import { getAuth, postAuth, getToken } from '@/lib/api';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from 'sonner';
 
 const MyRentals = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,6 +19,20 @@ const MyRentals = () => {
   const [loading, setLoading] = useState(false);
   const [myRentals, setMyRentals] = useState<any[]>([]);
   const navigate = useNavigate();
+
+  // Payment Modal State
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [loadingInvoices, setLoadingInvoices] = useState(false);
+  const [paymentFormData, setPaymentFormData] = useState({
+    invoice_id: '',
+    amount: '',
+    payment_date: new Date().toISOString().split('T')[0],
+    payment_type: 'rent',
+    transaction_id: '',
+    description: ''
+  });
 
   const renderValue = (val: any) => {
     if (val === null || val === undefined) return '';
@@ -50,9 +67,64 @@ const MyRentals = () => {
     // Add contract viewing logic here
   };
 
-  const handlePayRent = (rentalId: string) => {
-    console.log('Initiating payment for rental:', rentalId);
-    // Add payment logic here
+  const handlePayRent = async (rental: any) => {
+    console.log('Initiating payment for rental:', rental.id);
+    setPaymentFormData({
+      invoice_id: '',
+      amount: (rental.monthly_rent || rental.basic_rent || '').toString(),
+      payment_date: new Date().toISOString().split('T')[0],
+      payment_type: 'rent',
+      transaction_id: '',
+      description: `Rent payment for ${new Date().toLocaleString('default', { month: 'long' })} ${new Date().getFullYear()}`
+    });
+    setIsPaymentModalOpen(true);
+
+    // Fetch invoices for this lease
+    try {
+      setLoadingInvoices(true);
+      const data = await getAuth(`/invoices.json?q[lease_id_eq]=${rental.id}`);
+      if (Array.isArray(data)) {
+        setInvoices(data);
+      } else if (data?.invoices) {
+        setInvoices(data.invoices);
+      }
+    } catch (error) {
+      console.error('Failed to fetch invoices:', error);
+      toast.error("Failed to load invoices for this rental.");
+    } finally {
+      setLoadingInvoices(false);
+    }
+  };
+
+  const handlePaymentSubmit = async () => {
+    try {
+      if (!paymentFormData.invoice_id || !paymentFormData.amount || !paymentFormData.transaction_id) {
+        toast.error("Please fill in all required fields (Invoice, Amount, and Transaction ID).");
+        return;
+      }
+
+      setIsSubmittingPayment(true);
+      const payload = {
+        payment: {
+          invoice_id: parseInt(paymentFormData.invoice_id),
+          amount: parseFloat(paymentFormData.amount),
+          payment_date: paymentFormData.payment_date,
+          payment_type: paymentFormData.payment_type,
+          transaction_id: paymentFormData.transaction_id,
+          description: paymentFormData.description
+        }
+      };
+
+      await postAuth('/payments', payload);
+
+      toast.success("Payment recorded successfully!");
+      setIsPaymentModalOpen(false);
+    } catch (error: any) {
+      console.error('Error submitting payment:', error);
+      toast.error(error.message || "Failed to record payment");
+    } finally {
+      setIsSubmittingPayment(false);
+    }
   };
 
   const filteredRentals = myRentals.filter(rental => {
@@ -281,7 +353,7 @@ const MyRentals = () => {
                           size="sm"
                           title="Pay Rent"
                           className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handlePayRent(rental.id)}
+                          onClick={() => handlePayRent(rental)}
                         >
                           <CreditCard className="h-4 w-4" />
                         </Button>
@@ -294,6 +366,128 @@ const MyRentals = () => {
           </Table>
         </div>
       </CardContent>
+
+      <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-gray-900">Record Rent Payment</DialogTitle>
+            <DialogDescription>
+              Enter the details of your rent payment below.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="invoice_id" className="text-gray-900 font-medium">
+                Select Invoice *
+              </Label>
+              <Select
+                value={paymentFormData.invoice_id}
+                onValueChange={(value) => setPaymentFormData(prev => ({ ...prev, invoice_id: value }))}
+              >
+                <SelectTrigger className="w-full bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                  <SelectValue placeholder={loadingInvoices ? "Loading invoices..." : "Select Invoice"} />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {invoices.length === 0 && !loadingInvoices ? (
+                    <div className="p-2 text-sm text-gray-500 text-center">No invoices found</div>
+                  ) : (
+                    invoices.map((inv) => (
+                      <SelectItem key={inv.id} value={inv.id.toString()}>
+                        {inv.invoice_number} (₹{inv.total_amount || inv.amount})
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="amount" className="text-gray-900 font-medium">
+                Amount (₹) *
+              </Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="0.00"
+                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                value={paymentFormData.amount}
+                onChange={(e) => setPaymentFormData(prev => ({ ...prev, amount: e.target.value }))}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="payment_date" className="text-gray-900 font-medium">
+                  Payment Date
+                </Label>
+                <Input
+                  id="payment_date"
+                  type="date"
+                  className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  value={paymentFormData.payment_date}
+                  onChange={(e) => setPaymentFormData(prev => ({ ...prev, payment_date: e.target.value }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payment_type" className="text-gray-900 font-medium">
+                  Payment Type
+                </Label>
+                <Input
+                  id="payment_type"
+                  value="rent"
+                  disabled
+                  className="bg-gray-50 border-2 border-gray-200 text-gray-500 font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="transaction_id" className="text-gray-900 font-medium">
+                Transaction ID *
+              </Label>
+              <Input
+                id="transaction_id"
+                placeholder="UPI / Bank Ref No."
+                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                value={paymentFormData.transaction_id}
+                onChange={(e) => setPaymentFormData(prev => ({ ...prev, transaction_id: e.target.value }))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-gray-900 font-medium">
+                Description
+              </Label>
+              <Input
+                id="description"
+                placeholder="Optional notes"
+                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                value={paymentFormData.description}
+                onChange={(e) => setPaymentFormData(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsPaymentModalOpen(false)}
+              className="border-gray-300 text-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePaymentSubmit}
+              disabled={isSubmittingPayment}
+              className="bg-[#C72030] hover:bg-[#A01825] text-white"
+            >
+              {isSubmittingPayment ? "Processing..." : "Submit Payment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

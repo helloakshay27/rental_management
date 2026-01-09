@@ -256,7 +256,7 @@ const PropertyMasterDetailsPage = () => {
                             </div>
                             {(property.ites_certification === 'Yes' || property.ites_certified) && (
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="font-semibold text-gray-500 uppercase tracking-tight">ITES Valid Till</span>
+                                    <span className="font-semibold text-gray-500 uppercase tracking-tight">ITES Certificate is Valid till</span>
                                     <span className="font-bold text-gray-900">{renderValue(property.ites_valid_till || property.ites_certified_till)}</span>
                                 </div>
                             )}

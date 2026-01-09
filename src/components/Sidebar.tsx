@@ -31,8 +31,6 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: UserCheck, label: 'Lessor Dashboard', path: '/rentals' },
-    { icon: User, label: 'Lessee Dashboard', path: '/tenant-dashboard' },
     { icon: Home, label: 'Rental Agreement', path: '/rental-dashboard' },
     { icon: ShieldCheck, label: 'Monitor Compliance', path: '/monitor-compliance' },
 

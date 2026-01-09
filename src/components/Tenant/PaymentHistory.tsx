@@ -1,65 +1,51 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CreditCard, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import { CreditCard, DollarSign, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import PaymentFilters from './PaymentFilters';
 import PaymentTable from './PaymentTable';
+import { getAuth } from '@/lib/api';
+import { toast } from 'sonner';
 
 const PaymentHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data for payment history
-  const payments = [
-    {
-      id: 'PAY001',
-      propertyName: 'Sunset Apartments - Unit 2A',
-      landlordName: 'John Smith Properties',
-      amount: 25000,
-      paymentDate: '2024-01-15',
-      dueDate: '2024-01-01',
-      status: 'paid',
-      paymentMethod: 'Bank Transfer',
-      transactionId: 'TXN123456789',
-      type: 'rent'
-    },
-    {
-      id: 'PAY002',
-      propertyName: 'Green Valley Villa',
-      landlordName: 'Sarah Johnson Realty',
-      amount: 35000,
-      paymentDate: '2024-01-01',
-      dueDate: '2024-01-01',
-      status: 'paid',
-      paymentMethod: 'UPI',
-      transactionId: 'UPI987654321',
-      type: 'rent'
-    },
-    {
-      id: 'PAY003',
-      propertyName: 'City Center Office Space',
-      landlordName: 'Metro Commercial',
-      amount: 45000,
-      paymentDate: null,
-      dueDate: '2024-02-01',
-      status: 'pending',
-      paymentMethod: null,
-      transactionId: null,
-      type: 'rent'
-    },
-    {
-      id: 'PAY004',
-      propertyName: 'Sunset Apartments - Unit 2A',
-      landlordName: 'John Smith Properties',
-      amount: 2500,
-      paymentDate: '2024-01-10',
-      dueDate: '2024-01-05',
-      status: 'paid',
-      paymentMethod: 'Credit Card',
-      transactionId: 'CC567890123',
-      type: 'maintenance'
+  const fetchPayments = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getAuth('/payments.json');
+      console.log('Fetched payments:', data);
+
+      const rawPayments = Array.isArray(data) ? data : (data.payments || []);
+
+      // Map API data to UI structure
+      const mappedPayments = rawPayments.map((p: any) => ({
+        id: p.id.toString(),
+        propertyName: p.invoice?.lease?.property_name || p.property_name || 'N/A',
+        landlordName: p.invoice?.lease?.landlord_name || p.landlord_name || 'N/A',
+        amount: parseFloat(p.amount),
+        paymentDate: p.payment_date,
+        dueDate: p.invoice?.due_date || p.payment_date,
+        status: p.status || 'paid',
+        paymentMethod: p.payment_method || 'N/A',
+        transactionId: p.transaction_id,
+        type: p.payment_type || 'rent'
+      }));
+
+      setPayments(mappedPayments);
+    } catch (error: any) {
+      console.error('Failed to fetch payments:', error);
+      toast.error("Failed to load payment history");
+    } finally {
+      setLoading(false);
     }
-  ];
+  }, []);
+
+  useEffect(() => {
+    fetchPayments();
+  }, [fetchPayments]);
 
   const handleDownloadReceipt = (paymentId: string) => {
     console.log('Downloading receipt for payment:', paymentId);
@@ -73,8 +59,8 @@ const PaymentHistory = () => {
 
   const filteredPayments = payments.filter(payment => {
     const matchesSearch = payment.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.transactionId?.toLowerCase().includes(searchTerm.toLowerCase());
+      payment.landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.transactionId?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -99,7 +85,7 @@ const PaymentHistory = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
           <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
@@ -113,7 +99,7 @@ const PaymentHistory = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
           <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
@@ -127,7 +113,7 @@ const PaymentHistory = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
           <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
@@ -155,11 +141,17 @@ const PaymentHistory = () => {
             setStatusFilter={setStatusFilter}
           />
 
-          <PaymentTable
-            payments={filteredPayments}
-            onDownloadReceipt={handleDownloadReceipt}
-            onPayNow={handlePayNow}
-          />
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 text-[#C72030] animate-spin" />
+            </div>
+          ) : (
+            <PaymentTable
+              payments={filteredPayments}
+              onDownloadReceipt={handleDownloadReceipt}
+              onPayNow={handlePayNow}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

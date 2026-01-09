@@ -412,22 +412,6 @@ const EditRentalPage = () => {
                         </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Select Tenant *</Label>
-                        <Select value={formData.tenant} onValueChange={(value) => setFormData(prev => ({ ...prev, tenant: value }))}>
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a tenant"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {tenants.map((tenant) => (
-                                    <SelectItem key={tenant.id} value={tenant.id.toString()}>
-                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
                     {selectedPropertyDetails && (
                         <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
                             <h4 className="font-semibold text-md mb-4 text-gray-900">Property & Landlord Details:</h4>
@@ -523,6 +507,24 @@ const EditRentalPage = () => {
                             </div>
                         </div>
                     )}
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Select Tenant *</Label>
+                        <Select value={formData.tenant} onValueChange={(value) => setFormData(prev => ({ ...prev, tenant: value }))}>
+                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a tenant"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {tenants.map((tenant) => (
+                                    <SelectItem key={tenant.id} value={tenant.id.toString()}>
+                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+
 
                     <div>
                         <h3 className="font-semibold text-lg mb-6 text-gray-900">Rent Breakdown</h3>

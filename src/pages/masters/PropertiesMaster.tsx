@@ -912,7 +912,7 @@ const PropertiesMaster = () => {
 
                 {formData.ites_certification === 'Yes' && (
                   <div className="space-y-2">
-                    <Label htmlFor="ites-valid-till" className="text-gray-900 font-medium">ITES Certificate Valid Till</Label>
+                    <Label htmlFor="ites-valid-till" className="text-gray-900 font-medium">ITES Certificate is Valid till</Label>
                     <Input
                       id="ites-valid-till"
                       type="date"
@@ -1122,7 +1122,7 @@ const PropertiesMaster = () => {
                           )}
                           {property.ites_certification === 'Yes' && (
                             <Badge variant="outline" className="text-[10px] border-green-200 text-green-700 bg-green-50/30">
-                              ITES Certified
+                              ITES Certified {property.ites_valid_till ? `(Till: ${new Date(property.ites_valid_till).toLocaleDateString()})` : ''}
                             </Badge>
                           )}
                         </div>
