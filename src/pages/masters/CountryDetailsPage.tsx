@@ -76,7 +76,7 @@ const CountryDetailsPage = () => {
                 </div>
             </div>
 
-            <Card className="max-w-4xl mx-auto bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <Card className="max-w-full mx-auto bg-white border border-gray-200 shadow-sm overflow-hidden">
                 <div className="h-2 bg-[#C72030]"></div>
                 <CardHeader className="border-b border-gray-100 pb-8 pt-8">
                     <div className="flex items-center gap-6">

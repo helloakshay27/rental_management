@@ -132,7 +132,7 @@ const AmcContractAdd = () => {
 
     return (
         <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="max-w-8xl mx-auto space-y-6">
+            <div className="max-w-full mx-auto space-y-6">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" onClick={() => navigate('/amc')} className="p-0 hover:bg-transparent">
                         <ArrowLeft className="h-6 w-6 text-gray-600" />

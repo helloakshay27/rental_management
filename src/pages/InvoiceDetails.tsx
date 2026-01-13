@@ -66,7 +66,7 @@ const InvoiceDetails = () => {
 
     return (
         <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="max-w-5xl mx-auto space-y-6">
+            <div className="max-w-full mx-auto space-y-6">
 
                 {/* Header Actions */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

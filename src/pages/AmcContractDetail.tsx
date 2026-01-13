@@ -61,7 +61,7 @@ const AmcContractDetail = () => {
 
     return (
         <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="max-w-8xl mx-auto space-y-6">
+            <div className="max-w-full mx-auto space-y-6">
 
                 {/* Header */}
                 <div className="flex items-center justify-between">

@@ -38,6 +38,8 @@ import TakeoverConditionsManagement from "./pages/masters/TakeoverConditionsMana
 import FacilityTypesManagement from "./pages/masters/FacilityTypesManagement";
 import CountryMaster from "./pages/masters/CountryMaster";
 import StatesMaster from "./pages/masters/StatesMaster";
+import ExpenseCategoryMaster from "./pages/masters/ExpenseCategoryMaster";
+import BudgetMaster from "./pages/masters/BudgetMaster";
 import VendorMaster from "./pages/masters/VendorMaster";
 import AddEditVendor from "./pages/masters/AddEditVendor";
 import TenantDetailsPage from "./pages/masters/TenantDetailsPage";
@@ -57,6 +59,9 @@ import ViewMonitoryCompliancePage from "./pages/ViewMonitoryCompliancePage";
 import AmcContractAdd from "./pages/AmcContractAdd";
 import AmcContractDetail from "./pages/AmcContractDetail";
 import AmcContractEdit from "./pages/AmcContractEdit";
+import AddExpensePage from "./pages/opex/AddExpensePage";
+import ExpenseDetailsPage from "./pages/opex/ExpenseDetailsPage";
+import EditExpensePage from "./pages/opex/EditExpensePage";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +92,9 @@ const App = () => {
                 <Route path="invoicing" element={<Invoicing />} />
                 <Route path="invoicing/:id" element={<InvoiceDetails />} />
                 <Route path="opex" element={<OpexManagement />} />
+                <Route path="opex/new" element={<AddExpensePage />} />
+                <Route path="opex/:id" element={<ExpenseDetailsPage />} />
+                <Route path="opex/edit/:id" element={<EditExpensePage />} />
                 <Route path="utilities" element={<UtilityManagement />} />
                 <Route path="amc" element={<AmcManagement />} />
                 <Route path="amc/new" element={<AmcContractAdd />} />
@@ -121,6 +129,8 @@ const App = () => {
                 <Route path="masters/vendors/:id" element={<VendorDetailsPage />} />
                 <Route path="masters/vendors/add" element={<AddEditVendor />} />
                 <Route path="masters/vendors/edit/:id" element={<AddEditVendor />} />
+                <Route path="masters/expense-categories" element={<ExpenseCategoryMaster />} />
+                <Route path="masters/budgets" element={<BudgetMaster />} />
               </Route>
               <Route path="login" element={<LoginPage setToken={() => { }} />} />
               <Route path="*" element={<NotFound />} />

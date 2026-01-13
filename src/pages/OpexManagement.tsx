@@ -1,6 +1,5 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Plus, DollarSign, TrendingUp, Calendar, Building } from 'lucide-react';
@@ -8,10 +7,10 @@ import OpexOverview from '@/components/Opex/OpexOverview';
 import ExpenseTracking from '@/components/Opex/ExpenseTracking';
 import BudgetPlanning from '@/components/Opex/BudgetPlanning';
 import OpexReporting from '@/components/Opex/OpexReporting';
-import AddExpenseDialog from '@/components/Opex/AddExpenseDialog';
+import { useNavigate } from 'react-router-dom';
 
 const OpexManagement = () => {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="p-6 space-y-6 bg-white min-h-full">
@@ -20,7 +19,7 @@ const OpexManagement = () => {
           <h1 className="text-3xl font-bold text-[#1a1a1a]">OPEX Management</h1>
           <p className="text-[#1a1a1a]/70 mt-2">Track and manage operational expenses across all properties</p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)} className="bg-[#C72030] hover:bg-[#A01825] text-white">
+        <Button onClick={() => navigate('/opex/new')} className="bg-[#C72030] hover:bg-[#A01825] text-white">
           <Plus className="h-4 w-4 mr-2" />
           Add Expense
         </Button>
@@ -28,29 +27,29 @@ const OpexManagement = () => {
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
-          <TabsTrigger 
-            value="overview" 
+          <TabsTrigger
+            value="overview"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <DollarSign className="h-4 w-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger 
-            value="tracking" 
+          <TabsTrigger
+            value="tracking"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <TrendingUp className="h-4 w-4" />
             Expense Tracking
           </TabsTrigger>
-          <TabsTrigger 
-            value="budget" 
+          <TabsTrigger
+            value="budget"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Calendar className="h-4 w-4" />
             Budget Planning
           </TabsTrigger>
-          <TabsTrigger 
-            value="reports" 
+          <TabsTrigger
+            value="reports"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
           >
             <Building className="h-4 w-4" />
@@ -61,24 +60,19 @@ const OpexManagement = () => {
         <TabsContent value="overview" className="bg-white">
           <OpexOverview />
         </TabsContent>
-        
+
         <TabsContent value="tracking" className="bg-white">
           <ExpenseTracking />
         </TabsContent>
-        
+
         <TabsContent value="budget" className="bg-white">
           <BudgetPlanning />
         </TabsContent>
-        
+
         <TabsContent value="reports" className="bg-white">
           <OpexReporting />
         </TabsContent>
       </Tabs>
-
-      <AddExpenseDialog 
-        open={isAddDialogOpen} 
-        onOpenChange={setIsAddDialogOpen} 
-      />
     </div>
   );
 };

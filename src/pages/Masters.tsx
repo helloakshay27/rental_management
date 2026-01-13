@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building } from 'lucide-react';
+import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building, Wallet, PieChart } from 'lucide-react';
 
 const Masters = () => {
   const masterModules = [
@@ -97,6 +97,20 @@ const Masters = () => {
       icon: Building,
       path: '/masters/facility-types',
       color: 'bg-rose-50 text-rose-600'
+    },
+    {
+      title: 'Expense Categories',
+      description: 'Manage categories for property expenses and tracking',
+      icon: Wallet,
+      path: '/masters/expense-categories',
+      color: 'bg-lime-50 text-lime-600'
+    },
+    {
+      title: 'Budget Master',
+      description: 'Define and track annual budgets for properties',
+      icon: PieChart,
+      path: '/masters/budgets',
+      color: 'bg-indigo-50 text-indigo-600'
     }
   ];
 
