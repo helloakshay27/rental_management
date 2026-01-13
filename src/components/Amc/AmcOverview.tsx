@@ -1,22 +1,60 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wrench, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Wrench, Calendar, AlertTriangle, CheckCircle, Loader2, DollarSign } from 'lucide-react';
+import { getAuth } from '@/lib/api';
+import { toast } from 'sonner';
 
 const AmcOverview = () => {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await getAuth('/amc_contracts/dashboard.json');
+        setData(response);
+      } catch (error) {
+        console.error('Error fetching AMC dashboard:', error);
+        toast.error('Failed to load dashboard statistics');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   const stats = [
-    { title: 'Active Contracts', value: '24', change: '+3', icon: Wrench },
-    { title: 'Total AMC Value', value: '$125,600', change: '+8%', icon: Calendar },
-    { title: 'Due for Renewal', value: '6', change: 'Next 3 months', icon: AlertTriangle },
-    { title: 'Services Completed', value: '89%', change: 'This month', icon: CheckCircle }
+    {
+      title: 'Active Contracts',
+      value: data?.stats?.active_contracts || '0',
+      change: data?.stats?.active_change || 'Overall',
+      icon: Wrench
+    },
+    {
+      title: 'Total AMC Value',
+      value: `₹${(data?.stats?.total_value || 0).toLocaleString()}`,
+      change: data?.stats?.value_change || 'Annual',
+      icon: DollarSign
+    },
+    {
+      title: 'Due for Renewal',
+      value: data?.stats?.due_for_renewal || '0',
+      change: 'Next 60 days',
+      icon: AlertTriangle
+    },
+    {
+      title: 'Services Completed',
+      value: `${data?.stats?.completion_rate || 0}%`,
+      change: 'Success rate',
+      icon: CheckCircle
+    }
   ];
 
-  const recentServices = [
-    { service: 'HVAC Maintenance', property: 'Sunset Apartments', vendor: 'CoolAir Services', date: '2024-01-15', status: 'Completed' },
-    { service: 'Elevator Service', property: 'Downtown Plaza', vendor: 'LiftTech', date: '2024-01-14', status: 'In Progress' },
-    { service: 'Fire Safety Check', property: 'Green Valley', vendor: 'SafeGuard Systems', date: '2024-01-12', status: 'Scheduled' },
-    { service: 'Pest Control', property: 'Sunset Apartments', vendor: 'BugAway', date: '2024-01-10', status: 'Completed' }
-  ];
+  const recentServices = data?.recent_services || [];
+  const contractSummary = data?.category_distribution || [];
 
   return (
     <div className="space-y-6">
@@ -46,21 +84,23 @@ const AmcOverview = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { category: 'HVAC Systems', contracts: 8, value: '$45,200' },
-                { category: 'Elevators', contracts: 6, value: '$32,400' },
-                { category: 'Fire Safety', contracts: 4, value: '$18,600' },
-                { category: 'Security Systems', contracts: 3, value: '$15,200' },
-                { category: 'Pest Control', contracts: 3, value: '$14,200' }
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 bg-white">
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">{item.category}</div>
-                    <div className="text-xs text-gray-500">{item.contracts} contracts</div>
-                  </div>
-                  <div className="text-sm font-semibold text-gray-900">{item.value}</div>
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
                 </div>
-              ))}
+              ) : contractSummary.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">No data available</div>
+              ) : (
+                contractSummary.map((item: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 bg-white">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{item.category}</div>
+                      <div className="text-xs text-gray-500">{item.count} contracts</div>
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900">₹{(item.value || 0).toLocaleString()}</div>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -72,22 +112,29 @@ const AmcOverview = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentServices.map((service, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 bg-white">
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">{service.service}</div>
-                    <div className="text-xs text-gray-500">{service.property} • {service.vendor}</div>
-                    <div className="text-xs text-gray-400">{service.date}</div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    service.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                    service.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {service.status}
-                  </span>
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
                 </div>
-              ))}
+              ) : recentServices.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">No recent activities</div>
+              ) : (
+                recentServices.map((service: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 bg-white">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{service.service_type || service.description}</div>
+                      <div className="text-xs text-gray-500">{service.site_name || service.property} • {service.vendor_name || service.vendor}</div>
+                      <div className="text-xs text-gray-400">{service.date || service.schedule_date}</div>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${['completed', 'finished'].includes(service.status?.toLowerCase()) ? 'bg-green-100 text-green-800' :
+                        ['in progress', 'ongoing'].includes(service.status?.toLowerCase()) ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                      }`}>
+                      {service.status}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

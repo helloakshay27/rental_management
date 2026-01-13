@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Search, Eye, Edit, AlertTriangle, Loader2 } from 'lucide-react';
+import { Search, Eye, Edit, AlertTriangle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -16,15 +16,37 @@ const ContractManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [contracts, setContracts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total_pages: 1,
+    total_entries: 0
+  });
 
-  const fetchContracts = async () => {
+  const fetchContracts = async (page = 1) => {
     try {
       setIsLoading(true);
-      const data = await getAuth('/amc_contracts');
-      if (Array.isArray(data)) {
+      let url = `/amc_contracts.json?page=${page}`;
+
+      if (statusFilter !== 'all') {
+        url += `&q[status_eq]=${statusFilter}`;
+      }
+
+      if (searchTerm) {
+        url += `&q[service_type_or_vendor_vendor_name_or_site_name_cont]=${searchTerm}`;
+      }
+
+      const data = await getAuth(url);
+
+      const contractsData = data.contracts || data.amc_contracts;
+
+      if (contractsData) {
+        setContracts(contractsData);
+        if (data.pagination) {
+          setPagination(data.pagination);
+        }
+      } else if (Array.isArray(data)) {
         setContracts(data);
-      } else if (data?.amc_contracts) {
-        setContracts(data.amc_contracts);
       } else {
         setContracts([]);
       }
@@ -37,18 +59,15 @@ const ContractManagement = () => {
   };
 
   useEffect(() => {
-    fetchContracts();
-  }, []);
+    fetchContracts(pagination.current_page);
+  }, [statusFilter, pagination.current_page]);
 
-  const filteredContracts = contracts.filter(contract => {
-    const matchesSearch =
-      contract.service_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contract.vendor?.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contract.site?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  const handleSearch = () => {
+    setPagination(prev => ({ ...prev, current_page: 1 }));
+    fetchContracts(1);
+  };
 
-    if (statusFilter === 'all') return matchesSearch;
-    return matchesSearch && contract.status?.toLowerCase() === statusFilter.toLowerCase();
-  });
+  const contractsToDisplay = contracts; // Using server-side filtered data
 
   const getDaysToExpiry = (endDate: string) => {
     if (!endDate) return 0;
@@ -74,10 +93,14 @@ const ContractManagement = () => {
                   placeholder="Search contracts..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   className="pl-10 bg-white text-gray-900 border border-gray-200"
                 />
               </div>
             </div>
+            <Button onClick={handleSearch} className="bg-[#C72030] hover:bg-[#A01825] text-white">
+              Search
+            </Button>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full md:w-48 bg-white text-gray-900 border border-gray-200">
                 <SelectValue placeholder="Filter by status" />
@@ -116,18 +139,20 @@ const ContractManagement = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : filteredContracts.length === 0 ? (
+                ) : contractsToDisplay.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                       No contracts found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredContracts.map((contract) => {
+                  contractsToDisplay.map((contract) => {
                     const daysToExpiry = getDaysToExpiry(contract.end_date);
                     return (
                       <TableRow key={contract.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <TableCell className="text-gray-900 font-medium">AMC{contract.id}</TableCell>
+                        <TableCell className="text-gray-900 font-medium">
+                          {contract.contract_number || `AMC${contract.id}`}
+                        </TableCell>
                         <TableCell className="text-gray-700">{contract.service_type}</TableCell>
                         <TableCell className="text-gray-700">{contract.vendor?.vendor_name || contract.vendor?.name || 'N/A'}</TableCell>
                         <TableCell className="text-gray-700">{contract.site?.name || 'N/A'}</TableCell>
@@ -164,6 +189,38 @@ const ContractManagement = () => {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination Controls */}
+          {!isLoading && pagination.total_pages > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+              <p className="text-xs text-gray-500">
+                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} contracts
+              </p>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.current_page === 1}
+                  onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="text-xs font-medium">
+                  Page {pagination.current_page} of {pagination.total_pages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.current_page === pagination.total_pages}
+                  onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,115 +10,77 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, FileText, Calendar, Send, Eye, DollarSign, AlertCircle, CheckCircle, Clock, CreditCard } from 'lucide-react';
-import { postAuth } from '@/lib/api';
+import { Plus, FileText, Calendar, Send, Eye, DollarSign, AlertCircle, CheckCircle, Clock, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { postAuth, getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import PaymentHistory from '@/components/Tenant/PaymentHistory';
 
 const InvoiceManagement = () => {
+  const navigate = useNavigate();
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    outstanding: 0,
+    pending: 0,
+    overdue: 0,
+    paid: 0,
+    collection_rate: 0
+  });
+
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total_pages: 1,
+    total_entries: 0
+  });
+
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Payment Modal State
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
-  const [paymentFormData, setPaymentFormData] = useState({
-    invoice_id: '',
-    invoice_number: '',
-    amount: '',
-    payment_date: new Date().toISOString().split('T')[0],
-    payment_type: 'rent',
-    transaction_id: '',
-    description: ''
-  });
+  useEffect(() => {
+    fetchInvoices();
+  }, [pagination.current_page, statusFilter]);
 
-  const handlePay = (invoice: any) => {
-    setPaymentFormData({
-      invoice_id: invoice.id.toString().replace('INV-2024-', ''), // Using record ID (simulated from mock)
-      invoice_number: invoice.id,
-      amount: invoice.amount.toString(),
-      payment_date: new Date().toISOString().split('T')[0],
-      payment_type: 'rent',
-      transaction_id: '',
-      description: `Payment for Invoice ${invoice.id}`
-    });
-    setIsPaymentModalOpen(true);
-  };
-
-  const handlePaymentSubmit = async () => {
+  const fetchInvoices = async () => {
     try {
-      if (!paymentFormData.transaction_id) {
-        toast.error("Please enter a Transaction ID");
-        return;
+      setLoading(true);
+      let url = `/invoices.json?page=${pagination.current_page}`;
+      if (statusFilter !== 'all') {
+        url += `&q[status_eq]=${statusFilter}`; // Assuming typical Ransack filter for status
       }
-
-      setIsSubmittingPayment(true);
-      const payload = {
-        payment: {
-          invoice_id: parseInt(paymentFormData.invoice_id),
-          amount: parseFloat(paymentFormData.amount),
-          payment_date: paymentFormData.payment_date,
-          payment_type: paymentFormData.payment_type,
-          transaction_id: paymentFormData.transaction_id,
-          description: paymentFormData.description
-        }
-      };
-
-      await postAuth('/payments', payload);
-      toast.success("Payment recorded successfully!");
-      setIsPaymentModalOpen(false);
+      const data = await getAuth(url);
+      setInvoices(data.invoices || []);
+      setStats(data.pagination?.stats || {
+        outstanding: 0,
+        pending: 0,
+        overdue: 0,
+        paid: 0,
+        collection_rate: 0
+      });
+      if (data.pagination) {
+        setPagination({
+          current_page: data.pagination.current_page,
+          per_page: data.pagination.per_page,
+          total_pages: data.pagination.total_pages,
+          total_entries: data.pagination.total_entries
+        });
+      }
     } catch (error: any) {
-      console.error('Error submitting payment:', error);
-      toast.error(error.message || "Failed to record payment");
+      console.error('Error fetching invoices:', error);
+      toast.error("Failed to load invoices");
     } finally {
-      setIsSubmittingPayment(false);
+      setLoading(false);
     }
   };
 
-  const invoices = [
-    {
-      id: 'INV-2024-001',
-      tenantName: 'TechCorp Solutions',
-      property: 'Sunset Apartments - 2A',
-      amount: 125000,
-      dueDate: '2024-02-01',
-      status: 'pending',
-      issueDate: '2024-01-01',
-      area: 2500,
-      ratePerSqFt: 50,
-      period: 'January 2024',
-      recurringRule: 'Monthly',
-      brandTemplate: 'Premium Corporate'
-    },
-    {
-      id: 'INV-2024-002',
-      tenantName: 'Green Valley Enterprises',
-      property: 'Business Plaza - Floor 3',
-      amount: 180000,
-      dueDate: '2024-02-05',
-      status: 'overdue',
-      issueDate: '2024-01-05',
-      area: 3600,
-      ratePerSqFt: 50,
-      period: 'January 2024',
-      recurringRule: 'Monthly',
-      brandTemplate: 'Modern Minimalist'
-    },
-    {
-      id: 'INV-2024-003',
-      tenantName: 'Innovation Hub Ltd',
-      property: 'Tech Tower - Suite 401',
-      amount: 95000,
-      dueDate: '2024-01-28',
-      status: 'paid',
-      issueDate: '2023-12-28',
-      area: 1900,
-      ratePerSqFt: 50,
-      period: 'December 2023',
-      recurringRule: 'Monthly',
-      brandTemplate: 'Classic Professional'
-    }
-  ];
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, current_page: newPage }));
+  };
+
+  const handleStatusFilterChange = (val: string) => {
+    setStatusFilter(val);
+    setPagination(prev => ({ ...prev, current_page: 1 }));
+  };
 
   const recurringRules = [
     {
@@ -150,6 +113,21 @@ const InvoiceManagement = () => {
     { id: 'classic', name: 'Classic Professional', description: 'Traditional business invoice style' }
   ];
 
+
+
+  // Payment Modal State
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [paymentFormData, setPaymentFormData] = useState({
+    invoice_id: '',
+    invoice_number: '',
+    amount: '',
+    payment_date: new Date().toISOString().split('T')[0],
+    payment_type: 'rent',
+    transaction_id: '',
+    description: ''
+  });
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
@@ -165,13 +143,67 @@ const InvoiceManagement = () => {
     }
   };
 
+  const handlePay = (invoice: any) => {
+    setPaymentFormData({
+      invoice_id: invoice.id.toString(),
+      invoice_number: invoice.invoice_number || `INV-${invoice.id}`,
+      amount: invoice.amount.toString(),
+      payment_date: new Date().toISOString().split('T')[0],
+      payment_type: 'rent',
+      transaction_id: '',
+      description: `Payment for Invoice ${invoice.invoice_number || invoice.id}`
+    });
+    setIsPaymentModalOpen(true);
+  };
+
+  const handlePaymentSubmit = async () => {
+    try {
+      if (!paymentFormData.transaction_id) {
+        toast.error("Please enter a Transaction ID");
+        return;
+      }
+
+      setIsSubmittingPayment(true);
+      const payload = {
+        payment: {
+          invoice_id: parseInt(paymentFormData.invoice_id),
+          amount: parseFloat(paymentFormData.amount),
+          payment_date: paymentFormData.payment_date,
+          payment_type: paymentFormData.payment_type,
+          transaction_id: paymentFormData.transaction_id,
+          description: paymentFormData.description
+        }
+      };
+
+      await postAuth('/payments', payload);
+      toast.success("Payment recorded successfully!");
+      setIsPaymentModalOpen(false);
+      fetchInvoices(); // Refresh after payment
+    } catch (error: any) {
+      console.error('Error submitting payment:', error);
+      toast.error(error.message || "Failed to record payment");
+    } finally {
+      setIsSubmittingPayment(false);
+    }
+  };
+
   const filteredInvoices = invoices.filter(invoice => {
-    const matchesSearch = invoice.tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const searchStr = searchTerm.toLowerCase();
+    const matchesSearch = (invoice.billable?.tenant_name?.toLowerCase() || '').includes(searchStr) ||
+      (invoice.billable?.property_name?.toLowerCase() || '').includes(searchStr) ||
+      (invoice.invoice_number?.toLowerCase() || '').includes(searchStr) ||
+      invoice.id.toString().includes(searchStr);
+    return matchesSearch;
   });
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 10000000) {
+      return `₹${(amount / 10000000).toFixed(2)}Cr`;
+    } else if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(2)}L`;
+    }
+    return `₹${amount.toLocaleString()}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -182,7 +214,7 @@ const InvoiceManagement = () => {
             <div className="flex items-center space-x-2">
               <DollarSign className="h-8 w-8 text-[#C72030]" />
               <div>
-                <p className="text-2xl font-bold">₹4.2Cr</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.outstanding)}</p>
                 <p className="text-sm text-gray-600">Total Outstanding</p>
               </div>
             </div>
@@ -194,7 +226,7 @@ const InvoiceManagement = () => {
             <div className="flex items-center space-x-2">
               <FileText className="h-8 w-8 text-blue-600" />
               <div>
-                <p className="text-2xl font-bold">156</p>
+                <p className="text-2xl font-bold">{stats.pending}</p>
                 <p className="text-sm text-gray-600">Pending Invoices</p>
               </div>
             </div>
@@ -206,7 +238,7 @@ const InvoiceManagement = () => {
             <div className="flex items-center space-x-2">
               <AlertCircle className="h-8 w-8 text-red-600" />
               <div>
-                <p className="text-2xl font-bold">23</p>
+                <p className="text-2xl font-bold">{stats.overdue}</p>
                 <p className="text-sm text-gray-600">Overdue</p>
               </div>
             </div>
@@ -218,7 +250,7 @@ const InvoiceManagement = () => {
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-8 w-8 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">89.2%</p>
+                <p className="text-2xl font-bold">{stats.collection_rate}%</p>
                 <p className="text-sm text-gray-600">Collection Rate</p>
               </div>
             </div>
@@ -256,7 +288,7 @@ const InvoiceManagement = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="max-w-sm bg-white"
                 />
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
                   <SelectTrigger className="w-48 bg-white">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
@@ -283,17 +315,30 @@ const InvoiceManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredInvoices.map((invoice) => (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">Loading invoices...</TableCell>
+                    </TableRow>
+                  ) : filteredInvoices.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">No invoices found</TableCell>
+                    </TableRow>
+                  ) : filteredInvoices.map((invoice) => (
                     <TableRow key={invoice.id}>
-                      <TableCell className="font-medium">{invoice.id}</TableCell>
-                      <TableCell>{invoice.tenantName}</TableCell>
-                      <TableCell>{invoice.property}</TableCell>
-                      <TableCell>₹{invoice.amount.toLocaleString()}</TableCell>
-                      <TableCell>{invoice.dueDate}</TableCell>
+                      <TableCell className="font-medium">{invoice.invoice_number || `INV-${invoice.id}`}</TableCell>
+                      <TableCell>{invoice.billable?.tenant_name || 'N/A'}</TableCell>
+                      <TableCell>{invoice.billable?.property_name || 'N/A'}</TableCell>
+                      <TableCell>₹{invoice.amount?.toLocaleString()}</TableCell>
+                      <TableCell>{invoice.due_date}</TableCell>
                       <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm" title="View Details">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="View Details"
+                            onClick={() => navigate(`/invoicing/${invoice.id}`)}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="sm" title="Send Invoice">
@@ -314,6 +359,57 @@ const InvoiceManagement = () => {
                   ))}
                 </TableBody>
               </Table>
+
+              {/* Pagination */}
+              {!loading && pagination.total_pages > 1 && (
+                <div className="flex items-center justify-between mt-6 px-2">
+                  <p className="text-sm text-gray-600">
+                    Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} entries
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(pagination.current_page - 1)}
+                      disabled={pagination.current_page === 1}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center space-x-1">
+                      {Array.from({ length: Math.min(pagination.total_pages, 5) }, (_, i) => {
+                        let pageNum = i + 1;
+                        // Simple logic for sliding window if total pages > 5
+                        if (pagination.total_pages > 5 && pagination.current_page > 3) {
+                          pageNum = pagination.current_page - 2 + i;
+                          if (pageNum > pagination.total_pages) pageNum = pagination.total_pages - (4 - i);
+                        }
+
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={pagination.current_page === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`h-8 w-8 p-0 ${pagination.current_page === pageNum ? "bg-[#C72030] text-white hover:bg-[#A01825]" : ""}`}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(pagination.current_page + 1)}
+                      disabled={pagination.current_page === pagination.total_pages}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

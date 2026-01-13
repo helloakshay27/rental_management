@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Building, Star, Phone, Mail, ChevronLeft, Eye } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Building, Star, Phone, Mail, ChevronLeft, Eye, ChevronRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, deleteAuth, patchAuth } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -49,21 +49,31 @@ const VendorMaster = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [vendors, setVendors] = useState<Vendor[]>([]);
     const [loadingVendors, setLoadingVendors] = useState(true);
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        per_page: 10,
+        total_pages: 1,
+        total_entries: 0
+    });
 
-    const fetchVendors = async () => {
+    const fetchVendors = async (page = 1) => {
         try {
             setLoadingVendors(true);
-            let url = '/vendors';
-            const params = new URLSearchParams();
+            let url = `/vendors.json?page=${page}`;
             if (statusFilter !== 'all') {
-                params.append('status', statusFilter);
+                url += `&q[is_active_eq]=${statusFilter === 'Active'}`;
             }
-            const queryString = params.toString();
-            if (queryString) {
-                url += `?${queryString}`;
+            if (searchTerm) {
+                url += `&q[vendor_name_or_vendor_code_cont]=${searchTerm}`;
             }
+
             const data = await getAuth(url);
-            if (Array.isArray(data)) {
+            if (data.vendors) {
+                setVendors(data.vendors);
+                if (data.pagination) {
+                    setPagination(data.pagination);
+                }
+            } else if (Array.isArray(data)) {
                 setVendors(data);
             }
         } catch (error: any) {
@@ -80,14 +90,15 @@ const VendorMaster = () => {
     };
 
     useEffect(() => {
-        fetchVendors();
-    }, [statusFilter]);
+        fetchVendors(pagination.current_page);
+    }, [statusFilter, pagination.current_page]);
 
-    const filteredVendors = vendors.filter(vendor =>
-        vendor.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.contact_person?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const handleSearch = () => {
+        setPagination(prev => ({ ...prev, current_page: 1 }));
+        fetchVendors(1);
+    };
+
+    const filteredVendors = vendors; // Filtering is now handled by the API
 
     const handleEditVendor = (vendorId: number) => {
         navigate(`/masters/vendors/edit/${vendorId}`);
@@ -171,15 +182,20 @@ const VendorMaster = () => {
                                     placeholder="Search vendors..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                     className="pl-10 w-64 bg-white"
                                 />
                             </div>
+                            <Button onClick={handleSearch} variant="outline" className="h-10">Search</Button>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent>
                     {loadingVendors ? (
-                        <div className="text-center py-8 text-gray-500">Loading vendors...</div>
+                        <div className="text-center py-12">
+                            <Loader2 className="h-8 w-8 animate-spin text-[#C72030] mx-auto mb-2" />
+                            <p className="text-gray-500">Loading vendors...</p>
+                        </div>
                     ) : (
                         <Table>
                             <TableHeader>
@@ -280,6 +296,38 @@ const VendorMaster = () => {
                                 )}
                             </TableBody>
                         </Table>
+                    )}
+
+                    {/* Pagination */}
+                    {!loadingVendors && pagination.total_pages > 1 && (
+                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+                            <p className="text-xs text-gray-500">
+                                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} vendors
+                            </p>
+                            <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={pagination.current_page === 1}
+                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <div className="text-xs font-medium">
+                                    Page {pagination.current_page} of {pagination.total_pages}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={pagination.current_page === pagination.total_pages}
+                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
                     )}
                 </CardContent>
             </Card>

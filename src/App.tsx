@@ -16,6 +16,7 @@ import EditRentalPage from "./pages/EditRentalPage";
 import RentalDetailsPage from "./pages/RentalDetailsPage";
 import TenantDashboard from "./pages/TenantDashboard";
 import Invoicing from "./pages/Invoicing";
+import InvoiceDetails from "./pages/InvoiceDetails";
 import NotFound from "./pages/NotFound";
 import { LoginPage } from "./pages/Login";
 import OpexManagement from "./pages/OpexManagement";
@@ -84,6 +85,7 @@ const App = () => {
                 <Route path="monitory-compliance/edit/:id" element={<EditMonitoryCompliancePage />} />
                 <Route path="monitory-compliance/view/:id" element={<ViewMonitoryCompliancePage />} />
                 <Route path="invoicing" element={<Invoicing />} />
+                <Route path="invoicing/:id" element={<InvoiceDetails />} />
                 <Route path="opex" element={<OpexManagement />} />
                 <Route path="utilities" element={<UtilityManagement />} />
                 <Route path="amc" element={<AmcManagement />} />
