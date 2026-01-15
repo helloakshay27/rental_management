@@ -62,6 +62,10 @@ import AmcContractEdit from "./pages/AmcContractEdit";
 import AddExpensePage from "./pages/opex/AddExpensePage";
 import ExpenseDetailsPage from "./pages/opex/ExpenseDetailsPage";
 import EditExpensePage from "./pages/opex/EditExpensePage";
+import MaintenanceManagement from "./pages/MaintenanceManagement";
+import AddUtilityPage from "./pages/utilities/AddUtilityPage";
+import UtilityDetailsPage from "./pages/utilities/UtilityDetailsPage";
+import EditUtilityPage from "./pages/utilities/EditUtilityPage";
 
 const queryClient = new QueryClient();
 
@@ -95,7 +99,11 @@ const App = () => {
                 <Route path="opex/new" element={<AddExpensePage />} />
                 <Route path="opex/:id" element={<ExpenseDetailsPage />} />
                 <Route path="opex/edit/:id" element={<EditExpensePage />} />
+                <Route path="maintenance" element={<MaintenanceManagement />} />
                 <Route path="utilities" element={<UtilityManagement />} />
+                <Route path="utilities/new" element={<AddUtilityPage />} />
+                <Route path="utilities/:id" element={<UtilityDetailsPage />} />
+                <Route path="utilities/edit/:id" element={<EditUtilityPage />} />
                 <Route path="amc" element={<AmcManagement />} />
                 <Route path="amc/new" element={<AmcContractAdd />} />
                 <Route path="amc/:id" element={<AmcContractDetail />} />

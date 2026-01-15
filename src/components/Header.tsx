@@ -55,12 +55,12 @@ const Header = () => {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
       localStorage.removeItem('userEmail');
-    } catch (e) {}
+    } catch (e) { }
     navigate('/login', { replace: true });
     // reload to reset any in-memory auth state
     try {
       window.location.reload();
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const initials = (() => {
@@ -94,97 +94,13 @@ const Header = () => {
   return (
     <header className="bg-[#f6f4ee] px-6 py-4 shadow-sm border-b border-gray-200">
       <div className="flex items-center justify-between">
-        {/* Back Button and Location Selectors */}
+        {/* Navigation and Location Selectors removed */}
+        <div className="flex-1"></div>
+
+        {/* User Actions */}
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleBackClick}
-            className="text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a] p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-4 w-4 text-[#1a1a1a]" />
-            <Select value={selectedRegion} onValueChange={(value) => {
-              setSelectedRegion(value);
-              setSelectedZone('');
-              setSelectedProperty('');
-            }}>
-              <SelectTrigger className="w-48 bg-white border-gray-200 text-[#1a1a1a] focus:ring-[#C72030]">
-                <SelectValue placeholder="Select Region" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-gray-200 shadow-dropdown">
-                {regions.map((region) => (
-                  <SelectItem key={region.id} value={region.id} className="hover:bg-gray-50 text-[#1a1a1a]">
-                    {region.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {selectedRegion && (
-            <div className="flex items-center space-x-2">
-              <div className="text-[#1a1a1a]">→</div>
-              <Select value={selectedZone} onValueChange={(value) => {
-                setSelectedZone(value);
-                setSelectedProperty('');
-              }}>
-                <SelectTrigger className="w-40 bg-white border-gray-200 text-[#1a1a1a] focus:ring-[#C72030]">
-                  <SelectValue placeholder="Select Zone" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-200 shadow-dropdown">
-                  {zones.map((zone) => (
-                    <SelectItem key={zone.id} value={zone.id} className="hover:bg-gray-50 text-[#1a1a1a]">
-                      {zone.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {selectedZone && (
-            <div className="flex items-center space-x-2">
-              <div className="text-[#1a1a1a]">→</div>
-              <Building className="h-4 w-4 text-[#1a1a1a]" />
-              <Select value={selectedProperty} onValueChange={setSelectedProperty}>
-                <SelectTrigger className="w-48 bg-white border-gray-200 text-[#1a1a1a] focus:ring-[#C72030]">
-                  <SelectValue placeholder="Select Property" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-200 shadow-dropdown">
-                  {properties.map((property) => (
-                    <SelectItem key={property.id} value={property.id} className="hover:bg-gray-50 text-[#1a1a1a]">
-                      {property.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-
-        {/* Search and User Actions */}
-        <div className="flex items-center space-x-4">
-          <div className="relative w-80">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1a1a1a]" size={18} />
-            <Input
-              placeholder="Search properties, agreements, vendors..."
-              className="pl-10 w-full bg-white border-gray-200 text-[#1a1a1a] placeholder-gray-400 focus:ring-[#C72030]"
-            />
-          </div>
-          
-          <Button variant="ghost" size="sm" className="relative text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a]">
-            <Bell size={20} />
-            <span className="absolute -top-1 -right-1 bg-[#C72030] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              3
-            </span>
-          </Button>
-          
           <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="flex items-center space-x-3 text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a] px-3 py-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-[#C72030] text-white font-medium">{initials}</AvatarFallback>

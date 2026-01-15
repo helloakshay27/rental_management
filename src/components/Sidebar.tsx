@@ -16,7 +16,8 @@ import {
   UserCheck,
   Database,
   Receipt,
-  ShieldCheck
+  ShieldCheck,
+  Hammer
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,9 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
+    // { icon: UserCheck, label: 'Lessor Dashboard', path: '/rentals' },
+    // { icon: User, label: 'Lessee Dashboard', path: '/tenant-dashboard' },
+
     { icon: Home, label: 'Rental Agreement', path: '/rental-dashboard' },
     { icon: ShieldCheck, label: 'Monitor Compliance', path: '/monitor-compliance' },
 
@@ -38,6 +42,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
     { icon: DollarSign, label: 'OPEX Management', path: '/opex' },
     { icon: Zap, label: 'Utilities', path: '/utilities' },
     { icon: Wrench, label: 'AMC Management', path: '/amc' },
+    { icon: Hammer, label: 'Maintenance', path: '/maintenance' },
     { icon: Receipt, label: 'Invoicing', path: '/invoicing' },
     { icon: Database, label: 'Masters', path: '/masters' },
     { icon: Bell, label: 'Notifications', path: '/notifications' },

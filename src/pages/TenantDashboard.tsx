@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, Home, CreditCard, Calendar, FileText } from 'lucide-react';
 import MyRentals from '@/components/Tenant/MyRentals';
 import PaymentHistory from '@/components/Tenant/PaymentHistory';
-import MaintenanceRequests from '@/components/Tenant/MaintenanceRequests';
 import Documents from '@/components/Tenant/Documents';
 
 const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) => {
@@ -26,7 +25,7 @@ const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) =>
       </div>
 
       <Tabs defaultValue={initialTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger
             value="rentals"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
@@ -40,13 +39,6 @@ const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) =>
           >
             <CreditCard className="h-4 w-4" />
             Payment History
-          </TabsTrigger>
-          <TabsTrigger
-            value="maintenance"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
-          >
-            <Calendar className="h-4 w-4" />
-            Maintenance
           </TabsTrigger>
           <TabsTrigger
             value="documents"
@@ -63,10 +55,6 @@ const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) =>
 
         <TabsContent value="payments" className="bg-white">
           <PaymentHistory />
-        </TabsContent>
-
-        <TabsContent value="maintenance" className="bg-white">
-          <MaintenanceRequests />
         </TabsContent>
 
         <TabsContent value="documents" className="bg-white">
