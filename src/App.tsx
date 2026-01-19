@@ -43,6 +43,7 @@ import BudgetMaster from "./pages/masters/BudgetMaster";
 import VendorMaster from "./pages/masters/VendorMaster";
 import AddEditVendor from "./pages/masters/AddEditVendor";
 import TenantDetailsPage from "./pages/masters/TenantDetailsPage";
+import ServiceTypeMaster from "./pages/masters/ServiceTypeMaster";
 import LandlordDetailsPage from "./pages/masters/LandlordDetailsPage";
 import UserDetailsPage from "./pages/masters/UserDetailsPage";
 import RoleDetailsPage from "./pages/masters/RoleDetailsPage";
@@ -139,6 +140,7 @@ const App = () => {
                 <Route path="masters/vendors/edit/:id" element={<AddEditVendor />} />
                 <Route path="masters/expense-categories" element={<ExpenseCategoryMaster />} />
                 <Route path="masters/budgets" element={<BudgetMaster />} />
+                <Route path="masters/service-types" element={<ServiceTypeMaster />} />
               </Route>
               <Route path="login" element={<LoginPage setToken={() => { }} />} />
               <Route path="*" element={<NotFound />} />

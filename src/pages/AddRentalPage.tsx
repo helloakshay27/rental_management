@@ -12,6 +12,7 @@ import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User } fro
 import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, getToken } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
 
 const AddRentalPage = () => {
     const navigate = useNavigate();
@@ -82,6 +83,8 @@ const AddRentalPage = () => {
         count: '',
         charge: ''
     }]);
+
+    const [agreementServices, setAgreementServices] = useState<any[]>([]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -253,6 +256,13 @@ const AddRentalPage = () => {
                         parking_type: p.parking_type,
                         count: parseInt(p.count as string) || 0,
                         charge: (p.charge || 0).toString()
+                    })),
+                    agreement_services_attributes: agreementServices.map(s => ({
+                        ...s,
+                        deposit: s.deposit || '0',
+                        fixed_monthly_charge: s.fixed_monthly_charge || '0',
+                        rate_per_sqft: s.rate_per_sqft || '0',
+                        due_date: parseInt(s.due_date) || 5
                     }))
                 }
             };
@@ -1177,6 +1187,8 @@ const AddRentalPage = () => {
                     ))}
                 </div>
             </div>
+
+            <AgreementServicesSection services={agreementServices} onChange={setAgreementServices} />
 
             <div className="mt-8 space-y-6">
                 <div className="space-y-2">

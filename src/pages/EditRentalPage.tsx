@@ -12,6 +12,7 @@ import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User } fro
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth, patchAuth, getToken } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
 
 const EditRentalPage = () => {
     const navigate = useNavigate();
@@ -85,6 +86,9 @@ const EditRentalPage = () => {
         charge: ''
     }]);
     const [deletedParkings, setDeletedParkings] = useState<number[]>([]);
+
+    const [agreementServices, setAgreementServices] = useState<any[]>([]);
+    const [deletedAgreementServices, setDeletedAgreementServices] = useState<number[]>([]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -193,6 +197,35 @@ const EditRentalPage = () => {
                             parking_type: p.parking_type,
                             count: p.count || '',
                             charge: parseFloat(p.charge) || ''
+                        })));
+                    }
+
+                    // Set agreement services if available
+                    if (data.agreement_services && data.agreement_services.length > 0) {
+                        setAgreementServices(data.agreement_services.map((s: any) => ({
+                            id: s.id,
+                            service_type: s.service_type,
+                            deposit: s.deposit || '0',
+                            fixed_monthly_charge: s.fixed_monthly_charge || '0',
+                            rate_per_sqft: s.rate_per_sqft || '0',
+                            billing_cycle: s.billing_cycle || 'monthly',
+                            due_date: s.due_date || 5,
+                            payment_mode: s.payment_mode || 'bank_transfer',
+                            provider_name: s.provider_name || '',
+                            consumer_number: s.consumer_number || '',
+                            sap_vendor_code: s.sap_vendor_code || '',
+                            payment_automated: s.payment_automated || false,
+                            automation_partner: s.automation_partner || '',
+                            cost_center: s.cost_center || '',
+                            gl_code: s.gl_code || '',
+                            io_code: s.io_code || '',
+                            company_contact_name: s.company_contact_name || '',
+                            company_contact_email: s.company_contact_email || '',
+                            company_contact_mobile: s.company_contact_mobile || '',
+                            landlord_contact_name: s.landlord_contact_name || '',
+                            landlord_contact_email: s.landlord_contact_email || '',
+                            landlord_contact_mobile: s.landlord_contact_mobile || '',
+                            active: s.active
                         })));
                     }
 
@@ -360,6 +393,37 @@ const EditRentalPage = () => {
                             charge: (p.charge || 0).toString()
                         })),
                         ...deletedParkings.map(id => ({
+                            id,
+                            _destroy: true
+                        }))
+                    ],
+                    agreement_services_attributes: [
+                        ...agreementServices.map((s: any) => ({
+                            ...(s.id ? { id: s.id } : {}),
+                            service_type: s.service_type,
+                            deposit: s.deposit || '0',
+                            fixed_monthly_charge: s.fixed_monthly_charge || '0',
+                            rate_per_sqft: s.rate_per_sqft || '0',
+                            billing_cycle: s.billing_cycle || 'monthly',
+                            due_date: parseInt(s.due_date) || 5,
+                            payment_mode: s.payment_mode || 'bank_transfer',
+                            provider_name: s.provider_name,
+                            consumer_number: s.consumer_number,
+                            sap_vendor_code: s.sap_vendor_code,
+                            payment_automated: s.payment_automated,
+                            automation_partner: s.automation_partner,
+                            cost_center: s.cost_center,
+                            gl_code: s.gl_code,
+                            io_code: s.io_code,
+                            company_contact_name: s.company_contact_name,
+                            company_contact_email: s.company_contact_email,
+                            company_contact_mobile: s.company_contact_mobile,
+                            landlord_contact_name: s.landlord_contact_name,
+                            landlord_contact_email: s.landlord_contact_email,
+                            landlord_contact_mobile: s.landlord_contact_mobile,
+                            active: s.active
+                        })),
+                        ...deletedAgreementServices.map(id => ({
                             id,
                             _destroy: true
                         }))

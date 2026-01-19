@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building, Wallet, PieChart } from 'lucide-react';
+import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building, Wallet, PieChart, FileText } from 'lucide-react';
 
 const Masters = () => {
   const masterModules = [
@@ -111,6 +111,13 @@ const Masters = () => {
       icon: PieChart,
       path: '/masters/budgets',
       color: 'bg-indigo-50 text-indigo-600'
+    },
+    {
+      title: 'Agreement Service Types',
+      description: 'Manage service types for agreements (e.g., CAM)',
+      icon: FileText,
+      path: '/masters/service-types',
+      color: 'bg-cyan-50 text-cyan-600'
     }
   ];
 
