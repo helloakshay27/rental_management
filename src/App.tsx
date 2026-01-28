@@ -64,6 +64,9 @@ import AddExpensePage from "./pages/opex/AddExpensePage";
 import ExpenseDetailsPage from "./pages/opex/ExpenseDetailsPage";
 import EditExpensePage from "./pages/opex/EditExpensePage";
 import MaintenanceManagement from "./pages/MaintenanceManagement";
+import AddMaintenanceRequestPage from "./pages/maintenance/AddMaintenanceRequestPage";
+import EditMaintenanceRequestPage from "./pages/maintenance/EditMaintenanceRequestPage";
+import MaintenanceRequestDetailsPage from "./pages/maintenance/MaintenanceRequestDetailsPage";
 import AddUtilityPage from "./pages/utilities/AddUtilityPage";
 import UtilityDetailsPage from "./pages/utilities/UtilityDetailsPage";
 import EditUtilityPage from "./pages/utilities/EditUtilityPage";
@@ -101,6 +104,9 @@ const App = () => {
                 <Route path="opex/:id" element={<ExpenseDetailsPage />} />
                 <Route path="opex/edit/:id" element={<EditExpensePage />} />
                 <Route path="maintenance" element={<MaintenanceManagement />} />
+                <Route path="maintenance/new" element={<AddMaintenanceRequestPage />} />
+                <Route path="maintenance/edit/:id" element={<EditMaintenanceRequestPage />} />
+                <Route path="maintenance/:id" element={<MaintenanceRequestDetailsPage />} />
                 <Route path="utilities" element={<UtilityManagement />} />
                 <Route path="utilities/new" element={<AddUtilityPage />} />
                 <Route path="utilities/:id" element={<UtilityDetailsPage />} />
