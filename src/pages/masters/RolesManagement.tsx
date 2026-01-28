@@ -66,7 +66,13 @@ const RolesManagement = () => {
         url += `?${queryString}`;
       }
       const data = await getAuth(url);
-      setRoles(data);
+      if (Array.isArray(data)) {
+        setRoles(data);
+      } else if (data && typeof data === 'object' && Array.isArray((data as any).roles)) {
+        setRoles((data as any).roles);
+      } else {
+        setRoles([]);
+      }
     } catch (error: any) {
       let errorMessage = "Failed to fetch roles";
       if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
@@ -84,9 +90,9 @@ const RolesManagement = () => {
     fetchRoles();
   }, [statusFilter]);
 
-  const filteredRoles = roles.filter(role =>
-    role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRoles = (Array.isArray(roles) ? roles : []).filter(role =>
+    (role.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (role.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handlePermissionToggle = (permission: string) => {
@@ -400,12 +406,12 @@ const RolesManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1 max-w-64">
-                        {role.permissions.slice(0, 3).map((permission) => (
+                        {(Array.isArray(role.permissions) ? role.permissions : []).slice(0, 3).map((permission) => (
                           <Badge key={permission} variant="outline" className="text-xs">
                             {permission}
                           </Badge>
                         ))}
-                        {role.permissions.length > 3 && (
+                        {Array.isArray(role.permissions) && role.permissions.length > 3 && (
                           <Badge variant="outline" className="text-xs">
                             +{role.permissions.length - 3} more
                           </Badge>

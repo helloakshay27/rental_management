@@ -10,6 +10,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const ProfileTab = () => {
+  const [currentUser, setCurrentUser] = React.useState<{ full_name?: string; email?: string } | null>(null);
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem('user');
+      if (raw) {
+        setCurrentUser(JSON.parse(raw));
+      }
+    } catch (e) {
+      console.error('Failed to parse user from localStorage', e);
+    }
+  }, []);
+
+  const initials = (() => {
+    const name = currentUser?.full_name || currentUser?.email || 'JD';
+    const parts = String(name).trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (String(parts[0][0]) + String(parts[parts.length - 1][0])).toUpperCase();
+  })();
+
   return (
     <Card>
       <CardHeader>
@@ -22,7 +43,7 @@ const ProfileTab = () => {
       <CardContent className="space-y-6">
         <div className="flex items-center space-x-6">
           <Avatar className="h-20 w-20">
-            <AvatarFallback className="bg-[#C72030] text-white text-lg font-medium">JD</AvatarFallback>
+            <AvatarFallback className="bg-[#C72030] text-white text-lg font-medium">{initials}</AvatarFallback>
           </Avatar>
           <div>
             <Button variant="outline" size="sm">Change Photo</Button>
@@ -32,16 +53,12 @@ const ProfileTab = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input id="firstName" defaultValue="John" className="bg-white border-gray-200" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input id="lastName" defaultValue="Doe" className="bg-white border-gray-200" />
+            <Label htmlFor="fullName">Full Name</Label>
+            <Input id="fullName" defaultValue={currentUser?.full_name || ''} className="bg-white border-gray-200" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" defaultValue="john.doe@example.com" className="bg-white border-gray-200" />
+            <Input id="email" type="email" defaultValue={currentUser?.email || ''} className="bg-white border-gray-200" disabled />
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number</Label>
@@ -69,8 +86,8 @@ const ProfileTab = () => {
 
         <div className="space-y-2">
           <Label htmlFor="bio">Bio</Label>
-          <Textarea 
-            id="bio" 
+          <Textarea
+            id="bio"
             placeholder="Tell us about yourself..."
             defaultValue="Experienced property manager with over 10 years in real estate management."
             className="bg-white border-gray-200"
