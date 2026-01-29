@@ -26,7 +26,7 @@ const OpexManagement = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger
             value="overview"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
@@ -48,13 +48,6 @@ const OpexManagement = () => {
             <Calendar className="h-4 w-4" />
             Budget Planning
           </TabsTrigger>
-          <TabsTrigger
-            value="reports"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
-          >
-            <Building className="h-4 w-4" />
-            Reports
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="bg-white">
@@ -67,10 +60,6 @@ const OpexManagement = () => {
 
         <TabsContent value="budget" className="bg-white">
           <BudgetPlanning />
-        </TabsContent>
-
-        <TabsContent value="reports" className="bg-white">
-          <OpexReporting />
         </TabsContent>
       </Tabs>
     </div>

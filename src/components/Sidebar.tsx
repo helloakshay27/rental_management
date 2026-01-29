@@ -46,7 +46,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
     { icon: Receipt, label: 'Invoicing', path: '/invoicing' },
     { icon: Database, label: 'Masters', path: '/masters' },
     { icon: Bell, label: 'Notifications', path: '/notifications' },
-    { icon: BarChart3, label: 'Reports', path: '/reports' },
+    // { icon: BarChart3, label: 'Reports', path: '/reports' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
 

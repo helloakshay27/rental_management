@@ -7,26 +7,50 @@ import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 
 const ServiceScheduling = () => {
-  const [schedules, setSchedules] = useState<any[]>([]);
+  const [upcomingSchedules, setUpcomingSchedules] = useState<any[]>([]);
+  const [overdueSchedules, setOverdueSchedules] = useState<any[]>([]);
+  const [completedSchedules, setCompletedSchedules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
+  const [upcomingPagination, setUpcomingPagination] = useState({
+    current_page: 1,
+    total_pages: 1,
+    total_entries: 0,
+    per_page: 10
+  });
+  const [completedPagination, setCompletedPagination] = useState({
     current_page: 1,
     total_pages: 1,
     total_entries: 0,
     per_page: 10
   });
 
-  const fetchSchedules = async (page = 1) => {
+  const fetchSchedules = async (upcomingPage = 1, completedPage = 1) => {
     try {
       setLoading(true);
-      const data = await getAuth(`/amc_schedules.json?page=${page}`);
-      setSchedules(data.amc_schedules || []);
-      if (data.pagination) {
-        setPagination({
-          current_page: data.pagination.current_page,
-          total_pages: data.pagination.total_pages,
-          total_entries: data.pagination.total_entries,
-          per_page: data.pagination.per_page
+      const data = await getAuth(`/amc_schedules.json?upcoming_page=${upcomingPage}&completed_page=${completedPage}`);
+
+      // Set upcoming schedules (combining upcoming and overdue)
+      setUpcomingSchedules(data.upcoming || []);
+      setOverdueSchedules(data.overdue || []);
+      setCompletedSchedules(data.completed || []);
+
+      // Set pagination for upcoming
+      if (data.pagination?.upcoming) {
+        setUpcomingPagination({
+          current_page: data.pagination.upcoming.current_page,
+          total_pages: data.pagination.upcoming.total_pages,
+          total_entries: data.pagination.upcoming.total_entries,
+          per_page: data.pagination.upcoming.per_page
+        });
+      }
+
+      // Set pagination for completed
+      if (data.pagination?.completed) {
+        setCompletedPagination({
+          current_page: data.pagination.completed.current_page,
+          total_pages: data.pagination.completed.total_pages,
+          total_entries: data.pagination.completed.total_entries,
+          per_page: data.pagination.completed.per_page
         });
       }
     } catch (error) {
@@ -77,14 +101,54 @@ const ServiceScheduling = () => {
                 <Loader2 className="h-8 w-8 text-[#C72030] animate-spin" />
                 <p className="text-sm text-gray-500">Loading schedules...</p>
               </div>
-            ) : schedules.filter(s => s.status?.toLowerCase() !== 'completed').length === 0 ? (
+            ) : [...overdueSchedules, ...upcomingSchedules].length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 No upcoming services found.
               </div>
             ) : (
-              schedules
-                .filter(s => s.status?.toLowerCase() !== 'completed')
-                .map((schedule) => (
+              <>
+                {/* Overdue Services - Show First */}
+                {overdueSchedules.map((schedule) => (
+                  <div key={schedule.id} className="flex items-center justify-between p-4 border-2 border-red-300 bg-red-50 rounded-lg hover:bg-red-100">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-shrink-0">
+                        <Calendar className="h-8 w-8 text-red-600 bg-red-100 p-1.5 rounded-lg" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-semibold text-gray-900">
+                            {schedule.service_type || 'Maintenance Service'}
+                          </h3>
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white">
+                            Overdue
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">{schedule.amc_contract?.site_name || 'Various Sites'}</p>
+                        <div className="flex items-center space-x-4 mt-1">
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <Clock className="h-3 w-3 mr-1" />
+                            {schedule.scheduled_date}
+                          </span>
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <User className="h-3 w-3 mr-1" />
+                            {schedule.amc_contract?.vendor_name || 'Unassigned Vendor'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusStyle(schedule.status)}`}>
+                        {schedule.status_badge?.label || schedule.status}
+                      </span>
+                      <Button variant="outline" size="sm" className="border-gray-200">
+                        Details
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Upcoming Services */}
+                {upcomingSchedules.map((schedule) => (
                   <div key={schedule.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -92,58 +156,64 @@ const ServiceScheduling = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-gray-900">
-                          {schedule.amc_contract?.service_type || schedule.description || 'Maintenance Service'}
+                          {schedule.service_type || 'Maintenance Service'}
                         </h3>
-                        <p className="text-sm text-gray-600">{schedule.amc_contract?.site?.name || 'Various Sites'}</p>
+                        <p className="text-sm text-gray-600">{schedule.amc_contract?.site_name || 'Various Sites'}</p>
                         <div className="flex items-center space-x-4 mt-1">
                           <span className="text-xs text-gray-500 flex items-center">
                             <Clock className="h-3 w-3 mr-1" />
-                            {schedule.schedule_date}
+                            {schedule.scheduled_date}
                           </span>
                           <span className="text-xs text-gray-500 flex items-center">
                             <User className="h-3 w-3 mr-1" />
-                            {schedule.amc_contract?.vendor?.name || 'Unassigned Vendor'}
+                            {schedule.amc_contract?.vendor_name || 'Unassigned Vendor'}
                           </span>
+                          {schedule.days_until !== undefined && (
+                            <span className="text-xs text-blue-600 font-medium">
+                              in {schedule.days_until} days
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusStyle(schedule.status)}`}>
-                        {schedule.status}
+                        {schedule.status_badge?.label || schedule.status}
                       </span>
                       <Button variant="outline" size="sm" className="border-gray-200">
                         Details
                       </Button>
                     </div>
                   </div>
-                ))
+                ))}
+              </>
             )}
           </div>
 
           {/* Pagination */}
-          {!loading && pagination.total_pages > 1 && (
+          {!loading && upcomingPagination.total_pages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
               <p className="text-xs text-gray-500">
-                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} schedules
+                Showing {((upcomingPagination.current_page - 1) * upcomingPagination.per_page) + 1} to {Math.min(upcomingPagination.current_page * upcomingPagination.per_page, upcomingPagination.total_entries)} of {upcomingPagination.total_entries} schedules
               </p>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={pagination.current_page === 1}
-                  onClick={() => fetchSchedules(pagination.current_page - 1)}
+                  disabled={upcomingPagination.current_page === 1}
+                  onClick={() => fetchSchedules(upcomingPagination.current_page - 1, completedPagination.current_page)}
                   className="h-8 w-8 p-0"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <div className="text-xs font-medium">
-                  Page {pagination.current_page} of {pagination.total_pages}
+                  Page {upcomingPagination.current_page} of {upcomingPagination.total_pages}
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={pagination.current_page === pagination.total_pages}
-                  onClick={() => fetchSchedules(pagination.current_page + 1)}
+                  disabled={upcomingPagination.current_page === upcomingPagination.total_pages}
+                  onClick={() => fetchSchedules(upcomingPagination.current_page + 1, completedPagination.current_page)}
                   className="h-8 w-8 p-0"
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -199,26 +269,25 @@ const ServiceScheduling = () => {
                 <div className="flex justify-center py-6">
                   <Loader2 className="h-6 w-6 animate-spin text-[#C72030]" />
                 </div>
-              ) : schedules.filter(s => s.status?.toLowerCase() === 'completed').length === 0 ? (
+              ) : completedSchedules.length === 0 ? (
                 <div className="text-center py-6 text-gray-500 text-sm">
                   No completed services recently.
                 </div>
               ) : (
-                schedules
-                  .filter(s => s.status?.toLowerCase() === 'completed')
+                completedSchedules
                   .slice(0, 5)
-                  .map((service, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                  .map((service) => (
+                    <div key={service.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                       <div className="flex items-center space-x-3">
                         <CheckCircle className="h-5 w-5 text-green-500" />
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {service.amc_contract?.service_type || service.description}
+                            {service.service_type || 'Maintenance Service'}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {service.amc_contract?.site?.name} • {service.amc_contract?.vendor?.name}
+                            {service.amc_contract?.site_name} • {service.amc_contract?.vendor_name}
                           </div>
-                          <div className="text-xs text-gray-400">{service.schedule_date}</div>
+                          <div className="text-xs text-gray-400">{service.completed_date || service.scheduled_date}</div>
                         </div>
                       </div>
                       <div className="text-right">

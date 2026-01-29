@@ -106,13 +106,12 @@ const VendorManagement = () => {
                   <TableHead className="text-gray-900 font-medium">Rating</TableHead>
                   <TableHead className="text-gray-900 font-medium">Active Contracts</TableHead>
                   <TableHead className="text-gray-900 font-medium">Total Value</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <div className="flex flex-col items-center gap-2">
                         <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
                         <p className="text-sm text-gray-500">Loading vendors...</p>
@@ -121,7 +120,7 @@ const VendorManagement = () => {
                   </TableRow>
                 ) : vendors.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                       No vendors found
                     </TableCell>
                   </TableRow>
@@ -155,16 +154,6 @@ const VendorManagement = () => {
                       </TableCell>
                       <TableCell className="text-gray-700">{vendor.amc_stats?.active_contracts || 0}</TableCell>
                       <TableCell className="text-gray-900 font-semibold">₹{(vendor.amc_stats?.total_value || 0).toLocaleString()}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" className="border-gray-200">
-                            View Profile
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-[#C72030] hover:text-[#A01825]">
-                            Contact
-                          </Button>
-                        </div>
-                      </TableCell>
                     </TableRow>
                   ))
                 )}

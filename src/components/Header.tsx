@@ -19,7 +19,7 @@ const Header = () => {
   const [selectedProperty, setSelectedProperty] = useState('');
   const navigate = useNavigate();
 
-  const [currentUser, setCurrentUser] = useState<{ id?: number; email?: string; full_name?: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id?: number; email?: string; full_name?: string; roles?: string[] } | null>(null);
 
   const handleBackClick = () => {
     navigate(-1);
@@ -107,7 +107,7 @@ const Header = () => {
                 </Avatar>
                 <div className="hidden md:block text-left">
                   <p className="text-body font-medium text-[#1a1a1a]">{currentUser?.full_name || currentUser?.email || 'Guest User'}</p>
-                  <p className="text-body-sm text-gray-500">User</p>
+                  <p className="text-body-sm text-gray-500">{currentUser?.roles?.[0] || 'User'}</p>
                 </div>
               </Button>
             </DropdownMenuTrigger>
@@ -123,7 +123,7 @@ const Header = () => {
                     <span>{currentUser?.email || ''}</span>
                   </div>
                   <div className="mt-2">
-                    <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">User</span>
+                    <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{currentUser?.roles?.[0] || 'User'}</span>
                   </div>
                 </div>
               </div>

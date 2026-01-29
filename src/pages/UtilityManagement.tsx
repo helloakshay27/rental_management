@@ -29,7 +29,7 @@ const UtilityManagement = () => {
       {/* ... existing tabs content ... */}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger
             value="overview"
             className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
@@ -51,13 +51,6 @@ const UtilityManagement = () => {
             <Activity className="h-4 w-4" />
             Consumption
           </TabsTrigger>
-          <TabsTrigger
-            value="reports"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
-          >
-            <Thermometer className="h-4 w-4" />
-            Reports
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -70,10 +63,6 @@ const UtilityManagement = () => {
 
         <TabsContent value="consumption">
           <ConsumptionTracking />
-        </TabsContent>
-
-        <TabsContent value="reports">
-          <UtilityReporting />
         </TabsContent>
       </Tabs>
     </div>
