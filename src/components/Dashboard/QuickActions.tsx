@@ -53,31 +53,25 @@ const QuickActions = () => {
       title: 'Pay Rent',
       description: 'Process rent payments',
       icon: CreditCard,
-      href: '/tenant-dashboard'
+      href: '/rental-dashboard'
     },
     {
       title: 'Lease Tracker',
       description: 'Track lease expiries',
       icon: Calendar,
-      href: '/tenant-dashboard'
+      href: '/rentals'
     },
     {
-      title: 'Property Search',
-      description: 'Find new properties',
+      title: 'Property',
+      description: 'View all properties',
       icon: Search,
-      href: '/properties'
+      href: '/masters/properties'
     },
     {
-      title: 'Regional Analysis',
-      description: 'View regional trends',
-      icon: MapPin,
-      href: '/reports'
-    },
-    {
-      title: 'Compliance Check',
-      description: 'Monitor compliance',
+      title: 'Compliance',
+      description: 'Compliance',
       icon: AlertTriangle,
-      href: '/tenant-dashboard'
+      href: '/compliance'
     },
     {
       title: 'Landlord Relations',
@@ -90,7 +84,7 @@ const QuickActions = () => {
   // Determine which actions to show (this could be dynamic based on user role)
   const currentPath = window.location.pathname;
   const isOnMainDashboard = currentPath === '/';
-  
+
   // For the main dashboard, we'll show different actions based on the active role
   // This could be enhanced to check actual user context
   const actions = isOnMainDashboard ? landlordActions : tenantActions;
@@ -105,7 +99,7 @@ const QuickActions = () => {
         <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {actions.map((action) => {
             const Icon = action.icon;
             return (

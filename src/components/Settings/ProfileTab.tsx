@@ -1,100 +1,245 @@
 
-import React from 'react';
-import { User } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { User, Loader2, Camera } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getAuth, putAuth } from '@/lib/api';
+import { toast } from 'sonner';
 
 const ProfileTab = () => {
-  const [currentUser, setCurrentUser] = React.useState<{ full_name?: string; email?: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [userData, setUserData] = useState<any>({
+    full_name: '',
+    email: '',
+    phone: '',
+    roles: [],
+    department: '',
+    joining_date: '',
+    bio: '',
+    avatar_url: ''
+  });
+  const [base64Image, setBase64Image] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem('user');
-      if (raw) {
-        setCurrentUser(JSON.parse(raw));
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (storedUser.id) {
+          const data = await getAuth(`/users/${storedUser.id}`);
+          setUserData({
+            ...data,
+            roles: data.roles || [],
+            joining_date: data.joining_date || '',
+            department: data.department || '',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      } finally {
+        setFetching(false);
       }
-    } catch (e) {
-      console.error('Failed to parse user from localStorage', e);
-    }
+    };
+    fetchUserData();
   }, []);
 
-  const initials = (() => {
-    const name = currentUser?.full_name || currentUser?.email || 'JD';
-    const parts = String(name).trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 0) return 'U';
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (String(parts[0][0]) + String(parts[parts.length - 1][0])).toUpperCase();
-  })();
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBase64Image(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const payload = {
+        user: {
+          full_name: userData.full_name,
+          email: userData.email,
+          phone: userData.phone,
+          roles: Array.isArray(userData.roles) ? userData.roles : [userData.roles],
+          department: userData.department,
+          joining_date: userData.joining_date
+        },
+        ...(base64Image && { base64_data: base64Image })
+      };
+
+      await putAuth(`/users/${storedUser.id}`, payload);
+      toast.success('Profile updated successfully');
+
+      // Update local storage name/email if they changed
+      const updatedUser = { ...storedUser, full_name: userData.full_name, email: userData.email };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+    } catch (error: any) {
+      console.error('Failed to update profile:', error);
+      toast.error(error.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initials = userData.full_name
+    ? userData.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'JD';
+
+  if (fetching) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
+      </div>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
+    <Card className="bg-white border border-gray-100 shadow-sm p-8">
+      <CardHeader className="pt-0 pb-6 px-0">
+        <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <User className="h-5 w-5" />
-          <span>Profile Information</span>
+          Profile Information
         </CardTitle>
-        <CardDescription>Update your personal and contact information</CardDescription>
+        <CardDescription className="text-gray-500">Update your personal and contact information</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex items-center space-x-6">
-          <Avatar className="h-20 w-20">
-            <AvatarFallback className="bg-[#C72030] text-white text-lg font-medium">{initials}</AvatarFallback>
-          </Avatar>
+      <CardContent className="px-0 space-y-8">
+        {/* Profile Photo Section */}
+        <div className="flex items-center gap-6">
+          <div className="relative group">
+            <Avatar className="h-24 w-24 border-4 border-white shadow-md">
+              <AvatarImage src={base64Image || userData.avatar_url} />
+              <AvatarFallback className="bg-[#C72030] text-white text-2xl font-black">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-gray-100 hover:text-[#C72030] transition-colors"
+            >
+              <Camera className="h-4 w-4" />
+            </button>
+          </div>
           <div>
-            <Button variant="outline" size="sm">Change Photo</Button>
-            <p className="text-sm text-gray-500 mt-1">JPG, GIF or PNG. 1MB max.</p>
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="border-red-600 text-red-600 hover:bg-red-50 font-bold"
+            >
+              Change Photo
+            </Button>
+            <p className="text-xs text-gray-500 mt-2">JPG, GIF or PNG. 1MB max.</p>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*"
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Form Fields Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input id="fullName" defaultValue={currentUser?.full_name || ''} className="bg-white border-gray-200" />
+            <Label className="text-gray-900 font-bold text-sm block">Full Name</Label>
+            <Input
+              value={userData.full_name}
+              onChange={(e) => setUserData({ ...userData, full_name: e.target.value })}
+              className="bg-gray-50 border-2 border-gray-100 h-12 text-gray-700 font-medium focus:bg-white transition-all"
+              placeholder="Enter full name"
+            />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" defaultValue={currentUser?.email || ''} className="bg-white border-gray-200" disabled />
+            <Label className="text-gray-900 font-bold text-sm block">Email Address</Label>
+            <Input
+              type="email"
+              value={userData.email}
+              onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+              className="bg-gray-50 border-2 border-gray-100 h-12 text-gray-700 font-medium focus:bg-white transition-all"
+              placeholder="Enter email address"
+            />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input id="phone" defaultValue="+91 9876543210" className="bg-white border-gray-200" />
+            <Label className="text-gray-900 font-bold text-sm block">Phone Number</Label>
+            <Input
+              value={userData.phone}
+              onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+              className="bg-gray-50 border-2 border-gray-100 h-12 text-gray-700 font-medium focus:bg-white transition-all"
+              placeholder="+91 0000000000"
+            />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="company">Company</Label>
-            <Input id="company" defaultValue="PropertyFlow Management" className="bg-white border-gray-200" />
+            <Label className="text-gray-900 font-bold text-sm block">Department / Company</Label>
+            <Input
+              value={userData.department}
+              onChange={(e) => setUserData({ ...userData, department: e.target.value })}
+              className="bg-gray-50 border-2 border-gray-100 h-12 text-gray-700 font-medium focus:bg-white transition-all"
+              placeholder="Finance, IT, etc."
+            />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Select defaultValue="manager">
-              <SelectTrigger className="bg-white border-gray-200">
-                <SelectValue />
+            <Label className="text-gray-900 font-bold text-sm block">Role</Label>
+            <Select
+              value={userData.roles?.[0]?.toString() || ''}
+              onValueChange={(val) => setUserData({ ...userData, roles: [parseInt(val)] })}
+            >
+              <SelectTrigger className="bg-gray-50 border-2 border-gray-100 h-12 text-gray-700 font-medium">
+                <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="admin">Administrator</SelectItem>
-                <SelectItem value="manager">Property Manager</SelectItem>
-                <SelectItem value="agent">Leasing Agent</SelectItem>
-                <SelectItem value="maintenance">Maintenance Staff</SelectItem>
+                <SelectItem value="1">Admin</SelectItem>
+                <SelectItem value="2">Finance</SelectItem>
+                <SelectItem value="3">Property Manager</SelectItem>
+                <SelectItem value="4">Tenant</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-900 font-bold text-sm block">Joining Date</Label>
+            <Input
+              type="date"
+              value={userData.joining_date}
+              onChange={(e) => setUserData({ ...userData, joining_date: e.target.value })}
+              className="bg-gray-50 border-2 border-gray-100 h-12 text-gray-700 font-medium focus:bg-white transition-all"
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-900 font-bold text-sm block">Bio</Label>
+            <Textarea
+              value={userData.bio}
+              onChange={(e) => setUserData({ ...userData, bio: e.target.value })}
+              className="bg-gray-50 border-2 border-gray-100 min-h-[120px] text-gray-700 font-medium focus:bg-white transition-all resize-none"
+              placeholder="Tell us about yourself..."
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="bio">Bio</Label>
-          <Textarea
-            id="bio"
-            placeholder="Tell us about yourself..."
-            defaultValue="Experienced property manager with over 10 years in real estate management."
-            className="bg-white border-gray-200"
-          />
+        <div className="pt-4 flex justify-start">
+          <Button
+            onClick={handleSave}
+            disabled={loading}
+            className="bg-[#C72030] hover:bg-[#A01825] text-white px-10 h-12 rounded-xl font-bold shadow-lg shadow-red-100 transition-all active:scale-95"
+          >
+            {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+            Save Changes
+          </Button>
         </div>
-
-        <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Changes</Button>
       </CardContent>
     </Card>
   );

@@ -86,7 +86,7 @@ const Documents = ({ mode = 'default' }: DocumentsProps) => {
 
   const handleViewDocument = async (docId: string) => {
     if (mode === 'compliance') {
-      navigate(`/monitory-compliance/view/${docId}`);
+      navigate(`/compliance/view/${docId}`);
     } else {
       console.log('Viewing document:', docId);
     }
@@ -94,7 +94,7 @@ const Documents = ({ mode = 'default' }: DocumentsProps) => {
 
   const handleEditDocument = async (docId: string) => {
     if (mode === 'compliance') {
-      navigate(`/monitory-compliance/edit/${docId}`);
+      navigate(`/compliance/edit/${docId}`);
     }
   };
 
@@ -109,7 +109,7 @@ const Documents = ({ mode = 'default' }: DocumentsProps) => {
 
   const handleUploadDocument = () => {
     if (mode === 'compliance') {
-      navigate('/monitory-compliance/new');
+      navigate('/compliance/new');
     } else {
       setIsUploadDialogOpen(true);
     }
@@ -152,7 +152,7 @@ const Documents = ({ mode = 'default' }: DocumentsProps) => {
               onClick={handleUploadDocument}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {mode === 'compliance' ? 'Add Monitory Compliance' : 'Upload Document'}
+              {mode === 'compliance' ? 'Add Compliance' : 'Upload Document'}
             </Button>
           </div>
         </CardHeader>

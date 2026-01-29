@@ -3,32 +3,51 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getAuth } from '@/lib/api';
-import { ArrowLeft, Edit, Calendar, FileText, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
+import { getAuth, patchAuth } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
+import { ArrowLeft, Edit, Calendar, FileText, Receipt, Plus, Loader2 } from 'lucide-react';
+import AddMaintenanceCostModal from '@/components/maintenance/AddMaintenanceCostModal';
 
 const MaintenanceRequestDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [request, setRequest] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isCostModalOpen, setIsCostModalOpen] = useState(false);
+
+    const fetchRequest = async () => {
+        if (!id) return;
+        try {
+            setLoading(true);
+            const data = await getAuth(`/maintenance_requests/${id}.json`);
+            setRequest(data.maintenance_request || data);
+        } catch (error) {
+            console.error('Failed to fetch request details:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchRequest = async () => {
-            if (!id) return;
-            try {
-                setLoading(true);
-                const data = await getAuth(`/maintenance_requests/${id}.json`);
-                setRequest(data.maintenance_request || data);
-            } catch (error) {
-                console.error('Failed to fetch request details:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchRequest();
     }, [id]);
+
+    const handleStatusChange = async (newStatus: string) => {
+        try {
+            const payload = {
+                maintenance_request: {
+                    status: newStatus
+                }
+            };
+            await patchAuth(`/maintenance_requests/${id}.json`, payload);
+            toast.success('Status updated successfully');
+            fetchRequest(); // Refresh data
+        } catch (error: any) {
+            console.error('Failed to update status:', error);
+            toast.error(error.message || 'Failed to update status');
+        }
+    };
 
     const getStatusColor = (status: string) => {
         switch (status?.toLowerCase()) {
@@ -78,13 +97,23 @@ const MaintenanceRequestDetailsPage = () => {
                         <p className="text-gray-500">ID: {request.id}</p>
                     </div>
                 </div>
-                <Button
-                    onClick={() => navigate(`/maintenance/edit/${id}`)}
-                    className="bg-[#C72030] hover:bg-[#A01825] text-white"
-                >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Request
-                </Button>
+                <div className="flex gap-3">
+                    <Button
+                        variant="outline"
+                        onClick={() => setIsCostModalOpen(true)}
+                        className="border-[#C72030] text-[#C72030] hover:bg-red-50 font-bold"
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        ADD COST
+                    </Button>
+                    <Button
+                        onClick={() => navigate(`/maintenance/edit/${id}`)}
+                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                    >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Request
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -123,23 +152,85 @@ const MaintenanceRequestDetailsPage = () => {
                             </div>
                         </div>
 
+                        {/* Maintenance Costs Section */}
+                        <div className="pt-8 border-t border-gray-100">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                    <Receipt className="h-5 w-5 text-[#C72030]" />
+                                    Maintenance Costs
+                                </h3>
+                                <div className="text-right">
+                                    <p className="text-sm text-gray-500">Total Maintenance Cost</p>
+                                    <p className="text-xl font-black text-[#C72030]">
+                                        ₹{request.maintenance_costs?.reduce((acc: number, curr: any) => acc + parseFloat(curr.amount || 0), 0).toLocaleString() || '0'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {request.maintenance_costs && request.maintenance_costs.length > 0 ? (
+                                    <div className="border border-gray-200 rounded-xl overflow-hidden">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-gray-50 border-b border-gray-200">
+                                                    <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Type</th>
+                                                    <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Description</th>
+                                                    <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {request.maintenance_costs.map((cost: any, index: number) => (
+                                                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="px-4 py-3">
+                                                            <Badge variant="outline" className="capitalize text-[10px] font-bold border-gray-300">
+                                                                {cost.cost_type}
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-sm text-gray-700">{cost.description}</td>
+                                                        <td className="px-4 py-3 text-sm font-bold text-gray-900 text-right">₹{parseFloat(cost.amount).toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="p-10 border-2 border-dashed border-gray-200 rounded-2xl text-center bg-gray-50/50">
+                                        <Receipt className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                                        <p className="text-gray-500 font-medium">No costs added yet for this request</p>
+                                        <Button
+                                            variant="link"
+                                            onClick={() => setIsCostModalOpen(true)}
+                                            className="text-[#C72030] font-bold mt-1"
+                                        >
+                                            Click here to add the first cost
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Documents */}
                         {request.documents && request.documents.length > 0 && (
-                            <div className="pt-6 border-t border-gray-100">
-                                <h3 className="text-sm font-medium text-gray-500 mb-4">Attachments</h3>
+                            <div className="pt-8 border-t border-gray-100">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <FileText className="h-5 w-5 text-[#C72030]" />
+                                    Attachments
+                                </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {request.documents.map((doc: any, index: number) => (
-                                        <div key={index} className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                                            <FileText className="h-8 w-8 text-gray-400 flex-shrink-0" />
+                                        <div key={index} className="flex items-start gap-4 p-4 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all group">
+                                            <div className="p-3 bg-red-50 rounded-xl group-hover:bg-red-100 transition-colors">
+                                                <FileText className="h-6 w-6 text-[#C72030]" />
+                                            </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-gray-900 truncate">{doc.file_name}</p>
-                                                <p className="text-xs text-gray-500 capitalize">{doc.document_type}</p>
+                                                <p className="text-sm font-bold text-gray-900 truncate">{doc.file_name}</p>
+                                                <p className="text-xs text-gray-500 capitalize mt-0.5">{doc.document_type}</p>
                                                 {doc.url && (
                                                     <a
                                                         href={doc.url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="text-xs text-[#C72030] hover:underline mt-1 inline-block"
+                                                        className="text-xs text-[#C72030] font-bold hover:underline mt-2 inline-flex items-center gap-1"
                                                     >
                                                         View Document
                                                     </a>
@@ -163,9 +254,20 @@ const MaintenanceRequestDetailsPage = () => {
                         <CardContent className="pt-6 space-y-4">
                             <div>
                                 <p className="text-sm text-gray-500 mb-2">Current Status</p>
-                                <Badge className={`${getStatusColor(request.status)} px-3 py-1 capitalize`}>
-                                    {request.status}
-                                </Badge>
+                                <Select
+                                    value={request.status}
+                                    onValueChange={handleStatusChange}
+                                >
+                                    <SelectTrigger className={`w-full h-11 border-2 font-bold capitalize ${getStatusColor(request.status)}`}>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white">
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="in-progress">In-Progress</SelectItem>
+                                        <SelectItem value="completed">Completed</SelectItem>
+                                        <SelectItem value="rejected">Rejected</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 mb-2">Priority Level</p>
@@ -198,6 +300,13 @@ const MaintenanceRequestDetailsPage = () => {
                     </Card>
                 </div>
             </div>
+
+            <AddMaintenanceCostModal
+                isOpen={isCostModalOpen}
+                onClose={() => setIsCostModalOpen(false)}
+                maintenanceRequestId={id || ''}
+                onSuccess={fetchRequest}
+            />
         </div>
     );
 };

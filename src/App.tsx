@@ -93,10 +93,10 @@ const App = () => {
                 <Route path="rental/edit/:id" element={<EditRentalPage />} />
                 <Route path="rental/:id" element={<RentalDetailsPage />} />
                 <Route path="tenant-dashboard" element={<TenantDashboard />} />
-                <Route path="monitor-compliance" element={<MonitoryCompliancePage />} />
-                <Route path="monitory-compliance/new" element={<AddMonitoryCompliancePage />} />
-                <Route path="monitory-compliance/edit/:id" element={<EditMonitoryCompliancePage />} />
-                <Route path="monitory-compliance/view/:id" element={<ViewMonitoryCompliancePage />} />
+                <Route path="compliance" element={<MonitoryCompliancePage />} />
+                <Route path="compliance/new" element={<AddMonitoryCompliancePage />} />
+                <Route path="compliance/edit/:id" element={<EditMonitoryCompliancePage />} />
+                <Route path="compliance/view/:id" element={<ViewMonitoryCompliancePage />} />
                 <Route path="invoicing" element={<Invoicing />} />
                 <Route path="invoicing/:id" element={<InvoiceDetails />} />
                 <Route path="opex" element={<OpexManagement />} />

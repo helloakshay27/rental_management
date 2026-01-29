@@ -178,7 +178,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
             <DialogContent className="sm:max-w-[800px] bg-white max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-semibold">
-                        {initialData ? 'Edit Monitor Compliance' : 'Add Monitor Compliance'}
+                        {initialData ? 'Edit Compliance' : 'Add Compliance'}
                     </DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-6 py-4">

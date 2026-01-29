@@ -160,7 +160,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                 await postAuth('/property_compliances', payload);
                 toast.success('Compliance document submitted successfully');
             }
-            navigate('/monitor-compliance');
+            navigate('/compliance');
         } catch (error: any) {
             console.error('Error submitting compliance', error);
             toast.error(error.message || 'Failed to submit compliance');
@@ -346,7 +346,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => navigate('/monitor-compliance')}
+                            onClick={() => navigate('/compliance')}
                             className="border-gray-200 text-gray-600 hover:bg-gray-50 h-14 px-10 rounded-xl font-bold transition-all text-base"
                         >
                             Cancel

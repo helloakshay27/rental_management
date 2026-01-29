@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 
 const Notifications = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
-  
+
   const notifications = [
     {
       id: 1,
@@ -75,8 +75,8 @@ const Notifications = () => {
     }
   };
 
-  const filteredNotifications = selectedFilter === 'all' 
-    ? notifications 
+  const filteredNotifications = selectedFilter === 'all'
+    ? notifications
     : notifications.filter(n => n.category === selectedFilter);
 
   return (
@@ -87,13 +87,7 @@ const Notifications = () => {
           <p className="text-gray-600">Stay updated with important property management alerts</p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
-            <SettingsIcon className="h-4 w-4 mr-2" />
-            Settings
-          </Button>
-          <Button variant="outline" size="sm">
-            Mark All Read
-          </Button>
+          {/* Settings and Mark All Read removed */}
         </div>
       </div>
 
@@ -102,9 +96,8 @@ const Notifications = () => {
           <TabsList className="bg-white border border-gray-200">
             <TabsTrigger value="all" className="text-gray-700">All Notifications</TabsTrigger>
             <TabsTrigger value="unread" className="text-gray-700">Unread</TabsTrigger>
-            <TabsTrigger value="settings" className="text-gray-700">Settings</TabsTrigger>
           </TabsList>
-          
+
           <div className="flex items-center space-x-3">
             <Filter className="h-4 w-4 text-gray-500" />
             <Select value={selectedFilter} onValueChange={setSelectedFilter}>
@@ -175,9 +168,6 @@ const Notifications = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button variant="ghost" size="sm">
-                      <CheckCircle className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -187,51 +177,7 @@ const Notifications = () => {
           ))}
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Customize how and when you receive notifications</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-900">Email Notifications</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="payment-alerts">Payment Alerts</Label>
-                    <Switch id="payment-alerts" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="maintenance-requests">Maintenance Requests</Label>
-                    <Switch id="maintenance-requests" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="lease-renewals">Lease Renewals</Label>
-                    <Switch id="lease-renewals" defaultChecked />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-900">Push Notifications</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="urgent-alerts">Urgent Alerts</Label>
-                    <Switch id="urgent-alerts" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="daily-summary">Daily Summary</Label>
-                    <Switch id="daily-summary" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Preferences</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Settings tab content removed */}
       </Tabs>
     </div>
   );

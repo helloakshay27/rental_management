@@ -1,5 +1,5 @@
-import React from 'react';
-import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building, Shield, Wrench } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building, Shield, Wrench, Loader2 } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
 import RecentActivity from './RecentActivity';
@@ -9,14 +9,33 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TenantIncomeExpenseChart from './TenantIncomeExpenseChart';
 import TenantLeaseExpiryChart from './TenantLeaseExpiryChart';
-import TenantRegionalAnalytics from './TenantRegionalAnalytics';
-import FitoutAnalytics from './FitoutAnalytics';
 import SecurityDepositAnalytics from './SecurityDepositAnalytics';
-import KYCManagement from './KYCManagement';
+import { getAuth } from '@/lib/api';
+import { toast } from 'sonner';
 
 const TenantDashboard = () => {
-  // Mock data for large-scale tenant operations
-  const upcomingPayments = [
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const data = await getAuth('/tenants/dashboard');
+        setDashboardData(data);
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        toast.error('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Mock data for large-scale tenant operations (will be replaced by API data)
+  const upcomingPayments = dashboardData?.upcoming_payments || [
     {
       id: 1,
       property: 'Mumbai Corporate Tower - Floor 15',
@@ -46,7 +65,7 @@ const TenantDashboard = () => {
     }
   ];
 
-  const criticalAlerts = [
+  const criticalAlerts = dashboardData?.critical_alerts || [
     {
       id: 1,
       type: 'lease_expiry',
@@ -103,6 +122,14 @@ const TenantDashboard = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Enhanced Stats Grid for Large-Scale Operations */}
@@ -150,25 +177,13 @@ const TenantDashboard = () => {
 
       {/* Tabbed Analytics Section */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger value="overview" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
             Overview
-          </TabsTrigger>
-          <TabsTrigger value="fitout" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
-            <Wrench className="h-4 w-4 mr-2" />
-            Fitout & Lockin
           </TabsTrigger>
           <TabsTrigger value="deposits" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
             <Shield className="h-4 w-4 mr-2" />
             Security Deposits
-          </TabsTrigger>
-          <TabsTrigger value="kyc" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
-            <FileText className="h-4 w-4 mr-2" />
-            KYC Management
-          </TabsTrigger>
-          <TabsTrigger value="regional" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
-            <MapPin className="h-4 w-4 mr-2" />
-            Regional
           </TabsTrigger>
         </TabsList>
 
@@ -338,20 +353,8 @@ const TenantDashboard = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="fitout" className="space-y-6">
-          <FitoutAnalytics />
-        </TabsContent>
-
         <TabsContent value="deposits" className="space-y-6">
           <SecurityDepositAnalytics />
-        </TabsContent>
-
-        <TabsContent value="kyc" className="space-y-6">
-          <KYCManagement />
-        </TabsContent>
-
-        <TabsContent value="regional" className="space-y-6">
-          <TenantRegionalAnalytics />
         </TabsContent>
       </Tabs>
 

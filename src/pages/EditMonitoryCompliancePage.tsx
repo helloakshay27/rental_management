@@ -44,13 +44,13 @@ const EditMonitoryCompliancePage = () => {
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => navigate('/monitor-compliance')}
+                    onClick={() => navigate('/compliance')}
                     className="text-gray-500 hover:text-gray-700"
                 >
                     <ChevronLeft className="h-6 w-6" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Edit Monitory Compliance</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Edit Compliance</h1>
                     <p className="text-sm text-gray-500">Update compliance record information</p>
                 </div>
             </div>

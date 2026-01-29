@@ -33,8 +33,8 @@ const MonitoryCompliancePage = () => {
         }
     };
 
-    const handleView = (id: string) => navigate(`/monitory-compliance/view/${id}`);
-    const handleEdit = (id: string) => navigate(`/monitory-compliance/edit/${id}`);
+    const handleView = (id: string) => navigate(`/compliance/view/${id}`);
+    const handleEdit = (id: string) => navigate(`/compliance/edit/${id}`);
     const handleDownload = (id: string) => {
         const doc = documents.find(d => d.id.toString() === id.toString());
         if (doc?.document_url) {
@@ -54,15 +54,15 @@ const MonitoryCompliancePage = () => {
         <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Monitory Compliance</h1>
-                    <p className="text-gray-500 mt-1 font-medium">Manage and monitor all property compliance documents</p>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Compliance</h1>
+                    <p className="text-gray-500 mt-1 font-medium">Manage all property compliance documents</p>
                 </div>
                 <Button
-                    onClick={() => navigate('/monitory-compliance/new')}
+                    onClick={() => navigate('/compliance/new')}
                     className="bg-[#C72030] hover:bg-[#A01825] text-white px-6 py-6 rounded-xl flex items-center gap-2 shadow-lg shadow-red-100 transition-all active:scale-95"
                 >
                     <Plus className="h-5 w-5" />
-                    Add Monitory Compliance
+                    Add Compliance
                 </Button>
             </div>
 
