@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building, Shield, Wrench, Loader2 } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
-import RecentActivity from './RecentActivity';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TenantIncomeExpenseChart from './TenantIncomeExpenseChart';
 import TenantLeaseExpiryChart from './TenantLeaseExpiryChart';
 import SecurityDepositAnalytics from './SecurityDepositAnalytics';
+import TenantRegionalAnalytics from './TenantRegionalAnalytics';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 
 const TenantDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
+  const [securityDepositsData, setSecurityDepositsData] = useState<any>(null);
+  const [regionalDashboardData, setRegionalDashboardData] = useState<any>(null);
+  const [loadingSecurity, setLoadingSecurity] = useState(false);
+  const [loadingRegional, setLoadingRegional] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -32,6 +37,33 @@ const TenantDashboard = () => {
     };
 
     fetchDashboardData();
+
+    const fetchSecurityDeposits = async () => {
+      try {
+        setLoadingSecurity(true);
+        const data = await getAuth('/tenants/security_deposits_dashboard.json');
+        setSecurityDepositsData(data);
+      } catch (error) {
+        console.error('Failed to fetch security deposits data:', error);
+      } finally {
+        setLoadingSecurity(false);
+      }
+    };
+
+    const fetchRegionalData = async () => {
+      try {
+        setLoadingRegional(true);
+        const data = await getAuth('/tenants/regional_dashboard.json');
+        setRegionalDashboardData(data);
+      } catch (error) {
+        console.error('Failed to fetch regional data:', error);
+      } finally {
+        setLoadingRegional(false);
+      }
+    };
+
+    fetchSecurityDeposits();
+    fetchRegionalData();
   }, []);
 
   // Mock data for large-scale tenant operations (will be replaced by API data)
@@ -136,8 +168,8 @@ const TenantDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Properties"
-          value={523}
-          change="+12 this quarter"
+          value={dashboardData?.summary?.total_properties ?? 0}
+          change={dashboardData?.summary?.total_properties_change}
           changeType="positive"
           icon={Building}
           color="bg-[#C72030]"
@@ -145,8 +177,8 @@ const TenantDashboard = () => {
         />
         <StatCard
           title="Active Leases"
-          value={498}
-          change="25 expiring in 90 days"
+          value={dashboardData?.summary?.active_leases ?? 0}
+          change={dashboardData?.summary?.active_leases_change}
           changeType="warning"
           icon={FileText}
           color="bg-[#C72030]"
@@ -154,8 +186,8 @@ const TenantDashboard = () => {
         />
         <StatCard
           title="Monthly Rent Expense"
-          value="₹42.8Cr"
-          change="+3.2% escalation YoY"
+          value={`₹${dashboardData?.summary?.monthly_rent_expense?.amount_in_cr ?? 0}Cr`}
+          change={dashboardData?.summary?.monthly_rent_expense_change}
           changeType="neutral"
           icon={DollarSign}
           color="bg-[#C72030]"
@@ -163,8 +195,8 @@ const TenantDashboard = () => {
         />
         <StatCard
           title="Pending Actions"
-          value={34}
-          change="8 critical items"
+          value={dashboardData?.summary?.pending_actions ?? 0}
+          change={dashboardData?.summary?.pending_actions_change}
           changeType="negative"
           icon={AlertTriangle}
           color="bg-[#C72030]"
@@ -177,7 +209,7 @@ const TenantDashboard = () => {
 
       {/* Tabbed Analytics Section */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
           <TabsTrigger value="overview" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
             Overview
           </TabsTrigger>
@@ -185,13 +217,18 @@ const TenantDashboard = () => {
             <Shield className="h-4 w-4 mr-2" />
             Security Deposits
           </TabsTrigger>
+          <TabsTrigger value="regional" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+            <MapPin className="h-4 w-4 mr-2" />
+            Regional
+          </TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           {/* Regional Analytics and Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <TenantIncomeExpenseChart />
-            <TenantLeaseExpiryChart />
+            <TenantIncomeExpenseChart data={dashboardData?.monthly_expense_analysis} />
+            <TenantLeaseExpiryChart data={dashboardData?.charts?.lease_expiry_distribution} />
           </div>
 
           {/* Critical Alerts and Upcoming Payments */}
@@ -206,21 +243,27 @@ const TenantDashboard = () => {
               </CardHeader>
               <CardContent className="bg-white p-6">
                 <div className="space-y-4">
-                  {criticalAlerts.map((alert) => (
-                    <div key={alert.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border-l-4 border-red-400">
-                      <div>
-                        <p className="font-medium text-gray-900">{alert.property}</p>
-                        <p className="text-sm text-gray-600">{alert.message}</p>
-                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {alert.region}
-                        </p>
+                  {(dashboardData?.critical_alerts || []).length > 0 ? (
+                    dashboardData.critical_alerts.map((alert: any) => (
+                      <div key={alert.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border-l-4 border-red-400">
+                        <div>
+                          <p className="font-medium text-gray-900">{alert.property}</p>
+                          <p className="text-sm text-gray-600">{alert.message}</p>
+                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                            <MapPin className="h-3 w-3" />
+                            {alert.region}
+                          </p>
+                        </div>
+                        <div>
+                          {getUrgencyBadge(alert.urgency)}
+                        </div>
                       </div>
-                      <div>
-                        {getUrgencyBadge(alert.urgency)}
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                      No critical alerts at this time
                     </div>
-                  ))}
+                  )}
                   <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
                     View All Alerts
                   </Button>
@@ -238,22 +281,28 @@ const TenantDashboard = () => {
               </CardHeader>
               <CardContent className="bg-white p-6">
                 <div className="space-y-4">
-                  {upcomingPayments.map((payment) => (
-                    <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{payment.property}</p>
-                        <p className="text-sm text-gray-600">Landlord: {payment.landlord}</p>
-                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {payment.region} • Due: {new Date(payment.dueDate).toLocaleDateString()}
-                        </p>
+                  {(dashboardData?.upcoming_rent_payments || []).length > 0 ? (
+                    dashboardData.upcoming_rent_payments.map((payment: any) => (
+                      <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-900">{payment.property}</p>
+                          <p className="text-sm text-gray-600">Landlord: {payment.landlord}</p>
+                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                            <MapPin className="h-3 w-3" />
+                            {payment.region} • Due: {payment.dueDate ? new Date(payment.dueDate).toLocaleDateString() : 'N/A'}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-lg">₹{((payment.amount || 0) / 100000).toFixed(1)}L</p>
+                          {getStatusBadge(payment.status)}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-lg">₹{(payment.amount / 100000).toFixed(1)}L</p>
-                        {getStatusBadge(payment.status)}
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                      No upcoming rent payments
                     </div>
-                  ))}
+                  )}
                   <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
                     Bulk Payment Processing
                   </Button>
@@ -273,22 +322,15 @@ const TenantDashboard = () => {
               </CardHeader>
               <CardContent className="bg-white p-6">
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Mumbai</span>
-                    <span className="font-medium">142 properties</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Delhi NCR</span>
-                    <span className="font-medium">126 properties</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Bangalore</span>
-                    <span className="font-medium">98 properties</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Others</span>
-                    <span className="font-medium">157 properties</span>
-                  </div>
+                  {(dashboardData?.regional_distribution || []).map((region: any, index: number) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">{region.city}</span>
+                      <span className="font-medium">{region.properties} properties</span>
+                    </div>
+                  ))}
+                  {(dashboardData?.regional_distribution || []).length === 0 && (
+                    <div className="text-sm text-gray-500 italic">No regional data available</div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -304,19 +346,19 @@ const TenantDashboard = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Total Partners</span>
-                    <span className="font-medium">89</span>
+                    <span className="font-medium">{dashboardData?.landlord_partners?.total_partners || 0}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Corporate Partners</span>
-                    <span className="font-medium">34</span>
+                    <span className="font-medium">{dashboardData?.landlord_partners?.corporate_partners || 0}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Individual Owners</span>
-                    <span className="font-medium">55</span>
+                    <span className="font-medium">{dashboardData?.landlord_partners?.individual_owners || 0}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">New This Quarter</span>
-                    <span className="font-medium text-green-600">+7</span>
+                    <span className="font-medium text-green-600">+{dashboardData?.landlord_partners?.new_this_quarter || 0}</span>
                   </div>
                 </div>
               </CardContent>
@@ -333,19 +375,19 @@ const TenantDashboard = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Expiring in 30 days</span>
-                    <span className="font-medium text-red-600">8</span>
+                    <span className="font-medium text-red-600">{dashboardData?.lease_schedule?.expiring_in_30_days || 0}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Expiring in 90 days</span>
-                    <span className="font-medium text-orange-600">25</span>
+                    <span className="font-medium text-orange-600">{dashboardData?.lease_schedule?.expiring_in_90_days || 0}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Renewals Pending</span>
-                    <span className="font-medium">12</span>
+                    <span className="font-medium">{dashboardData?.lease_schedule?.renewals_pending || 0}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Auto-Renewals</span>
-                    <span className="font-medium text-green-600">156</span>
+                    <span className="font-medium text-green-600">{dashboardData?.lease_schedule?.auto_renewals || 0}</span>
                   </div>
                 </div>
               </CardContent>
@@ -354,12 +396,16 @@ const TenantDashboard = () => {
         </TabsContent>
 
         <TabsContent value="deposits" className="space-y-6">
-          <SecurityDepositAnalytics />
+          <SecurityDepositAnalytics data={securityDepositsData} loading={loadingSecurity} />
+        </TabsContent>
+
+        <TabsContent value="regional" className="space-y-6">
+          <TenantRegionalAnalytics data={regionalDashboardData} loading={loadingRegional} />
         </TabsContent>
       </Tabs>
 
       {/* Recent Activity for Tenant Operations */}
-      <RecentActivity />
+     
     </div>
   );
 };

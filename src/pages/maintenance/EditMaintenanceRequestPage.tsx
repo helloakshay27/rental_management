@@ -17,6 +17,7 @@ const EditMaintenanceRequestPage = () => {
     const [loadingResources, setLoadingResources] = useState(true);
     const [sites, setSites] = useState<any[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
+    const [vendors, setVendors] = useState<any[]>([]);
     const [units, setUnits] = useState<any[]>([]);
 
     const [formData, setFormData] = useState({
@@ -27,6 +28,7 @@ const EditMaintenanceRequestPage = () => {
         site_id: '',
         unit_id: '',
         tenant_id: '',
+        vendor_id: '',
         maintenance_scope: 'corrective',
         estimated_cost: '',
         status: 'pending',
@@ -38,9 +40,10 @@ const EditMaintenanceRequestPage = () => {
             try {
                 setLoadingResources(true);
 
-                const [sitesRes, tenantsRes, requestRes] = await Promise.all([
+                const [sitesRes, tenantsRes, vendorsRes, requestRes] = await Promise.all([
                     getAuth('/pms/sites.json'),
                     getAuth('/tenants'),
+                    getAuth('/vendors.json'),
                     getAuth(`/maintenance_requests/${id}.json`)
                 ]);
 
@@ -49,6 +52,9 @@ const EditMaintenanceRequestPage = () => {
 
                 const tenantsData = tenantsRes?.tenants || tenantsRes || [];
                 setTenants(Array.isArray(tenantsData) ? tenantsData : []);
+
+                const vendorsData = vendorsRes?.vendors || vendorsRes || [];
+                setVendors(Array.isArray(vendorsData) ? vendorsData : []);
 
                 if (requestRes) {
                     const data = requestRes.maintenance_request || requestRes;
@@ -60,6 +66,7 @@ const EditMaintenanceRequestPage = () => {
                         site_id: data.site_id?.toString() || '',
                         unit_id: data.unit_id?.toString() || '',
                         tenant_id: data.tenant_id?.toString() || '',
+                        vendor_id: data.vendor_id?.toString() || '',
                         maintenance_scope: data.maintenance_scope || 'corrective',
                         estimated_cost: data.estimated_cost || '',
                         status: data.status || 'pending',
@@ -146,6 +153,7 @@ const EditMaintenanceRequestPage = () => {
                     priority: formData.priority,
                     unit_id: formData.unit_id ? parseInt(formData.unit_id) : null,
                     tenant_id: formData.tenant_id ? parseInt(formData.tenant_id) : null,
+                    vendor_id: formData.vendor_id ? parseInt(formData.vendor_id) : null,
                     site_id: parseInt(formData.site_id),
                     maintenance_scope: formData.maintenance_scope,
                     estimated_cost: formData.estimated_cost,
@@ -177,7 +185,7 @@ const EditMaintenanceRequestPage = () => {
 
     return (
         <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="max-w-8xl mx-auto space-y-6">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" onClick={() => navigate(-1)} className="p-0 hover:bg-transparent">
                         <ArrowLeft className="h-6 w-6 text-gray-600" />
@@ -258,6 +266,22 @@ const EditMaintenanceRequestPage = () => {
                                                 <SelectItem key={unit.id} value={unit.id.toString()}>{unit.name}</SelectItem>
                                             ))}
                                             {units.length === 0 && <SelectItem value="temp_disabled" disabled>No units available</SelectItem>}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-gray-900 font-medium">Vendor</Label>
+                                    <Select value={formData.vendor_id} onValueChange={(val) => handleChange('vendor_id', val)}>
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                            <SelectValue placeholder="Select Vendor" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {vendors.map(vendor => (
+                                                <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                                                    {vendor.vendor_name}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>

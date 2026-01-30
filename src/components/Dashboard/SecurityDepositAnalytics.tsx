@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis } from 'recharts';
-import { Shield, DollarSign, Calendar, TrendingUp } from 'lucide-react';
+import { Shield, DollarSign, Calendar, TrendingUp, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const securityDepositData = [
@@ -32,12 +32,34 @@ const chartConfig = {
   }
 };
 
-const SecurityDepositAnalytics = () => {
-  const totalDepositsGiven = securityDepositData
-    .filter(item => item.type === 'Given')
-    .reduce((sum, item) => sum + item.deposit, 0);
-  
-  const avgDepositDuration = securityDepositData.reduce((sum, item) => sum + item.duration, 0) / securityDepositData.length;
+const SecurityDepositAnalytics = ({ data, loading }: { data: any, loading: boolean }) => {
+  const securityDepositData = data?.by_property?.map((item: any) => ({
+    property: item.property || 'Unknown',
+    deposit: parseFloat(item.deposit_amount) || 0,
+    duration: item.duration_months || 0
+  })) || [];
+
+  const depositByDuration = data?.by_duration?.map((item: any) => ({
+    duration: `${item.duration_months} months`,
+    count: item.count || 0,
+    // For the pie chart, we'll use count as the primary value
+    amount: item.count || 0
+  })) || [];
+
+  const summary = data?.overview || {
+    total_deposits_given: { amount_in_cr: "0.0" },
+    avg_duration_months: 0,
+    total_properties: 0,
+    highest_deposit: { amount_in_lakh: 0 }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
+      </div>
+    );
+  }
 
   const getDurationBadge = (duration: number) => {
     if (duration <= 2) return <Badge className="bg-red-100 text-red-800">Short</Badge>;
@@ -54,7 +76,7 @@ const SecurityDepositAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Deposits Given</p>
-                <p className="text-2xl font-bold text-[#C72030]">₹{(totalDepositsGiven / 10000000).toFixed(1)}Cr</p>
+                <p className="text-2xl font-bold text-[#C72030]">₹{summary.total_deposits_given?.amount_in_cr || '0.0'}Cr</p>
               </div>
               <DollarSign className="h-8 w-8 text-[#C72030]" />
             </div>
@@ -66,7 +88,7 @@ const SecurityDepositAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Avg Duration</p>
-                <p className="text-2xl font-bold text-[#C72030]">{avgDepositDuration.toFixed(1)} months</p>
+                <p className="text-2xl font-bold text-[#C72030]">{Number(summary.avg_duration_months || 0).toFixed(1)} months</p>
               </div>
               <Calendar className="h-8 w-8 text-[#C72030]" />
             </div>
@@ -78,7 +100,7 @@ const SecurityDepositAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Properties</p>
-                <p className="text-2xl font-bold text-[#C72030]">{securityDepositData.length}</p>
+                <p className="text-2xl font-bold text-[#C72030]">{summary.total_properties || 0}</p>
               </div>
               <Shield className="h-8 w-8 text-[#C72030]" />
             </div>
@@ -90,7 +112,7 @@ const SecurityDepositAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Highest Deposit</p>
-                <p className="text-2xl font-bold text-[#C72030]">₹{(Math.max(...securityDepositData.map(d => d.deposit)) / 100000).toFixed(1)}L</p>
+                <p className="text-2xl font-bold text-[#C72030]">₹{Number(summary.highest_deposit?.amount_in_lakh || 0).toFixed(1)}L</p>
               </div>
               <TrendingUp className="h-8 w-8 text-[#C72030]" />
             </div>
@@ -127,7 +149,7 @@ const SecurityDepositAnalytics = () => {
         <Card className="bg-white border border-gray-200">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-[#1a1a1a]">Deposit Distribution by Duration</CardTitle>
-            <p className="text-sm text-gray-600">Security deposits categorized by duration</p>
+            <p className="text-sm text-gray-600">Security deposits categorized by duration (count)</p>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[300px]">
@@ -139,16 +161,16 @@ const SecurityDepositAnalytics = () => {
                     cy="50%"
                     outerRadius={100}
                     fill="#8884d8"
-                    dataKey="amount"
+                    dataKey="count"
                     label={({ duration, count }) => `${duration} (${count})`}
                   >
-                    {depositByDuration.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    {depositByDuration.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={['#FF6B6B', '#FFA726', '#FFEB3B', '#66BB6A', '#4ECDC4', '#45B7D1'][index % 6]} />
                     ))}
                   </Pie>
-                  <ChartTooltip 
+                  <ChartTooltip
                     content={<ChartTooltipContent />}
-                    formatter={(value) => [`₹${(Number(value) / 100000).toFixed(1)}L`, 'Amount']}
+                    formatter={(value) => [value, 'Count']}
                   />
                   <Legend />
                 </PieChart>
@@ -165,31 +187,36 @@ const SecurityDepositAnalytics = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {securityDepositData.map((deposit, index) => (
+            {data?.property_details?.map((deposit: any, index: number) => (
               <div key={index} className="p-4 border border-gray-200 rounded-lg">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{deposit.property}</h4>
-                    <p className="text-sm text-gray-600">Landlord: {deposit.landlord}</p>
+                    <h4 className="font-semibold text-gray-900">{deposit.property || 'Unknown Property'}</h4>
+                    <p className="text-sm text-gray-600">Landlord: {deposit.landlord || 'N/A'}</p>
                     <div className="flex items-center gap-4 mt-2">
                       <span className="text-sm text-gray-600">
-                        Deposit: <span className="font-medium">₹{(deposit.deposit / 100000).toFixed(1)}L</span>
+                        Deposit: <span className="font-medium">₹{Number(deposit.deposit?.amount_in_lakh || 0).toFixed(2)}L</span>
                       </span>
                       <span className="text-sm text-gray-600">
-                        Duration: <span className="font-medium">{deposit.duration} months</span>
+                        Duration: <span className="font-medium">{deposit.duration_months} months</span>
                       </span>
                       <span className="text-sm text-gray-600">
-                        Type: <span className="font-medium">{deposit.type}</span>
+                        Risk: <span className="font-medium">{deposit.risk_tag}</span>
                       </span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    {getDurationBadge(deposit.duration)}
-                    <Badge className="bg-blue-100 text-blue-800">{deposit.type}</Badge>
+                    {getDurationBadge(deposit.duration_months)}
+                    <Badge className="bg-blue-100 text-blue-800">{deposit.risk_tag}</Badge>
                   </div>
                 </div>
               </div>
             ))}
+            {(!data?.property_details || data.property_details.length === 0) && (
+              <div className="text-center py-6 text-gray-500 italic">
+                No security deposit details available.
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

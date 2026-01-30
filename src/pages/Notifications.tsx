@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Bell, AlertCircle, CheckCircle, Clock, Trash2, Settings as SettingsIcon, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, AlertCircle, CheckCircle, Clock, Trash2, Settings as SettingsIcon, Filter, Loader2, Check } from 'lucide-react';
+import { getAuth, postAuth } from '@/lib/api';
+import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,54 +12,37 @@ import { Label } from '@/components/ui/label';
 
 const Notifications = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [notificationsList, setNotificationsList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const notifications = [
-    {
-      id: 1,
-      title: 'Rent Payment Overdue',
-      message: 'Tenant at Sunset Apartments Unit 12A has overdue rent payment of $2,500',
-      type: 'urgent',
-      time: '2 hours ago',
-      read: false,
-      category: 'payments'
-    },
-    {
-      id: 2,
-      title: 'Maintenance Request',
-      message: 'New maintenance request for HVAC repair at Downtown Plaza',
-      type: 'info',
-      time: '4 hours ago',
-      read: false,
-      category: 'maintenance'
-    },
-    {
-      id: 3,
-      title: 'Lease Renewal Due',
-      message: 'Lease renewal needed for Green Valley Complex Unit 5B expires in 30 days',
-      type: 'warning',
-      time: '1 day ago',
-      read: true,
-      category: 'leases'
-    },
-    {
-      id: 4,
-      title: 'Property Inspection Scheduled',
-      message: 'Annual property inspection scheduled for next week at Riverside Towers',
-      type: 'info',
-      time: '2 days ago',
-      read: true,
-      category: 'inspections'
-    },
-    {
-      id: 5,
-      title: 'Utility Bill Ready',
-      message: 'Monthly utility bill generated for Ocean View Apartments',
-      type: 'info',
-      time: '3 days ago',
-      read: true,
-      category: 'utilities'
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        setLoading(true);
+        const data = await getAuth('/user_notifications.json');
+        const notifs = data.user_notifications || data || [];
+        setNotificationsList(notifs);
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+        toast.error('Failed to load notifications');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const handleMarkAllRead = async () => {
+    try {
+      await postAuth('/user_notifications/mark_all_read.json', {});
+      setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
+      toast.success('All notifications marked as read');
+    } catch (error) {
+      console.error('Failed to mark notifications as read:', error);
+      toast.error('Failed to mark notifications as read');
     }
-  ];
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -76,8 +61,16 @@ const Notifications = () => {
   };
 
   const filteredNotifications = selectedFilter === 'all'
-    ? notifications
-    : notifications.filter(n => n.category === selectedFilter);
+    ? notificationsList
+    : notificationsList.filter(n => n.category === selectedFilter || n.type === selectedFilter);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -87,7 +80,15 @@ const Notifications = () => {
           <p className="text-gray-600">Stay updated with important property management alerts</p>
         </div>
         <div className="flex items-center space-x-3">
-          {/* Settings and Mark All Read removed */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 text-[#C72030] border-[#C72030] hover:bg-red-50"
+            onClick={handleMarkAllRead}
+          >
+            <Check className="h-4 w-4" />
+            Mark all as read
+          </Button>
         </div>
       </div>
 
@@ -126,13 +127,13 @@ const Notifications = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <h3 className={`font-medium ${!notification.read ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
-                          {notification.title}
+                          {notification.title || 'Notification'}
                         </h3>
-                        {getTypeBadge(notification.type)}
+                        {getTypeBadge(notification.type || 'info')}
                         {!notification.read && <div className="w-2 h-2 bg-[#C72030] rounded-full"></div>}
                       </div>
-                      <p className="text-gray-600 text-sm mb-2">{notification.message}</p>
-                      <p className="text-xs text-gray-400">{notification.time}</p>
+                      <p className="text-gray-600 text-sm mb-2">{notification.message || notification.content}</p>
+                      <p className="text-xs text-gray-400">{notification.time_ago || notification.time}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -158,12 +159,12 @@ const Notifications = () => {
                     {getTypeIcon(notification.type)}
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="font-semibold text-gray-900">{notification.title}</h3>
-                        {getTypeBadge(notification.type)}
+                        <h3 className="font-semibold text-gray-900">{notification.title || 'Notification'}</h3>
+                        {getTypeBadge(notification.type || 'info')}
                         <div className="w-2 h-2 bg-[#C72030] rounded-full"></div>
                       </div>
-                      <p className="text-gray-600 text-sm mb-2">{notification.message}</p>
-                      <p className="text-xs text-gray-400">{notification.time}</p>
+                      <p className="text-gray-600 text-sm mb-2">{notification.message || notification.content}</p>
+                      <p className="text-xs text-gray-400">{notification.time_ago || notification.time}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">

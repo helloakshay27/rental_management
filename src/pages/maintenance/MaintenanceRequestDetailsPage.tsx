@@ -298,6 +298,39 @@ const MaintenanceRequestDetailsPage = () => {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Vendor Card */}
+                    {request.vendor && (
+                        <Card className="bg-white border border-gray-200 shadow-sm">
+                            <CardHeader className="border-b border-gray-100 pb-4">
+                                <CardTitle className="text-sm font-bold text-gray-500 uppercase tracking-wider">Vendor Information</CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-6 space-y-4">
+                                <div>
+                                    <p className="text-sm text-gray-500 mb-1">Vendor Name</p>
+                                    <p className="text-gray-900 font-medium">{request.vendor.vendor_name || 'N/A'}</p>
+                                </div>
+                                {request.vendor.contact_person && (
+                                    <div>
+                                        <p className="text-sm text-gray-500 mb-1">Contact Person</p>
+                                        <p className="text-gray-900 font-medium">{request.vendor.contact_person}</p>
+                                    </div>
+                                )}
+                                {request.vendor.mobile && (
+                                    <div>
+                                        <p className="text-sm text-gray-500 mb-1">Phone</p>
+                                        <p className="text-gray-900 font-medium">{request.vendor.mobile}</p>
+                                    </div>
+                                )}
+                                {request.vendor.email && (
+                                    <div>
+                                        <p className="text-sm text-gray-500 mb-1">Email</p>
+                                        <p className="text-gray-900 font-medium">{request.vendor.email}</p>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             </div>
 

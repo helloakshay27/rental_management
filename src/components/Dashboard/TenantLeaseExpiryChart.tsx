@@ -4,23 +4,37 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
-const leaseData = [
-  { category: '0-6 months', count: 15, percentage: 3 },
-  { category: '6-12 months', count: 42, percentage: 8 },
-  { category: '1-2 years', count: 128, percentage: 25 },
-  { category: '2-5 years', count: 189, percentage: 36 },
-  { category: '5+ years', count: 149, percentage: 28 }
-];
-
-const COLORS = ['#FF6B6B', '#FFA726', '#FFEB3B', '#66BB6A', '#42A5F5'];
-
 const chartConfig = {
   count: {
     label: 'Properties'
   }
 };
 
-const TenantLeaseExpiryChart = () => {
+interface LeaseExpiryData {
+  '0_3_months'?: number;
+  '3_6_months'?: number;
+  '6_12_months'?: number;
+  'above_12'?: number;
+}
+
+const TenantLeaseExpiryChart = ({ data }: { data?: LeaseExpiryData }) => {
+  const leaseData = [
+    { category: '0-3 months', count: data?.['0_3_months'] || 0 },
+    { category: '3-6 months', count: data?.['3_6_months'] || 0 },
+    { category: '6-12 months', count: data?.['6_12_months'] || 0 },
+    { category: 'Above 12 months', count: data?.['above_12'] || 0 },
+  ];
+
+  const total = leaseData.reduce((sum, item) => sum + item.count, 0);
+
+  // Calculate percentages for labels
+  const dataWithPercentages = leaseData.map(item => ({
+    ...item,
+    percentage: total > 0 ? Math.round((item.count / total) * 100) : 0
+  }));
+
+  const COLORS = ['#FF6B6B', '#FFA726', '#FFEB3B', '#66BB6A'];
+
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
@@ -32,26 +46,26 @@ const TenantLeaseExpiryChart = () => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={leaseData}
+                data={dataWithPercentages}
                 cx="50%"
                 cy="50%"
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="count"
-                label={({ percentage }) => `${percentage}%`}
+                label={({ percentage }) => percentage > 0 ? `${percentage}%` : ''}
               >
-                {leaseData.map((entry, index) => (
+                {dataWithPercentages.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <ChartTooltip 
+              <ChartTooltip
                 content={<ChartTooltipContent />}
                 formatter={(value, name) => [`${value} properties`, name]}
               />
-              <Legend 
+              <Legend
                 formatter={(value, entry) => {
-                  const data = leaseData.find(item => item.count === entry.payload?.value);
-                  return data ? `${data.category}: ${data.count} properties` : value;
+                  const item = dataWithPercentages.find(d => d.category === value);
+                  return item ? `${item.category}: ${item.count} properties` : value;
                 }}
               />
             </PieChart>

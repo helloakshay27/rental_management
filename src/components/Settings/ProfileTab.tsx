@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getAuth, putAuth } from '@/lib/api';
+import { getAuth, putAuth, API_BASE_URL } from '@/lib/api';
 import { toast } from 'sonner';
 
 const ProfileTab = () => {
@@ -25,6 +25,7 @@ const ProfileTab = () => {
     avatar_url: ''
   });
   const [base64Image, setBase64Image] = useState<string | null>(null);
+  const [rolesList, setRolesList] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -32,13 +33,22 @@ const ProfileTab = () => {
       try {
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
         if (storedUser.id) {
-          const data = await getAuth(`/users/${storedUser.id}`);
+          const data = await getAuth(`/users/${storedUser.id}.json`);
+          const avatarUrl = data.profile_image?.url
+            ? (data.profile_image.url.startsWith('http') ? data.profile_image.url : `${API_BASE_URL}${data.profile_image.url}`)
+            : '';
+
           setUserData({
             ...data,
             roles: data.roles || [],
             joining_date: data.joining_date || '',
             department: data.department || '',
+            avatar_url: avatarUrl
           });
+
+          // Also update localStorage with the latest avatar_url
+          localStorage.setItem('user', JSON.stringify({ ...storedUser, avatar_url: avatarUrl }));
+          window.dispatchEvent(new Event('auth-changed'));
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error);
@@ -47,6 +57,18 @@ const ProfileTab = () => {
       }
     };
     fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const data = await getAuth('/roles.json');
+        setRolesList(data.roles || data || []);
+      } catch (error) {
+        console.error('Failed to fetch roles:', error);
+      }
+    };
+    fetchRoles();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,12 +98,25 @@ const ProfileTab = () => {
         ...(base64Image && { base64_data: base64Image })
       };
 
-      await putAuth(`/users/${storedUser.id}`, payload);
+      const data = await putAuth(`/users/${storedUser.id}`, payload);
       toast.success('Profile updated successfully');
 
-      // Update local storage name/email if they changed
-      const updatedUser = { ...storedUser, full_name: userData.full_name, email: userData.email };
+      // Refresh avatar_url from the response if available, or fetch again
+      const updatedAvatarUrl = data.profile_image?.url
+        ? (data.profile_image.url.startsWith('http') ? data.profile_image.url : `${API_BASE_URL}${data.profile_image.url}`)
+        : userData.avatar_url;
+
+      // Update local storage name/email/avatar if they changed
+      const updatedUser = {
+        ...storedUser,
+        full_name: userData.full_name,
+        email: userData.email,
+        avatar_url: updatedAvatarUrl
+      };
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUserData({ ...userData, avatar_url: updatedAvatarUrl });
+      setBase64Image(null); // Clear the preview as we now have the saved URL
+      window.dispatchEvent(new Event('auth-changed'));
 
     } catch (error: any) {
       console.error('Failed to update profile:', error);
@@ -201,10 +236,11 @@ const ProfileTab = () => {
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="1">Admin</SelectItem>
-                <SelectItem value="2">Finance</SelectItem>
-                <SelectItem value="3">Property Manager</SelectItem>
-                <SelectItem value="4">Tenant</SelectItem>
+                {rolesList.map((role: any) => (
+                  <SelectItem key={role.id} value={role.id.toString()}>
+                    {role.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
