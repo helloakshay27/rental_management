@@ -3,13 +3,13 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building, Wallet, PieChart, FileText } from 'lucide-react';
+import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building, Wallet, PieChart, FileText, Settings2 } from 'lucide-react';
 
 const Masters = () => {
   const masterModules = [
     {
-      title: 'Tenants Management',
-      description: 'Manage tenant information, documents, and profiles',
+      title: 'Lessee Management',
+      description: 'Manage lessee information, documents, and profiles',
       icon: Users,
       path: '/masters/tenants',
       color: 'bg-blue-50 text-blue-600'
@@ -118,6 +118,13 @@ const Masters = () => {
       icon: FileText,
       path: '/masters/service-types',
       color: 'bg-cyan-50 text-cyan-600'
+    },
+    {
+      title: 'Lease Custom Fields',
+      description: 'Manage custom fields for lease agreements',
+      icon: Settings2,
+      path: '/masters/lease-custom-fields',
+      color: 'bg-violet-50 text-violet-600'
     }
   ];
 

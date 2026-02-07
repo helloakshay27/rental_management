@@ -57,7 +57,7 @@ const TenantsManagement = () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch tenants', error);
-      toast.error('Failed to load tenants');
+      toast.error('Failed to load lessees');
     } finally {
       setLoadingTenants(false);
     }
@@ -89,8 +89,8 @@ const TenantsManagement = () => {
       });
       setIsDialogOpen(true);
     } catch (error: any) {
-      console.error('Failed to fetch tenant details', error);
-      toast.error('Failed to fetch tenant details');
+      console.error('Failed to fetch lessee details', error);
+      toast.error('Failed to fetch lessee details');
     } finally {
       setIsLoading(false);
     }
@@ -142,10 +142,10 @@ const TenantsManagement = () => {
       // Make API call
       if (editingTenant) {
         await patchAuth(`/tenants/${editingTenant.id}`, payload);
-        toast.success('Tenant updated successfully');
+        toast.success('Lessee updated successfully');
       } else {
         await postAuth('/tenants', payload);
-        toast.success('Tenant created successfully');
+        toast.success('Lessee created successfully');
       }
 
       // Reset form and close dialog
@@ -155,7 +155,7 @@ const TenantsManagement = () => {
       fetchTenants();
 
     } catch (error: any) {
-      let errorMessage = editingTenant ? 'Failed to update tenant' : 'Failed to create tenant';
+      let errorMessage = editingTenant ? 'Failed to update lessee' : 'Failed to create lessee';
 
       if (error.response && error.response.errors && Array.isArray(error.response.errors)) {
         errorMessage = error.response.errors.join(', ');
@@ -170,14 +170,14 @@ const TenantsManagement = () => {
   };
 
   const handleDeleteTenant = async (tenantId: number) => {
-    if (window.confirm('Are you sure you want to delete this tenant?')) {
+    if (window.confirm('Are you sure you want to delete this lessee?')) {
       try {
         setIsLoading(true);
         await deleteAuth(`/tenants/${tenantId}`);
-        toast.success('Tenant deleted successfully');
+        toast.success('Lessee deleted successfully');
         fetchTenants();
       } catch (error: any) {
-        toast.error('Failed to delete tenant');
+        toast.error('Failed to delete lessee');
       } finally {
         setIsLoading(false);
       }
@@ -219,31 +219,31 @@ const TenantsManagement = () => {
             <ChevronLeft className="h-6 w-6" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Tenants Management</h1>
-            <p className="text-gray-600">Manage tenant information, documents, and profiles</p>
+            <h1 className="text-2xl font-bold text-gray-900">Lessee Management</h1>
+            <p className="text-gray-600">Manage lessee information, documents, and profiles</p>
           </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogTrigger asChild>
             <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Tenant
+              Add Lessee
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-gray-900 font-semibold text-xl">
-                {editingTenant ? 'Edit Tenant' : 'Add New Tenant'}
+                {editingTenant ? 'Edit Lessee' : 'Add New Lessee'}
               </DialogTitle>
               <DialogDescription className="text-gray-600">
-                {editingTenant ? 'Update tenant details' : 'Enter tenant details and documentation'}
+                {editingTenant ? 'Update lessee details' : 'Enter lessee details and documentation'}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               {/* Basic Information */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-900 font-medium">Full Name *</Label>
+                  <Label htmlFor="name" className="text-gray-900 font-medium">Full Name (LESSEE) *</Label>
                   <Input
                     id="name"
                     placeholder="Enter full name"
@@ -264,7 +264,7 @@ const TenantsManagement = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-gray-900 font-medium">Phone *</Label>
+                  <Label htmlFor="phone" className="text-gray-900 font-medium">Phone Number *</Label>
                   <Input
                     id="phone"
                     placeholder="Enter phone number"
@@ -389,7 +389,7 @@ const TenantsManagement = () => {
                 disabled={isLoading}
                 className="bg-[#C72030] hover:bg-[#A01825] text-white"
               >
-                {isLoading ? 'Saving...' : (editingTenant ? 'Update Tenant' : 'Save Tenant')}
+                {isLoading ? 'Saving...' : (editingTenant ? 'Update Lessee' : 'Save Lessee')}
               </Button>
             </div>
           </DialogContent>
@@ -400,8 +400,8 @@ const TenantsManagement = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Tenants Directory</CardTitle>
-              <CardDescription>Complete list of all tenants in the system</CardDescription>
+              <CardTitle>Lessee Directory</CardTitle>
+              <CardDescription>Complete list of all lessees in the system</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -417,7 +417,7 @@ const TenantsManagement = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search tenants..."
+                  placeholder="Search lessees..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-64 bg-white"
@@ -430,7 +430,7 @@ const TenantsManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tenant Details</TableHead>
+                <TableHead>Lessee Details</TableHead>
                 <TableHead>Contact Info</TableHead>
                 <TableHead>Current Property</TableHead>
                 <TableHead>Rent (₹)</TableHead>

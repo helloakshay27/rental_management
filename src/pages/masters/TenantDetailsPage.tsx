@@ -25,8 +25,8 @@ const TenantDetailsPage = () => {
             // Check for nested tenant object or direct response
             setTenant(data?.tenant || data);
         } catch (error) {
-            console.error('Failed to fetch tenant details:', error);
-            toast.error('Failed to load tenant details');
+            console.error('Failed to fetch lessee details:', error);
+            toast.error('Failed to load lessee details');
         } finally {
             setIsLoading(false);
         }
@@ -44,7 +44,7 @@ const TenantDetailsPage = () => {
         return (
             <div className="p-8 w-full bg-gray-50 min-h-screen">
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
-                    <p className="text-gray-500">Tenant not found</p>
+                    <p className="text-gray-500">Lessee not found</p>
                     <Button onClick={() => navigate('/masters/tenants')} className="mt-4">
                         Go Back
                     </Button>
@@ -63,10 +63,10 @@ const TenantDetailsPage = () => {
                         className="text-gray-600 hover:text-gray-900"
                     >
                         <ArrowLeft className="h-5 w-5 mr-2" />
-                        Back to Tenants
+                        Back to Lessees
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Tenant Profile</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Lessee Profile</h1>
                         <p className="text-gray-500">ID: {tenant.id}</p>
                     </div>
                 </div>

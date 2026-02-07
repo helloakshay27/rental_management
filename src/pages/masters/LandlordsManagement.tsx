@@ -149,15 +149,15 @@ const LandlordsManagement = () => {
       setIsLoading(true);
 
       // Validation
-      if (!formData.company_name.trim() || !formData.contact_person.trim() || !formData.email.trim() || !formData.phone.trim()) {
-        toast.error('Company name, contact person, email, and phone are required');
+      if (!formData.contact_person.trim() || !formData.email.trim() || !formData.phone.trim()) {
+        toast.error('Name, email, and phone are required');
         return;
       }
 
       // Prepare payload
       const payload: any = {
         landlord: {
-          company_name: formData.company_name,
+          company_name: formData.contact_person, // Using contact_person value for company_name as well
           contact_person: formData.contact_person,
           email: formData.email,
           phone: formData.phone,
@@ -284,7 +284,7 @@ const LandlordsManagement = () => {
             <div className="space-y-4 py-4">
               {/* Basic Information */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2 hidden">
                   <Label htmlFor="company-name" className="text-gray-900 font-medium">Company/Business Name *</Label>
                   <Input
                     id="company-name"
@@ -294,11 +294,11 @@ const LandlordsManagement = () => {
                     className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contact-person" className="text-gray-900 font-medium">Contact Person *</Label>
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="contact-person" className="text-gray-900 font-medium">Landlord / Company / Contact Person Name (LESSOR) *</Label>
                   <Input
                     id="contact-person"
-                    placeholder="Enter contact person"
+                    placeholder="Enter name"
                     value={formData.contact_person}
                     onChange={(e) => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
                     className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
@@ -507,7 +507,7 @@ const LandlordsManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Business Details</TableHead>
+                <TableHead>Landlord Details</TableHead>
                 <TableHead>Contact Info</TableHead>
                 <TableHead>Tax Details</TableHead>
                 <TableHead>Status</TableHead>
@@ -532,8 +532,8 @@ const LandlordsManagement = () => {
                   <TableRow key={landlord.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{landlord.company_name}</p>
-                        <p className="text-sm text-gray-500">Contact: {landlord.contact_person}</p>
+                        <p className="font-medium">{landlord.contact_person || landlord.company_name}</p>
+                        <p className="text-sm text-gray-500">ID: {landlord.id}</p>
                       </div>
                     </TableCell>
                     <TableCell>

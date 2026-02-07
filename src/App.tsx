@@ -70,6 +70,8 @@ import MaintenanceRequestDetailsPage from "./pages/maintenance/MaintenanceReques
 import AddUtilityPage from "./pages/utilities/AddUtilityPage";
 import UtilityDetailsPage from "./pages/utilities/UtilityDetailsPage";
 import EditUtilityPage from "./pages/utilities/EditUtilityPage";
+import LeaseCustomFieldsManagement from "./pages/masters/LeaseCustomFieldsManagement";
+import LeaseCustomFieldDetailsPage from "./pages/masters/LeaseCustomFieldDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -147,6 +149,8 @@ const App = () => {
                 <Route path="masters/expense-categories" element={<ExpenseCategoryMaster />} />
                 <Route path="masters/budgets" element={<BudgetMaster />} />
                 <Route path="masters/service-types" element={<ServiceTypeMaster />} />
+                <Route path="masters/lease-custom-fields" element={<LeaseCustomFieldsManagement />} />
+                <Route path="masters/lease-custom-fields/:id" element={<LeaseCustomFieldDetailsPage />} />
               </Route>
               <Route path="login" element={<LoginPage setToken={() => { }} />} />
               <Route path="*" element={<NotFound />} />

@@ -252,7 +252,7 @@ const MyRentals = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50 border-b border-gray-200">
-                <TableHead className="text-[#1a1a1a] font-medium">Agreement ID</TableHead>
+                <TableHead className="text-[#1a1a1a] font-medium">Unique Code</TableHead>
                 <TableHead className="text-[#1a1a1a] font-medium">Property Details</TableHead>
                 <TableHead className="text-[#1a1a1a] font-medium">Landlord</TableHead>
                 <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>

@@ -660,7 +660,7 @@ const PropertiesMaster = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="takeover-condition" className="text-gray-900 font-medium">Takeover Condition</Label>
+                  <Label htmlFor="takeover-condition" className="text-gray-900 font-medium"> Property Takeover Condition</Label>
                   <Select
                     value={formData.property_takeover_condition_id}
                     onValueChange={(value) => setFormData({ ...formData, property_takeover_condition_id: value })}
@@ -821,10 +821,10 @@ const PropertiesMaster = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="postal-code" className="text-gray-900 font-medium">Postal Code</Label>
+                  <Label htmlFor="postal-code" className="text-gray-900 font-medium">Pin Code</Label>
                   <Input
                     id="postal-code"
-                    placeholder="Enter postal code"
+                    placeholder="Enter pin code"
                     className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
                     value={formData.postal_code}
                     onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
@@ -879,7 +879,7 @@ const PropertiesMaster = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="ownership-type" className="text-gray-900 font-medium">Ownership Type</Label>
+                  <Label htmlFor="ownership-type" className="text-gray-900 font-medium">Owned/Leased</Label>
                   <Select
                     value={formData.ownership_type}
                     onValueChange={(value) => setFormData({ ...formData, ownership_type: value })}
@@ -926,10 +926,10 @@ const PropertiesMaster = () => {
 
               {/* Description - Full Width */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-gray-900 font-medium">Description</Label>
+                <Label htmlFor="description" className="text-gray-900 font-medium">Remarks</Label>
                 <textarea
                   id="description"
-                  placeholder="Enter property description"
+                  placeholder="Enter property Remarks"
                   className="w-full min-h-[80px] px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C72030]"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}

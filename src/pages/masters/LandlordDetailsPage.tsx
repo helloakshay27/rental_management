@@ -82,7 +82,7 @@ const LandlordDetailsPage = () => {
                     <CardHeader className="border-b border-gray-100">
                         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                             <Building2 className="h-5 w-5 text-[#C72030]" />
-                            Business Information
+                            Landlord Information
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
@@ -90,21 +90,11 @@ const LandlordDetailsPage = () => {
                             <div className="space-y-6">
                                 <div className="flex items-start gap-3">
                                     <div className="p-2 bg-red-50 rounded-lg text-[#C72030]">
-                                        <Building2 className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Company Name</p>
-                                        <p className="text-lg font-medium text-gray-900">{landlord.company_name || 'N/A'}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-3">
-                                    <div className="p-2 bg-red-50 rounded-lg text-[#C72030]">
                                         <User className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Contact Person</p>
-                                        <p className="font-medium text-gray-900">{landlord.contact_person || 'N/A'}</p>
+                                        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Landlord / Company / Contact Person (LESSOR)</p>
+                                        <p className="text-lg font-medium text-gray-900">{landlord.contact_person || landlord.company_name || 'N/A'}</p>
                                     </div>
                                 </div>
                             </div>

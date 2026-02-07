@@ -161,8 +161,8 @@ export default function RentalDetailsPage() {
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">Status:</p>
                     <Badge className={`${lease.status === 'active'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
                       }`}>
                       {lease.status || 'N/A'}
                     </Badge>
@@ -249,7 +249,7 @@ export default function RentalDetailsPage() {
 
               <div className="pt-4 border-t border-gray-100 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <p className="text-gray-600">Basic Rent:</p>
+                  <p className="text-gray-600">Rent Amount:</p>
                   <p className="font-medium text-gray-900">₹{parseFloat(lease.basic_rent || 0).toLocaleString()}</p>
                 </div>
                 {parseFloat(lease.gst_amount || 0) > 0 && (
@@ -343,7 +343,7 @@ export default function RentalDetailsPage() {
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Escalation Type</p>
+                <p className="text-sm text-gray-500 mb-1">Escalation Frequency </p>
                 <p className="font-medium text-gray-900">{renderValue(lease.escalation_type)}</p>
               </div>
               <div>

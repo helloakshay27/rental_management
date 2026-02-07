@@ -20,6 +20,8 @@ const AddRentalPage = () => {
     const [properties, setProperties] = useState<any[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
+    const [customFields, setCustomFields] = useState<any[]>([]);
+    const [customFieldValues, setCustomFieldValues] = useState<{ [key: string]: any }>({});
 
     const renderValue = (val: any) => {
         if (val === null || val === undefined) return '';
@@ -123,8 +125,28 @@ const AddRentalPage = () => {
             }
         };
 
+        const fetchCustomFields = async () => {
+            try {
+                const response = await getAuth('/lease_custom_fields');
+                const fields = response?.data || response;
+                if (Array.isArray(fields)) {
+                    setCustomFields(fields.filter((f: any) => f.status !== 'Inactive'));
+                    // Initialize values
+                    const initialValues: any = {};
+                    fields.forEach((f: any) => {
+                        if (f.field_type === 'boolean') initialValues[f.name] = false;
+                        else initialValues[f.name] = '';
+                    });
+                    setCustomFieldValues(initialValues);
+                }
+            } catch (error) {
+                console.error('Failed to fetch custom fields:', error);
+            }
+        };
+
         fetchProperties();
         fetchTenants();
+        fetchCustomFields();
     }, []);
 
     const handlePropertySelect = async (propertyId: string) => {
@@ -263,7 +285,8 @@ const AddRentalPage = () => {
                         fixed_monthly_charge: s.fixed_monthly_charge || '0',
                         rate_per_sqft: s.rate_per_sqft || '0',
                         due_date: parseInt(s.due_date) || 5
-                    }))
+                    })),
+                    custom_fields: customFieldValues
                 }
             };
 
@@ -469,7 +492,7 @@ const AddRentalPage = () => {
                                 <h4 className="font-medium text-gray-700">Amount Details</h4>
 
                                 <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Basic Rent (₹)</Label>
+                                    <Label className="text-gray-900 font-medium"> Rent Amount (₹)</Label>
                                     <div className="relative">
                                         <span className="absolute left-3 top-2.5 text-gray-500">$</span>
                                         <Input
@@ -781,15 +804,15 @@ const AddRentalPage = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Escalation Type</Label>
+                                <Label className="text-gray-900 font-medium">Escalation Frequency </Label>
                                 <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))}>
                                     <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                        <SelectValue placeholder="Select escalation type" />
+                                        <SelectValue placeholder="Select Escalation Frequency " />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="monthly">Monthly</SelectItem>
                                         <SelectItem value="quarterly">Quarterly</SelectItem>
-                                        <SelectItem value="annual">Annual</SelectItem>
+                                        <SelectItem value="annual">In Years</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -964,6 +987,46 @@ const AddRentalPage = () => {
                             onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
+
+                    {/* Dynamic Custom Fields */}
+                    {customFields.map((field) => (
+                        <div key={field.id} className="space-y-2">
+                            <Label className="text-gray-900 font-medium">
+                                {field.name} {field.required && <span className="text-red-500">*</span>}
+                            </Label>
+                            {field.field_type === 'text' || field.field_type === 'number' ? (
+                                <Input
+                                    type={field.field_type}
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    placeholder={`Enter ${field.name}`}
+                                    value={customFieldValues[field.name] || ''}
+                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                />
+                            ) : field.field_type === 'date' ? (
+                                <Input
+                                    type="date"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    value={customFieldValues[field.name] || ''}
+                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                />
+                            ) : field.field_type === 'boolean' ? (
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <Switch
+                                        checked={customFieldValues[field.name] || false}
+                                        onCheckedChange={(checked) => setCustomFieldValues(prev => ({ ...prev, [field.name]: checked }))}
+                                    />
+                                    <span className="text-sm text-gray-600">{customFieldValues[field.name] ? 'Yes' : 'No'}</span>
+                                </div>
+                            ) : field.field_type === 'textarea' ? (
+                                <Textarea
+                                    placeholder={`Enter ${field.name}`}
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    value={customFieldValues[field.name] || ''}
+                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                />
+                            ) : null}
+                        </div>
+                    ))}
                 </div>
             </div>
 
