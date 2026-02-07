@@ -78,7 +78,9 @@ const EditRentalPage = () => {
         signing_authority_email: '',
         signing_authority_phone: '',
         agreementFile: null,
-        notes: ''
+        notes: '',
+        sap_number: '',
+        property_type: ''
     });
 
     const [parkings, setParkings] = useState<any[]>([{
@@ -162,7 +164,7 @@ const EditRentalPage = () => {
                         leaseStart: data.start_date || '',
                         leaseEnd: data.end_date || '',
                         status: data.status || 'active',
-                        area: 30000,
+                        area: data.notice_terms?.rent_area || data.area || 30000,
                         perSqFtRate: parseFloat(data.rate_per_sqft) || 0,
                         basicRent: parseFloat(data.basic_rent) || 0,
                         gstApplicable: data.gst_applicable || false,
@@ -201,7 +203,9 @@ const EditRentalPage = () => {
                         signing_authority_email: data.signing_authorities?.[0]?.email || '',
                         signing_authority_phone: data.signing_authorities?.[0]?.phone_number || '',
                         agreementFile: null,
-                        notes: data.notice_terms?.additional_notes || ''
+                        notes: data.notice_terms?.additional_notes || '',
+                        sap_number: data.sap_number || '',
+                        property_type: data.notice_terms?.property_type || ''
                     });
 
                     // Set custom field values
@@ -385,7 +389,9 @@ const EditRentalPage = () => {
                         termination_rights_lessee: formData.termination_rights_lessee,
                         termination_rights_lessor: formData.termination_rights_lessor,
                         handover_condition: formData.handover_condition,
-                        additional_notes: formData.notes
+                        additional_notes: formData.notes,
+                        property_type: formData.property_type,
+                        rent_area: formData.area
                     },
                     signing_authorities_attributes: [
                         {
@@ -398,6 +404,7 @@ const EditRentalPage = () => {
                             signed_at: new Date().toISOString()
                         }
                     ],
+                    sap_number: formData.sap_number,
                     documents: base64File ? [
                         {
                             document_type: 'agreement',
@@ -603,7 +610,7 @@ const EditRentalPage = () => {
                             <SelectContent>
                                 {tenants.map((tenant) => (
                                     <SelectItem key={tenant.id} value={tenant.id.toString()}>
-                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
+                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email} ` : ''}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -617,9 +624,33 @@ const EditRentalPage = () => {
 
                         <div className="space-y-4">
                             <div className="space-y-2">
+                                <Label className="text-gray-900 font-medium">Rent Area (sq ft)</Label>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    placeholder="e.g., 30000"
+                                    value={formData.area || ''}
+                                    onChange={(e) => {
+                                        const area = parseFloat(e.target.value) || 0;
+                                        const basicRent = area * formData.perSqFtRate;
+                                        const gstAmount = ((formData.cgst + formData.sgst + formData.igst) * basicRent / 100);
+                                        const tdsAmount = (formData.tdsPercentage * basicRent / 100);
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            area,
+                                            basicRent,
+                                            gstAmount,
+                                            tdsAmount
+                                        }));
+                                    }}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
                                 <Label className="text-gray-900 font-medium">Per Sq Ft Rate (₹)</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                    <span className="absolute left-3 top-2.5 text-gray-500">₹</span>
                                     <Input
                                         type="number"
                                         min="0"
@@ -629,7 +660,7 @@ const EditRentalPage = () => {
                                         value={formData.perSqFtRate || ''}
                                         onChange={(e) => {
                                             const perSqFtRate = parseFloat(e.target.value) || 0;
-                                            const basicRent = perSqFtRate * 30000;
+                                            const basicRent = perSqFtRate * formData.area;
                                             const gstAmount = ((formData.cgst + formData.sgst + formData.igst) * basicRent / 100);
                                             const tdsAmount = (formData.tdsPercentage * basicRent / 100);
                                             setFormData(prev => ({
@@ -644,10 +675,10 @@ const EditRentalPage = () => {
                                 </div>
                             </div>
 
-                            {formData.perSqFtRate > 0 && (
+                            {formData.perSqFtRate > 0 && formData.area > 0 && (
                                 <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-md p-2">
                                     <span className="text-blue-600">ℹ️</span>
-                                    <span>{formData.perSqFtRate} × 30,000 sq ft = ₹{formData.basicRent.toLocaleString()}</span>
+                                    <span>{formData.perSqFtRate} × {formData.area.toLocaleString()} sq ft = ₹{formData.basicRent.toLocaleString()}</span>
                                 </div>
                             )}
 
@@ -1063,13 +1094,19 @@ const EditRentalPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Purpose of Agreement</Label>
-                        <Input
-                            type="text"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                            placeholder="e.g., Office Rental"
-                            value={formData.purpose_of_agreement}
-                            onChange={(e) => setFormData(prev => ({ ...prev, purpose_of_agreement: e.target.value }))}
-                        />
+                        <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
+                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder="Select purpose" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="New Office">New Office</SelectItem>
+                                <SelectItem value="Renewal">Renewal</SelectItem>
+                                <SelectItem value="Change of Location">Change of Location</SelectItem>
+                                <SelectItem value="Change of Area">Change of Area</SelectItem>
+                                <SelectItem value="Change of ownership">Change of ownership</SelectItem>
+                                <SelectItem value="Name Change">Name Change</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="space-y-2">
@@ -1082,6 +1119,35 @@ const EditRentalPage = () => {
                                 <SelectItem value="Tenant">Tenant</SelectItem>
                                 <SelectItem value="Landlord">Landlord</SelectItem>
                                 <SelectItem value="Shared">Shared (50-50)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium text-[#c72030]">SAP ID (SAP Number)</Label>
+                        <Input
+                            type="text"
+                            className="bg-white border-2 border-[#c72030]/30 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            placeholder="e.g., SAP000013"
+                            value={formData.sap_number}
+                            onChange={(e) => setFormData(prev => ({ ...prev, sap_number: e.target.value }))}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Property Type</Label>
+                        <Select value={formData.property_type} onValueChange={(value) => setFormData(prev => ({ ...prev, property_type: value }))}>
+                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder="Select property type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="CLA">CLA</SelectItem>
+                                <SelectItem value="Lease Agreement">Lease Agreement</SelectItem>
+                                <SelectItem value="Leave & License Agreement">Leave & License Agreement</SelectItem>
+                                <SelectItem value="Sale Deed">Sale Deed</SelectItem>
+                                <SelectItem value="Addendum">Addendum</SelectItem>
+                                <SelectItem value="Side Letter">Side Letter</SelectItem>
+                                <SelectItem value="Annexure">Annexure</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -1146,7 +1212,7 @@ const EditRentalPage = () => {
                                 <Input
                                     type={field.field_type}
                                     className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                    placeholder={`Enter ${field.name}`}
+                                    placeholder={`Enter ${field.name} `}
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
                                 />
@@ -1167,7 +1233,7 @@ const EditRentalPage = () => {
                                 </div>
                             ) : field.field_type === 'textarea' ? (
                                 <Textarea
-                                    placeholder={`Enter ${field.name}`}
+                                    placeholder={`Enter ${field.name} `}
                                     className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}

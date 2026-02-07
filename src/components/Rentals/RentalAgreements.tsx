@@ -27,7 +27,8 @@ const RentalAgreements = () => {
       monthlyRent: 2500,
       status: 'active',
       securityDeposit: 5000,
-      leaseType: 'Annual'
+      leaseType: 'Annual',
+      sap_number: 'SAP000013'
     },
     {
       id: 'RA002',
@@ -38,7 +39,8 @@ const RentalAgreements = () => {
       monthlyRent: 3200,
       status: 'active',
       securityDeposit: 6400,
-      leaseType: 'Annual'
+      leaseType: 'Annual',
+      sap_number: 'SAP000014'
     },
     {
       id: 'RA003',
@@ -49,7 +51,8 @@ const RentalAgreements = () => {
       monthlyRent: 1800,
       status: 'expiring',
       securityDeposit: 3600,
-      leaseType: 'Annual'
+      leaseType: 'Annual',
+      sap_number: 'SAP000015'
     },
     {
       id: 'RA004',
@@ -60,7 +63,8 @@ const RentalAgreements = () => {
       monthlyRent: 2800,
       status: 'terminated',
       securityDeposit: 5600,
-      leaseType: 'Short-term'
+      leaseType: 'Short-term',
+      sap_number: 'SAP000016'
     }
   ];
 
@@ -79,8 +83,9 @@ const RentalAgreements = () => {
 
   const filteredAgreements = agreements.filter(agreement => {
     const matchesSearch = agreement.tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         agreement.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         agreement.id.toLowerCase().includes(searchTerm.toLowerCase());
+      agreement.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      agreement.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (agreement.sap_number && agreement.sap_number.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || agreement.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -122,7 +127,7 @@ const RentalAgreements = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('active')}>
           <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
@@ -136,7 +141,7 @@ const RentalAgreements = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('expiring')}>
           <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
@@ -150,7 +155,7 @@ const RentalAgreements = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
           <CardContent className="p-6 bg-[#f6f4ee]">
             <div className="flex items-center justify-between">
@@ -202,6 +207,8 @@ const RentalAgreements = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 border-b border-gray-200">
+                  <TableHead className="text-[#1a1a1a] font-medium w-[80px]">Sr. No</TableHead>
+                  <TableHead className="text-[#1a1a1a] font-medium">SAP ID</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Agreement ID</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
                   <TableHead className="text-[#1a1a1a] font-medium">Tenant</TableHead>
@@ -212,8 +219,10 @@ const RentalAgreements = () => {
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
-                {filteredAgreements.map((agreement) => (
+                {filteredAgreements.map((agreement, index) => (
                   <TableRow key={agreement.id} className="hover:bg-gray-50 bg-white border-b border-gray-100">
+                    <TableCell className="bg-white text-gray-500 font-medium">{index + 1}</TableCell>
+                    <TableCell className="font-medium text-[#c72030] bg-white">{agreement.sap_number || 'N/A'}</TableCell>
                     <TableCell className="font-medium bg-white">{agreement.id}</TableCell>
                     <TableCell className="bg-white">{agreement.propertyName}</TableCell>
                     <TableCell className="bg-white">{agreement.tenantName}</TableCell>
@@ -227,25 +236,25 @@ const RentalAgreements = () => {
                     <TableCell className="bg-white">{getStatusBadge(agreement.status)}</TableCell>
                     <TableCell className="bg-white">
                       <div className="flex items-center gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleViewEdit(agreement)}
                           className="hover:bg-[#E74C3C]/10 hover:text-[#E74C3C]"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleViewEdit(agreement)}
                           className="hover:bg-green-50 hover:text-green-600"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDownloadAgreement(agreement)}
                           className="hover:bg-gray-50"
                         >
@@ -261,7 +270,7 @@ const RentalAgreements = () => {
         </CardContent>
       </Card>
 
-      <EditableAgreementDialog 
+      <EditableAgreementDialog
         agreement={selectedAgreement}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}

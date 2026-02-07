@@ -134,7 +134,9 @@ const MyRentals = () => {
 
     const matchesSearch = propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      address.toLowerCase().includes(searchTerm.toLowerCase());
+      address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (rental.sap_number && rental.sap_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (rental.lease_number && rental.lease_number.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -252,6 +254,8 @@ const MyRentals = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50 border-b border-gray-200">
+                <TableHead className="text-[#1a1a1a] font-medium w-[80px]">Sr. No</TableHead>
+                <TableHead className="text-[#1a1a1a] font-medium">SAP ID</TableHead>
                 <TableHead className="text-[#1a1a1a] font-medium">Unique Code</TableHead>
                 <TableHead className="text-[#1a1a1a] font-medium">Property Details</TableHead>
                 <TableHead className="text-[#1a1a1a] font-medium">Landlord</TableHead>
@@ -264,19 +268,25 @@ const MyRentals = () => {
             <TableBody className="bg-white">
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                     Loading rentals...
                   </TableCell>
                 </TableRow>
               ) : filteredRentals.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                     No rentals found
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredRentals.map((rental) => (
+                filteredRentals.map((rental, index) => (
                   <TableRow key={rental.id} className="bg-white border-b border-gray-100">
+                    <TableCell className="bg-white text-gray-500 font-medium">{index + 1}</TableCell>
+                    <TableCell className="bg-white">
+                      <div className="font-medium text-[#c72030]">
+                        {renderValue(rental.sap_number)}
+                      </div>
+                    </TableCell>
                     <TableCell className="bg-white">
                       <div className="font-medium text-[#1a1a1a]">
                         {renderValue(rental.lease_number)}

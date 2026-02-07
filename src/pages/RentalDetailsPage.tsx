@@ -110,7 +110,14 @@ export default function RentalDetailsPage() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Lease Details</h1>
-            <p className="text-gray-500">{lease.lease_number}</p>
+            <div className="flex gap-4">
+              <p className="text-gray-500">{lease.lease_number}</p>
+              {lease.sap_number && (
+                <p className="text-[#c72030] font-medium border-l pl-4 border-gray-300">
+                  SAP ID: {lease.sap_number}
+                </p>
+              )}
+            </div>
           </div>
         </div>
         <Button
@@ -249,7 +256,15 @@ export default function RentalDetailsPage() {
 
               <div className="pt-4 border-t border-gray-100 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <p className="text-gray-600">Rent Amount:</p>
+                  <p className="text-gray-600">Rent Area:</p>
+                  <p className="font-medium text-gray-900">{lease.notice_terms?.rent_area || lease.area || '30,000'} sq ft</p>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <p className="text-gray-600">Rate per Sq Ft:</p>
+                  <p className="font-medium text-gray-900">₹{parseFloat(lease.rate_per_sqft || 0).toLocaleString()}</p>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <p className="text-gray-600">Basic Rent:</p>
                   <p className="font-medium text-gray-900">₹{parseFloat(lease.basic_rent || 0).toLocaleString()}</p>
                 </div>
                 {parseFloat(lease.gst_amount || 0) > 0 && (
@@ -306,6 +321,10 @@ export default function RentalDetailsPage() {
               <div>
                 <p className="text-sm text-gray-500 mb-1">Due Date</p>
                 <p className="font-medium text-gray-900">{lease.rent_due_date ? `${renderValue(lease.rent_due_date)} (${renderValue(lease.rent_due_type || 'monthly')})` : 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">SAP ID</p>
+                <p className="font-medium text-[#c72030]">{renderValue(lease.sap_number)}</p>
               </div>
             </div>
           </CardContent>
@@ -391,6 +410,10 @@ export default function RentalDetailsPage() {
               <div>
                 <p className="text-sm text-gray-500 mb-1">Stamp Duty Sharing</p>
                 <p className="font-medium text-gray-900">{renderValue(lease.stamp_duty_sharing)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Property Type</p>
+                <p className="font-medium text-[#c72030]">{renderValue(lease.notice_terms?.property_type)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Agreement Sign Off Date</p>
