@@ -37,7 +37,7 @@ const AddRentalPage = () => {
         leaseStart: '',
         leaseEnd: '',
         status: 'active',
-        area: 30000,
+        area: 0,
         perSqFtRate: 0,
         basicRent: 0,
         gstApplicable: false,

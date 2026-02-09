@@ -934,14 +934,14 @@ const PropertiesMaster = () => {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
-              </div>  
+              </div>
 
               {/* Amenities - Full Width */}
               <div className="space-y-2">
                 <Label className="text-gray-900 font-medium"> Common Amenities</Label>
                 <p className="text-xs text-gray-600">Select amenities available at this property</p>
                 <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
-                  {['Lift', 'Power Backup', 'Parking', 'Security', 'Water Supply', 'Wi-Fi', 'CCTV', 'Fire Safety', 'Garden'].map((amenity) => (
+                {['Gym', 'Gaming Zone', 'Creche', `common cafeteria` ].map((amenity) => (
                     <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
                       <input
                         type="checkbox"

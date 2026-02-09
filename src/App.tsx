@@ -72,6 +72,10 @@ import UtilityDetailsPage from "./pages/utilities/UtilityDetailsPage";
 import EditUtilityPage from "./pages/utilities/EditUtilityPage";
 import LeaseCustomFieldsManagement from "./pages/masters/LeaseCustomFieldsManagement";
 import LeaseCustomFieldDetailsPage from "./pages/masters/LeaseCustomFieldDetailsPage";
+import RegionMaster from "./pages/masters/RegionMaster";
+import RegionDetailsPage from "./pages/masters/RegionDetailsPage";
+import ZoneMaster from "./pages/masters/ZoneMaster";
+import ZoneDetailsPage from "./pages/masters/ZoneDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -151,6 +155,10 @@ const App = () => {
                 <Route path="masters/service-types" element={<ServiceTypeMaster />} />
                 <Route path="masters/lease-custom-fields" element={<LeaseCustomFieldsManagement />} />
                 <Route path="masters/lease-custom-fields/:id" element={<LeaseCustomFieldDetailsPage />} />
+                <Route path="masters/regions" element={<RegionMaster />} />
+                <Route path="masters/regions/:id" element={<RegionDetailsPage />} />
+                <Route path="masters/zones" element={<ZoneMaster />} />
+                <Route path="masters/zones/:id" element={<ZoneDetailsPage />} />
               </Route>
               <Route path="login" element={<LoginPage setToken={() => { }} />} />
               <Route path="*" element={<NotFound />} />

@@ -3,66 +3,11 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building, Wallet, PieChart, FileText, Settings2 } from 'lucide-react';
+import { Users, UserCheck, Building2, User, Shield, Key, Palette, FileCheck, Globe2, MapPin, Truck, Layout, Building, Wallet, PieChart, FileText, Settings2, MapPinned } from 'lucide-react';
 
 const Masters = () => {
   const masterModules = [
-    {
-      title: 'Lessee Management',
-      description: 'Manage lessee information, documents, and profiles',
-      icon: Users,
-      path: '/masters/tenants',
-      color: 'bg-blue-50 text-blue-600'
-    },
-    {
-      title: 'Landlords Management',
-      description: 'Manage landlord profiles, properties, and contact details',
-      icon: UserCheck,
-      path: '/masters/landlords',
-      color: 'bg-green-50 text-green-600'
-    },
-    {
-      title: 'Properties Master',
-      description: 'Central property database with all property details',
-      icon: Building2,
-      path: '/masters/properties',
-      color: 'bg-purple-50 text-purple-600'
-    },
-    {
-      title: 'Compliances Master',
-      description: 'Manage property compliances, regulations, and renewals',
-      icon: FileCheck,
-      path: '/masters/compliances',
-      color: 'bg-emerald-50 text-emerald-600'
-    },
-    {
-      title: 'Branding Management',
-      description: 'Manage invoice branding and company profiles',
-      icon: Palette,
-      path: '/masters/branding',
-      color: 'bg-pink-50 text-pink-600'
-    },
-    {
-      title: 'Users Management',
-      description: 'Manage system users and their basic information',
-      icon: User,
-      path: '/masters/users',
-      color: 'bg-orange-50 text-orange-600'
-    },
-    {
-      title: 'Roles Management',
-      description: 'Define and manage user roles and responsibilities',
-      icon: Shield,
-      path: '/masters/roles',
-      color: 'bg-red-50 text-red-600'
-    },
-    // {
-    //   title: 'Access Management',
-    //   description: 'Control user permissions and access levels',
-    //   icon: Key,
-    //   path: '/masters/access',
-    //   color: 'bg-indigo-50 text-indigo-600'
-    // },
+    // 1. Geography / Setup
     {
       title: 'Country Master',
       description: 'Manage countries with codes and currency information',
@@ -78,14 +23,51 @@ const Masters = () => {
       color: 'bg-teal-50 text-teal-600'
     },
     {
+      title: 'Region Master',
+      description: 'Manage regions and their association with states',
+      icon: MapPin,
+      path: '/masters/regions',
+      color: 'bg-blue-50 text-blue-600'
+    },
+    {
+      title: 'Zone Master',
+      description: 'Manage zones and their association with regions',
+      icon: MapPinned,
+      path: '/masters/zones',
+      color: 'bg-indigo-50 text-indigo-600'
+    },
+    // 2. Business Entities
+    {
+      title: 'Landlords Management',
+      description: 'Manage landlord profiles, properties, and contact details',
+      icon: UserCheck,
+      path: '/masters/landlords',
+      color: 'bg-green-50 text-green-600'
+    },
+    {
+      title: 'Lessee Management',
+      description: 'Manage lessee information, documents, and profiles',
+      icon: Users,
+      path: '/masters/tenants',
+      color: 'bg-blue-50 text-blue-600'
+    },
+    {
       title: 'Vendor Master',
       description: 'Manage vendors, suppliers, and contractor details',
       icon: Truck,
       path: '/masters/vendors',
       color: 'bg-amber-50 text-amber-600'
     },
+    // 3. Property Management
     {
-      title: 'Takeover Conditions',
+      title: 'Properties Master',
+      description: 'Central property database with all property details',
+      icon: Building2,
+      path: '/masters/properties',
+      color: 'bg-purple-50 text-purple-600'
+    },
+    {
+      title: ' Property Takeover ',
       description: 'Conditions under which properties are taken over',
       icon: Layout,
       path: '/masters/takeover-conditions',
@@ -97,6 +79,21 @@ const Masters = () => {
       icon: Building,
       path: '/masters/facility-types',
       color: 'bg-rose-50 text-rose-600'
+    },
+    // 4. Operations & Financials
+    {
+      title: 'Agreement Service Types',
+      description: 'Manage service types for agreements (e.g., CAM)',
+      icon: FileText,
+      path: '/masters/service-types',
+      color: 'bg-cyan-50 text-cyan-600'
+    },
+    {
+      title: 'Compliances Master',
+      description: 'Manage property compliances, regulations, and renewals',
+      icon: FileCheck,
+      path: '/masters/compliances',
+      color: 'bg-emerald-50 text-emerald-600'
     },
     {
       title: 'Expense Categories',
@@ -112,12 +109,27 @@ const Masters = () => {
       path: '/masters/budgets',
       color: 'bg-indigo-50 text-indigo-600'
     },
+    // 5. System Configuration
     {
-      title: 'Agreement Service Types',
-      description: 'Manage service types for agreements (e.g., CAM)',
-      icon: FileText,
-      path: '/masters/service-types',
-      color: 'bg-cyan-50 text-cyan-600'
+      title: 'Users Management',
+      description: 'Manage system users and their basic information',
+      icon: User,
+      path: '/masters/users',
+      color: 'bg-orange-50 text-orange-600'
+    },
+    {
+      title: 'Roles Management',
+      description: 'Define and manage user roles and responsibilities',
+      icon: Shield,
+      path: '/masters/roles',
+      color: 'bg-red-50 text-red-600'
+    },
+    {
+      title: 'Branding Management',
+      description: 'Manage invoice branding and company profiles',
+      icon: Palette,
+      path: '/masters/branding',
+      color: 'bg-pink-50 text-pink-600'
     },
     {
       title: 'Lease Custom Fields',
