@@ -20,6 +20,7 @@ const AddRentalPage = () => {
     const [properties, setProperties] = useState<any[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
+    const [selectedTenantDetails, setSelectedTenantDetails] = useState<any>(null);
     const [customFields, setCustomFields] = useState<any[]>([]);
     const [customFieldValues, setCustomFieldValues] = useState<{ [key: string]: any }>({});
 
@@ -158,6 +159,14 @@ const AddRentalPage = () => {
         const property = properties.find(p => p.id.toString() === propertyId);
         if (property) {
             setSelectedPropertyDetails(property);
+        }
+    };
+
+    const handleTenantSelect = (tenantId: string) => {
+        setFormData(prev => ({ ...prev, tenant: tenantId }));
+        const tenant = tenants.find(t => t.id.toString() === tenantId);
+        if (tenant) {
+            setSelectedTenantDetails(tenant);
         }
     };
 
@@ -325,6 +334,96 @@ const AddRentalPage = () => {
                 {/* Left Column */}
                 <div className="space-y-6">
                     <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium text-[#c72030]">SAP ID (SAP Number)</Label>
+                        <Input
+                            type="text"
+                            className="bg-white border-2 border-[#c72030]/30 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            placeholder="e.g., SAP000013"
+                            value={formData.sap_number}
+                            onChange={(e) => setFormData(prev => ({ ...prev, sap_number: e.target.value }))}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Lessee *</Label>
+                        <Select value={formData.tenant} onValueChange={handleTenantSelect}>
+                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {tenants.map((tenant) => (
+                                    <SelectItem key={tenant.id} value={tenant.id.toString()}>
+                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {selectedTenantDetails && (
+                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                            <h4 className="font-semibold text-md mb-4 text-gray-900">Signing Authority:</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-2">
+                                        <User className="h-4 w-4 mt-1 text-gray-600" />
+                                        <div>
+                                            <p className="text-xs text-gray-500">Name:</p>
+                                            <p className="font-medium text-gray-900">
+                                                {renderValue(selectedTenantDetails.full_name)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            <span className="text-gray-600 text-[10px] font-bold">@</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Email ID</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.email)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            <span className="text-gray-600 text-[10px] font-bold">#</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Phone No:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-2">
+                                        <Building2 className="h-4 w-4 mt-1 text-gray-600" />
+                                        <div>
+                                            <p className="text-xs text-gray-500">Designation:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.designation)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            {/* <span className="text-gray-600 text-[10px] font-bold">ID</span> */}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Aadhar Number:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.aadhar_number)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            {/* <span className="text-gray-600 text-[10px] font-bold">PAN</span> */}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">PAN Number:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.pan_number)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Select Property *</Label>
                         <Select value={formData.property} onValueChange={handlePropertySelect}>
                             <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
@@ -341,10 +440,10 @@ const AddRentalPage = () => {
                     </div>
 
                     {selectedPropertyDetails && (
-                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg w-full">
                             <h4 className="font-semibold text-md mb-4 text-gray-900">Property & Landlord Details:</h4>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                 <div className="space-y-3">
                                     <div className="flex items-start gap-2">
                                         <Building2 className="h-4 w-4 mt-1 text-gray-600" />
@@ -416,18 +515,26 @@ const AddRentalPage = () => {
                                         <div className="flex items-start gap-2">
                                             <User className="h-4 w-4 mt-1 text-gray-600" />
                                             <div>
-                                                <p className="text-xs text-gray-500">Landlord:</p>
-                                                <p className="text-sm text-gray-900 text-capitalize">
-                                                    <span style={{ textTransform: 'capitalize' }}>
-                                                        {renderValue(selectedPropertyDetails.landlord.contact_person)}
-                                                    </span>
+                                                <p className="text-xs text-gray-500">Landlord / Lessor Details:</p>
+                                                {selectedPropertyDetails.landlord.company_name && (
+                                                    <p className="font-medium text-gray-900">
+                                                        {renderValue(selectedPropertyDetails.landlord.company_name)}
+                                                    </p>
+                                                )}
+                                                <p className="text-sm text-gray-900">
+                                                    Contact Person: <span className="capitalize">{renderValue(selectedPropertyDetails.landlord.contact_person)}</span>
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {renderValue(selectedPropertyDetails.landlord.email)}
+                                                    Email: {renderValue(selectedPropertyDetails.landlord.email)}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {renderValue(selectedPropertyDetails.landlord.phone)}
+                                                    Phone No: {renderValue(selectedPropertyDetails.landlord.phone)}
                                                 </p>
+                                                {selectedPropertyDetails.landlord.pan && (
+                                                    <p className="text-sm text-gray-600">
+                                                        PAN No: {renderValue(selectedPropertyDetails.landlord.pan)}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -436,21 +543,7 @@ const AddRentalPage = () => {
                         </div>
                     )}
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Select Tenant *</Label>
-                        <Select value={formData.tenant} onValueChange={(value) => setFormData(prev => ({ ...prev, tenant: value }))}>
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a tenant"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {tenants.map((tenant) => (
-                                    <SelectItem key={tenant.id} value={tenant.id.toString()}>
-                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+
 
 
 
@@ -738,6 +831,23 @@ const AddRentalPage = () => {
                 {/* Right Column */}
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 gap-6">
+
+                        <div className="space-y-2">
+                            <Label className="text-gray-900 font-medium"> Circle *</Label>
+                            <Select value={formData.property} onValueChange={handlePropertySelect}>
+                                <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {properties.map((property) => (
+                                        <SelectItem key={property.id} value={property.id.toString()}>
+                                            {property.name} - {property.city || property.address}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         <div className="space-y-2">
                             <Label className="text-gray-900 font-medium">Lease Start Date</Label>
                             <div className="relative">
@@ -973,16 +1083,7 @@ const AddRentalPage = () => {
                         </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium text-[#c72030]">SAP ID (SAP Number)</Label>
-                        <Input
-                            type="text"
-                            className="bg-white border-2 border-[#c72030]/30 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                            placeholder="e.g., SAP000013"
-                            value={formData.sap_number}
-                            onChange={(e) => setFormData(prev => ({ ...prev, sap_number: e.target.value }))}
-                        />
-                    </div>
+
 
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Property Type</Label>

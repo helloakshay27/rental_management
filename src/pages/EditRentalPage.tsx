@@ -21,6 +21,7 @@ const EditRentalPage = () => {
     const [properties, setProperties] = useState<any[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
+    const [selectedTenantDetails, setSelectedTenantDetails] = useState<any>(null);
     const [loadingProperties, setLoadingProperties] = useState(true);
     const [loadingTenants, setLoadingTenants] = useState(true);
     const [loadingLease, setLoadingLease] = useState(true);
@@ -263,6 +264,16 @@ const EditRentalPage = () => {
                             setSelectedPropertyDetails(property);
                         }
                     }
+
+                    // Set selected tenant details if tenant exists
+                    if (data.tenant) {
+                        setSelectedTenantDetails(data.tenant);
+                    } else if (data.tenant?.id && tenants.length > 0) {
+                        const tenant = tenants.find(t => t.id === data.tenant.id);
+                        if (tenant) {
+                            setSelectedTenantDetails(tenant);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Failed to fetch lease:', error);
@@ -288,6 +299,14 @@ const EditRentalPage = () => {
         const property = properties.find(p => p.id.toString() === propertyId);
         if (property) {
             setSelectedPropertyDetails(property);
+        }
+    };
+
+    const handleTenantSelect = (tenantId: string) => {
+        setFormData(prev => ({ ...prev, tenant: tenantId }));
+        const tenant = tenants.find(t => t.id.toString() === tenantId);
+        if (tenant) {
+            setSelectedTenantDetails(tenant);
         }
     };
 
@@ -581,18 +600,26 @@ const EditRentalPage = () => {
                                         <div className="flex items-start gap-2">
                                             <User className="h-4 w-4 mt-1 text-gray-600" />
                                             <div>
-                                                <p className="text-xs text-gray-500">Landlord:</p>
-                                                <p className="text-sm text-gray-900 text-capitalize">
-                                                    <span style={{ textTransform: 'capitalize' }}>
-                                                        {renderValue(selectedPropertyDetails.landlord.contact_person)}
-                                                    </span>
+                                                <p className="text-xs text-gray-500">Landlord / Lessor Details:</p>
+                                                {selectedPropertyDetails.landlord.company_name && (
+                                                    <p className="font-medium text-gray-900">
+                                                        {renderValue(selectedPropertyDetails.landlord.company_name)}
+                                                    </p>
+                                                )}
+                                                <p className="text-sm text-gray-900">
+                                                    Contact: <span className="capitalize">{renderValue(selectedPropertyDetails.landlord.contact_person)}</span>
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {renderValue(selectedPropertyDetails.landlord.email)}
+                                                    Email: {renderValue(selectedPropertyDetails.landlord.email)}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {renderValue(selectedPropertyDetails.landlord.phone)}
+                                                    Phone: {renderValue(selectedPropertyDetails.landlord.phone)}
                                                 </p>
+                                                {selectedPropertyDetails.landlord.pan && (
+                                                    <p className="text-sm text-gray-600">
+                                                        PAN: {renderValue(selectedPropertyDetails.landlord.pan)}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -603,7 +630,7 @@ const EditRentalPage = () => {
 
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Select Tenant *</Label>
-                        <Select value={formData.tenant} onValueChange={(value) => setFormData(prev => ({ ...prev, tenant: value }))}>
+                        <Select value={formData.tenant} onValueChange={handleTenantSelect}>
                             <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                 <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a tenant"} />
                             </SelectTrigger>
@@ -616,6 +643,70 @@ const EditRentalPage = () => {
                             </SelectContent>
                         </Select>
                     </div>
+
+                    {selectedTenantDetails && (
+                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                            <h4 className="font-semibold text-md mb-4 text-gray-900">Tenant Details:</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-2">
+                                        <User className="h-4 w-4 mt-1 text-gray-600" />
+                                        <div>
+                                            <p className="text-xs text-gray-500">Name:</p>
+                                            <p className="font-medium text-gray-900">
+                                                {renderValue(selectedTenantDetails.name || selectedTenantDetails.company_name)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            <span className="text-gray-600 text-[10px] font-bold">@</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Email:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.email)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            <span className="text-gray-600 text-[10px] font-bold">#</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Phone:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-2">
+                                        <Building2 className="h-4 w-4 mt-1 text-gray-600" />
+                                        <div>
+                                            <p className="text-xs text-gray-500">Designation:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.designation)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            <span className="text-gray-600 text-[10px] font-bold">ID</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Aadhar Number:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.aadhar_number)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                            <span className="text-gray-600 text-[10px] font-bold">PAN</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">PAN Number:</p>
+                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.pan_number)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
 
 
