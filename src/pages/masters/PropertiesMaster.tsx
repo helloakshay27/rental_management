@@ -311,13 +311,33 @@ const PropertiesMaster = () => {
       const detailedData = await getAuth(`/pms/sites/${property.id}`);
       const siteData = detailedData?.site || detailedData;
 
-      // Map documents for preview
+      // Match Country/State IDs from names
       if (siteData.documents && Array.isArray(siteData.documents)) {
-        const mappedDocs = siteData.documents.map((doc: any) => ({
-          file_name: doc.name || doc.file_name,
-          document_type: doc.document_type || 'site_image',
-          preview: doc.url?.startsWith('http') ? doc.url : `${API_BASE_URL}${doc.url}`,
-          id: doc.id
+        const mappedDocs = await Promise.all(siteData.documents.map(async (doc: any) => {
+          const preview = doc.url?.startsWith('http') ? doc.url : `${API_BASE_URL}${doc.url}`;
+          let base64 = '';
+          try {
+            const resp = await fetch(preview);
+            const blob = await resp.blob();
+            base64 = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const base64String = reader.result as string;
+                const base64Data = base64String.split(',')[1];
+                resolve(base64Data);
+              };
+              reader.readAsDataURL(blob);
+            });
+          } catch (e) {
+            console.error("Failed to fetch image for base64 conversion", e);
+          }
+          return {
+            file_name: doc.name || doc.file_name,
+            document_type: doc.document_type || 'site_image',
+            preview,
+            id: doc.id,
+            base64_data: base64
+          };
         }));
         setSelectedDocuments(mappedDocs);
       } else {
@@ -427,11 +447,20 @@ const PropertiesMaster = () => {
           property_type_id: formData.property_type_id ? parseInt(formData.property_type_id) : null,
           description: formData.description,
           pms_site_facilities_attributes: formData.facility_type_ids.map(id => ({ facility_type_id: id })),
-          documents: selectedDocuments.map(doc => ({
-            file_name: doc.file_name,
-            document_type: doc.document_type,
-            base64_data: doc.base64_data
-          })),
+          documents: selectedDocuments.map(doc => {
+            if (doc.id) {
+              return {
+                id: doc.id,
+                file_name: doc.file_name,
+                document_type: doc.document_type
+              };
+            }
+            return {
+              file_name: doc.file_name,
+              document_type: doc.document_type,
+              base64_data: doc.base64_data
+            };
+          }),
           circle: formData.circle,
           property_takeover_condition_id: formData.property_takeover_condition_id ? parseInt(formData.property_takeover_condition_id) : null,
           ites_certification: formData.ites_certification,
@@ -941,7 +970,7 @@ const PropertiesMaster = () => {
                 <Label className="text-gray-900 font-medium"> Common Amenities</Label>
                 <p className="text-xs text-gray-600">Select amenities available at this property</p>
                 <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
-                {['Gym', 'Gaming Zone', 'Creche', `common cafeteria` ].map((amenity) => (
+                  {['Gym', 'Gaming Zone', 'Creche', `common cafeteria`].map((amenity) => (
                     <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
                       <input
                         type="checkbox"

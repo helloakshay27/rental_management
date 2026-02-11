@@ -31,6 +31,8 @@ const AddRentalPage = () => {
     };
     const [loadingProperties, setLoadingProperties] = useState(true);
     const [loadingTenants, setLoadingTenants] = useState(true);
+    const [propertyTakeoverConditions, setPropertyTakeoverConditions] = useState<any[]>([]);
+    const [loadingTakeoverConditions, setLoadingTakeoverConditions] = useState(true);
 
     const [formData, setFormData] = useState({
         property: '',
@@ -79,7 +81,8 @@ const AddRentalPage = () => {
         agreementFile: null,
         notes: '',
         sap_number: '',
-        property_type: ''
+        property_type: '',
+        property_takeover_condition_id: ''
     });
 
     const [parkings, setParkings] = useState([{
@@ -147,9 +150,26 @@ const AddRentalPage = () => {
             }
         };
 
+        const fetchPropertyTakeoverConditions = async () => {
+            try {
+                setLoadingTakeoverConditions(true);
+                const data = await getAuth('/property_takeover_conditions');
+                if (Array.isArray(data)) {
+                    setPropertyTakeoverConditions(data);
+                } else if (data?.property_takeover_conditions) {
+                    setPropertyTakeoverConditions(data.property_takeover_conditions);
+                }
+            } catch (error) {
+                console.error('Failed to fetch property takeover conditions:', error);
+            } finally {
+                setLoadingTakeoverConditions(false);
+            }
+        };
+
         fetchProperties();
         fetchTenants();
         fetchCustomFields();
+        fetchPropertyTakeoverConditions();
     }, []);
 
     const handlePropertySelect = async (propertyId: string) => {
@@ -280,6 +300,7 @@ const AddRentalPage = () => {
                         }
                     ],
                     sap_number: formData.sap_number,
+                    property_takeover_condition_id: parseInt(formData.property_takeover_condition_id) || null,
                     documents: base64File ? [
                         {
                             document_type: 'agreement',
@@ -535,6 +556,16 @@ const AddRentalPage = () => {
                                                         PAN No: {renderValue(selectedPropertyDetails.landlord.pan)}
                                                     </p>
                                                 )}
+                                                {selectedPropertyDetails.landlord.gst && (
+                                                    <p className="text-sm text-gray-600">
+                                                        GST: {renderValue(selectedPropertyDetails.landlord.gst)}
+                                                    </p>
+                                                )}
+                                                {selectedPropertyDetails.landlord.aadhar_number && (
+                                                    <p className="text-sm text-gray-600">
+                                                        Aadhar No: {renderValue(selectedPropertyDetails.landlord.aadhar_number)}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -543,9 +574,24 @@ const AddRentalPage = () => {
                         </div>
                     )}
 
-
-
-
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Property Takeover Condition *</Label>
+                        <Select
+                            value={formData.property_takeover_condition_id}
+                            onValueChange={(value) => setFormData(prev => ({ ...prev, property_takeover_condition_id: value }))}
+                        >
+                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {propertyTakeoverConditions.map((condition) => (
+                                    <SelectItem key={condition.id} value={condition.id.toString()}>
+                                        {condition.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
                     <div>
                         <h3 className="font-semibold text-lg mb-6 text-gray-900">Rent Breakdown</h3>
