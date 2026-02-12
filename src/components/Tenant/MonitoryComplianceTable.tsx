@@ -69,9 +69,9 @@ const MonitoryComplianceTable = ({ documents, onView, onEdit, onDownload }: Moni
                                 <TableCell>
                                     <div className="flex items-center gap-2">
                                         <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-red-600 border border-red-100 uppercase">
-                                            {doc.assigned_user?.full_name?.charAt(0) || 'U'}
+                                            {doc.assigned_user?.name?.charAt(0) || 'U'}
                                         </div>
-                                        <div className="text-sm font-medium text-gray-700">{doc.assigned_user?.full_name || 'Unassigned'}</div>
+                                        <div className="text-sm font-medium text-gray-700">{doc?.assigned_user?.name || 'Unassigned'}</div>
                                     </div>
                                 </TableCell>
                                 <TableCell>
@@ -101,7 +101,7 @@ const MonitoryComplianceTable = ({ documents, onView, onEdit, onDownload }: Moni
                                             variant="ghost"
                                             size="icon"
                                             className="h-8 w-8 text-gray-400 hover:text-[#C72030] hover:bg-red-50"
-                                            onClick={() => onDownload(doc.id)}
+                                            onClick={() => window.open(`https://rental-uat.lockated.com/${doc.documents?.[0]?.url}`, '_blank')}
                                         >
                                             <Download className="h-4 w-4" />
                                         </Button>

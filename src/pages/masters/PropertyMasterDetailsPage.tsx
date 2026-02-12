@@ -276,7 +276,7 @@ const PropertyMasterDetailsPage = () => {
                     </Card>
 
                     {/* Premium Amenities */}
-                    <Card className="bg-gray-900 text-white border-none shadow-xl overflow-hidden relative">
+                    {/* <Card className="bg-gray-900 text-white border-none shadow-xl overflow-hidden relative">
                         <div className="absolute right-0 top-0 p-8 opacity-10">
                             <Building2 className="h-24 w-24" />
                         </div>
@@ -297,7 +297,7 @@ const PropertyMasterDetailsPage = () => {
                                 )}
                             </div>
                         </CardContent>
-                    </Card>
+                    </Card> */}
 
                     {/* Registered Facilities */}
                     <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">

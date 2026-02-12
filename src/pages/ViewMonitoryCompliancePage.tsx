@@ -137,7 +137,7 @@ const ViewMonitoryCompliancePage = () => {
                                 <User className="h-4 w-4" />
                                 <span className="text-xs font-medium uppercase tracking-wider">Assigned To</span>
                             </div>
-                            <p className="text-gray-900 font-medium">{data.assigned_user?.full_name || 'Unassigned'}</p>
+                            <p className="text-gray-900 font-medium">{data.assigned_user?.name || 'Unassigned'}</p>
                         </div>
                         <div>
                             <div className="flex items-center gap-2 text-gray-500 mb-1">
