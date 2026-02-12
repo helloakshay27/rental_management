@@ -141,7 +141,7 @@ const AddRentalPage = () => {
 
         const fetchCustomFields = async () => {
             try {
-                const response = await getAuth('/lease_custom_fields');
+                const response = await getAuth('/lease_custom_fields?per_page=100');
                 const fields = response?.data || response;
                 if (Array.isArray(fields)) {
                     setCustomFields(fields.filter((f: any) => f.status !== 'Inactive'));
@@ -475,7 +475,7 @@ const AddRentalPage = () => {
                                                 Country: {renderValue(selectedPropertyDetails?.country)}
                                             </p>
                                             <p className="text-sm text-gray-600">
-                                                Postal Code: {renderValue(selectedPropertyDetails?.postal_code)}
+                                                Pin Code: {renderValue(selectedPropertyDetails?.postal_code)}
                                             </p>
                                             <p className="text-sm text-gray-600">
                                                 Built Year: {renderValue(selectedPropertyDetails?.built_year)}
@@ -519,7 +519,7 @@ const AddRentalPage = () => {
                                         <div>
                                             <p className="text-xs text-gray-500">Area Details:</p>
                                             <p className="text-sm text-gray-900">
-                                                Leasable Area: {renderValue(selectedPropertyDetails.leasable_area)} sq ft
+                                                Chargable Area: {renderValue(selectedPropertyDetails.leasable_area)} sq ft
                                             </p>
                                             {selectedPropertyDetails.carpet_area && (
                                                 <p className="text-sm text-gray-600">
@@ -589,7 +589,7 @@ const AddRentalPage = () => {
                                         <div>
                                             <p className="text-xs text-gray-500">Compliences</p>
                                             <p className="text-sm text-gray-900">
-                                                {selectedPropertyDetails?.property_compliances?.map((compliance) => compliance?.name)?.join(', ')}
+                                                {selectedPropertyDetails?.property_compliances?.map((compliance) => compliance?.compliance_requirement?.title)?.join(', ')}
                                             </p>
                                         </div>
                                     </div>
@@ -655,7 +655,7 @@ const AddRentalPage = () => {
 
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
-                        <Select value={formData.stamp_duty_sharing} onValueChange={(value) => setFormData(prev => ({ ...prev, stamp_duty_sharing: value }))}>
+                        {/* <Select value={formData.stamp_duty_sharing} onValueChange={(value) => setFormData(prev => ({ ...prev, stamp_duty_sharing: value }))}>
                             <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                 <SelectValue placeholder="Select sharing option" />
                             </SelectTrigger>
@@ -664,7 +664,13 @@ const AddRentalPage = () => {
                                 <SelectItem value="Landlord">Landlord</SelectItem>
                                 <SelectItem value="Shared">Shared (50-50)</SelectItem>
                             </SelectContent>
-                        </Select>
+                        </Select> */}
+                        <Input
+                            type="text"
+                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            value={formData.stamp_duty_sharing}
+                            onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
+                        />
                     </div>
 
                     <div className="space-y-2">
@@ -1040,17 +1046,9 @@ const AddRentalPage = () => {
                                                 <span className="text-gray-600 text-[10px] font-bold">@</span>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-gray-500">Email ID</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.email)}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                                <span className="text-gray-600 text-[10px] font-bold">#</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-500">Phone No:</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
+                                                <p className="text-xs text-gray-500">Contact Details:</p>
+                                                <p className="text-sm text-gray-900">Email: {renderValue(selectedTenantDetails.email)}</p>
+                                                <p className="text-sm text-gray-900">Phone: {renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -1497,24 +1495,6 @@ const AddRentalPage = () => {
                 <h3 className="font-semibold text-lg mb-6 text-gray-900">Additional Details</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Property Type</Label>
-                        <Select value={formData.property_type} onValueChange={(value) => setFormData(prev => ({ ...prev, property_type: value }))}>
-                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                <SelectValue placeholder="Select property type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="CLA">CLA</SelectItem>
-                                <SelectItem value="Lease Agreement">Lease Agreement</SelectItem>
-                                <SelectItem value="Leave & License Agreement">Leave & License Agreement</SelectItem>
-                                <SelectItem value="Sale Deed">Sale Deed</SelectItem>
-                                <SelectItem value="Addendum">Addendum</SelectItem>
-                                <SelectItem value="Side Letter">Side Letter</SelectItem>
-                                <SelectItem value="Annexure">Annexure</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div> */}
-
                     {/* Dynamic Custom Fields */}
                     {customFields.map((field) => (
                         <div key={field.id} className="space-y-2">

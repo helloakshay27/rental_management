@@ -87,7 +87,7 @@ const Masters = () => {
       color: 'bg-purple-50 text-purple-600'
     },
     {
-      title: ' Property Takeover ',
+      title: ' Property Takeover Conditions',
       description: 'Conditions under which properties are taken over',
       icon: Layout,
       path: '/masters/takeover-conditions',

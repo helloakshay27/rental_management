@@ -29,6 +29,11 @@ const EditRentalPage = () => {
     const [customFieldValues, setCustomFieldValues] = useState<{ [key: string]: any }>({});
     const [propertyTakeoverConditions, setPropertyTakeoverConditions] = useState<any[]>([]);
     const [loadingTakeoverConditions, setLoadingTakeoverConditions] = useState(true);
+    const [circles, setCircles] = useState<any[]>([])
+    const [loadingCircles, setLoadingCircles] = useState(false)
+    const [selectedCircleDetails, setSelectedCircleDetails] = useState<any>(null);
+    const [amenities, setAmenities] = useState<any[]>([])
+    const [loadingAmenities, setLoadingAmenities] = useState(true)
 
     const renderValue = (val: any) => {
         if (val === null || val === undefined) return '';
@@ -37,11 +42,13 @@ const EditRentalPage = () => {
     };
 
     const [formData, setFormData] = useState({
+        circle: '',
         property: '',
         tenant: '',
         leaseStart: '',
         leaseEnd: '',
         status: 'active',
+        aggreement_type: "",
         area: 0,
         perSqFtRate: 0,
         basicRent: 0,
@@ -54,6 +61,7 @@ const EditRentalPage = () => {
         tdsPercentage: 0,
         tdsAmount: 0,
         securityDeposit: 0,
+        maintenanceCharges: 0,
         totalMonthlyRent: 0,
         rentPaymentType: 'advance',
         rentDueDate: '1st',
@@ -84,7 +92,8 @@ const EditRentalPage = () => {
         notes: '',
         sap_number: '',
         property_type: '',
-        property_takeover_condition_id: ''
+        property_takeover_condition_id: '',
+        amenities: [] as string[],
     });
 
     const [parkings, setParkings] = useState<any[]>([{
@@ -163,10 +172,41 @@ const EditRentalPage = () => {
             }
         };
 
+        const fetchCircles = async () => {
+            try {
+                setLoadingCircles(true);
+                const token = getToken();
+                const data = await getAuth(`/pms/circles${token ? `?token=${token}` : ''}`);
+                if (Array.isArray(data.data)) {
+                    setCircles(data.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch circles:', error);
+            } finally {
+                setLoadingCircles(false);
+            }
+        };
+
+        const fetchAmenities = async () => {
+            try {
+                setLoadingAmenities(true);
+                const data = await getAuth('/pms/amenities');
+                if (Array.isArray(data.amenities)) {
+                    setAmenities(data.amenities);
+                }
+            } catch (error) {
+                console.error('Failed to fetch amenities:', error);
+            } finally {
+                setLoadingAmenities(false);
+            }
+        };
+
         fetchProperties();
         fetchTenants();
         fetchCustomFields();
         fetchPropertyTakeoverConditions();
+        fetchCircles();
+        fetchAmenities();
     }, []);
 
     useEffect(() => {
@@ -180,11 +220,13 @@ const EditRentalPage = () => {
                 // Map API response to formData
                 if (data) {
                     setFormData({
+                        circle: data.circle_id?.toString() || '',
                         property: data.property?.id?.toString() || '',
                         tenant: data.tenant?.id?.toString() || '',
                         leaseStart: data.start_date || '',
                         leaseEnd: data.end_date || '',
                         status: data.status || 'active',
+                        aggreement_type: data.terms_conditions || '',
                         area: data.notice_terms?.rent_area || data.area || 0,
                         perSqFtRate: parseFloat(data.rate_per_sqft) || 0,
                         basicRent: parseFloat(data.basic_rent) || 0,
@@ -197,6 +239,7 @@ const EditRentalPage = () => {
                         tdsPercentage: parseFloat(data.tds_percentage) || 0,
                         tdsAmount: parseFloat(data.tds_amount) || 0,
                         securityDeposit: parseFloat(data.security_deposit) || 0,
+                        maintenanceCharges: parseFloat(data.charges) || 0,
                         totalMonthlyRent: parseFloat(data.monthly_rent) || 0,
                         rentPaymentType: 'advance',
                         rentDueDate: data.rent_due_date?.toString() || '1st',
@@ -227,7 +270,8 @@ const EditRentalPage = () => {
                         notes: data.notice_terms?.additional_notes || '',
                         sap_number: data.sap_number || '',
                         property_type: data.notice_terms?.property_type || '',
-                        property_takeover_condition_id: data.property_takeover_condition_id?.toString() || ''
+                        property_takeover_condition_id: data.property_takeover_condition_id?.toString() || '',
+                        amenities: data.amenity_ids || [],
                     });
 
                     // Set custom field values
@@ -315,11 +359,17 @@ const EditRentalPage = () => {
 
     const handlePropertySelect = async (propertyId: string) => {
         setFormData(prev => ({ ...prev, property: propertyId }));
-
-        // Find the selected property details
         const property = properties.find(p => p.id.toString() === propertyId);
         if (property) {
             setSelectedPropertyDetails(property);
+        }
+    };
+
+    const handleCircleSelect = (circleId: string) => {
+        setFormData(prev => ({ ...prev, circle: circleId }));
+        const circle = circles.find(c => c.id.toString() === circleId);
+        if (circle) {
+            setSelectedCircleDetails(circle);
         }
     };
 
@@ -388,17 +438,19 @@ const EditRentalPage = () => {
 
             const payload = {
                 lease: {
+                    circle_id: parseInt(formData.circle) || null,
                     tenant_id: parseInt(formData.tenant) || null,
                     property_id: parseInt(formData.property) || 1,
                     start_date: formData.leaseStart,
                     end_date: formData.leaseEnd,
-                    monthly_rent: formData.totalMonthlyRent.toString(),
+                    monthly_rent: (formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2),
                     basic_rent: formData.basicRent.toString(),
                     security_deposit: formData.securityDeposit.toString(),
                     status: formData.status,
                     lease_type: 'commercial',
-                    charges: '0',
+                    charges: formData.maintenanceCharges?.toString() || '0',
                     late_fee_percentage: formData.penaltyPercentage.toString(),
+                    terms_conditions: formData.aggreement_type,
                     purpose_of_agreement: formData.purpose_of_agreement,
                     stamp_duty_sharing: formData.stamp_duty_sharing,
                     agreement_sign_off_date: formData.agreement_sign_off_date,
@@ -423,6 +475,7 @@ const EditRentalPage = () => {
                     rent_due_date: parseInt(formData.rentDueDate) || 1,
                     escalation_interval: formData.escalation_interval,
                     escalation_type: formData.escalation_type,
+                    amenity_ids: formData.amenities,
                     notice_terms: {
                         from_landlord_days: formData.from_landlord_days,
                         from_vil_days: formData.from_vil_days,
@@ -530,14 +583,30 @@ const EditRentalPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Left Column */}
                 <div className="space-y-6">
-                    <div className="space-y-2">
+                    <div className="space-y-2 w-full">
+                        <Label className="text-gray-900 font-medium">Circle *</Label>
+                        <Select value={formData.circle} onValueChange={handleCircleSelect}>
+                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {circles.map((circle: any) => (
+                                    <SelectItem key={circle.id} value={circle.id.toString()}>
+                                        {circle.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Select Property *</Label>
                         <Select value={formData.property} onValueChange={handlePropertySelect}>
                             <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                 <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {properties.map((property) => (
+                                {properties.map((property: any) => (
                                     <SelectItem key={property.id} value={property.id.toString()}>
                                         {property.name} - {property.city || property.address}
                                     </SelectItem>
@@ -547,20 +616,37 @@ const EditRentalPage = () => {
                     </div>
 
                     {selectedPropertyDetails && (
-                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg w-full">
                             <h4 className="font-semibold text-md mb-4 text-gray-900">Property & Landlord Details:</h4>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                 <div className="space-y-3">
                                     <div className="flex items-start gap-2">
                                         <Building2 className="h-4 w-4 mt-1 text-gray-600" />
                                         <div>
                                             <p className="text-xs text-gray-500">Property:</p>
-                                            <p className="font-medium text-gray-900">
-                                                {renderValue(selectedPropertyDetails.name)}
+                                            <p className="text-sm text-gray-900">
+                                                Property Name: {renderValue(selectedPropertyDetails.name)}
                                             </p>
                                             <p className="text-sm text-gray-600">
-                                                {renderValue(selectedPropertyDetails.address)}
+                                                Address: {renderValue(selectedPropertyDetails.address)}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                City: {renderValue(selectedPropertyDetails?.pms_city?.name)}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                Zone: {renderValue(selectedPropertyDetails?.zone?.name)}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                State: {renderValue(selectedPropertyDetails?.state)}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                Country: {renderValue(selectedPropertyDetails?.country)}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                Pin Code: {renderValue(selectedPropertyDetails?.postal_code)}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                Built Year: {renderValue(selectedPropertyDetails?.built_year)}
                                             </p>
                                             <p className="text-sm text-gray-600">
                                                 {renderValue(selectedPropertyDetails.property_type)}
@@ -571,13 +657,26 @@ const EditRentalPage = () => {
                                     <div className="flex items-start gap-2">
                                         <MapPin className="h-4 w-4 mt-1 text-gray-600" />
                                         <div>
-                                            <p className="text-xs text-gray-500">Location:</p>
+                                            <p className="text-xs text-gray-500">Facility type:</p>
                                             <p className="text-sm text-gray-900">
-                                                {renderValue(selectedPropertyDetails.city)}, {renderValue(selectedPropertyDetails.state)}
+                                                {renderValue(selectedPropertyDetails?.facility_types?.[0]?.name)}
                                             </p>
-                                            <p className="text-sm text-gray-600">
-                                                {renderValue(selectedPropertyDetails.postal_code)}
+                                            <p className="text-sm text-gray-900">
+                                                Remarks: {renderValue(selectedPropertyDetails?.description)}
                                             </p>
+                                            <p className="text-sm text-gray-900">
+                                                Owned/Leased: {renderValue(selectedPropertyDetails?.ownership_type)}
+                                            </p>
+                                            <p className="text-sm text-gray-900">
+                                                ITES Certification (Yes / No): {renderValue(selectedPropertyDetails?.ites_certified ? 'Yes' : 'No')}
+                                            </p>
+                                            {
+                                                selectedPropertyDetails?.ites_certified && (
+                                                    <p className="text-sm text-gray-900">
+                                                        ITES Certificate is Valid till what date: {renderValue(selectedPropertyDetails?.ites_certified_till)}
+                                                    </p>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -588,16 +687,13 @@ const EditRentalPage = () => {
                                         <div>
                                             <p className="text-xs text-gray-500">Area Details:</p>
                                             <p className="text-sm text-gray-900">
-                                                Leasable Area: {renderValue(selectedPropertyDetails.leasable_area)} sq ft
+                                                Chargable Area: {renderValue(selectedPropertyDetails.leasable_area)} sq ft
                                             </p>
                                             {selectedPropertyDetails.carpet_area && (
                                                 <p className="text-sm text-gray-600">
                                                     Carpet Area: {renderValue(selectedPropertyDetails.carpet_area)} sq ft
                                                 </p>
                                             )}
-                                            <p className="text-sm text-gray-600">
-                                                Built: {renderValue(selectedPropertyDetails.built_year)}
-                                            </p>
                                             {selectedPropertyDetails.area_efficiency && (
                                                 <p className="text-sm text-gray-600">
                                                     Efficiency: {renderValue(selectedPropertyDetails.area_efficiency)}%
@@ -606,40 +702,28 @@ const EditRentalPage = () => {
                                         </div>
                                     </div>
 
-                                    {selectedPropertyDetails.amenities && selectedPropertyDetails.amenities.length > 0 && (
-                                        <div className="flex items-start gap-2">
-                                            <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Amenities:</p>
-                                                <p className="text-sm text-gray-900">
-                                                    {selectedPropertyDetails.amenities.join(', ')}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-
                                     {selectedPropertyDetails.landlord && (
                                         <div className="flex items-start gap-2">
                                             <User className="h-4 w-4 mt-1 text-gray-600" />
                                             <div>
                                                 <p className="text-xs text-gray-500">Landlord / Lessor Details:</p>
                                                 {selectedPropertyDetails.landlord.company_name && (
-                                                    <p className="font-medium text-gray-900">
-                                                        {renderValue(selectedPropertyDetails.landlord.company_name)}
+                                                    <p className="text-sm text-gray-900">
+                                                        Company Name: {renderValue(selectedPropertyDetails.landlord.company_name)}
                                                     </p>
                                                 )}
                                                 <p className="text-sm text-gray-900">
-                                                    Contact: <span className="capitalize">{renderValue(selectedPropertyDetails.landlord.contact_person)}</span>
+                                                    Contact Person: <span className="capitalize">{renderValue(selectedPropertyDetails.landlord.contact_person)}</span>
                                                 </p>
                                                 <p className="text-sm text-gray-600">
                                                     Email: {renderValue(selectedPropertyDetails.landlord.email)}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    Phone: {renderValue(selectedPropertyDetails.landlord.phone)}
+                                                    Phone No: {renderValue(selectedPropertyDetails.landlord.phone)}
                                                 </p>
                                                 {selectedPropertyDetails.landlord.pan && (
                                                     <p className="text-sm text-gray-600">
-                                                        PAN: {renderValue(selectedPropertyDetails.landlord.pan)}
+                                                        PAN No: {renderValue(selectedPropertyDetails.landlord.pan)}
                                                     </p>
                                                 )}
                                                 {selectedPropertyDetails.landlord.gst && (
@@ -647,14 +731,24 @@ const EditRentalPage = () => {
                                                         GST: {renderValue(selectedPropertyDetails.landlord.gst)}
                                                     </p>
                                                 )}
-                                                {selectedPropertyDetails.landlord.aadhar_number && (
+                                                {selectedPropertyDetails.landlord.aadhaar_number && (
                                                     <p className="text-sm text-gray-600">
-                                                        Aadhar No: {renderValue(selectedPropertyDetails.landlord.aadhar_number)}
+                                                        Aadhar No: {renderValue(selectedPropertyDetails.landlord.aadhaar_number)}
                                                     </p>
                                                 )}
                                             </div>
                                         </div>
                                     )}
+
+                                    <div className="flex items-start gap-2">
+                                        <User className="h-4 w-4 mt-1 text-gray-600" />
+                                        <div>
+                                            <p className="text-xs text-gray-500">Compliences</p>
+                                            <p className="text-sm text-gray-900">
+                                                {selectedPropertyDetails?.property_compliances?.map((compliance) => compliance?.compliance_requirement?.title)?.join(', ')}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -680,84 +774,87 @@ const EditRentalPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Select Tenant *</Label>
-                        <Select value={formData.tenant} onValueChange={handleTenantSelect}>
+                        <Label className="text-gray-900 font-medium">Agreement Type *</Label>
+                        <Select
+                            value={formData.aggreement_type}
+                            onValueChange={(value) => setFormData(prev => ({ ...prev, aggreement_type: value }))}
+                        >
                             <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a tenant"} />
+                                <SelectValue placeholder={"Select agreement type"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {tenants.map((tenant) => (
-                                    <SelectItem key={tenant.id} value={tenant.id.toString()}>
-                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email} ` : ''}
+                                {["Lease Agreement", "Leave & License Agreement", "Sale Deed", "Addendum", "Side Letter", "Annexure"].map((condition) => (
+                                    <SelectItem key={condition} value={condition}>
+                                        {condition}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
 
-                    {selectedTenantDetails && (
-                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
-                            <h4 className="font-semibold text-md mb-4 text-gray-900">Tenant Details:</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-2">
-                                        <User className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Name:</p>
-                                            <p className="font-medium text-gray-900">
-                                                {renderValue(selectedTenantDetails.name || selectedTenantDetails.company_name)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-2">
-                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                            <span className="text-gray-600 text-[10px] font-bold">@</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-gray-500">Email:</p>
-                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.email)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-2">
-                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                            <span className="text-gray-600 text-[10px] font-bold">#</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-gray-500">Phone:</p>
-                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-2">
-                                        <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Designation:</p>
-                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.designation)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-2">
-                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                            <span className="text-gray-600 text-[10px] font-bold">ID</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-gray-500">Aadhar Number:</p>
-                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.aadhar_number)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-2">
-                                        <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                            <span className="text-gray-600 text-[10px] font-bold">PAN</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-gray-500">PAN Number:</p>
-                                            <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.pan_number)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Purpose of Agreement</Label>
+                        <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
+                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectValue placeholder="Select purpose" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="New Office">New Office</SelectItem>
+                                <SelectItem value="Renewal">Renewal</SelectItem>
+                                <SelectItem value="Change of Location">Change of Location</SelectItem>
+                                <SelectItem value="Change of Area">Change of Area</SelectItem>
+                                <SelectItem value="Change of ownership">Change of ownership</SelectItem>
+                                <SelectItem value="Name Change">Name Change</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
+                        <Input
+                            type="text"
+                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            value={formData.stamp_duty_sharing}
+                            onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Agreement Sign off Date</Label>
+                        <div className="relative">
+                            <Input
+                                type="date"
+                                placeholder="dd-mm-yyyy"
+                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                value={formData.agreement_sign_off_date}
+                                onChange={(e) => setFormData(prev => ({ ...prev, agreement_sign_off_date: e.target.value }))}
+                            />
                         </div>
-                    )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Lease Start Date</Label>
+                        <div className="relative">
+                            <Input
+                                type="date"
+                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                value={formData.leaseStart}
+                                onChange={(e) => setFormData(prev => ({ ...prev, leaseStart: e.target.value }))}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-gray-900 font-medium">Lease End Date</Label>
+                        <div className="relative">
+                            <Input
+                                type="date"
+                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                value={formData.leaseEnd}
+                                onChange={(e) => setFormData(prev => ({ ...prev, leaseEnd: e.target.value }))}
+                            />
+                        </div>
+                    </div>
 
 
 
@@ -1010,19 +1107,34 @@ const EditRentalPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Total Monthly Rent (₹)</Label>
+                                <Label className="text-gray-900 font-medium">Maintenance Charges (₹)</Label>
                                 <div className="relative">
                                     <span className="absolute left-3 top-2.5 text-gray-500">$</span>
                                     <Input
                                         type="number"
-                                        className="pl-8 bg-green-50 border-2 border-green-200 text-green-700 font-medium"
+                                        min="0"
+                                        step="0.01"
+                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                         placeholder="0"
-                                        value={(formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2)}
-                                        readOnly
+                                        value={formData.maintenanceCharges || ''}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
                                     />
                                 </div>
                             </div>
+                        </div>
 
+                        <div className="space-y-2">
+                            <Label className="text-gray-900 font-medium">Total Monthly Rent (₹)</Label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                <Input
+                                    type="number"
+                                    className="pl-8 bg-green-50 border-2 border-green-200 text-green-700 font-medium"
+                                    placeholder="0"
+                                    value={(formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2)}
+                                    readOnly
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1030,29 +1142,78 @@ const EditRentalPage = () => {
                 {/* Right Column */}
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 gap-6">
-                        <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Lease Start Date</Label>
-                            <div className="relative">
-                                <Input
-                                    type="date"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                    value={formData.leaseStart}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, leaseStart: e.target.value }))}
-                                />
-                            </div>
-                        </div>
 
                         <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Lease End Date</Label>
-                            <div className="relative">
-                                <Input
-                                    type="date"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                    value={formData.leaseEnd}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, leaseEnd: e.target.value }))}
-                                />
-                            </div>
+                            <Label className="text-gray-900 font-medium">Lessee *</Label>
+                            <Select value={formData.tenant} onValueChange={handleTenantSelect}>
+                                <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {tenants.map((tenant) => (
+                                        <SelectItem key={tenant.id} value={tenant.id.toString()}>
+                                            {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
+
+                        {selectedTenantDetails && (
+                            <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                                <h4 className="font-semibold text-md mb-4 text-gray-900">Signing Authority:</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-3">
+                                        <div className="flex items-start gap-2">
+                                            <User className="h-4 w-4 mt-1 text-gray-600" />
+                                            <div>
+                                                <p className="text-xs text-gray-500">Name:</p>
+                                                <p className="font-medium text-gray-900">
+                                                    {renderValue(selectedTenantDetails.full_name)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                                <span className="text-gray-600 text-[10px] font-bold">@</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500">Contact Details:</p>
+                                                <p className="text-sm text-gray-900">Email: {renderValue(selectedTenantDetails.email)}</p>
+                                                <p className="text-sm text-gray-900">Phone: {renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="flex items-start gap-2">
+                                            <Building2 className="h-4 w-4 mt-1 text-gray-600" />
+                                            <div>
+                                                <p className="text-xs text-gray-500">Designation:</p>
+                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.designation)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                                <span className="text-gray-600 text-[10px] font-bold">ID</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500">Aadhar Number:</p>
+                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.aadhar_number)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
+                                                <span className="text-gray-600 text-[10px] font-bold">PAN</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500">PAN Number:</p>
+                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.pan_number)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="space-y-2">
                             <Label className="text-gray-900 font-medium">Status</Label>
@@ -1083,7 +1244,6 @@ const EditRentalPage = () => {
                             <Clock className="h-5 w-5 text-gray-900" />
                             <h3 className="font-semibold text-lg text-gray-900">Rent Due Configuration</h3>
                         </div>
-                        -
                         <div className="space-y-3">
                             <Label className="text-gray-900 font-medium">Rent Payment Type</Label>
                             <RadioGroup defaultValue="advance">
@@ -1105,20 +1265,21 @@ const EditRentalPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date</Label>
-                            <Select defaultValue="1st">
+                            <Label className="flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date of the Month</Label>
+                            <Select value={formData.rentDueDate} onValueChange={val => setFormData(prev => ({ ...prev, rentDueDate: val }))}>
                                 <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                     <SelectValue placeholder="Select date" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="1st">1st of every month</SelectItem>
-                                    <SelectItem value="5th">5th of every month</SelectItem>
-                                    <SelectItem value="10th">10th of every month</SelectItem>
+                                    {Array.from({ length: 31 }, (_, i) => (
+                                        <SelectItem key={i + 1} value={`${i + 1}`}>{`${i + 1}${['st', 'nd', 'rd'][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ['st', 'nd', 'rd'][((i + 1) % 10) - 1] : 'th'} of every month`}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                             <p className="text-xs text-gray-500">Rent will be due on this date before each month begins</p>
                         </div>
                     </div>
+
 
                     <div className="p-6 bg-[#FAF9F6] rounded-lg border border-gray-100 space-y-6">
                         <h3 className="font-semibold text-lg mb-6 text-gray-900">Escalation & Penalty Settings</h3>
@@ -1227,85 +1388,6 @@ const EditRentalPage = () => {
                             )}
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-6 text-gray-900">Additional Details</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Purpose of Agreement</Label>
-                        <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
-                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                <SelectValue placeholder="Select purpose" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="New Office">New Office</SelectItem>
-                                <SelectItem value="Renewal">Renewal</SelectItem>
-                                <SelectItem value="Change of Location">Change of Location</SelectItem>
-                                <SelectItem value="Change of Area">Change of Area</SelectItem>
-                                <SelectItem value="Change of ownership">Change of ownership</SelectItem>
-                                <SelectItem value="Name Change">Name Change</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
-                        <Select value={formData.stamp_duty_sharing} onValueChange={(value) => setFormData(prev => ({ ...prev, stamp_duty_sharing: value }))}>
-                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                <SelectValue placeholder="Select sharing option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Tenant">Tenant</SelectItem>
-                                <SelectItem value="Landlord">Landlord</SelectItem>
-                                <SelectItem value="Shared">Shared (50-50)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium text-[#c72030]">SAP ID (SAP Number)</Label>
-                        <Input
-                            type="text"
-                            className="bg-white border-2 border-[#c72030]/30 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                            placeholder="e.g., SAP000013"
-                            value={formData.sap_number}
-                            onChange={(e) => setFormData(prev => ({ ...prev, sap_number: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Property Type</Label>
-                        <Select value={formData.property_type} onValueChange={(value) => setFormData(prev => ({ ...prev, property_type: value }))}>
-                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
-                                <SelectValue placeholder="Select property type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="CLA">CLA</SelectItem>
-                                <SelectItem value="Lease Agreement">Lease Agreement</SelectItem>
-                                <SelectItem value="Leave & License Agreement">Leave & License Agreement</SelectItem>
-                                <SelectItem value="Sale Deed">Sale Deed</SelectItem>
-                                <SelectItem value="Addendum">Addendum</SelectItem>
-                                <SelectItem value="Side Letter">Side Letter</SelectItem>
-                                <SelectItem value="Annexure">Annexure</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Agreement Sign off Date</Label>
-                        <div className="relative">
-                            <Input
-                                type="date"
-                                placeholder="dd-mm-yyyy"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                value={formData.agreement_sign_off_date}
-                                onChange={(e) => setFormData(prev => ({ ...prev, agreement_sign_off_date: e.target.value }))}
-                            />
-                        </div>
-                    </div>
 
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Rent Commencement Date</Label>
@@ -1343,46 +1425,30 @@ const EditRentalPage = () => {
                             onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
+                </div>
+            </div>
 
-                    {/* Dynamic Custom Fields */}
-                    {customFields.map((field) => (
-                        <div key={field.id} className="space-y-2">
-                            <Label className="text-gray-900 font-medium">
-                                {field.name} {field.required && <span className="text-red-500">*</span>}
-                            </Label>
-                            {field.field_type === 'text' || field.field_type === 'number' ? (
-                                <Input
-                                    type={field.field_type}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                    placeholder={`Enter ${field.name} `}
-                                    value={customFieldValues[field.name] || ''}
-                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+
+            {/* Common Amenities - Full Width */}
+            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div className="space-y-2">
+                    <h3 className="font-semibold text-lg text-gray-900 mb-3"> Common Amenities</h3>
+                    <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
+                        {amenities.map((amenity: any) => (
+                            <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.amenities.includes(amenity.id)}
+                                    onChange={(e) => {
+                                        if (e.target.checked) setFormData({ ...formData, amenities: [...formData.amenities, amenity.id] });
+                                        else setFormData({ ...formData, amenities: formData.amenities.filter(a => a !== amenity.id) });
+                                    }}
+                                    className="w-4 h-4 text-[#C72030] border-gray-300 rounded focus:ring-[#C72030]"
                                 />
-                            ) : field.field_type === 'date' ? (
-                                <Input
-                                    type="date"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                    value={customFieldValues[field.name] || ''}
-                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
-                                />
-                            ) : field.field_type === 'boolean' ? (
-                                <div className="flex items-center space-x-2 pt-2">
-                                    <Switch
-                                        checked={customFieldValues[field.name] || false}
-                                        onCheckedChange={(checked) => setCustomFieldValues(prev => ({ ...prev, [field.name]: checked }))}
-                                    />
-                                    <span className="text-sm text-gray-600">{customFieldValues[field.name] ? 'Yes' : 'No'}</span>
-                                </div>
-                            ) : field.field_type === 'textarea' ? (
-                                <Textarea
-                                    placeholder={`Enter ${field.name} `}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                                    value={customFieldValues[field.name] || ''}
-                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
-                                />
-                            ) : null}
-                        </div>
-                    ))}
+                                <span className="text-sm text-gray-700">{amenity.name}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -1449,55 +1515,10 @@ const EditRentalPage = () => {
                 </div>
             </div>
 
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            {/* <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
                 <h3 className="font-semibold text-lg mb-6 text-gray-900">Signing Authorities</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Name</Label>
-                        <Input
-                            type="text"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                            placeholder="Enter name"
-                            value={formData.signing_authority_name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_name: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Designation</Label>
-                        <Input
-                            type="text"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                            placeholder="Enter designation"
-                            value={formData.signing_authority_designation}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_designation: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Email</Label>
-                        <Input
-                            type="email"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                            placeholder="Enter email address"
-                            value={formData.signing_authority_email}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_email: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Phone Number</Label>
-                        <Input
-                            type="tel"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
-                            placeholder="Enter phone number"
-                            value={formData.signing_authority_phone}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_phone: e.target.value }))}
-                        />
-                    </div>
-                </div>
-            </div>
+                ... (omitted to match AddRentalPage)
+            </div> */}
 
             <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-6">
@@ -1602,6 +1623,52 @@ const EditRentalPage = () => {
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
                             </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <h3 className="font-semibold text-lg mb-6 text-gray-900">Additional Details</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Dynamic Custom Fields */}
+                    {customFields.map((field) => (
+                        <div key={field.id} className="space-y-2">
+                            <Label className="text-gray-900 font-medium">
+                                {field.name} {field.required && <span className="text-red-500">*</span>}
+                            </Label>
+                            {field.field_type === 'text' || field.field_type === 'number' ? (
+                                <Input
+                                    type={field.field_type}
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    placeholder={`Enter ${field.name}`}
+                                    value={customFieldValues[field.name] || ''}
+                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                />
+                            ) : field.field_type === 'date' ? (
+                                <Input
+                                    type="date"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    value={customFieldValues[field.name] || ''}
+                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                />
+                            ) : field.field_type === 'boolean' ? (
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <Switch
+                                        checked={customFieldValues[field.name] || false}
+                                        onCheckedChange={(checked) => setCustomFieldValues(prev => ({ ...prev, [field.name]: checked }))}
+                                    />
+                                    <span className="text-sm text-gray-600">{customFieldValues[field.name] ? 'Yes' : 'No'}</span>
+                                </div>
+                            ) : field.field_type === 'textarea' ? (
+                                <Textarea
+                                    placeholder={`Enter ${field.name}`}
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    value={customFieldValues[field.name] || ''}
+                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                />
+                            ) : null}
                         </div>
                     ))}
                 </div>

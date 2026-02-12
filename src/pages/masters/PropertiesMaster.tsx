@@ -965,7 +965,7 @@ const PropertiesMaster = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="leasable-area" className="text-gray-900 font-medium">Leasable Area (sq ft)</Label>
+                  <Label htmlFor="leasable-area" className="text-gray-900 font-medium">Chargable Area (sq ft)</Label>
                   <Input
                     id="leasable-area"
                     type="number"

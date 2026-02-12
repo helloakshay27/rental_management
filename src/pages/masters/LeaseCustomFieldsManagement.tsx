@@ -44,7 +44,7 @@ const LeaseCustomFieldsManagement = () => {
     const fetchCustomFields = async () => {
         try {
             setLoadingFields(true);
-            let url = '/lease_custom_fields';
+            let url = '/lease_custom_fields?per_page=100';
             const params = new URLSearchParams();
             if (statusFilter !== 'all') {
                 params.append('status', statusFilter);
