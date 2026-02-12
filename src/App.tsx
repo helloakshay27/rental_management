@@ -76,6 +76,9 @@ import RegionMaster from "./pages/masters/RegionMaster";
 import RegionDetailsPage from "./pages/masters/RegionDetailsPage";
 import ZoneMaster from "./pages/masters/ZoneMaster";
 import ZoneDetailsPage from "./pages/masters/ZoneDetailsPage";
+import CityMaster from "./pages/masters/CityMaster";
+import CircleMaster from "./pages/masters/CircleMaster";
+import AmenityMaster from "./pages/masters/AmenityMaster";
 
 const queryClient = new QueryClient();
 
@@ -159,6 +162,9 @@ const App = () => {
                 <Route path="masters/regions/:id" element={<RegionDetailsPage />} />
                 <Route path="masters/zones" element={<ZoneMaster />} />
                 <Route path="masters/zones/:id" element={<ZoneDetailsPage />} />
+                <Route path="masters/cities" element={<CityMaster />} />
+                <Route path="masters/circles" element={<CircleMaster />} />
+                <Route path="masters/amenities" element={<AmenityMaster />} />
               </Route>
               <Route path="login" element={<LoginPage setToken={() => { }} />} />
               <Route path="*" element={<NotFound />} />

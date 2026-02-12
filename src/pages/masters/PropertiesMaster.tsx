@@ -63,6 +63,8 @@ const PropertiesMaster = () => {
   const [states, setStates] = useState<any[]>([]);
   const [regions, setRegions] = useState<any[]>([]);
   const [zones, setZones] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  const [circles, setCircles] = useState<any[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<any[]>([]);
   const [landlords, setLandlords] = useState<any[]>([]);
   const [facilityTypes, setFacilityTypes] = useState<any[]>([]);
@@ -82,6 +84,8 @@ const PropertiesMaster = () => {
     region_id: '',
     region: '',
     zone_id: '',
+    city_id: '',
+    circle_id: '',
     address: '',
     city: '',
     postal_code: '',
@@ -91,7 +95,7 @@ const PropertiesMaster = () => {
     built_year: '',
     description: '',
     amenities: [] as string[],
-    facility_type_ids: [] as number[],
+    facility_type_ids: "",
     circle: '',
     property_takeover_condition_id: '',
     ites_certification: 'No',
@@ -261,6 +265,45 @@ const PropertiesMaster = () => {
     fetchZones();
   }, [formData.region_id]);
 
+  // Fetch cities when zone changes
+  React.useEffect(() => {
+    const fetchCities = async () => {
+      if (formData.zone_id) {
+        try {
+          const data = await getAuth(`/pms/cities?q[zone_id_eq]=${formData.zone_id}`);
+          if (Array.isArray(data.data)) {
+            setCities(data.data);
+          }
+        } catch (error) {
+          console.error('Failed to fetch cities', error);
+          toast.error('Failed to load cities');
+        }
+      } else {
+        setCities([]);
+      }
+    };
+    fetchCities();
+  }, [formData.zone_id]);
+
+  React.useEffect(() => {
+    const fetchCircles = async () => {
+      if (formData.city_id) {
+        try {
+          const data = await getAuth(`/pms/circles?q[city_id_eq]=${formData.city_id}`);
+          if (Array.isArray(data.data)) {
+            setCircles(data.data);
+          }
+        } catch (error) {
+          console.error('Failed to fetch circles', error);
+          toast.error('Failed to load circles');
+        }
+      } else {
+        setCircles([]);
+      }
+    };
+    fetchCircles();
+  }, [formData.city_id]);
+
   // Auto-calculate area efficiency when carpet_area or leasable_area changes
   React.useEffect(() => {
     if (formData.carpet_area && formData.leasable_area) {
@@ -379,6 +422,8 @@ const PropertiesMaster = () => {
         region_id: siteData.region_id?.toString() || '',
         region: siteData.region || '',
         zone_id: siteData.zone_id?.toString() || siteData.zone?.id?.toString() || '',
+        city_id: siteData.city_id?.toString() || siteData.city?.id?.toString() || '',
+        circle_id: siteData.circle_id?.toString() || siteData.circle?.id?.toString() || '',
         address: siteData.address || '',
         city: siteData.city || '',
         postal_code: siteData.postal_code || '',
@@ -439,29 +484,31 @@ const PropertiesMaster = () => {
           user_id: 1, // Default user_id
           name: formData.name,
           address: formData.address,
-          city: formData.city,
+          // city: formData.city,
+          city_id: formData.city_id ? parseInt(formData.city_id) : null,
           state: formData.state,
           postal_code: formData.postal_code,
           country: formData.country,
           property_type: formData.property_type,
           property_type_id: formData.property_type_id ? parseInt(formData.property_type_id) : null,
           description: formData.description,
-          pms_site_facilities_attributes: formData.facility_type_ids.map(id => ({ facility_type_id: id })),
+          pms_site_facilities_attributes: [
+            {
+              facility_type_id: formData.facility_type_ids
+            }
+          ],
           documents: selectedDocuments.map(doc => {
-            if (doc.id) {
+            if (!doc.id) {
               return {
-                id: doc.id,
                 file_name: doc.file_name,
-                document_type: doc.document_type
+                document_type: doc.document_type,
+                base64_data: doc.base64_data
               };
             }
-            return {
-              file_name: doc.file_name,
-              document_type: doc.document_type,
-              base64_data: doc.base64_data
-            };
+
           }),
-          circle: formData.circle,
+          // circle: formData.circle,
+          circle_id: formData.circle_id ? parseInt(formData.circle_id) : null,
           property_takeover_condition_id: formData.property_takeover_condition_id ? parseInt(formData.property_takeover_condition_id) : null,
           ites_certification: formData.ites_certification,
           ites_certified: formData.ites_certification === 'Yes',
@@ -516,6 +563,8 @@ const PropertiesMaster = () => {
         region_id: '',
         region: '',
         zone_id: '',
+        city_id: '',
+        circle_id: '',
         address: '',
         city: '',
         postal_code: '',
@@ -525,7 +574,7 @@ const PropertiesMaster = () => {
         built_year: '',
         description: '',
         amenities: [],
-        facility_type_ids: [],
+        facility_type_ids: "",
         circle: '',
         property_takeover_condition_id: '',
         ites_certification: 'No',
@@ -640,7 +689,24 @@ const PropertiesMaster = () => {
 
                 <div className="space-y-2">
                   <Label className="text-gray-900 font-medium">Facility Types</Label>
-                  <Popover>
+                  <Select
+                    value={formData.facility_type_ids}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, facility_type_ids: value });
+                    }}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {facilityTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.id.toString()}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {/* <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -685,10 +751,10 @@ const PropertiesMaster = () => {
                         </div>
                       </ScrollArea>
                     </PopoverContent>
-                  </Popover>
+                  </Popover> */}
                 </div>
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="takeover-condition" className="text-gray-900 font-medium"> Property Takeover Condition</Label>
                   <Select
                     value={formData.property_takeover_condition_id}
@@ -705,7 +771,7 @@ const PropertiesMaster = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
 
                 <div className="space-y-2">
                   <Label htmlFor="country" className="text-gray-900 font-medium">Country *</Label>
@@ -814,14 +880,62 @@ const PropertiesMaster = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="circle" className="text-gray-900 font-medium">Circle</Label>
-                  <Input
-                    id="circle"
-                    placeholder="Enter circle detail"
-                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
-                    value={formData.circle}
-                    onChange={(e) => setFormData({ ...formData, circle: e.target.value })}
-                  />
+                  <Label htmlFor="city" className="text-gray-900 font-medium">City *</Label>
+                  <Select
+                    value={formData.city_id}
+                    onValueChange={(value) => {
+                      const selectedCity = cities.find(
+                        (city) => city.id.toString() === value
+                      );
+
+                      setFormData({
+                        ...formData,
+                        city_id: value,
+                        city: selectedCity?.name || "",
+                      });
+                    }}
+                    disabled={!formData.zone_id}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue placeholder={!formData.zone_id ? "Select zone first" : "Select city"} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {cities.map((circle) => (
+                        <SelectItem key={circle.id} value={circle.id.toString()}>
+                          {circle.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="circle" className="text-gray-900 font-medium">Circle *</Label>
+                  <Select
+                    value={formData.circle_id}
+                    onValueChange={(value) => {
+                      const selectedCircle = circles.find(
+                        (circle) => circle.id.toString() === value
+                      );
+
+                      setFormData({
+                        ...formData,
+                        circle_id: value,
+                        circle: selectedCircle?.name || "",
+                      });
+                    }}
+                    disabled={!formData.city_id}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue placeholder={!formData.city_id ? "Select city first" : "Select circle"} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {circles.map((circle) => (
+                        <SelectItem key={circle.id} value={circle.id.toString()}>
+                          {circle.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -839,16 +953,6 @@ const PropertiesMaster = () => {
 
               {/* City and Postal Code */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city" className="text-gray-900 font-medium">City *</Label>
-                  <Input
-                    id="city"
-                    placeholder="Enter city"
-                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="postal-code" className="text-gray-900 font-medium">Pin Code</Label>
                   <Input
@@ -966,7 +1070,7 @@ const PropertiesMaster = () => {
               </div>
 
               {/* Amenities - Full Width */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label className="text-gray-900 font-medium"> Common Amenities</Label>
                 <p className="text-xs text-gray-600">Select amenities available at this property</p>
                 <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
@@ -988,7 +1092,7 @@ const PropertiesMaster = () => {
                     </label>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Documents & Images */}
               <div className="space-y-4 pt-2">
@@ -1096,7 +1200,7 @@ const PropertiesMaster = () => {
                   <TableHead>Location & Type</TableHead>
                   <TableHead>Facilities & Tech</TableHead>
                   <TableHead>Area & Year</TableHead>
-                  <TableHead>Amenities</TableHead>
+                  {/* <TableHead>Amenities</TableHead> */}
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -1166,7 +1270,7 @@ const PropertiesMaster = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {property.amenities && property.amenities.length > 0 ? (
                           property.amenities.slice(0, 3).map((amenity, idx) => (
@@ -1181,7 +1285,7 @@ const PropertiesMaster = () => {
                           <Badge variant="secondary" className="text-xs">+{property.amenities.length - 3}</Badge>
                         )}
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Button variant="ghost" size="sm" onClick={() => handleViewProperty(property)}>

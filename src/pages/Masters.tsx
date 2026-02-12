@@ -36,6 +36,20 @@ const Masters = () => {
       path: '/masters/zones',
       color: 'bg-indigo-50 text-indigo-600'
     },
+    {
+      title: 'City Master',
+      description: 'Manage cities and their association with zones',
+      icon: MapPinned,
+      path: '/masters/cities',
+      color: 'bg-indigo-50 text-indigo-600'
+    },
+    {
+      title: 'Circle Master',
+      description: 'Manage circles and their association with cities',
+      icon: MapPinned,
+      path: '/masters/circles',
+      color: 'bg-indigo-50 text-indigo-600'
+    },
     // 2. Business Entities
     {
       title: 'Landlords Management',
@@ -58,7 +72,13 @@ const Masters = () => {
       path: '/masters/vendors',
       color: 'bg-amber-50 text-amber-600'
     },
-    // 3. Property Management
+    {
+      title: 'Amenity Master',
+      description: 'Central Amenities',
+      icon: Building2,
+      path: '/masters/amenities',
+      color: 'bg-purple-50 text-purple-600'
+    },
     {
       title: 'Properties Master',
       description: 'Central property database with all property details',

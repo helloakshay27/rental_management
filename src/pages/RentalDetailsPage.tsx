@@ -11,6 +11,7 @@ export default function RentalDetailsPage() {
   const navigate = useNavigate();
   const [lease, setLease] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [customFeilds, setCustomFeilds] = useState({})
 
   const renderValue = (val: any) => {
     if (val === null || val === undefined) return 'N/A';
@@ -26,6 +27,7 @@ export default function RentalDetailsPage() {
         setLoading(true);
         const data = await getAuth(`/leases/${id}`);
         setLease(data);
+        setCustomFeilds(data.custom_fields || {})
       } catch (error) {
         console.error('Failed to fetch lease details:', error);
       } finally {
@@ -393,48 +395,6 @@ export default function RentalDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* Additional Details Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-100">
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-              <FileText className="h-5 w-5 text-gray-600" />
-              Additional Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Purpose of Agreement</p>
-                <p className="font-medium text-gray-900">{renderValue(lease.purpose_of_agreement)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Stamp Duty Sharing</p>
-                <p className="font-medium text-gray-900">{renderValue(lease.stamp_duty_sharing)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Property Type</p>
-                <p className="font-medium text-[#c72030]">{renderValue(lease.notice_terms?.property_type)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Agreement Sign Off Date</p>
-                <p className="font-medium text-gray-900">{lease.agreement_sign_off_date ? new Date(lease.agreement_sign_off_date).toLocaleDateString() : 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Rent Commencement Date</p>
-                <p className="font-medium text-gray-900">{lease.rent_commencement_date ? new Date(lease.rent_commencement_date).toLocaleDateString() : 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Rent Free Period (Days)</p>
-                <p className="font-medium text-gray-900">{renderValue(lease.rent_free_period_days)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Lock-in Period (Days)</p>
-                <p className="font-medium text-gray-900">{renderValue(lease.lock_in_period_days)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Signing Authority Card */}
         {lease.signing_authorities && lease.signing_authorities.length > 0 && (
           <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
@@ -595,6 +555,56 @@ export default function RentalDetailsPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Additional Details Card */}
+        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+          <CardHeader className="border-b border-gray-100">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+              <FileText className="h-5 w-5 text-gray-600" />
+              Additional Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Purpose of Agreement</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.purpose_of_agreement)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Stamp Duty Sharing</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.stamp_duty_sharing)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Property Type</p>
+                <p className="font-medium text-[#c72030]">{renderValue(lease.notice_terms?.property_type)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Agreement Sign Off Date</p>
+                <p className="font-medium text-gray-900">{lease.agreement_sign_off_date ? new Date(lease.agreement_sign_off_date).toLocaleDateString() : 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Rent Commencement Date</p>
+                <p className="font-medium text-gray-900">{lease.rent_commencement_date ? new Date(lease.rent_commencement_date).toLocaleDateString() : 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Rent Free Period (Days)</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.rent_free_period_days)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Lock-in Period (Days)</p>
+                <p className="font-medium text-gray-900">{renderValue(lease.lock_in_period_days)}</p>
+              </div>
+              {
+                Object.entries(customFeilds).map(([key, value]) => (
+                  <div key={key} className="space-y-2">
+                    <p className="text-sm text-gray-500 mb-1">{key}</p>
+                    <p className="font-medium text-gray-900">{renderValue(value)}</p>
+                  </div>
+                ))
+              }
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
