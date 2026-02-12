@@ -273,7 +273,7 @@ export default function RentalDetailsPage() {
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">Compliences:</p>
                     <p className="text-sm text-gray-900">
-                      {lease.property?.property_compliances?.map((compliance: any) => compliance?.compliance_requirement?.title || compliance?.name)?.join(', ') || 'N/A'}
+                      {lease.property?.property_compliances?.map((compliance: any) => compliance?.compliance_requirement?.title)?.join(', ') || 'N/A'}
                     </p>
                   </div>
                 </div>

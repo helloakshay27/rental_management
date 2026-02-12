@@ -117,8 +117,6 @@ const EditRentalPage = () => {
                 const data = await getAuth(`/pms/sites.json${token ? `?token=${token}` : ''}`);
                 if (Array.isArray(data)) {
                     setProperties(data);
-                } else if (data?.sites) {
-                    setProperties(data.sites);
                 }
             } catch (error) {
                 console.error('Failed to fetch properties:', error);
@@ -270,7 +268,7 @@ const EditRentalPage = () => {
                         notes: data.notice_terms?.additional_notes || '',
                         sap_number: data.sap_number || '',
                         property_type: data.notice_terms?.property_type || '',
-                        property_takeover_condition_id: data.property_takeover_condition_id?.toString() || '',
+                        property_takeover_condition_id: data.property?.property_takeover_condition?.id?.toString() || '',
                         amenities: data?.property?.amenities?.map((amenity: any) => amenity.id) || [],
                     });
 
@@ -319,7 +317,7 @@ const EditRentalPage = () => {
                             active: s.active
                         })));
                     }
-
+                    console.log(data)
                     // Set selected property details if property exists
                     if (data.property) {
                         setSelectedPropertyDetails(data.property);
@@ -356,6 +354,8 @@ const EditRentalPage = () => {
             fetchLease();
         }
     }, [id, properties]);
+
+    console.log(selectedPropertyDetails)
 
     const handlePropertySelect = async (propertyId: string) => {
         setFormData(prev => ({ ...prev, property: propertyId }));

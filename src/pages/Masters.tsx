@@ -101,13 +101,13 @@ const Masters = () => {
       color: 'bg-rose-50 text-rose-600'
     },
     // 4. Operations & Financials
-    {
-      title: 'Agreement Service Types',
-      description: 'Manage service types for agreements (e.g., CAM)',
-      icon: FileText,
-      path: '/masters/service-types',
-      color: 'bg-cyan-50 text-cyan-600'
-    },
+    // {
+    //   title: 'Agreement Service Types',
+    //   description: 'Manage service types for agreements (e.g., CAM)',
+    //   icon: FileText,
+    //   path: '/masters/service-types',
+    //   color: 'bg-cyan-50 text-cyan-600'
+    // },
     {
       title: 'Compliances Master',
       description: 'Manage property compliances, regulations, and renewals',
@@ -164,8 +164,8 @@ const Masters = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#FFFFFF]">Masters</h1>
-          <p className="text-[#FFFFFF]">Manage all master data and system configurations</p>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Masters</h1>
+          <p className="text-[#D5DbDB]">Manage all master data and system configurations</p>
         </div>
       </div>
 
