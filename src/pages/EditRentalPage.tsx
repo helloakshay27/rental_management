@@ -659,7 +659,7 @@ const EditRentalPage = () => {
                                         <div>
                                             <p className="text-xs text-gray-500">Facility type:</p>
                                             <p className="text-sm text-gray-900">
-                                                {renderValue(selectedPropertyDetails?.facility_types?.[0]?.name)}
+                                                {renderValue(selectedPropertyDetails?.pms_site_facility?.facility_type?.name)}
                                             </p>
                                             <p className="text-sm text-gray-900">
                                                 Remarks: {renderValue(selectedPropertyDetails?.description)}

@@ -419,8 +419,8 @@ const PropertiesMaster = () => {
         country: siteData.country || '',
         state_id: matchedStateId,
         state: siteData.state || '',
-        region_id: siteData.region_id?.toString() || '',
-        region: siteData.region || '',
+        region_id: siteData.region?.id?.toString() || '',
+        region: siteData.region?.id?.toString() || '',
         zone_id: siteData.zone_id?.toString() || siteData.zone?.id?.toString() || '',
         city_id: siteData.city_id?.toString() || siteData.city?.id?.toString() || '',
         circle_id: siteData.circle_id?.toString() || siteData.circle?.id?.toString() || '',
@@ -433,9 +433,7 @@ const PropertiesMaster = () => {
         built_year: siteData.built_year?.toString() || '',
         description: siteData.description || '',
         amenities: siteData.amenities || [],
-        facility_type_ids: siteData.facility_type_ids ||
-          siteData.pms_site_facilities?.map((f: any) => f.facility_type_id) ||
-          siteData.facility_types?.map((f: any) => f.id) || [],
+        facility_type_ids: siteData?.pms_site_facility?.facility_type_id?.toString() || '',
         circle: siteData.circle || siteData.circuit || '',
         property_takeover_condition_id: siteData.property_takeover_condition_id?.toString() || siteData.property_takeover_condition?.id?.toString() || '',
         ites_certification: siteData.ites_certification || (siteData.ites_certified ? 'Yes' : 'No') || 'No',
@@ -492,11 +490,9 @@ const PropertiesMaster = () => {
           property_type: formData.property_type,
           property_type_id: formData.property_type_id ? parseInt(formData.property_type_id) : null,
           description: formData.description,
-          pms_site_facilities_attributes: [
-            {
-              facility_type_id: formData.facility_type_ids
-            }
-          ],
+          pms_site_facility_attributes: {
+            facility_type_id: Number(formData.facility_type_ids)
+          },
           documents: selectedDocuments.map(doc => {
             if (!doc.id) {
               return {

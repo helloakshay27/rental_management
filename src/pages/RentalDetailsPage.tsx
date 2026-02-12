@@ -169,7 +169,7 @@ export default function RentalDetailsPage() {
                   <MapPin className="h-4 w-4 mt-1 text-gray-600" />
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">Facility Details:</p>
-                    <p className="text-sm text-gray-900"><span className="text-gray-500">Facility type:</span> {renderValue(lease.property?.facility_types?.[0]?.name)}</p>
+                    <p className="text-sm text-gray-900"><span className="text-gray-500">Facility type:</span> {renderValue(lease.property?.pms_site_facility?.facility_type?.name)}</p>
                     <p className="text-sm text-gray-900"><span className="text-gray-500">Remarks:</span> {renderValue(lease.property?.description)}</p>
                     <p className="text-sm text-gray-900"><span className="text-gray-500">Owned/Leased:</span> {renderValue(lease.property?.ownership_type)}</p>
                     <p className="text-sm text-gray-900">
