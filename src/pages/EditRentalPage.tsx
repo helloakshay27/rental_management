@@ -271,7 +271,7 @@ const EditRentalPage = () => {
                         sap_number: data.sap_number || '',
                         property_type: data.notice_terms?.property_type || '',
                         property_takeover_condition_id: data.property_takeover_condition_id?.toString() || '',
-                        amenities: data.amenity_ids || [],
+                        amenities: data?.property?.amenities?.map((amenity: any) => amenity.id) || [],
                     });
 
                     // Set custom field values
