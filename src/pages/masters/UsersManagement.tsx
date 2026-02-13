@@ -109,8 +109,8 @@ const UsersManagement = () => {
     const fetchRoles = async () => {
       try {
         const data = await getAuth('/roles');
-        if (Array.isArray(data)) {
-          setRolesList(data);
+        if (Array.isArray(data.roles)) {
+          setRolesList(data.roles);
         }
       } catch (error) {
         console.error('Failed to fetch roles', error);
