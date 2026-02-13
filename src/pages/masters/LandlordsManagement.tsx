@@ -157,7 +157,7 @@ const LandlordsManagement = () => {
       // Prepare payload
       const payload: any = {
         landlord: {
-          company_name: formData.contact_person, // Using contact_person value for company_name as well
+          company_name: formData.company_name,
           contact_person: formData.contact_person,
           email: formData.email,
           phone: formData.phone,

@@ -432,8 +432,8 @@ const TenantsManagement = () => {
               <TableRow>
                 <TableHead>Lessee Details</TableHead>
                 <TableHead>Contact Info</TableHead>
-                <TableHead>Current Property</TableHead>
-                <TableHead>Rent (₹)</TableHead>
+                {/* <TableHead>Current Property</TableHead>
+                <TableHead>Rent (₹)</TableHead> */}
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -460,7 +460,7 @@ const TenantsManagement = () => {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     {tenant.currentProperty ? (
                       <div>
                         <p className="font-medium">{tenant.currentProperty}</p>
@@ -478,7 +478,7 @@ const TenantsManagement = () => {
                     ) : (
                       <span className="text-gray-400">-</span>
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>
                     <Select
                       value={tenant.status || 'Active'}

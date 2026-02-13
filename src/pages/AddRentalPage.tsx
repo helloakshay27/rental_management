@@ -1154,20 +1154,20 @@ const AddRentalPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label className="text-gray-900 font-medium">Escalation Frequency </Label>
-                                <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))}>
+                                <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))} disabled>
                                     <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                         <SelectValue placeholder="Select Escalation Frequency " />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="monthly">Monthly</SelectItem>
-                                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                                        {/* <SelectItem value="monthly">Monthly</SelectItem>
+                                        <SelectItem value="quarterly">Quarterly</SelectItem> */}
                                         <SelectItem value="annual">In Years</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Escalation Interval</Label>
+                                <Label className="text-gray-900 font-medium">Esclation Frequency (in yrs)</Label>
                                 <Input
                                     type="number"
                                     min="1"
@@ -1181,7 +1181,7 @@ const AddRentalPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Escalation Percentage (%)</Label>
+                            <Label className="text-gray-900 font-medium">Escalation (%)</Label>
                             <Input
                                 type="number"
                                 min="0"
