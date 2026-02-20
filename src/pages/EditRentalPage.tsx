@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User } from 'lucide-react';
+import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User, FileText, Download, ExternalLink } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth, patchAuth, getToken } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -108,6 +108,8 @@ const EditRentalPage = () => {
     const [deletedAgreementServices, setDeletedAgreementServices] = useState<number[]>([]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [existingAgreementUrl, setExistingAgreementUrl] = useState<string | null>(null);
+    const [existingAgreementName, setExistingAgreementName] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchProperties = async () => {
@@ -271,6 +273,18 @@ const EditRentalPage = () => {
                         property_takeover_condition_id: data.property?.property_takeover_condition?.id?.toString() || '',
                         amenities: data?.property?.amenities?.map((amenity: any) => amenity.id) || [],
                     });
+
+                    // Set existing agreement details
+                    if (data.documents && Array.isArray(data.documents)) {
+                        const agreement = data.documents.find((doc: any) => doc.document_type === 'agreement');
+                        if (agreement) {
+                            setExistingAgreementUrl(agreement.file_url || agreement.url);
+                            setExistingAgreementName(agreement.file_name);
+                        }
+                    } else if (data.agreement_url) {
+                        // Fallback if it's directly on the object
+                        setExistingAgreementUrl(data.agreement_url);
+                    }
 
                     // Set custom field values
                     const fields = data.custom_fields || data.custom_field_values;
@@ -1683,6 +1697,31 @@ const EditRentalPage = () => {
                         className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                         onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
                     />
+                    {existingAgreementUrl && (
+                        <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-red-50 rounded-lg">
+                                    <FileText className="h-6 w-6 text-[#C72030]" />
+                                </div>
+                                <div className="overflow-hidden">
+                                    <p className="text-sm font-medium text-gray-900">Previously Uploaded Agreement</p>
+                                    <p className="text-xs text-gray-500 truncate max-w-[200px] md:max-w-xs">{existingAgreementName || 'agreement.pdf'}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 w-full md:w-auto">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open(`https://rental-uat.lockated.com/${existingAgreementUrl}`, '_blank')}
+                                    className="h-9 px-4 border-[#C72030] text-[#C72030] hover:bg-red-50 flex-1 md:flex-none"
+                                >
+                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                    View
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
 
