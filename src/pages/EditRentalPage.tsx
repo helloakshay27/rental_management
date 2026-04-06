@@ -8,11 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-<<<<<<< Updated upstream
 import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User, FileText, Download, ExternalLink } from 'lucide-react';
-=======
-import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User, FileText, Download } from 'lucide-react';
->>>>>>> Stashed changes
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth, patchAuth, getToken, API_BASE_URL } from '@/lib/api';
 import { toast } from 'sonner';
