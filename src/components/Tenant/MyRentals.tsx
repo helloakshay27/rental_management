@@ -137,8 +137,7 @@ const MyRentals = () => {
       address.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (rental.sap_number && rental.sap_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (rental.lease_number && rental.lease_number.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   const totalMonthlyRent = myRentals.reduce((sum, rental) => sum + parseFloat(rental.monthly_rent || rental.basic_rent || 0), 0);
@@ -148,7 +147,10 @@ const MyRentals = () => {
     const fetchRentals = async () => {
       try {
         setLoading(true);
-        const response = await getAuth('/leases');
+        const path = statusFilter === 'all'
+          ? '/leases.json'
+          : `/leases.json?status=${statusFilter}`;
+        const response = await getAuth(path);
         setMyRentals(response.leases || []);
       } catch (error) {
         console.error('Error fetching rentals:', error);
@@ -159,7 +161,7 @@ const MyRentals = () => {
     };
 
     fetchRentals();
-  }, []);
+  }, [statusFilter]);
 
   return (
     <div className="space-y-6 bg-white">
@@ -243,7 +245,7 @@ const MyRentals = () => {
             <SelectContent className="bg-white">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="expiring">Expiring Soon</SelectItem>
+              <SelectItem value="expiring_soon">Expiring Soon</SelectItem>
               <SelectItem value="expired">Expired</SelectItem>
             </SelectContent>
           </Select>

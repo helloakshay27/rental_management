@@ -11,12 +11,12 @@ import { Switch } from '@/components/ui/switch';
 import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, getToken } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
 
 const AddRentalPage = () => {
     const navigate = useNavigate();
-    const { toast } = useToast();
+    const [fieldErrors, setFieldErrors] = useState<{ [key: string]: boolean }>({});
     const [properties, setProperties] = useState<any[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
     const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null);
@@ -213,6 +213,7 @@ const AddRentalPage = () => {
 
     const handlePropertySelect = async (propertyId: string) => {
         setFormData(prev => ({ ...prev, property: propertyId }));
+        setFieldErrors(prev => ({ ...prev, property: false }));
 
         // Find the selected property details
         const property = properties.find(p => p.id.toString() === propertyId);
@@ -223,6 +224,7 @@ const AddRentalPage = () => {
 
     const handleCircleSelect = (circleId: string) => {
         setFormData(prev => ({ ...prev, circle: circleId }));
+        setFieldErrors(prev => ({ ...prev, circle: false }));
         const circle = circles.find(c => c.id.toString() === circleId);
         if (circle) {
             setSelectedCircleDetails(circle);
@@ -231,6 +233,7 @@ const AddRentalPage = () => {
 
     const handleTenantSelect = (tenantId: string) => {
         setFormData(prev => ({ ...prev, tenant: tenantId }));
+        setFieldErrors(prev => ({ ...prev, tenant: false }));
         const tenant = tenants.find(t => t.id.toString() === tenantId);
         if (tenant) {
             setSelectedTenantDetails(tenant);
@@ -258,21 +261,55 @@ const AddRentalPage = () => {
 
     const handleSubmit = async () => {
         try {
-            // Validation
+            // Mandatory field validation
+            const errors: { [key: string]: boolean } = {};
+            const missingFields: string[] = [];
+
+            if (!formData.circle) {
+                errors.circle = true;
+                missingFields.push('Circle');
+            }
+            if (!formData.property) {
+                errors.property = true;
+                missingFields.push('Property');
+            }
+            if (!formData.tenant) {
+                errors.tenant = true;
+                missingFields.push('Lessee');
+            }
+            if (!formData.aggreement_type) {
+                errors.aggreement_type = true;
+                missingFields.push('Agreement Type');
+            }
+            if (!formData.property_takeover_condition_id) {
+                errors.property_takeover_condition_id = true;
+                missingFields.push('Property Takeover Condition');
+            }
+            if (!formData.leaseStart) {
+                errors.leaseStart = true;
+                missingFields.push('Lease Start Date');
+            }
+            if (!formData.leaseEnd) {
+                errors.leaseEnd = true;
+                missingFields.push('Lease End Date');
+            }
+
+            if (missingFields.length > 0) {
+                setFieldErrors(errors);
+                toast.error(`Please fill in the following mandatory fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            // Clear field errors
+            setFieldErrors({});
+
+            // Additional validations
             if (formData.signing_authority_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.signing_authority_email)) {
-                toast({
-                    variant: "destructive",
-                    title: "Invalid Email",
-                    description: "Please enter a valid email for the signing authority.",
-                });
+                toast.error('Please enter a valid email for the signing authority.');
                 return;
             }
             if (formData.signing_authority_phone && !/^\d{10}$/.test(formData.signing_authority_phone)) {
-                toast({
-                    variant: "destructive",
-                    title: "Invalid Phone",
-                    description: "Please enter a valid 10-digit phone number for the signing authority.",
-                });
+                toast.error('Please enter a valid 10-digit phone number for the signing authority.');
                 return;
             }
 
@@ -376,18 +413,11 @@ const AddRentalPage = () => {
 
             const response = await postAuth('/leases', payload);
             console.log('Lease created:', response);
-            toast({
-                title: "Success",
-                description: "Rental added successfully!",
-            });
+            toast.success('Rental added successfully!');
             navigate(-1);
         } catch (error: any) {
             console.error('Error creating lease:', error);
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: error.message || 'Failed to create rental',
-            });
+            toast.error(error.message || 'Failed to create rental');
         } finally {
             setIsSubmitting(false);
         }
@@ -417,7 +447,7 @@ const AddRentalPage = () => {
                     <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Circle *</Label>
                         <Select value={formData.circle} onValueChange={handleCircleSelect}>
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.circle ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -433,7 +463,7 @@ const AddRentalPage = () => {
                     <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Select Property *</Label>
                         <Select value={formData.property} onValueChange={handlePropertySelect}>
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -602,9 +632,9 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Property Takeover Condition *</Label>
                         <Select
                             value={formData.property_takeover_condition_id}
-                            onValueChange={(value) => setFormData(prev => ({ ...prev, property_takeover_condition_id: value }))}
+                            onValueChange={(value) => { setFormData(prev => ({ ...prev, property_takeover_condition_id: value })); setFieldErrors(prev => ({ ...prev, property_takeover_condition_id: false })); }}
                         >
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property_takeover_condition_id ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -621,9 +651,9 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Agreement Type *</Label>
                         <Select
                             value={formData.aggreement_type}
-                            onValueChange={(value) => setFormData(prev => ({ ...prev, aggreement_type: value }))}
+                            onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
                         >
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.aggreement_type ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={"Select agreement type"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -687,25 +717,25 @@ const AddRentalPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Lease Start Date</Label>
+                        <Label className="text-gray-900 font-medium">Lease Start Date *</Label>
                         <div className="relative">
                             <Input
                                 type="date"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className={`bg-white border-2 ${fieldErrors.leaseStart ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
                                 value={formData.leaseStart}
-                                onChange={(e) => setFormData(prev => ({ ...prev, leaseStart: e.target.value }))}
+                                onChange={(e) => { setFormData(prev => ({ ...prev, leaseStart: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseStart: false })); }}
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Lease End Date</Label>
+                        <Label className="text-gray-900 font-medium">Lease End Date *</Label>
                         <div className="relative">
                             <Input
                                 type="date"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className={`bg-white border-2 ${fieldErrors.leaseEnd ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
                                 value={formData.leaseEnd}
-                                onChange={(e) => setFormData(prev => ({ ...prev, leaseEnd: e.target.value }))}
+                                onChange={(e) => { setFormData(prev => ({ ...prev, leaseEnd: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseEnd: false })); }}
                             />
                         </div>
                     </div>
@@ -1014,7 +1044,7 @@ const AddRentalPage = () => {
                         <div className="space-y-2">
                             <Label className="text-gray-900 font-medium">Lessee *</Label>
                             <Select value={formData.tenant} onValueChange={handleTenantSelect}>
-                                <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.tenant ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                     <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
                                 </SelectTrigger>
                                 <SelectContent>

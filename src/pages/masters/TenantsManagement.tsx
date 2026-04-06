@@ -481,10 +481,10 @@ const TenantsManagement = () => {
                   </TableCell> */}
                   <TableCell>
                     <Select
-                      value={tenant.status || 'Active'}
+                      value={tenant.is_active === false ? 'Inactive' : (tenant.status || 'Active')}
                       onValueChange={(value) => handleUpdateStatus(tenant.id, value)}
                     >
-                      <SelectTrigger className={`w-32 h-8 ${tenant.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                      <SelectTrigger className={`w-32 h-8 ${tenant.is_active === false || tenant.status?.toLowerCase() === 'inactive' ? 'bg-gray-100 text-gray-800 border-gray-200' : 'bg-green-100 text-green-800 border-green-200'}`}>
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">

@@ -8,15 +8,19 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+<<<<<<< Updated upstream
 import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User, FileText, Download, ExternalLink } from 'lucide-react';
+=======
+import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User, FileText, Download } from 'lucide-react';
+>>>>>>> Stashed changes
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAuth, patchAuth, getToken } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
+import { getAuth, patchAuth, getToken, API_BASE_URL } from '@/lib/api';
+import { toast } from 'sonner';
 import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
 
 const EditRentalPage = () => {
     const navigate = useNavigate();
-    const { toast } = useToast();
+    const [fieldErrors, setFieldErrors] = useState<{ [key: string]: boolean }>({});
     const { id } = useParams();
     const [properties, setProperties] = useState<any[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
@@ -34,6 +38,8 @@ const EditRentalPage = () => {
     const [selectedCircleDetails, setSelectedCircleDetails] = useState<any>(null);
     const [amenities, setAmenities] = useState<any[]>([])
     const [loadingAmenities, setLoadingAmenities] = useState(true)
+    const [existingDocuments, setExistingDocuments] = useState<any[]>([]);
+    const [deletedDocuments, setDeletedDocuments] = useState<any[]>([]);
 
     const renderValue = (val: any) => {
         if (val === null || val === undefined) return '';
@@ -332,6 +338,12 @@ const EditRentalPage = () => {
                         })));
                     }
                     console.log(data)
+
+                    // Set existing documents
+                    if (data.documents && data.documents.length > 0) {
+                        setExistingDocuments(data.documents);
+                    }
+
                     // Set selected property details if property exists
                     if (data.property) {
                         setSelectedPropertyDetails(data.property);
@@ -354,11 +366,7 @@ const EditRentalPage = () => {
                 }
             } catch (error) {
                 console.error('Failed to fetch lease:', error);
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to load lease data",
-                });
+                toast.error('Failed to load lease data');
             } finally {
                 setLoadingLease(false);
             }
@@ -373,6 +381,7 @@ const EditRentalPage = () => {
 
     const handlePropertySelect = async (propertyId: string) => {
         setFormData(prev => ({ ...prev, property: propertyId }));
+        setFieldErrors(prev => ({ ...prev, property: false }));
         const property = properties.find(p => p.id.toString() === propertyId);
         if (property) {
             setSelectedPropertyDetails(property);
@@ -381,6 +390,7 @@ const EditRentalPage = () => {
 
     const handleCircleSelect = (circleId: string) => {
         setFormData(prev => ({ ...prev, circle: circleId }));
+        setFieldErrors(prev => ({ ...prev, circle: false }));
         const circle = circles.find(c => c.id.toString() === circleId);
         if (circle) {
             setSelectedCircleDetails(circle);
@@ -389,6 +399,7 @@ const EditRentalPage = () => {
 
     const handleTenantSelect = (tenantId: string) => {
         setFormData(prev => ({ ...prev, tenant: tenantId }));
+        setFieldErrors(prev => ({ ...prev, tenant: false }));
         const tenant = tenants.find(t => t.id.toString() === tenantId);
         if (tenant) {
             setSelectedTenantDetails(tenant);
@@ -420,21 +431,55 @@ const EditRentalPage = () => {
 
     const handleSubmit = async () => {
         try {
-            // Validation
+            // Mandatory field validation
+            const errors: { [key: string]: boolean } = {};
+            const missingFields: string[] = [];
+
+            if (!formData.circle) {
+                errors.circle = true;
+                missingFields.push('Circle');
+            }
+            if (!formData.property) {
+                errors.property = true;
+                missingFields.push('Property');
+            }
+            if (!formData.tenant) {
+                errors.tenant = true;
+                missingFields.push('Lessee');
+            }
+            if (!formData.aggreement_type) {
+                errors.aggreement_type = true;
+                missingFields.push('Agreement Type');
+            }
+            if (!formData.property_takeover_condition_id) {
+                errors.property_takeover_condition_id = true;
+                missingFields.push('Property Takeover Condition');
+            }
+            if (!formData.leaseStart) {
+                errors.leaseStart = true;
+                missingFields.push('Lease Start Date');
+            }
+            if (!formData.leaseEnd) {
+                errors.leaseEnd = true;
+                missingFields.push('Lease End Date');
+            }
+
+            if (missingFields.length > 0) {
+                setFieldErrors(errors);
+                toast.error(`Please fill in the following mandatory fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            // Clear field errors
+            setFieldErrors({});
+
+            // Additional validations
             if (formData.signing_authority_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.signing_authority_email)) {
-                toast({
-                    variant: "destructive",
-                    title: "Invalid Email",
-                    description: "Please enter a valid email for the signing authority.",
-                });
+                toast.error('Please enter a valid email for the signing authority.');
                 return;
             }
             if (formData.signing_authority_phone && !/^\d{10}$/.test(formData.signing_authority_phone)) {
-                toast({
-                    variant: "destructive",
-                    title: "Invalid Phone",
-                    description: "Please enter a valid 10-digit phone number for the signing authority.",
-                });
+                toast.error('Please enter a valid 10-digit phone number for the signing authority.');
                 return;
             }
 
@@ -512,13 +557,17 @@ const EditRentalPage = () => {
                         }
                     ],
                     sap_number: formData.sap_number,
-                    documents: base64File ? [
-                        {
+                    documents: [
+                        ...deletedDocuments.map(doc => ({
+                            ...doc,
+                            _destroy: true
+                        })),
+                        ...(base64File ? [{
                             document_type: 'agreement',
                             file_name: (formData.agreementFile as File)?.name || 'agreement.pdf',
                             base64_data: base64File
-                        }
-                    ] : [],
+                        }] : [])
+                    ],
                     property_takeover_condition_id: parseInt(formData.property_takeover_condition_id) || null,
                     parkings_attributes: [
                         ...parkings.map((p: any) => ({
@@ -570,18 +619,11 @@ const EditRentalPage = () => {
 
             const response = await patchAuth(`/leases/${id}`, payload);
             console.log('Lease updated:', response);
-            toast({
-                title: "Success",
-                description: "Rental updated successfully!",
-            });
+            toast.success('Rental updated successfully!');
             navigate(-1);
         } catch (error: any) {
             console.error('Error updating lease:', error);
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: error.message || 'Failed to update rental',
-            });
+            toast.error(error.message || 'Failed to update rental');
         } finally {
             setIsSubmitting(false);
         }
@@ -600,7 +642,7 @@ const EditRentalPage = () => {
                     <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Circle *</Label>
                         <Select value={formData.circle} onValueChange={handleCircleSelect}>
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.circle ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -616,7 +658,7 @@ const EditRentalPage = () => {
                     <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Select Property *</Label>
                         <Select value={formData.property} onValueChange={handlePropertySelect}>
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -772,9 +814,9 @@ const EditRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Property Takeover Condition *</Label>
                         <Select
                             value={formData.property_takeover_condition_id}
-                            onValueChange={(value) => setFormData(prev => ({ ...prev, property_takeover_condition_id: value }))}
+                            onValueChange={(value) => { setFormData(prev => ({ ...prev, property_takeover_condition_id: value })); setFieldErrors(prev => ({ ...prev, property_takeover_condition_id: false })); }}
                         >
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property_takeover_condition_id ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -791,9 +833,9 @@ const EditRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Agreement Type *</Label>
                         <Select
                             value={formData.aggreement_type}
-                            onValueChange={(value) => setFormData(prev => ({ ...prev, aggreement_type: value }))}
+                            onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
                         >
-                            <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.aggreement_type ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                 <SelectValue placeholder={"Select agreement type"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -847,25 +889,25 @@ const EditRentalPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Lease Start Date</Label>
+                        <Label className="text-gray-900 font-medium">Lease Start Date *</Label>
                         <div className="relative">
                             <Input
                                 type="date"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className={`bg-white border-2 ${fieldErrors.leaseStart ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
                                 value={formData.leaseStart}
-                                onChange={(e) => setFormData(prev => ({ ...prev, leaseStart: e.target.value }))}
+                                onChange={(e) => { setFormData(prev => ({ ...prev, leaseStart: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseStart: false })); }}
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Lease End Date</Label>
+                        <Label className="text-gray-900 font-medium">Lease End Date *</Label>
                         <div className="relative">
                             <Input
                                 type="date"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className={`bg-white border-2 ${fieldErrors.leaseEnd ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
                                 value={formData.leaseEnd}
-                                onChange={(e) => setFormData(prev => ({ ...prev, leaseEnd: e.target.value }))}
+                                onChange={(e) => { setFormData(prev => ({ ...prev, leaseEnd: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseEnd: false })); }}
                             />
                         </div>
                     </div>
@@ -1160,7 +1202,7 @@ const EditRentalPage = () => {
                         <div className="space-y-2">
                             <Label className="text-gray-900 font-medium">Lessee *</Label>
                             <Select value={formData.tenant} onValueChange={handleTenantSelect}>
-                                <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.tenant ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
                                     <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1691,6 +1733,56 @@ const EditRentalPage = () => {
             <div className="mt-8 space-y-6">
                 <div className="space-y-2">
                     <Label className="text-gray-900 font-medium">Agreement File</Label>
+
+                    {/* Show existing documents */}
+                    {existingDocuments.length > 0 && (
+                        <div className="space-y-2 mb-3">
+                            <p className="text-sm text-gray-600 font-medium">Existing Documents:</p>
+                            {existingDocuments.map((doc) => {
+                                const fileUrl = doc.url?.startsWith('http') ? doc.url : `${API_BASE_URL}${doc.url}`;
+                                const fileSizeKB = doc.file_size ? (doc.file_size / 1024).toFixed(1) : null;
+                                const fileSizeMB = doc.file_size && doc.file_size > 1048576 ? (doc.file_size / 1048576).toFixed(2) : null;
+                                return (
+                                    <div key={doc.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                        <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                                            <FileText className="h-5 w-5 text-[#C72030]" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-gray-900 truncate">{doc.name || 'Agreement Document'}</p>
+                                            <p className="text-xs text-gray-500">
+                                                {doc.document_type && <span className="capitalize">{doc.document_type}</span>}
+                                                {fileSizeMB ? ` • ${fileSizeMB} MB` : fileSizeKB ? ` • ${fileSizeKB} KB` : ''}
+                                                {doc.mime_type ? ` • ${doc.mime_type}` : ''}
+                                            </p>
+                                        </div>
+                                        <a
+                                            href={fileUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-[#C72030] bg-white border border-[#C72030] rounded-md hover:bg-[#C72030] hover:text-white transition-colors"
+                                        >
+                                            <Download className="h-4 w-4" />
+                                            View
+                                        </a>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setDeletedDocuments(prev => [...prev, doc]);
+                                                setExistingDocuments(prev => prev.filter(d => d.id !== doc.id));
+                                            }}
+                                            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-600 hover:text-white transition-colors"
+                                            title="Delete document"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                            Delete
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <p className="text-xs text-gray-500">{existingDocuments.length > 0 ? 'Upload a new file to replace the existing document:' : 'Upload agreement file:'}</p>
                     <Input
                         type="file"
                         accept=".pdf,.doc,.docx"
