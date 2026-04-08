@@ -38,6 +38,7 @@ const AddRentalPage = () => {
     const [loadingTakeoverConditions, setLoadingTakeoverConditions] = useState(true);
     const [amenities, setAmenities] = useState([])
     const [loadingAmenities, setLoadingAmenities] = useState(true)
+    const [status ,setStatus] = useState("")
 
     const [formData, setFormData] = useState({
         circle: '',
@@ -45,7 +46,7 @@ const AddRentalPage = () => {
         tenant: '',
         leaseStart: '',
         leaseEnd: '',
-        status: 'active',
+        status: '',
         aggreement_type: "",
         area: 0,
         perSqFtRate: 0,
@@ -335,7 +336,8 @@ const AddRentalPage = () => {
                     monthly_rent: (formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2),
                     basic_rent: formData.basicRent.toString(),
                     security_deposit: formData.securityDeposit.toString(),
-                    status: 'active',
+                    status: formData.status,
+                    is_active: formData.status === 'active' || formData.status === 'Active',
                     lease_type: 'commercial',
                     charges: formData.maintenanceCharges?.toString() || '0',
                     late_fee_percentage: formData.penaltyPercentage.toString(),

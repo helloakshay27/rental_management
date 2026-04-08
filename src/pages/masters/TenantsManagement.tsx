@@ -135,7 +135,8 @@ const TenantsManagement = () => {
           company_name: formData.company_name,
           aadhar_number: formData.aadhar_number,
           pan_number: formData.pan_number,
-          status: formData.status
+          status: formData.status,
+          is_active: formData.status === 'Active'
         }
       };
 
@@ -188,7 +189,10 @@ const TenantsManagement = () => {
     try {
       setIsLoading(true);
       await patchAuth(`/tenants/${tenantId}`, {
-        tenant: { status: newStatus }
+        tenant: { 
+          status: newStatus,
+          is_active: newStatus === 'Active'
+        }
       });
       toast.success('Status updated successfully');
       fetchTenants();
