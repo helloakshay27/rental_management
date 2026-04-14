@@ -46,6 +46,8 @@ const MyRentals = () => {
     switch (status) {
       case 'active':
         return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+      case 'inactive':
+        return <Badge className="bg-red-100 text-red-800">Inactive</Badge>;
       case 'expiring':
         return <Badge className="bg-yellow-100 text-yellow-800">Expiring Soon</Badge>;
       case 'expired':
@@ -245,6 +247,7 @@ const MyRentals = () => {
             <SelectContent className="bg-white">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
               <SelectItem value="expiring_soon">Expiring Soon</SelectItem>
               <SelectItem value="expired">Expired</SelectItem>
             </SelectContent>
