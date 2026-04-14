@@ -18,6 +18,12 @@ const MyRentals = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [myRentals, setMyRentals] = useState<any[]>([]);
+  const [summary, setSummary] = useState<any>({
+    total_properties: 0,
+    total_monthly_rent: 0,
+    total_security_deposits: 0,
+    active_leases: 0
+  });
   const navigate = useNavigate();
 
   // Payment Modal State
@@ -142,8 +148,10 @@ const MyRentals = () => {
     return matchesSearch;
   });
 
-  const totalMonthlyRent = myRentals.reduce((sum, rental) => sum + parseFloat(rental.monthly_rent || rental.basic_rent || 0), 0);
-  const totalSecurityDeposit = myRentals.reduce((sum, rental) => sum + parseFloat(rental.security_deposit || 0), 0);
+  // Keep these as fallback or for filtered views if needed, 
+  // but we'll prioritize the summary from API for the top cards.
+  const totalMonthlyRent = parseFloat(summary.total_monthly_rent || 0);
+  const totalSecurityDeposit = parseFloat(summary.total_security_deposits || 0);
 
   useEffect(() => {
     const fetchRentals = async () => {
@@ -154,6 +162,9 @@ const MyRentals = () => {
           : `/leases.json?status=${statusFilter}`;
         const response = await getAuth(path);
         setMyRentals(response.leases || []);
+        if (response.summary) {
+          setSummary(response.summary);
+        }
       } catch (error) {
         console.error('Error fetching rentals:', error);
         setMyRentals([]);
@@ -174,7 +185,7 @@ const MyRentals = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Total Properties</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{myRentals.length}</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{summary.total_properties}</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
                 <Home className="h-6 w-6 text-blue-600" />
@@ -188,7 +199,7 @@ const MyRentals = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Monthly Rent</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{totalMonthlyRent.toLocaleString()}</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{totalMonthlyRent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
                 <DollarSign className="h-6 w-6 text-green-600" />
@@ -202,7 +213,7 @@ const MyRentals = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Security Deposits</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{totalSecurityDeposit.toLocaleString()}</p>
+                <p className="text-heading-2 font-semibold text-gray-900">₹{totalSecurityDeposit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
                 <CreditCard className="h-6 w-6 text-yellow-600" />
@@ -216,7 +227,7 @@ const MyRentals = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-body text-gray-600">Active Leases</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{myRentals.filter(r => r.status === 'active').length}</p>
+                <p className="text-heading-2 font-semibold text-gray-900">{summary.active_leases}</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
                 <CheckCircle className="h-6 w-6 text-green-600" />
