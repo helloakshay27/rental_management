@@ -1,5 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
+import { FormSection, FormActions } from '@/components/ui/form-section';
+import { FormStepper } from '@/components/ui/form-stepper';
+import { PageContainer, PageHeader, StatsGrid } from '@/components/ui/page';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +16,9 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
+import { Heading, Text } from '@/components/ui/typography';
+
+const STEPS = ['Property & Lease', 'Terms & Charges', 'Additional Details'];
 
 const AddRentalPage = () => {
     const navigate = useNavigate();
@@ -104,6 +110,15 @@ const AddRentalPage = () => {
     const [agreementServices, setAgreementServices] = useState<any[]>([]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [step, setStep] = useState(0);
+    const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+
+    const goToStep = (next: number) => {
+        if (next > step && !completedSteps.includes(step)) {
+            setCompletedSteps(prev => [...prev, step]);
+        }
+        setStep(next);
+    };
 
     useEffect(() => {
         const fetchProperties = async () => {
@@ -297,6 +312,9 @@ const AddRentalPage = () => {
 
             if (missingFields.length > 0) {
                 setFieldErrors(errors);
+                // The mandatory fields are all on the first step; go back to them
+                // so the highlighted inputs are actually on screen.
+                setStep(0);
                 toast.error(`Please fill in the following mandatory fields: ${missingFields.join(', ')}`);
                 return;
             }
@@ -426,20 +444,30 @@ const AddRentalPage = () => {
     };
 
     return (
-        <div className="p-8 w-full bg-white rounded-lg shadow-sm">
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">Add New Rental</h1>
-                <p className="text-gray-500">Add a new rental property to your portfolio</p>
-            </div>
+        <PageContainer>
+            <PageHeader
+                title="Add New Rental"
+                description="Add a new rental property to your portfolio"
+                backTo="/rental-dashboard"
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <FormStepper
+                steps={STEPS}
+                current={step}
+                completed={completedSteps}
+                onStepChange={goToStep}
+            />
+
+            {step === 0 && (
+            <>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {/* Left Column */}
-                <div className="space-y-6">
+                <div className="space-y-5">
                     {/* <div className="space-y-2">
                         <Label className="text-gray-900 font-medium text-[#c72030]">SAP ID (SAP Number)</Label>
                         <Input
                             type="text"
-                            className="bg-white border-2 border-[#c72030]/30 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-2 border-[#c72030]/30 text-gray-900"
                             placeholder="e.g., SAP000013"
                             value={formData.sap_number}
                             onChange={(e) => setFormData(prev => ({ ...prev, sap_number: e.target.value }))}
@@ -449,7 +477,7 @@ const AddRentalPage = () => {
                     <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Circle *</Label>
                         <Select value={formData.circle} onValueChange={handleCircleSelect}>
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.circle ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`w-full bg-white ${fieldErrors.circle ? 'border-brand-error' : 'border-gray-300'} text-gray-900`}>
                                 <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -465,7 +493,7 @@ const AddRentalPage = () => {
                     <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Select Property *</Label>
                         <Select value={formData.property} onValueChange={handlePropertySelect}>
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`w-full bg-white ${fieldErrors.property ? 'border-brand-error' : 'border-gray-300'} text-gray-900`}>
                                 <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -636,7 +664,7 @@ const AddRentalPage = () => {
                             value={formData.property_takeover_condition_id}
                             onValueChange={(value) => { setFormData(prev => ({ ...prev, property_takeover_condition_id: value })); setFieldErrors(prev => ({ ...prev, property_takeover_condition_id: false })); }}
                         >
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property_takeover_condition_id ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`w-full bg-white ${fieldErrors.property_takeover_condition_id ? 'border-brand-error' : 'border-gray-300'} text-gray-900`}>
                                 <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -655,7 +683,7 @@ const AddRentalPage = () => {
                             value={formData.aggreement_type}
                             onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
                         >
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.aggreement_type ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`w-full bg-white ${fieldErrors.aggreement_type ? 'border-brand-error' : 'border-gray-300'} text-gray-900`}>
                                 <SelectValue placeholder={"Select agreement type"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -671,7 +699,7 @@ const AddRentalPage = () => {
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Purpose of Agreement</Label>
                         <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
-                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                 <SelectValue placeholder="Select purpose" />
                             </SelectTrigger>
                             <SelectContent>
@@ -688,7 +716,7 @@ const AddRentalPage = () => {
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
                         {/* <Select value={formData.stamp_duty_sharing} onValueChange={(value) => setFormData(prev => ({ ...prev, stamp_duty_sharing: value }))}>
-                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                 <SelectValue placeholder="Select sharing option" />
                             </SelectTrigger>
                             <SelectContent>
@@ -699,7 +727,7 @@ const AddRentalPage = () => {
                         </Select> */}
                         <Input
                             type="text"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             value={formData.stamp_duty_sharing}
                             onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
                         />
@@ -711,7 +739,7 @@ const AddRentalPage = () => {
                             <Input
                                 type="date"
                                 placeholder="dd-mm-yyyy"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="bg-white border-gray-300 text-gray-900 h-11"
                                 value={formData.agreement_sign_off_date}
                                 onChange={(e) => setFormData(prev => ({ ...prev, agreement_sign_off_date: e.target.value }))}
                             />
@@ -723,7 +751,7 @@ const AddRentalPage = () => {
                         <div className="relative">
                             <Input
                                 type="date"
-                                className={`bg-white border-2 ${fieldErrors.leaseStart ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
+                                className={`bg-white ${fieldErrors.leaseStart ? 'border-brand-error' : 'border-gray-300'} text-gray-900`}
                                 value={formData.leaseStart}
                                 onChange={(e) => { setFormData(prev => ({ ...prev, leaseStart: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseStart: false })); }}
                             />
@@ -735,7 +763,7 @@ const AddRentalPage = () => {
                         <div className="relative">
                             <Input
                                 type="date"
-                                className={`bg-white border-2 ${fieldErrors.leaseEnd ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
+                                className={`bg-white ${fieldErrors.leaseEnd ? 'border-brand-error' : 'border-gray-300'} text-gray-900`}
                                 value={formData.leaseEnd}
                                 onChange={(e) => { setFormData(prev => ({ ...prev, leaseEnd: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseEnd: false })); }}
                             />
@@ -743,7 +771,7 @@ const AddRentalPage = () => {
                     </div>
 
                     <div>
-                        <h3 className="font-semibold text-lg mb-6 text-gray-900">Rent Breakdown</h3>
+                        <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand">Rent Breakdown</h3>
 
                         <div className="space-y-4">
                             <div className="space-y-2">
@@ -751,7 +779,7 @@ const AddRentalPage = () => {
                                 <Input
                                     type="number"
                                     min="0"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-gray-300 text-gray-900 h-11"
                                     placeholder="e.g., 30000"
                                     value={formData.area || ''}
                                     onChange={(e) => {
@@ -778,7 +806,7 @@ const AddRentalPage = () => {
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                         placeholder="0"
                                         value={formData.perSqFtRate || ''}
                                         onChange={(e) => {
@@ -799,7 +827,7 @@ const AddRentalPage = () => {
                             </div>
 
                             {formData.perSqFtRate > 0 && formData.area > 0 && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-md p-2">
+                                <div className="flex items-center gap-2 text-sm text-gray-600 bg-brand-light border border-brand-border rounded-md p-2">
                                     <span className="text-blue-600">ℹ️</span>
                                     <span>{formData.perSqFtRate} × {formData.area.toLocaleString()} sq ft = ₹{formData.basicRent.toLocaleString()}</span>
                                 </div>
@@ -851,7 +879,7 @@ const AddRentalPage = () => {
                                                             min="0"
                                                             max="100"
                                                             step="0.01"
-                                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                                             placeholder="0"
                                                             value={formData.cgst || ''}
                                                             disabled={formData.igst > 0}
@@ -872,7 +900,7 @@ const AddRentalPage = () => {
                                                             min="0"
                                                             max="100"
                                                             step="0.01"
-                                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                                             placeholder="0"
                                                             value={formData.sgst || ''}
                                                             disabled={formData.igst > 0}
@@ -894,7 +922,7 @@ const AddRentalPage = () => {
                                                         min="0"
                                                         max="100"
                                                         step="0.01"
-                                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                                         placeholder="0"
                                                         value={formData.igst || ''}
                                                         disabled={formData.cgst > 0 || formData.sgst > 0}
@@ -945,7 +973,7 @@ const AddRentalPage = () => {
                                                             min="0"
                                                             max="100"
                                                             step="0.01"
-                                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                                             placeholder="10"
                                                             value={formData.tdsPercentage || ''}
                                                             onChange={(e) => {
@@ -981,7 +1009,7 @@ const AddRentalPage = () => {
                                             type="number"
                                             min="0"
                                             step="0.01"
-                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                             placeholder="0"
                                             value={formData.securityDeposit || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, securityDeposit: parseFloat(e.target.value) || 0 }))}
@@ -996,7 +1024,7 @@ const AddRentalPage = () => {
                                             type="number"
                                             min="0"
                                             step="0.01"
-                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                             placeholder="0"
                                             value={formData.maintenanceCharges || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
@@ -1024,13 +1052,13 @@ const AddRentalPage = () => {
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-6">
+                <div className="space-y-5">
                     <div className="grid grid-cols-1 gap-6">
 
                         {/* <div className="space-y-2">
                             <Label className="text-gray-900 font-medium"> Circle *</Label>
                             <Select value={formData.property} onValueChange={handlePropertySelect}>
-                                <SelectTrigger className="w-full bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectTrigger className="w-full bg-white border-gray-300 text-gray-900 h-11">
                                     <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1046,7 +1074,7 @@ const AddRentalPage = () => {
                         <div className="space-y-2">
                             <Label className="text-gray-900 font-medium">Lessee *</Label>
                             <Select value={formData.tenant} onValueChange={handleTenantSelect}>
-                                <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.tenant ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                                <SelectTrigger className={`w-full bg-white ${fieldErrors.tenant ? 'border-brand-error' : 'border-gray-300'} text-gray-900`}>
                                     <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1118,7 +1146,7 @@ const AddRentalPage = () => {
                         <div className="space-y-2">
                             <Label className="text-gray-900 font-medium">Status</Label>
                             <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                                <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1132,7 +1160,7 @@ const AddRentalPage = () => {
                             <Label className="text-gray-900 font-medium">Additional Notes</Label>
                             <Textarea
                                 placeholder="Any additional notes or comments"
-                                className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="min-h-[80px] bg-white border-gray-300 text-gray-900 h-11"
                                 value={formData.notes}
                                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                             />
@@ -1142,20 +1170,20 @@ const AddRentalPage = () => {
                     <div className="space-y-4">
                         <div className="flex justify-start items-center gap-2">
                             <Clock className="h-5 w-5 text-gray-900" />
-                            <h3 className="font-semibold text-lg text-gray-900">Rent Due Configuration</h3>
+                            <h3 className="text-brand-body-3 font-semibold uppercase text-brand">Rent Due Configuration</h3>
                         </div>
                         <div className="space-y-3">
                             <Label className="text-gray-900 font-medium">Rent Payment Type</Label>
                             <RadioGroup defaultValue="advance">
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="advance" id="advance" className="text-[#C72030] border-gray-400" />
+                                    <RadioGroupItem value="advance" id="advance" />
                                     <div className="grid gap-0.5">
                                         <Label htmlFor="advance" className="text-gray-900 font-medium">Advance Payment</Label>
                                         <span className="text-xs text-gray-500">Rent is paid before the month begins</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="post" id="post" className="text-[#C72030] border-gray-400" />
+                                    <RadioGroupItem value="post" id="post" />
                                     <div className="grid gap-0.5">
                                         <Label htmlFor="post" className="text-gray-900 font-medium">Post Usage Payment</Label>
                                         <span className="text-xs text-gray-500">Rent is paid after the month ends</span>
@@ -1167,7 +1195,7 @@ const AddRentalPage = () => {
                         <div className="space-y-2">
                             <Label className="flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date of the Month</Label>
                             <Select value={formData.rentDueDate} onValueChange={val => setFormData(prev => ({ ...prev, rentDueDate: val }))}>
-                                <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                     <SelectValue placeholder="Select date" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1180,14 +1208,14 @@ const AddRentalPage = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 bg-[#FAF9F6] rounded-lg border border-gray-100 space-y-6">
-                        <h3 className="font-semibold text-lg mb-6 text-gray-900">Escalation & Penalty Settings</h3>
+                    <div className="space-y-5 rounded-lg border border-brand-border bg-white p-5">
+                        <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand">Escalation & Penalty Settings</h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label className="text-gray-900 font-medium">Escalation Frequency </Label>
                                 <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))} disabled>
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                         <SelectValue placeholder="Select Escalation Frequency " />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1203,7 +1231,7 @@ const AddRentalPage = () => {
                                 <Input
                                     type="number"
                                     min="1"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-gray-300 text-gray-900 h-11"
                                     placeholder="1"
                                     value={formData.escalation_interval || ''}
                                     onChange={(e) => setFormData(prev => ({ ...prev, escalation_interval: parseInt(e.target.value) || 1 }))}
@@ -1219,7 +1247,7 @@ const AddRentalPage = () => {
                                 min="0"
                                 max="100"
                                 step="0.01"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="bg-white border-gray-300 text-gray-900 h-11"
                                 placeholder="0"
                                 value={formData.escalationPercentage || ''}
                                 onChange={(e) => setFormData(prev => ({ ...prev, escalationPercentage: parseFloat(e.target.value) || 0 }))}
@@ -1246,7 +1274,7 @@ const AddRentalPage = () => {
                                             min="0"
                                             max="100"
                                             step="0.01"
-                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                             placeholder="0"
                                             value={formData.penaltyPercentage || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, penaltyPercentage: parseFloat(e.target.value) || 0 }))}
@@ -1276,7 +1304,7 @@ const AddRentalPage = () => {
                                             min="0"
                                             max="100"
                                             step="0.01"
-                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
                                             placeholder="0"
                                             value={formData.interestPercentage || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, interestPercentage: parseFloat(e.target.value) || 0 }))}
@@ -1294,7 +1322,7 @@ const AddRentalPage = () => {
                             <Input
                                 type="date"
                                 placeholder="dd-mm-yyyy"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="bg-white border-gray-300 text-gray-900 h-11"
                                 value={formData.rent_commencement_date}
                                 onChange={(e) => setFormData(prev => ({ ...prev, rent_commencement_date: e.target.value }))}
                             />
@@ -1306,7 +1334,7 @@ const AddRentalPage = () => {
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="e.g., 30"
                             value={formData.rent_free_period_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, rent_free_period_days: parseInt(e.target.value) || 0 }))}
@@ -1318,7 +1346,7 @@ const AddRentalPage = () => {
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="e.g., 180"
                             value={formData.lock_in_period_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
@@ -1327,8 +1355,12 @@ const AddRentalPage = () => {
                 </div>
             </div>
 
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-6 text-gray-900">Notice Period & Terms</h3>
+            </>
+            )}
+
+            {step === 1 && (
+            <>
+            <FormSection step={1} title="Notice Period & Terms">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -1336,7 +1368,7 @@ const AddRentalPage = () => {
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="30"
                             value={formData.from_landlord_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, from_landlord_days: parseInt(e.target.value) || 0 }))}
@@ -1348,7 +1380,7 @@ const AddRentalPage = () => {
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="60"
                             value={formData.from_vil_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, from_vil_days: parseInt(e.target.value) || 0 }))}
@@ -1359,7 +1391,7 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Termination Rights with LESSEE</Label>
                         <Textarea
                             placeholder="e.g., Lessee can terminate with 30 days notice"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             rows={3}
                             value={formData.termination_rights_lessee}
                             onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessee: e.target.value }))}
@@ -1370,7 +1402,7 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Termination Rights with LESSOR</Label>
                         <Textarea
                             placeholder="e.g., Lessor can terminate with 60 days notice"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             rows={3}
                             value={formData.termination_rights_lessor}
                             onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessor: e.target.value }))}
@@ -1381,22 +1413,22 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Handover Condition</Label>
                         <Textarea
                             placeholder="e.g., Property must be handed over clean and in good condition"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             rows={3}
                             value={formData.handover_condition}
                             onChange={(e) => setFormData(prev => ({ ...prev, handover_condition: e.target.value }))}
                         />
                     </div>
                 </div>
-            </div>
+                        </FormSection>
 
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-semibold text-lg text-gray-900">Parking Details</h3>
+                    <h3 className="text-brand-body-3 font-semibold uppercase text-brand">Parking Details</h3>
                     <Button
                         type="button"
                         onClick={addParking}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                        className="fm-button-fix fm-button-brand px-6 py-2"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Parking
@@ -1412,7 +1444,7 @@ const AddRentalPage = () => {
                                     value={parking.vehicle_type}
                                     onValueChange={(value) => updateParking(index, 'vehicle_type', value)}
                                 >
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1446,7 +1478,7 @@ const AddRentalPage = () => {
                                         setParkings(updated);
                                     }}
                                 >
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1461,7 +1493,7 @@ const AddRentalPage = () => {
                                 <Input
                                     type="number"
                                     min="0"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-gray-300 text-gray-900 h-11"
                                     placeholder="0"
                                     value={parking.count}
                                     onChange={(e) => updateParking(index, 'count', e.target.value)}
@@ -1474,7 +1506,7 @@ const AddRentalPage = () => {
                                     type="number"
                                     min="0"
                                     step="0.01"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-gray-300 text-gray-900 h-11"
                                     placeholder="0"
                                     value={parking.charge}
                                     disabled={parking.parking_type === 'free'}
@@ -1498,9 +1530,9 @@ const AddRentalPage = () => {
                 </div>
             </div>
 
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
                 <div className="space-y-2">
-                    <h3 className="font-semibold text-lg text-gray-900 mb-3"> Common Amenities</h3>
+                    <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand"> Common Amenities</h3>
                     <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
                         {amenities.map((amenity) => (
                             <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
@@ -1523,8 +1555,12 @@ const AddRentalPage = () => {
                 </div>
             </div>
 
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-6 text-gray-900">Additional Details</h3>
+            </>
+            )}
+
+            {step === 2 && (
+            <>
+            <FormSection step={2} title="Additional Details">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Dynamic Custom Fields */}
@@ -1536,7 +1572,7 @@ const AddRentalPage = () => {
                             {field.field_type === 'text' || field.field_type === 'number' ? (
                                 <Input
                                     type={field.field_type}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-gray-300 text-gray-900 h-11"
                                     placeholder={`Enter ${field.name}`}
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
@@ -1544,7 +1580,7 @@ const AddRentalPage = () => {
                             ) : field.field_type === 'date' ? (
                                 <Input
                                     type="date"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-gray-300 text-gray-900 h-11"
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
                                 />
@@ -1559,7 +1595,7 @@ const AddRentalPage = () => {
                             ) : field.field_type === 'textarea' ? (
                                 <Textarea
                                     placeholder={`Enter ${field.name}`}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-gray-300 text-gray-900 h-11"
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
                                 />
@@ -1567,17 +1603,16 @@ const AddRentalPage = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+                        </FormSection>
 
-            {/* <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-6 text-gray-900">Signing Authorities</h3>
+            {/* <FormSection step={3} title="Signing Authorities">
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <StatsGrid>
                     <div className="space-y-2">
                         <Label className="text-gray-900 font-medium">Name</Label>
                         <Input
                             type="text"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="Enter name"
                             value={formData.signing_authority_name}
                             onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_name: e.target.value }))}
@@ -1588,7 +1623,7 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Designation</Label>
                         <Input
                             type="text"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="Enter designation"
                             value={formData.signing_authority_designation}
                             onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_designation: e.target.value }))}
@@ -1599,7 +1634,7 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Email</Label>
                         <Input
                             type="email"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="Enter email address"
                             value={formData.signing_authority_email}
                             onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_email: e.target.value }))}
@@ -1610,14 +1645,14 @@ const AddRentalPage = () => {
                         <Label className="text-gray-900 font-medium">Phone Number</Label>
                         <Input
                             type="tel"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-gray-300 text-gray-900 h-11"
                             placeholder="Enter phone number"
                             value={formData.signing_authority_phone}
                             onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_phone: e.target.value }))}
                         />
                     </div>
-                </div>
-            </div> */}
+                </StatsGrid>
+             </FormSection>
 
             {/* <AgreementServicesSection services={agreementServices} onChange={setAgreementServices} /> */}
 
@@ -1627,7 +1662,7 @@ const AddRentalPage = () => {
                     <Input
                         type="file"
                         accept=".pdf,.doc,.docx"
-                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                        className="bg-white border-gray-300 text-gray-900 h-11"
                         onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
                     />
                 </div>
@@ -1635,17 +1670,36 @@ const AddRentalPage = () => {
 
             </div>
 
-            <div className="flex justify-end gap-3 mt-8">
-                <Button variant="outline" onClick={() => navigate(-1)} className="border-red-600 text-red-600 hover:bg-red-50" disabled={isSubmitting}>Cancel</Button>
+            </>
+            )}
+
+            <FormActions>
                 <Button
-                    onClick={handleSubmit}
-                    className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                    variant="outline"
+                    onClick={() => (step === 0 ? navigate(-1) : goToStep(step - 1))}
+                    className="fm-button-fix px-8 py-2"
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? 'Adding...' : 'Add Rental'}
+                    {step === 0 ? 'Cancel' : 'Back'}
                 </Button>
-            </div>
-        </div >
+                {step < STEPS.length - 1 ? (
+                    <Button
+                        onClick={() => goToStep(step + 1)}
+                        className="fm-button-fix fm-button-brand px-8 py-2"
+                    >
+                        Next
+                    </Button>
+                ) : (
+                    <Button
+                        onClick={handleSubmit}
+                        className="fm-button-fix fm-button-brand px-8 py-2"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Adding...' : 'Add Rental'}
+                    </Button>
+                )}
+            </FormActions>
+        </PageContainer>
     );
 };
 

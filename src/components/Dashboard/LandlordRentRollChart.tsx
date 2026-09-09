@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { ComposedChart, Bar, Line, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, Legend } from 'recharts';
 
 const rentRollData = [
   { month: 'Jan', collections: 98.2, escalations: 12, newLeases: 3, renewals: 8 },
@@ -16,19 +16,19 @@ const rentRollData = [
 const chartConfig = {
   collections: {
     label: 'Collection Rate (%)',
-    color: '#C72030'
+    color: '#DA7756'
   },
   escalations: {
     label: 'Escalations',
-    color: '#45B7D1'
+    color: '#76CDC1'
   },
   newLeases: {
     label: 'New Leases',
-    color: '#66BB6A'
+    color: '#798C5E'
   },
   renewals: {
     label: 'Renewals',
-    color: '#FFA726'
+    color: '#EDC488'
   }
 };
 
@@ -36,31 +36,29 @@ const LandlordRentRollChart = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Rent Roll Performance</CardTitle>
+        <CardTitle className="text-brand-body-1 font-bold text-[#1a1a1a]">Rent Roll Performance</CardTitle>
         <p className="text-sm text-gray-600">Collection rates and lease activity</p>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={rentRollData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <XAxis dataKey="month" />
-              <YAxis yAxisId="left" />
-              <YAxis yAxisId="right" orientation="right" />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Legend />
-              <Bar yAxisId="left" dataKey="escalations" fill={chartConfig.escalations.color} name="Escalations" />
-              <Bar yAxisId="left" dataKey="newLeases" fill={chartConfig.newLeases.color} name="New Leases" />
-              <Bar yAxisId="left" dataKey="renewals" fill={chartConfig.renewals.color} name="Renewals" />
-              <Line 
-                yAxisId="right" 
-                type="monotone" 
-                dataKey="collections" 
-                stroke={chartConfig.collections.color} 
-                strokeWidth={3}
-                name="Collection Rate (%)"
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <ComposedChart data={rentRollData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <XAxis dataKey="month" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Bar yAxisId="left" dataKey="escalations" fill={chartConfig.escalations.color} name="Escalations" />
+            <Bar yAxisId="left" dataKey="newLeases" fill={chartConfig.newLeases.color} name="New Leases" />
+            <Bar yAxisId="left" dataKey="renewals" fill={chartConfig.renewals.color} name="Renewals" />
+            <Line 
+              yAxisId="right" 
+              type="monotone" 
+              dataKey="collections" 
+              stroke={chartConfig.collections.color} 
+              strokeWidth={3}
+              name="Collection Rate (%)"
+            />
+          </ComposedChart>
         </ChartContainer>
       </CardContent>
     </Card>

@@ -35,7 +35,7 @@ const DocumentUploadDialog = ({ isOpen, onClose, onUpload }: DocumentUploadDialo
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[700px] bg-white">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold">Upload Document</DialogTitle>
+                    <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Upload Document</DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-6 py-4">
                     <div className="space-y-2">
@@ -107,7 +107,7 @@ const DocumentUploadDialog = ({ isOpen, onClose, onUpload }: DocumentUploadDialo
                     </Button>
                     <Button
                         onClick={handleSubmit}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                        className="fm-button-fix fm-button-brand px-6 py-2"
                     >
                         Upload Document
                     </Button>

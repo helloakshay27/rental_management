@@ -1,20 +1,37 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { StatsGrid } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Eye, Edit, FileText, Download, CheckCircle, Clock, DollarSign } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Eye, Edit, FileText, Download, CheckCircle, Clock, DollarSign, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import EditableAgreementDialog from './EditableAgreementDialog';
 
+const columns: ColumnConfig[] = [
+  { key: 'srNo', label: 'Sr. No', sortable: false, draggable: true, width: 80 },
+  { key: 'sap_number', label: 'SAP ID', sortable: true, draggable: true },
+  { key: 'id', label: 'Agreement ID', sortable: true, draggable: true },
+  { key: 'propertyName', label: 'Property', sortable: true, draggable: true },
+  { key: 'tenantName', label: 'Tenant', sortable: true, draggable: true },
+  { key: 'startDate', label: 'Lease Period', sortable: true, draggable: true },
+  { key: 'monthlyRent', label: 'Monthly Rent', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
+
 const RentalAgreements = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [selectedAgreement, setSelectedAgreement] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const { toast } = useToast();
 
   // Mock data for rental agreements
   const agreements = [
@@ -71,26 +88,29 @@ const RentalAgreements = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Active</Badge>;
+        return <Badge variant="success">Active</Badge>;
       case 'inactive':
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Inactive</Badge>;
+        return <Badge variant="rejected">Inactive</Badge>;
       case 'expiring':
-        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Expiring Soon</Badge>;
+        return <Badge variant="warning">Expiring Soon</Badge>;
       case 'terminated':
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Terminated</Badge>;
+        return <Badge variant="rejected">Terminated</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Unknown</Badge>;
+        return <Badge variant="inactive">Unknown</Badge>;
     }
   };
 
-  const filteredAgreements = agreements.filter(agreement => {
-    const matchesSearch = agreement.tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agreement.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agreement.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (agreement.sap_number && agreement.sap_number.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = statusFilter === 'all' || agreement.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredAgreements = agreements
+    .filter(agreement => {
+      const matchesSearch = agreement.tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agreement.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agreement.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (agreement.sap_number && agreement.sap_number.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesStatus = statusFilter === 'all' || agreement.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    // Sr. No is positional, so it is derived after filtering rather than from the source row.
+    .map((agreement, index) => ({ ...agreement, srNo: index + 1 }));
 
   const handleViewEdit = (agreement) => {
     setSelectedAgreement(agreement);
@@ -98,180 +118,151 @@ const RentalAgreements = () => {
   };
 
   const handleDownloadAgreement = (agreement) => {
-    toast({
-      title: "Download Started",
+    toast.success("Download Started", {
       description: `Downloading agreement ${agreement.id}`,
     });
   };
 
   const handleSummaryCardClick = (filterType) => {
     setStatusFilter(filterType);
-    toast({
-      title: "Filter Applied",
+    toast.success("Filter Applied", {
       description: `Showing ${filterType === 'all' ? 'all' : filterType} agreements`,
     });
   };
 
-  return (
-    <div className="space-y-6 bg-white">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('all')}>
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Total Agreements</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{agreements.length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-[#E74C3C]/10 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-[#E74C3C]" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  const renderCell = (agreement: typeof filteredAgreements[number], columnKey: string) => {
+    switch (columnKey) {
+      case 'srNo':
+        return <span className="text-brand-text-light font-medium">{agreement.srNo}</span>;
+      case 'sap_number':
+        return <span className="font-medium text-brand">{agreement.sap_number || 'N/A'}</span>;
+      case 'id':
+        return <span className="font-medium">{agreement.id}</span>;
+      case 'startDate':
+        return (
+          <div className="text-brand-body-4">
+            <div>{new Date(agreement.startDate).toLocaleDateString()} -</div>
+            <div>{new Date(agreement.endDate).toLocaleDateString()}</div>
+          </div>
+        );
+      case 'monthlyRent':
+        return <span className="font-medium">₹{agreement.monthlyRent.toLocaleString()}</span>;
+      case 'status':
+        return getStatusBadge(agreement.status);
+      default:
+        return agreement[columnKey as keyof typeof agreement];
+    }
+  };
 
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('active')}>
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Active Leases</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'active').length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  const renderActions = (agreement: typeof filteredAgreements[number]) => (
+    <div className="flex items-center gap-2">
+      <Button variant="ghost" size="sm" title="View" onClick={() => handleViewEdit(agreement)}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Edit" onClick={() => handleViewEdit(agreement)}>
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Download" onClick={() => handleDownloadAgreement(agreement)}>
+        <Download className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200" onClick={() => handleSummaryCardClick('expiring')}>
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Expiring Soon</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{agreements.filter(a => a.status === 'expiring').length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-orange-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  const leftActions = (
+    <>
+      <Button onClick={() => navigate('/rental/new')} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Plus className="w-4 h-4 mr-2" />
+        Add Rental Agreement
+      </Button>
 
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Monthly Revenue</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{agreements.filter(a => a.status === 'active').reduce((sum, a) => sum + a.monthlyRent, 0).toLocaleString()}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-[#E74C3C]/10 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-[#E74C3C]" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Search */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="bg-white border-b border-gray-200">
-          <CardTitle className="text-[#1a1a1a]">Rental Agreements</CardTitle>
-        </CardHeader>
-        <CardContent className="bg-white">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search by tenant, property, or agreement ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white border-gray-200"
-                />
-              </div>
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white border-gray-200">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-gray-200 shadow-lg">
+      <TableFilterDialog
+        open={isFilterOpen}
+        onOpenChange={setIsFilterOpen}
+        onApply={() => setStatusFilter(pendingStatus)}
+        onReset={() => {
+            setPendingStatus('all');
+            setStatusFilter('all');
+        }}
+    >
+        <FilterField label="Status">
+            <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                    <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
                 <SelectItem value="expiring">Expiring Soon</SelectItem>
                 <SelectItem value="terminated">Terminated</SelectItem>
-              </SelectContent>
+                </SelectContent>
             </Select>
-          </div>
+        </FilterField>
+    </TableFilterDialog>
+    </>
+  );
 
-          {/* Agreements Table */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50 border-b border-gray-200">
-                  <TableHead className="text-[#1a1a1a] font-medium w-[80px]">Sr. No</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">SAP ID</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Agreement ID</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Tenant</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Monthly Rent</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="bg-white">
-                {filteredAgreements.map((agreement, index) => (
-                  <TableRow key={agreement.id} className="hover:bg-gray-50 bg-white border-b border-gray-100">
-                    <TableCell className="bg-white text-gray-500 font-medium">{index + 1}</TableCell>
-                    <TableCell className="font-medium text-[#c72030] bg-white">{agreement.sap_number || 'N/A'}</TableCell>
-                    <TableCell className="font-medium bg-white">{agreement.id}</TableCell>
-                    <TableCell className="bg-white">{agreement.propertyName}</TableCell>
-                    <TableCell className="bg-white">{agreement.tenantName}</TableCell>
-                    <TableCell className="bg-white">
-                      <div className="text-body">
-                        <div>{new Date(agreement.startDate).toLocaleDateString()} -</div>
-                        <div>{new Date(agreement.endDate).toLocaleDateString()}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium bg-white">₹{agreement.monthlyRent.toLocaleString()}</TableCell>
-                    <TableCell className="bg-white">{getStatusBadge(agreement.status)}</TableCell>
-                    <TableCell className="bg-white">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewEdit(agreement)}
-                          className="hover:bg-[#E74C3C]/10 hover:text-[#E74C3C]"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewEdit(agreement)}
-                          className="hover:bg-green-50 hover:text-green-600"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDownloadAgreement(agreement)}
-                          className="hover:bg-gray-50"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+  return (
+    <div className="space-y-5">
+      {/* Summary Cards */}
+      <StatsGrid>
+        <StatsCard
+          title="Total Agreements"
+          value={agreements.length}
+          icon={<FileText />}
+          selected={statusFilter === 'all'}
+          onClick={() => handleSummaryCardClick('all')}
+        />
+        <StatsCard
+          title="Active Leases"
+          value={agreements.filter(a => a.status === 'active').length}
+          icon={<CheckCircle />}
+          selected={statusFilter === 'active'}
+          onClick={() => handleSummaryCardClick('active')}
+        />
+        <StatsCard
+          title="Expiring Soon"
+          value={agreements.filter(a => a.status === 'expiring').length}
+          icon={<Clock />}
+          selected={statusFilter === 'expiring'}
+          onClick={() => handleSummaryCardClick('expiring')}
+        />
+        <StatsCard
+          title="Monthly Revenue"
+          value={`₹${agreements
+            .filter(a => a.status === 'active')
+            .reduce((sum, a) => sum + a.monthlyRent, 0)
+            .toLocaleString()}`}
+          icon={<DollarSign />}
+        />
+      </StatsGrid>
+
+      {/* Agreements Table */}
+      <div>
+        <EnhancedTable
+          data={filteredAgreements}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(agreement) => agreement.id}
+          storageKey="rental-agreements-table"
+          emptyMessage="No agreements found"
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search by tenant, property, or agreement ID..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={leftActions}
+          onFilterClick={() => {
+              setPendingStatus(statusFilter);
+              setIsFilterOpen(true);
+          }}
+          exportFileName="rental-agreements"
+          pagination={true}
+          pageSize={10}
+        />
+      </div>
 
       <EditableAgreementDialog
         agreement={selectedAgreement}

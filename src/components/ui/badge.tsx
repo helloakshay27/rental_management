@@ -5,22 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full px-3 py-1 text-brand-body-5 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive: "border-transparent bg-error text-error-foreground hover:bg-error/80",
-        outline: "text-foreground border border-tertiary-1",
-        success: "border-transparent bg-success text-success-foreground",
-        warning: "border-transparent bg-warning text-warning-foreground",
-        pending: "border-transparent bg-warning text-warning-foreground",
-        rejected: "border-transparent bg-error text-error-foreground",
-        accepted: "border-transparent bg-success text-success-foreground",
-        active: "border-transparent bg-success text-success-foreground",
-        inactive: "border-transparent bg-gray-100 text-gray-800",
-        expired: "border-transparent bg-error text-error-foreground",
+        default: "border-transparent bg-brand text-white hover:bg-brand-hover",
+        secondary: "border-transparent bg-brand-green-light text-brand-success",
+        destructive: "border-transparent bg-brand-error-bg text-brand-error",
+        outline: "text-brand-text border border-brand-border",
+        brand: "border-transparent bg-brand-light text-brand",
+        success: "border-transparent bg-brand-success-bg text-brand-success",
+        warning: "border-transparent bg-brand-warning-light text-brand-text",
+        info: "border-transparent bg-brand-teal-light text-brand-text",
+        tag: "border-transparent bg-brand-purple-light text-brand-text",
+        pending: "border-transparent bg-brand-warning-light text-brand-text",
+        rejected: "border-transparent bg-brand-error-bg text-brand-error",
+        accepted: "border-transparent bg-brand-success-bg text-brand-success",
+        active: "border-transparent bg-brand-success-bg text-brand-success",
+        inactive: "border-transparent bg-brand-muted text-brand-text",
+        expired: "border-transparent bg-brand-error-bg text-brand-error",
       },
     },
     defaultVariants: {

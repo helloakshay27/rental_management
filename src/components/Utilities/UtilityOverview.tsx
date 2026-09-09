@@ -1,6 +1,8 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsGrid } from '@/components/ui/page';
+import { Panel, PanelRow, PanelBadge } from '@/components/ui/panel';
+import { StatsCard } from '@/components/ui/stats-card';
 import { Zap, Droplets, Thermometer, Wifi, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 
 const UtilityOverview = () => {
@@ -11,97 +13,102 @@ const UtilityOverview = () => {
     { type: 'Internet', icon: Wifi, usage: '5 connections', cost: '$299', change: '0%', trend: 'neutral' }
   ];
 
+  /** Due-date urgency is the one semantic colour these rows keep. */
+  const getBillTone = (status: string) =>
+    status === 'Due Soon'
+      ? 'text-brand-error'
+      : status === 'Pending'
+        ? 'text-brand-warning'
+        : 'text-brand-success';
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="space-y-5">
+      <StatsGrid>
         {utilities.map((utility, index) => {
           const Icon = utility.icon;
           return (
-            <Card key={index} className="bg-[#f6f4ee] border border-gray-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#D5DbDB]">{utility.type}</CardTitle>
-                <Icon className="h-4 w-4 text-[#C72030]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#1a1a1a]">{utility.cost}</div>
-                <div className="text-sm text-[#D5DbDB]">{utility.usage}</div>
-                <p className={`text-xs mt-1 flex items-center ${
-                  utility.trend === 'up' ? 'text-red-600' : 
-                  utility.trend === 'down' ? 'text-green-600' : 
-                  'text-gray-500'
-                }`}>
-                  {utility.trend === 'up' && <TrendingUp className="h-3 w-3 mr-1" />}
-                  {utility.trend === 'down' && <TrendingDown className="h-3 w-3 mr-1" />}
-                  {utility.change} from last month
-                </p>
-              </CardContent>
-            </Card>
+            <StatsCard
+              key={index}
+              title={utility.type}
+              value={utility.cost}
+              icon={<Icon />}
+              footer={
+                <>
+                  <p className="text-brand-body-5 text-brand-text-light">{utility.usage}</p>
+                  <p
+                    className={`mt-0.5 flex items-center text-brand-caption ${
+                      utility.trend === 'up'
+                        ? 'text-brand-error'
+                        : utility.trend === 'down'
+                        ? 'text-brand-success'
+                        : 'text-brand-text-light'
+                    }`}
+                  >
+                    {utility.trend === 'up' && <TrendingUp className="h-3 w-3 mr-1" />}
+                    {utility.trend === 'down' && <TrendingDown className="h-3 w-3 mr-1" />}
+                    {utility.change} from last month
+                  </p>
+                </>
+              }
+            />
           );
         })}
-      </div>
+      </StatsGrid>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="bg-gray-50 border-b border-gray-200">
-            <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-[#C72030]" />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Panel
+          title={
+            <span className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-brand" />
               Consumption Trends
-            </CardTitle>
-            <CardDescription className="text-[#D5DbDB]">Monthly utility usage patterns</CardDescription>
-          </CardHeader>
-          <CardContent className="bg-white">
-            <div className="space-y-4">
-              {[
-                { month: 'January', electricity: 15240, water: 8450, gas: 1250 },
-                { month: 'December', electricity: 14120, water: 8720, gas: 1110 },
-                { month: 'November', electricity: 13890, water: 8950, gas: 980 }
-              ].map((data, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                  <span className="text-sm font-medium text-[#1a1a1a]">{data.month}</span>
-                  <div className="text-xs text-[#D5DbDB]">
-                    E: {data.electricity} kWh | W: {data.water} gal | G: {data.gas} therms
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            </span>
+          }
+          description="Monthly utility usage patterns"
+        >
+          {[
+            { month: 'January', electricity: 15240, water: 8450, gas: 1250 },
+            { month: 'December', electricity: 14120, water: 8720, gas: 1110 },
+            { month: 'November', electricity: 13890, water: 8950, gas: 980 }
+          ].map((data, index) => (
+            <PanelRow
+              key={index}
+              label={data.month}
+              value={
+                <span className="text-brand-body-5 font-normal text-brand-text-light">
+                  E: {data.electricity} kWh &middot; W: {data.water} gal &middot; G: {data.gas} therms
+                </span>
+              }
+            />
+          ))}
+        </Panel>
 
-        <Card className="bg-white border border-gray-200">
-          <CardHeader className="bg-gray-50 border-b border-gray-200">
-            <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-[#C72030]" />
+        <Panel
+          title={
+            <span className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-brand" />
               Upcoming Bills
-            </CardTitle>
-            <CardDescription className="text-[#D5DbDB]">Bills due this month</CardDescription>
-          </CardHeader>
-          <CardContent className="bg-white">
-            <div className="space-y-3">
-              {[
-                { utility: 'Electricity', provider: 'PowerCorp', due: '2024-01-25', amount: '$2,286', status: 'Due Soon' },
-                { utility: 'Water', provider: 'AquaCity', due: '2024-01-28', amount: '$168', status: 'Pending' },
-                { utility: 'Gas', provider: 'GasPlus', due: '2024-02-02', amount: '$425', status: 'Scheduled' }
-              ].map((bill, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white">
-                  <div>
-                    <div className="text-sm font-medium text-[#1a1a1a]">{bill.utility}</div>
-                    <div className="text-xs text-[#D5DbDB]">{bill.provider} • Due {bill.due}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold text-[#1a1a1a]">{bill.amount}</div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      bill.status === 'Due Soon' ? 'bg-red-100 text-red-800' :
-                      bill.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {bill.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            </span>
+          }
+          description="Bills due this month"
+        >
+          {[
+            { utility: 'Electricity', provider: 'PowerCorp', due: '2024-01-25', amount: '$2,286', status: 'Due Soon' },
+            { utility: 'Water', provider: 'AquaCity', due: '2024-01-28', amount: '$168', status: 'Pending' },
+            { utility: 'Gas', provider: 'GasPlus', due: '2024-02-02', amount: '$425', status: 'Scheduled' }
+          ].map((bill, index) => (
+            <PanelRow
+              key={index}
+              label={bill.utility}
+              hint={`${bill.provider} · Due ${bill.due}`}
+              value={
+                <span className="flex items-center gap-2">
+                  {bill.amount}
+                  <PanelBadge tone={getBillTone(bill.status)}>{bill.status}</PanelBadge>
+                </span>
+              }
+            />
+          ))}
+        </Panel>
       </div>
     </div>
   );

@@ -1,18 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, Plus, Edit, Trash2, ChevronLeft, Building } from 'lucide-react';
+import { Plus, Edit, Trash2, Building } from 'lucide-react';
 import { postAuth, getAuth, deleteAuth, patchAuth } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface FacilityType {
     id: number;
@@ -21,6 +24,12 @@ interface FacilityType {
     status: string;
     created_at: string;
 }
+
+const columns: ColumnConfig[] = [
+    { key: 'name', label: 'Facility Name', sortable: true, draggable: true },
+    { key: 'description', label: 'Description', sortable: true, draggable: true },
+    { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const FacilityTypesManagement = () => {
     const navigate = useNavigate();
@@ -148,36 +157,77 @@ const FacilityTypesManagement = () => {
         }
     };
 
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate('/masters')}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Facility Types Management</h1>
-                        <p className="text-gray-600">Define and manage various property facility categories</p>
+    const renderCell = (facility: FacilityType, columnKey: string) => {
+        switch (columnKey) {
+            case 'name':
+
+                return (
+                    <div className="flex items-center">
+                        <div className="w-10 h-10 rounded-md bg-brand-light flex items-center justify-center mr-3">
+                            <Building className="h-5 w-5 text-brand" />
+                        </div>
+                        <span className="font-semibold text-brand-text">{facility.name}</span>
                     </div>
-                </div>
+                );
+            case 'description':
+                return (
+                    <span className="text-brand-text-light block max-w-md truncate">
+                        {facility.description || '-'}
+                    </span>
+                );
+            case 'status':
+                return (
+                    <Select
+                        value={facility.status || 'Active'}
+                        onValueChange={(value) => handleUpdateStatus(facility.id, value)}
+                    >
+                        <SelectTrigger
+                            className={`w-32 h-8 rounded-full ${facility.status?.toLowerCase() === 'active'
+                                ? 'bg-brand-success-bg text-brand-success'
+                                : 'bg-brand-muted text-brand-text'}`}
+                        >
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+                );
+            default:
+                return facility[columnKey as keyof FacilityType] as React.ReactNode;
+        }
+    };
+
+    const renderActions = (facility: FacilityType) => (
+        <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" title="Edit" onClick={() => handleEditFacility(facility)}>
+                <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Delete" className="text-brand-error" onClick={() => handleDeleteFacility(facility.id)}>
+                <Trash2 className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+
+    const leftActions = (
+                        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Facility Type
+                        </Button>
+                    );
+
+    return (
+        <PageContainer>
+            <div className="flex items-center justify-between">
+                <PageHeader title="Facility Types Management" description="Define and manage various property facility categories" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => {
                     setIsDialogOpen(open);
                     if (!open) handleCloseDialog();
                 }}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-[#C72030] hover:bg-[#A01825]">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Facility Type
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent className="max-w-md bg-white">
                         <DialogHeader>
-                            <DialogTitle className="text-gray-900 font-semibold text-xl">{editingFacility ? 'Edit Facility Type' : 'Add New Facility Type'}</DialogTitle>
+                            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">{editingFacility ? 'Edit Facility Type' : 'Add New Facility Type'}</DialogTitle>
                             <DialogDescription className="text-gray-600">Enter the details for the facility category</DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
@@ -237,7 +287,7 @@ const FacilityTypesManagement = () => {
                                 Cancel
                             </Button>
                             <Button
-                                className="bg-[#C72030] hover:bg-[#A01825] text-white h-11 rounded-xl px-6"
+                                className="fm-button-fix fm-button-brand px-6 py-2"
                                 onClick={handleSubmit}
                                 disabled={isLoading}
                             >
@@ -248,91 +298,30 @@ const FacilityTypesManagement = () => {
                 </Dialog>
             </div>
 
-            <Card className="border-none shadow-sm bg-white/50 backdrop-blur-sm rounded-3xl overflow-hidden">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-xl font-bold text-gray-900">Facility Types List</CardTitle>
-                            <CardDescription>View and manage all facility type categories</CardDescription>
-                        </div>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input
-                                placeholder="Search..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 w-64 bg-white border-2 border-gray-100 focus:border-[#C72030] h-10 rounded-xl"
-                            />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-none">
-                                <TableHead className="rounded-l-2xl">Facility Name</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="rounded-r-2xl">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {loadingData ? (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-8">
-                                        Loading...
-                                    </TableCell>
-                                </TableRow>
-                            ) : filteredFacilities.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-8">
-                                        No facility types found
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                filteredFacilities.map((facility) => (
-                                    <TableRow key={facility.id} className="hover:bg-gray-50/50 border-b border-gray-100 last:border-0">
-                                        <TableCell>
-                                            <div className="flex items-center">
-                                                <div className="w-10 h-10 rounded-xl bg-[#C72030]/10 flex items-center justify-center mr-3">
-                                                    <Building className="h-5 w-5 text-[#C72030]" />
-                                                </div>
-                                                <span className="font-semibold text-gray-900">{facility.name}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-gray-600 max-w-md truncate">{facility.description || '-'}</TableCell>
-                                        <TableCell>
-                                            <Select
-                                                value={facility.status || 'Active'}
-                                                onValueChange={(value) => handleUpdateStatus(facility.id, value)}
-                                            >
-                                                <SelectTrigger className={`w-32 h-8 rounded-full ${facility.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                                                    <SelectValue placeholder="Status" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-white rounded-xl">
-                                                    <SelectItem value="Active">Active</SelectItem>
-                                                    <SelectItem value="Inactive">Inactive</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center space-x-1">
-                                                <Button variant="ghost" size="icon" className="hover:bg-blue-50 hover:text-blue-600 rounded-lg h-9 w-9" onClick={() => handleEditFacility(facility)}>
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="hover:bg-red-50 hover:text-red-600 rounded-lg h-9 w-9" onClick={() => handleDeleteFacility(facility.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
+            <div>
+                <EnhancedTable
+                    data={filteredFacilities}
+                    columns={columns}
+                    renderCell={renderCell}
+                    renderActions={renderActions}
+                    getItemId={(facility) => String(facility.id)}
+                    storageKey="facility-types-master-table"
+                    leftActions={leftActions}
+                    emptyMessage="No facility types found"
+                    loading={loadingData}
+                    loadingMessage="Loading facility types..."
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Search facility types..."
+                    disableClientSearch={true}
+                    enableSearch={true}
+                    enableSelection={false}
+                    exportFileName="facility-types"
+                    pagination={true}
+                    pageSize={10}
+                />
+            </div>
+        </PageContainer>
     );
 };
 

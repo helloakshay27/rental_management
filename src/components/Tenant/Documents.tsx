@@ -1,14 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
+import { SectionLoader } from '@/components/ui/loader';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 import { getAuth, postAuth } from '@/lib/api';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
 import DocumentSummaryCards from './DocumentSummaryCards';
-import DocumentFilters from './DocumentFilters';
 import DocumentTable from './DocumentTable';
 import DocumentUploadDialog from './DocumentUploadDialog';
 
@@ -20,6 +21,8 @@ const Documents = ({ mode = 'default' }: DocumentsProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState(mode === 'compliance' ? 'compliance' : 'all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingFilter, setPendingFilter] = useState(mode === 'compliance' ? 'compliance' : 'all');
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [complianceDocs, setComplianceDocs] = useState<any[]>([]);
@@ -138,46 +141,61 @@ const Documents = ({ mode = 'default' }: DocumentsProps) => {
   };
 
   return (
-    <div className="space-y-6 bg-white">
+    <div className="space-y-5">
       {/* Summary Cards */}
       <DocumentSummaryCards documents={allDocuments} />
 
-      {/* Main Content Card */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="bg-white border-b border-gray-200 pb-6">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-[#1a1a1a]">Documents</CardTitle>
-            <Button
-              className="bg-[#C72030] hover:bg-[#A01825]"
-              onClick={handleUploadDocument}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              {mode === 'compliance' ? 'Add Compliance' : 'Upload Document'}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="bg-white pt-6">
-          <DocumentFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            typeFilter={typeFilter}
-            setTypeFilter={setTypeFilter}
-          />
-
+      <div>
           {isLoading ? (
-            <div className="flex justify-center items-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <SectionLoader />
           ) : (
             <DocumentTable
+              leftActions={
+                <>
+                  <Button onClick={handleUploadDocument} className="fm-button-fix fm-button-brand px-6 py-2">
+                    <Upload className="w-4 h-4 mr-2" />
+                    {mode === 'compliance' ? 'Add Compliance' : 'Upload Document'}
+                  </Button>
+
+                  <TableFilterDialog
+                    open={isFilterOpen}
+                    onOpenChange={setIsFilterOpen}
+                    onApply={() => setTypeFilter(pendingFilter)}
+                    onReset={() => {
+                      setPendingFilter(mode === 'compliance' ? 'compliance' : 'all');
+                      setTypeFilter(mode === 'compliance' ? 'compliance' : 'all');
+                    }}
+                  >
+                    <FilterField label="Type">
+                      <Select value={pendingFilter} onValueChange={setPendingFilter}>
+                        <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                          <SelectValue placeholder="Filter by type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="all">All Types</SelectItem>
+                        <SelectItem value="contract">Contracts</SelectItem>
+                        <SelectItem value="receipt">Receipts</SelectItem>
+                        <SelectItem value="bill">Bills</SelectItem>
+                        <SelectItem value="photo">Photos</SelectItem>
+                        <SelectItem value="insurance">Insurance</SelectItem>
+                        <SelectItem value="inspection">Inspection</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FilterField>
+                  </TableFilterDialog>
+                </>
+              }
               documents={filteredDocuments}
+              onFilterClick={() => {
+                setPendingFilter(typeFilter);
+                setIsFilterOpen(true);
+              }}
               onViewDocument={handleViewDocument}
               onDownloadDocument={handleDownloadDocument}
               onEditDocument={mode === 'compliance' ? handleEditDocument : undefined}
             />
           )}
-        </CardContent>
-      </Card>
+      </div>
 
       {mode !== 'compliance' && (
         <DocumentUploadDialog

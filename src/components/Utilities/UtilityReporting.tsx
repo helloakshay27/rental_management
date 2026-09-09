@@ -6,7 +6,7 @@ import { Download, BarChart3, Activity, TrendingUp, FileText, Calendar, Settings
 
 const UtilityReporting = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Card className="bg-white border border-gray-200">
         <CardHeader className="bg-gray-50 border-b border-gray-200">
           <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
@@ -78,7 +78,7 @@ const UtilityReporting = () => {
                   Usage Trends
                 </h4>
                 <p className="text-xs text-[#D5DbDB] mb-3">View consumption patterns and identify anomalies</p>
-                <Button size="sm" className="bg-[#C72030] hover:bg-[#A01825] text-white">View Dashboard</Button>
+                <Button size="sm" className="fm-button-fix fm-button-brand px-6 py-2">View Dashboard</Button>
               </div>
               <div className="p-4 border border-gray-200 rounded-lg bg-white">
                 <h4 className="text-sm font-medium text-[#1a1a1a] mb-2 flex items-center gap-2">

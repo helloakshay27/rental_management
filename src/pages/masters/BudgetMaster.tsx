@@ -1,16 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
+import { Spinner } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight, Loader2, Eye, Building2, Wallet, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Building2, Wallet, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, patchAuth, deleteAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface Budget {
     id: number;
@@ -39,6 +43,13 @@ interface Site {
     id: number;
     name: string;
 }
+
+const columns: ColumnConfig[] = [
+    { key: 'site', label: 'Property', sortable: true, draggable: true },
+    { key: 'expense_category', label: 'Category', sortable: true, draggable: true },
+    { key: 'year', label: 'Year', sortable: true, draggable: true },
+    { key: 'amount', label: 'Amount (₹)', sortable: true, draggable: true },
+];
 
 const BudgetMaster = () => {
     const navigate = useNavigate();
@@ -217,38 +228,75 @@ const BudgetMaster = () => {
         }
     };
 
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate('/masters')}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Budget Master</h1>
-                        <p className="text-gray-600">Plan and track budgets for different properties and expense categories</p>
+    const renderCell = (budget: Budget, columnKey: string) => {
+        switch (columnKey) {
+            case 'site':
+
+                return (
+                    <div className="flex items-center gap-2 text-[13px] font-medium text-brand-text">
+                        <Building2 className="h-3 w-3 text-brand-text-light" />
+                        {budget.site?.name || 'N/A'}
                     </div>
-                </div>
+                );
+            case 'expense_category':
+                return (
+                    <div className="flex items-center gap-2 text-[13px] text-brand-text-light">
+                        <Wallet className="h-3 w-3 text-brand-text-light" />
+                        {budget.expense_category?.name || 'N/A'}
+                    </div>
+                );
+            case 'year':
+                return (
+                    <div className="flex items-center gap-2 text-[13px] font-mono text-brand-text-light">
+                        <Calendar className="h-3 w-3 text-brand-text-light" />
+                        {budget.year}
+                    </div>
+                );
+            case 'amount':
+                return (
+                    <span className="font-semibold text-[13px] text-brand-text">
+                        ₹{parseFloat(budget.amount.toString()).toLocaleString()}
+                    </span>
+                );
+            default:
+                return budget[columnKey as keyof Budget] as React.ReactNode;
+        }
+    };
+
+    const renderActions = (budget: Budget) => (
+        <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="icon" title="View" onClick={() => handleViewClick(budget)}>
+                <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Edit" onClick={() => handleEditClick(budget)}>
+                <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Delete" className="text-brand-error" onClick={() => handleDelete(budget.id)}>
+                <Trash2 className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+
+    const leftActions = (
+                        <Button onClick={() => setIsAddModalOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Budget
+                        </Button>
+                    );
+
+    return (
+        <PageContainer>
+            <div className="flex items-center justify-between">
+                <PageHeader title="Budget Master" description="Plan and track budgets for different properties and expense categories" backTo="/masters" />
 
                 <Dialog open={isAddModalOpen} onOpenChange={(open) => {
                     setIsAddModalOpen(open);
                     if (!open) handleResetForm();
                 }}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-[#C72030] hover:bg-[#A01825] text-white">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Budget
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px] bg-white">
                         <form onSubmit={handleAddSubmit}>
                             <DialogHeader>
-                                <DialogTitle className="text-gray-900 font-bold text-xl">Add New Budget</DialogTitle>
+                                <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add New Budget</DialogTitle>
                                 <DialogDescription className="text-gray-600">
                                     Set a budget limit for a specific category and site.
                                 </DialogDescription>
@@ -315,8 +363,8 @@ const BudgetMaster = () => {
                             </div>
                             <DialogFooter>
                                 <Button variant="outline" type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-                                <Button type="submit" disabled={submitting} className="bg-[#C72030] hover:bg-[#A01825]">
-                                    {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                <Button type="submit" disabled={submitting} className="fm-button-fix fm-button-brand px-6 py-2">
+                                    {submitting ? <Spinner className="mr-2" /> : null}
                                     Save Budget
                                 </Button>
                             </DialogFooter>
@@ -325,127 +373,34 @@ const BudgetMaster = () => {
                 </Dialog>
             </div>
 
-            <Card className="bg-white">
-                <CardHeader>
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <Input
-                                placeholder="Search budgets..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Button onClick={handleSearch} variant="outline">Search</Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-gray-50/50">
-                                    <TableHead>Property</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Year</TableHead>
-                                    <TableHead>Amount (₹)</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {loading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            <div className="flex flex-col items-center justify-center gap-2">
-                                                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-                                                <span className="text-sm text-gray-500">Loading budgets...</span>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : budgets.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center text-gray-500">
-                                            No budgets found.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    budgets.map((budget) => (
-                                        <TableRow key={budget.id}>
-                                            <TableCell className="font-medium text-gray-900">
-                                                <div className="flex items-center gap-2 text-xs">
-                                                    <Building2 className="h-3 w-3 text-gray-400" />
-                                                    {budget.site?.name || 'N/A'}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-gray-600">
-                                                <div className="flex items-center gap-2 text-xs">
-                                                    <Wallet className="h-3 w-3 text-gray-400" />
-                                                    {budget.expense_category?.name || 'N/A'}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-gray-600 font-mono text-xs">
-                                                <div className="flex items-center gap-2 text-xs">
-                                                    <Calendar className="h-3 w-3 text-gray-400" />
-                                                    {budget.year}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-gray-900 font-semibold text-xs transition-all hover:scale-105">
-                                                ₹{parseFloat(budget.amount.toString()).toLocaleString()}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button variant="ghost" size="icon" onClick={() => handleViewClick(budget)}>
-                                                        <Eye className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(budget)}>
-                                                        <Edit className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDelete(budget.id)}>
-                                                        <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {/* Pagination */}
-                    {!loading && pagination.total_pages > 1 && (
-                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-                            <p className="text-xs text-gray-500">
-                                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} budgets
-                            </p>
-                            <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={pagination.current_page === 1}
-                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                </Button>
-                                <div className="text-xs font-medium">
-                                    Page {pagination.current_page} of {pagination.total_pages}
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={pagination.current_page === pagination.total_pages}
-                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            <div>
+                <EnhancedTable
+                    data={budgets}
+                    columns={columns}
+                    renderCell={renderCell}
+                    renderActions={renderActions}
+                    getItemId={(budget) => String(budget.id)}
+                    storageKey="budgets-master-table"
+                    leftActions={leftActions}
+                    emptyMessage="No budgets found."
+                    loading={loading}
+                    loadingMessage="Loading budgets..."
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Search budgets..."
+                    disableClientSearch={true}
+                    enableSearch={true}
+                    enableSelection={false}
+                    exportFileName="budgets"
+                    pagination={true}
+                    pageSize={pagination.per_page}
+                    currentPage={pagination.current_page}
+                    totalPages={pagination.total_pages}
+                    onPageChange={(page) =>
+                        setPagination(prev => ({ ...prev, current_page: page }))
+                    }
+                />
+            </div>
 
             {/* Edit Modal */}
             <Dialog open={isEditModalOpen} onOpenChange={(open) => {
@@ -455,7 +410,7 @@ const BudgetMaster = () => {
                 <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
                     <form onSubmit={handleEditSubmit}>
                         <DialogHeader>
-                            <DialogTitle className="text-gray-900 font-bold text-xl">Edit Budget</DialogTitle>
+                            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Edit Budget</DialogTitle>
                             <DialogDescription className="text-gray-600">
                                 Update budget details for this year.
                             </DialogDescription>
@@ -520,8 +475,8 @@ const BudgetMaster = () => {
                         </div>
                         <DialogFooter>
                             <Button variant="outline" type="button" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
-                            <Button type="submit" disabled={submitting} className="bg-[#C72030] hover:bg-[#A01825]">
-                                {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            <Button type="submit" disabled={submitting} className="fm-button-fix fm-button-brand px-6 py-2">
+                                {submitting ? <Spinner className="mr-2" /> : null}
                                 Update Budget
                             </Button>
                         </DialogFooter>
@@ -533,31 +488,31 @@ const BudgetMaster = () => {
             <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
                 <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
                     <DialogHeader>
-                        <DialogTitle className="text-gray-900 font-bold text-xl">View Budget Details</DialogTitle>
+                        <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">View Budget Details</DialogTitle>
                         <DialogDescription className="text-gray-600">
                             Detailed budget allocation info.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Property (Site)</span>
-                            <span className="text-sm font-medium text-gray-900">{viewingBudget?.site?.name}</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Property (Site)</span>
+                            <span className="text-[15px] font-medium text-brand-text">{viewingBudget?.site?.name}</span>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Expense Category</span>
-                            <span className="text-sm font-medium text-gray-900">{viewingBudget?.expense_category?.name}</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Expense Category</span>
+                            <span className="text-[15px] font-medium text-brand-text">{viewingBudget?.expense_category?.name}</span>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Budget Year</span>
-                            <span className="text-sm font-medium text-gray-900">{viewingBudget?.year}</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Budget Year</span>
+                            <span className="text-[15px] font-medium text-brand-text">{viewingBudget?.year}</span>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Allocated Amount</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Allocated Amount</span>
                             <span className="text-sm font-bold text-gray-900">₹{parseFloat(viewingBudget?.amount?.toString() || '0').toLocaleString()}</span>
                         </div>
                         <div className="grid gap-1">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Created On</span>
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Created On</span>
+                            <span className="text-[15px] font-medium text-brand-text">
                                 {viewingBudget && new Date(viewingBudget.created_at).toLocaleDateString(undefined, {
                                     year: 'numeric',
                                     month: 'long',
@@ -567,13 +522,13 @@ const BudgetMaster = () => {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" onClick={() => setIsViewModalOpen(false)} className="bg-[#C72030] hover:bg-[#A01825]">
+                        <Button type="button" onClick={() => setIsViewModalOpen(false)} className="fm-button-fix fm-button-brand px-6 py-2">
                             Close
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </PageContainer>
     );
 };
 

@@ -2,24 +2,25 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 
 const chartConfig = {
   rentExpense: {
     label: 'Rent Expense',
-    color: '#C72030'
+    color: ANALYTICS_PALETTE[0]
   },
   utilities: {
     label: 'Utilities',
-    color: '#FF6B6B'
+    color: ANALYTICS_PALETTE[1]
   },
   maintenance: {
     label: 'Maintenance',
-    color: '#4ECDC4'
+    color: ANALYTICS_PALETTE[2]
   },
   totalCost: {
     label: 'Total Cost',
-    color: '#45B7D1'
+    color: ANALYTICS_PALETTE[3]
   }
 };
 
@@ -48,22 +49,21 @@ const TenantIncomeExpenseChart = ({ data }: { data?: ExpenseAnalysisData }) => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Monthly Expense Analysis</CardTitle>
+        <CardTitle className="text-brand-body-1 font-bold text-[#1a1a1a]">Monthly Expense Analysis</CardTitle>
         <p className="text-sm text-gray-600">Breakdown of property-related expenses (₹ Crores/Lakhs)</p>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Legend />
-              <Bar dataKey="rentExpense" fill={chartConfig.rentExpense.color} name="Rent (Cr)" />
-              <Bar dataKey="utilities" fill={chartConfig.utilities.color} name="Utilities (L)" />
-              <Bar dataKey="maintenance" fill={chartConfig.maintenance.color} name="Maintenance (L)" />
-            </BarChart>
-          </ResponsiveContainer>
+          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Bar dataKey="rentExpense" fill={chartConfig.rentExpense.color} name="Rent (Cr)" />
+            <Bar dataKey="utilities" fill={chartConfig.utilities.color} name="Utilities (L)" />
+            <Bar dataKey="maintenance" fill={chartConfig.maintenance.color} name="Maintenance (L)" />
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>

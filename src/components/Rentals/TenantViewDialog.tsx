@@ -45,12 +45,12 @@ const TenantViewDialog = ({ tenant, open, onOpenChange }: TenantViewDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl bg-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-[#1a1a1a]">
+          <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
             Tenant Details - {tenant.name}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Basic Information */}
           <Card>
             <CardContent className="p-4 space-y-4">

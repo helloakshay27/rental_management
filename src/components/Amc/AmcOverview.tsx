@@ -1,7 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { SectionLoader } from '@/components/ui/loader';
+import { StatsGrid } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wrench, Calendar, AlertTriangle, CheckCircle, Loader2, DollarSign } from 'lucide-react';
+import { StatsCard } from '@/components/ui/stats-card';
+import { Wrench, Calendar, AlertTriangle, CheckCircle, DollarSign } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -57,24 +60,25 @@ const AmcOverview = () => {
   const contractSummary = data?.category_distribution || [];
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="space-y-5">
+      <StatsGrid>
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index} className="bg-[#f6f4ee] border border-gray-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">{stat.title}</CardTitle>
-                <Icon className="h-4 w-4 text-[#C72030]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                <p className="text-xs text-gray-500">{stat.change}</p>
-              </CardContent>
-            </Card>
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={<Icon />}
+              footer={
+                <p className="mt-0.5 text-brand-caption text-brand-text-light">
+                  {stat.change}
+                </p>
+              }
+            />
           );
         })}
-      </div>
+      </StatsGrid>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="bg-white border border-gray-200">
@@ -85,9 +89,7 @@ const AmcOverview = () => {
           <CardContent>
             <div className="space-y-4">
               {loading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-                </div>
+                <SectionLoader />
               ) : contractSummary.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">No data available</div>
               ) : (
@@ -113,9 +115,7 @@ const AmcOverview = () => {
           <CardContent>
             <div className="space-y-4">
               {loading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-                </div>
+                <SectionLoader />
               ) : recentServices.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">No recent activities</div>
               ) : (

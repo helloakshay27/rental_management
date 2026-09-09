@@ -1,23 +1,27 @@
 
 import React from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { User, Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileTab from '@/components/Settings/ProfileTab';
 import SecurityTab from '@/components/Settings/SecurityTab';
+import { Heading, Text } from '@/components/ui/typography';
 
 const Settings = () => {
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600">Manage your account and application preferences</p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader title="Settings" description="Manage your account and application preferences" />
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-white border border-gray-200 grid w-full grid-cols-2">
-          <TabsTrigger value="profile" className="text-gray-700">Profile</TabsTrigger>
-          <TabsTrigger value="security" className="text-gray-700">Security</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="profile">
+            <User className="h-4 w-4 mr-2" />
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="security">
+            <Shield className="h-4 w-4 mr-2" />
+            Security
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6">
@@ -28,7 +32,7 @@ const Settings = () => {
           <SecurityTab />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 };
 

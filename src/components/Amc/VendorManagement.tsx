@@ -1,17 +1,30 @@
 
 import React, { useState, useEffect } from 'react';
+import { Panel, PanelRow, PanelRank } from '@/components/ui/panel';
+import { SectionLoader } from '@/components/ui/loader';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Search, Star, Phone, Mail, MapPin, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Star, Phone, Mail } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
+
+const columns: ColumnConfig[] = [
+  { key: 'vendor_name', label: 'Vendor', sortable: true, draggable: true },
+  { key: 'vendor_type', label: 'Category', sortable: true, draggable: true },
+  { key: 'contact', label: 'Contact', sortable: false, draggable: true },
+  { key: 'rating', label: 'Rating', sortable: true, draggable: true },
+  { key: 'active_contracts', label: 'Active Contracts', sortable: true, draggable: true },
+  { key: 'total_value', label: 'Total Value', sortable: true, draggable: true },
+];
 
 const VendorManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState('all');
   const [vendors, setVendors] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -51,210 +64,159 @@ const VendorManagement = () => {
     fetchVendors(pagination.current_page);
   }, [pagination.current_page, categoryFilter]);
 
-  // Handle search with a slight delay or on button click
-  // For now, let's just make a simple search trigger
-  const handleSearch = () => {
-    setPagination(prev => ({ ...prev, current_page: 1 }));
-    fetchVendors(1);
+  // Server-side search: refetch from page 1 whenever the debounced term settles.
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setPagination(prev => (prev.current_page === 1 ? prev : { ...prev, current_page: 1 }));
+      fetchVendors(1);
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [searchTerm]);
+
+  const renderCell = (vendor: any, columnKey: string) => {
+    switch (columnKey) {
+      case 'vendor_name':
+        return (
+          <div>
+            <div className="text-brand-body-5 font-medium text-brand-text">{vendor.vendor_name}</div>
+            <div className="text-brand-caption text-brand-text-light">{vendor.vendor_code}</div>
+          </div>
+        );
+      case 'contact':
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center text-brand-caption text-brand-text-light">
+              <Phone className="h-3 w-3 mr-1" />
+              {vendor.phone}
+            </div>
+            <div className="flex items-center text-brand-caption text-brand-text-light">
+              <Mail className="h-3 w-3 mr-1" />
+              {vendor.email}
+            </div>
+          </div>
+        );
+      case 'rating':
+        return (
+          <div className="flex items-center space-x-1">
+            <Star className="h-4 w-4 text-brand-warning fill-current" />
+            <span className="text-brand-body-5 font-medium text-brand-text">
+              {vendor.rating || 'N/A'}
+            </span>
+          </div>
+        );
+      case 'active_contracts':
+        return vendor.amc_stats?.active_contracts || 0;
+      case 'total_value':
+        return (
+          <span className="font-semibold text-brand-text">
+            ₹{(vendor.amc_stats?.total_value || 0).toLocaleString()}
+          </span>
+        );
+      default:
+        return vendor[columnKey];
+    }
   };
 
+  const leftActions = (
+    <TableFilterDialog
+      open={isFilterOpen}
+      onOpenChange={setIsFilterOpen}
+      onApply={() => setCategoryFilter(pendingCategory)}
+      onReset={() => {
+        setPendingCategory('all');
+        setCategoryFilter('all');
+      }}
+    >
+      <FilterField label="Category">
+        <Select value={pendingCategory} onValueChange={setPendingCategory}>
+          <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+            <SelectValue placeholder="Filter by category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="hvac">HVAC</SelectItem>
+            <SelectItem value="elevators">Elevators</SelectItem>
+            <SelectItem value="fire-safety">Fire Safety</SelectItem>
+            <SelectItem value="security">Security</SelectItem>
+            </SelectContent>
+        </Select>
+      </FilterField>
+    </TableFilterDialog>
+  );
+
   return (
-    <div className="space-y-6">
-      <Card className="bg-white border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-gray-900">Vendor Directory</CardTitle>
-          <CardDescription className="text-gray-600">Manage service providers and contractors</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search vendors..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10 bg-white text-gray-900 border border-gray-200"
-                />
-              </div>
-            </div>
-            <Button onClick={handleSearch} className="bg-[#C72030] hover:bg-[#A01825] text-white">
-              Search
-            </Button>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white text-gray-900 border border-gray-200">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="hvac">HVAC</SelectItem>
-                <SelectItem value="elevators">Elevators</SelectItem>
-                <SelectItem value="fire-safety">Fire Safety</SelectItem>
-                <SelectItem value="security">Security</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="space-y-5">
+      <div>
+        <EnhancedTable
+          data={vendors}
+          columns={columns}
+          renderCell={renderCell}
+          getItemId={(vendor) => String(vendor.id)}
+          storageKey="vendors-table"
+          emptyMessage="No vendors found"
+          loading={loading}
+          loadingMessage="Loading vendors..."
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search vendors..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={leftActions}
+          onFilterClick={() => {
+            setPendingCategory(categoryFilter);
+            setIsFilterOpen(true);
+          }}
+          exportFileName="vendors"
+          pagination={true}
+          pageSize={pagination.per_page}
+          currentPage={pagination.current_page}
+          totalPages={pagination.total_pages}
+          onPageChange={(page) =>
+            setPagination(prev => ({ ...prev, current_page: page }))
+          }
+        />
+      </div>
 
-          <div className="border rounded-lg bg-white border-gray-200">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-white border-b border-gray-200">
-                  <TableHead className="text-gray-900 font-medium">Vendor</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Category</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Contact</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Rating</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Active Contracts</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Total Value</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="bg-white">
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-                        <p className="text-sm text-gray-500">Loading vendors...</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : vendors.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                      No vendors found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  vendors.map((vendor) => (
-                    <TableRow key={vendor.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <TableCell>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{vendor.vendor_name}</div>
-                          <div className="text-xs text-gray-500">{vendor.vendor_code}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-gray-700">{vendor.vendor_type}</TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center text-xs text-gray-600">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {vendor.phone}
-                          </div>
-                          <div className="flex items-center text-xs text-gray-600">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {vendor.email}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium text-gray-900">{vendor.rating || 'N/A'}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-gray-700">{vendor.amc_stats?.active_contracts || 0}</TableCell>
-                      <TableCell className="text-gray-900 font-semibold">₹{(vendor.amc_stats?.total_value || 0).toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination Controls */}
-          {!loading && pagination.total_pages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-              <p className="text-xs text-gray-500">
-                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} vendors
-              </p>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={pagination.current_page === 1}
-                  onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="text-xs font-medium">
-                  Page {pagination.current_page} of {pagination.total_pages}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={pagination.current_page === pagination.total_pages}
-                  onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Panel title="Top Performers" description="Highest rated vendors">
+          {loading ? (
+            <SectionLoader className="py-6" />
+          ) : stats?.top_vendors?.length > 0 ? (
+            stats.top_vendors.map((vendor: any, index: number) => (
+              <PanelRow
+                key={index}
+                leading={<PanelRank index={index} />}
+                label={vendor.name}
+                hint="Top Rated"
+                value={
+                  <>
+                    <Star className="h-4 w-4 fill-current text-brand-warning" />
+                    {vendor.rating}
+                  </>
+                }
+              />
+            ))
+          ) : (
+            <div className="py-4 text-center text-brand-body-5 text-brand-text-light">
+              No performance data
             </div>
           )}
-        </CardContent>
-      </Card>
+        </Panel>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-white border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-gray-900">Top Performers</CardTitle>
-            <CardDescription className="text-gray-600">Highest rated vendors</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {loading ? (
-                <div className="flex justify-center p-4">
-                  <Loader2 className="h-6 w-6 animate-spin text-[#C72030]" />
-                </div>
-              ) : stats?.top_vendors?.length > 0 ? (
-                stats.top_vendors.map((vendor: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-400'
-                        }`}>
-                        {index + 1}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{vendor.name}</div>
-                        <div className="text-xs text-gray-500">Top Rated</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-semibold text-gray-900">{vendor.rating}</span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-gray-500 text-sm">No performance data</div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-gray-900">Performance Metrics</CardTitle>
-            <CardDescription className="text-gray-600">Vendor performance statistics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm text-gray-600">Total Vendors</span>
-                <span className="text-lg font-semibold text-gray-900">{stats?.total_vendors || 0}</span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm text-gray-600">AMC Vendors</span>
-                <span className="text-lg font-semibold text-gray-900">{stats?.amc_vendors || 0}</span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                <span className="text-sm text-green-600">Avg. Rating</span>
-                <span className="text-lg font-semibold text-green-700">{stats?.avg_rating || 0}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Panel title="Performance Metrics" description="Vendor performance statistics">
+          <PanelRow label="Total Vendors" value={stats?.total_vendors || 0} />
+          <PanelRow label="AMC Vendors" value={stats?.amc_vendors || 0} />
+          <PanelRow
+            label="Avg. Rating"
+            value={
+              <>
+                <Star className="h-4 w-4 fill-current text-brand-warning" />
+                {stats?.avg_rating || 0}
+              </>
+            }
+          />
+        </Panel>
       </div>
     </div>
   );

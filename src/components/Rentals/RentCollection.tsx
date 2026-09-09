@@ -1,16 +1,31 @@
 
 import React, { useState } from 'react';
+import { StatsGrid } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Download, Send, CheckCircle, AlertCircle, Clock, DollarSign, TrendingUp } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Download, Send, CheckCircle, AlertCircle, Clock, DollarSign, TrendingUp } from 'lucide-react';
+
+const columns: ColumnConfig[] = [
+  { key: 'tenantName', label: 'Tenant', sortable: true, draggable: true },
+  { key: 'propertyName', label: 'Property', sortable: true, draggable: true },
+  { key: 'dueDate', label: 'Due Date', sortable: true, draggable: true },
+  { key: 'amount', label: 'Amount Due', sortable: true, draggable: true },
+  { key: 'paidAmount', label: 'Paid Amount', sortable: true, draggable: true },
+  { key: 'paidDate', label: 'Payment Date', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const RentCollection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [monthFilter, setMonthFilter] = useState('current');
 
   // Mock data for rent collection
@@ -85,27 +100,27 @@ const RentCollection = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
-        return <Badge className="bg-green-100 text-green-800 flex items-center gap-1">
+        return <Badge variant="success" className="flex items-center gap-1 w-fit">
           <CheckCircle className="h-3 w-3" />
           Paid
         </Badge>;
       case 'overdue':
-        return <Badge className="bg-red-100 text-red-800 flex items-center gap-1">
+        return <Badge variant="rejected" className="flex items-center gap-1 w-fit">
           <AlertCircle className="h-3 w-3" />
           Overdue
         </Badge>;
       case 'partial':
-        return <Badge className="bg-yellow-100 text-yellow-800 flex items-center gap-1">
+        return <Badge variant="pending" className="flex items-center gap-1 w-fit">
           <Clock className="h-3 w-3" />
           Partial
         </Badge>;
       case 'pending':
-        return <Badge className="bg-blue-100 text-blue-800 flex items-center gap-1">
+        return <Badge variant="info" className="flex items-center gap-1 w-fit">
           <Clock className="h-3 w-3" />
           Pending
         </Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
+        return <Badge variant="inactive">Unknown</Badge>;
     }
   };
 
@@ -121,179 +136,164 @@ const RentCollection = () => {
   const overdueAmount = rentRecords.filter(r => r.status === 'overdue').reduce((sum, record) => sum + record.amount, 0);
   const lateFees = rentRecords.reduce((sum, record) => sum + record.lateFee, 0);
 
+  const renderCell = (record: typeof rentRecords[number], columnKey: string) => {
+    switch (columnKey) {
+      case 'tenantName':
+        return <span className="font-medium">{record.tenantName}</span>;
+      case 'dueDate':
+        return new Date(record.dueDate).toLocaleDateString();
+      case 'amount':
+        return (
+          <div>
+            <div className="font-medium">₹{record.amount.toLocaleString()}</div>
+            {record.lateFee > 0 && (
+              <div className="text-brand-caption text-brand-error">+ ₹{record.lateFee} late fee</div>
+            )}
+          </div>
+        );
+      case 'paidAmount':
+        return (
+          <span className="font-medium">
+            {record.paidAmount > 0 ? `₹${record.paidAmount.toLocaleString()}` : '-'}
+          </span>
+        );
+      case 'paidDate':
+        return record.paidDate ? new Date(record.paidDate).toLocaleDateString() : '-';
+      case 'status':
+        return getStatusBadge(record.status);
+      default:
+        return record[columnKey as keyof typeof record];
+    }
+  };
+
+  const renderActions = (record: typeof rentRecords[number]) => (
+    <div className="flex items-center gap-1">
+      {record.status !== 'paid' && (
+        <Button variant="ghost" size="sm">
+          Record Payment
+        </Button>
+      )}
+      {record.status === 'overdue' && (
+        <Button variant="ghost" size="sm" title="Send reminder">
+          <Send className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+
+  const leftActions = (
+    <div className="flex flex-col md:flex-row gap-2">
+      <TableFilterDialog
+          open={isFilterOpen}
+          onOpenChange={setIsFilterOpen}
+          onApply={() => setStatusFilter(pendingStatus)}
+          onReset={() => {
+              setPendingStatus('all');
+              setStatusFilter('all');
+          }}
+      >
+          <FilterField label="Status">
+              <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                  <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                      <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+              </Select>
+          </FilterField>
+      </TableFilterDialog>
+      <Select value={monthFilter} onValueChange={setMonthFilter}>
+        <SelectTrigger className="w-full md:w-40">
+          <SelectValue placeholder="Select month" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="current">May 2024</SelectItem>
+          <SelectItem value="previous">April 2024</SelectItem>
+          <SelectItem value="march">March 2024</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   return (
-    <div className="space-y-6 bg-white">
+    <div className="space-y-5">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Total Rent Due</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{totalRent.toLocaleString()}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Collected</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{collectedRent.toLocaleString()}</p>
-                <p className="text-xs text-green-600">{Math.round((collectedRent/totalRent)*100)}% collected</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Overdue Amount</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{overdueAmount.toLocaleString()}</p>
-                <p className="text-xs text-red-600">{rentRecords.filter(r => r.status === 'overdue').length} properties</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
-                <AlertCircle className="h-6 w-6 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Late Fees</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{lateFees.toLocaleString()}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsGrid>
+        <StatsCard
+          title="Total Rent Due"
+          value={`₹${totalRent.toLocaleString()}`}
+          icon={<DollarSign />}
+        />
+        <StatsCard
+          title="Collected"
+          value={`₹${collectedRent.toLocaleString()}`}
+          icon={<CheckCircle />}
+          footer={
+            <p className="mt-0.5 text-brand-caption text-brand-success">
+              {totalRent ? Math.round((collectedRent / totalRent) * 100) : 0}% collected
+            </p>
+          }
+        />
+        <StatsCard
+          title="Overdue Amount"
+          value={`₹${overdueAmount.toLocaleString()}`}
+          icon={<AlertCircle />}
+          footer={
+            <p className="mt-0.5 text-brand-caption text-brand-error">
+              {rentRecords.filter(r => r.status === 'overdue').length} properties
+            </p>
+          }
+        />
+        <StatsCard
+          title="Late Fees"
+          value={`₹${lateFees.toLocaleString()}`}
+          icon={<TrendingUp />}
+        />
+      </StatsGrid>
 
       {/* Rent Collection Table */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="bg-white border-b border-gray-200">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-[#1a1a1a]">Rent Collection - May 2024</CardTitle>
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm" className="p-1">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm" className="p-1">
-                <Send className="h-4 w-4 mr-2" />
-                Send Reminders
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="bg-white">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search by tenant or property..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white border-gray-200"
-                />
-              </div>
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white border-gray-200">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-gray-200 shadow-lg">
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="partial">Partial</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={monthFilter} onValueChange={setMonthFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white border-gray-200">
-                <SelectValue placeholder="Select month" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-gray-200 shadow-lg">
-                <SelectItem value="current">May 2024</SelectItem>
-                <SelectItem value="previous">April 2024</SelectItem>
-                <SelectItem value="march">March 2024</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50 border-b border-gray-200">
-                  <TableHead className="text-[#1a1a1a] font-medium">Tenant</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Property</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Due Date</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Amount Due</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Paid Amount</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Payment Date</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
-                  <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="bg-white">
-                {filteredRecords.map((record) => (
-                  <TableRow key={record.id} className="hover:bg-gray-50 bg-white border-b border-gray-100">
-                    <TableCell className="font-medium bg-white">{record.tenantName}</TableCell>
-                    <TableCell className="bg-white">{record.propertyName}</TableCell>
-                    <TableCell className="bg-white">{new Date(record.dueDate).toLocaleDateString()}</TableCell>
-                    <TableCell className="bg-white">
-                      <div>
-                        <div className="font-medium">₹{record.amount.toLocaleString()}</div>
-                        {record.lateFee > 0 && (
-                          <div className="text-xs text-red-600">+ ₹{record.lateFee} late fee</div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium bg-white">
-                      {record.paidAmount > 0 ? `₹${record.paidAmount.toLocaleString()}` : '-'}
-                    </TableCell>
-                    <TableCell className="bg-white">
-                      {record.paidDate ? new Date(record.paidDate).toLocaleDateString() : '-'}
-                    </TableCell>
-                    <TableCell className="bg-white">{getStatusBadge(record.status)}</TableCell>
-                    <TableCell className="bg-white">
-                      <div className="flex items-center gap-1">
-                        {record.status !== 'paid' && (
-                          <Button variant="ghost" size="sm" className="text-blue-600 p-1">
-                            Record Payment
-                          </Button>
-                        )}
-                        {record.status === 'overdue' && (
-                          <Button variant="ghost" size="sm" className="text-orange-600 p-1">
-                            <Send className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <div>
+        <EnhancedTable
+          data={filteredRecords}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(record) => record.id}
+          storageKey="rent-collection-table"
+          emptyMessage="No rent records found"
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search by tenant or property..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={
+            <>
+              {leftActions}
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm">
+              <Send className="h-4 w-4 mr-2" />
+              Send Reminders
+            </Button>
+            </>
+          }
+          onFilterClick={() => {
+              setPendingStatus(statusFilter);
+              setIsFilterOpen(true);
+          }}
+          exportFileName="rent-collection"
+          pagination={true}
+          pageSize={10}
+        />
+      </div>
     </div>
   );
 };

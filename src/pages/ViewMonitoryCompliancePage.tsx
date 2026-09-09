@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, FileText, Download, Calendar, User, Info, CheckCircle2 } from 'lucide-react';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer } from '@/components/ui/page';
+import { ChevronLeft, FileText, Download, Calendar, User, Info, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Heading, Text } from '@/components/ui/typography';
 
 const ViewMonitoryCompliancePage = () => {
     const navigate = useNavigate();
@@ -32,16 +34,14 @@ const ViewMonitoryCompliancePage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-white">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     if (!data) return null;
 
     return (
-        <div className="p-8 space-y-8 bg-white min-h-screen">
+        <PageContainer>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Button
@@ -53,8 +53,8 @@ const ViewMonitoryCompliancePage = () => {
                         <ChevronLeft className="h-6 w-6" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">View Compliance</h1>
-                        <p className="text-sm text-gray-500">Document Detail: {data.document_name}</p>
+                        <Heading level="h1">View Compliance</Heading>
+                        <Text size="sm" variant="muted">Document Detail: {data.document_name}</Text>
                     </div>
                 </div>
                 <div className="flex gap-2">
@@ -67,7 +67,7 @@ const ViewMonitoryCompliancePage = () => {
                     </Button>
                     {data.document_url && (
                         <Button
-                            className="bg-[#C72030] hover:bg-[#A01825]"
+                            className="fm-button-fix fm-button-brand px-6 py-2"
                             onClick={() => window.open(data.document_url, '_blank')}
                         >
                             <Download className="h-4 w-4 mr-2" />
@@ -149,7 +149,7 @@ const ViewMonitoryCompliancePage = () => {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

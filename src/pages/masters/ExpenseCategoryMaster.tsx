@@ -1,16 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
+import { Spinner } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight, Loader2, CheckCircle2, XCircle, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, CheckCircle2, XCircle, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface ExpenseCategory {
     id: number;
@@ -20,6 +24,13 @@ interface ExpenseCategory {
     created_at: string;
     updated_at: string;
 }
+
+const columns: ColumnConfig[] = [
+    { key: 'name', label: 'Category Name', sortable: true, draggable: true },
+    { key: 'code', label: 'Code', sortable: true, draggable: true },
+    { key: 'active', label: 'Status', sortable: true, draggable: true },
+    { key: 'created_at', label: 'Created At', sortable: true, draggable: true },
+];
 
 const ExpenseCategoryMaster = () => {
     const navigate = useNavigate();
@@ -148,38 +159,70 @@ const ExpenseCategoryMaster = () => {
         }
     };
 
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate('/masters')}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Expense Categories</h1>
-                        <p className="text-gray-600">Manage categories for operating expenses</p>
+    const renderCell = (category: ExpenseCategory, columnKey: string) => {
+        switch (columnKey) {
+            case 'name':
+                return <span className="font-medium text-brand-text">{category.name}</span>;
+            case 'code':
+                return <span className="font-mono text-[13px] text-brand-text-light">{category.code}</span>;
+            case 'active':
+                return category.active ? (
+                    <div className="flex items-center text-brand-success gap-1.5 text-[13px] font-medium">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Active
                     </div>
-                </div>
+                ) : (
+                    <div className="flex items-center text-brand-text-light gap-1.5 text-[13px] font-medium">
+                        <XCircle className="h-3.5 w-3.5" />
+                        Inactive
+                    </div>
+                );
+            case 'created_at':
+                return (
+                    <span className="text-[13px] text-brand-text-light">
+                        {new Date(category.created_at).toLocaleDateString()}
+                    </span>
+                );
+            default:
+                return category[columnKey as keyof ExpenseCategory] as React.ReactNode;
+        }
+    };
+
+    const renderActions = (category: ExpenseCategory) => (
+        <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="icon" title="View" onClick={() => handleViewClick(category)}>
+                <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Edit" onClick={() => handleEditClick(category)}>
+                <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Delete" className="text-brand-error" onClick={() => handleDelete(category.id)}>
+                <Trash2 className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+
+
+    const leftActions = (
+            <Button onClick={() => setIsAddModalOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Category
+            </Button>
+        );
+
+    return (
+        <PageContainer>
+            <div className="flex items-center justify-between">
+                <PageHeader title="Expense Categories" description="Manage categories for operating expenses" backTo="/masters" />
 
                 <Dialog open={isAddModalOpen} onOpenChange={(open) => {
                     setIsAddModalOpen(open);
                     if (!open) handleResetForm();
                 }}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-[#C72030] hover:bg-[#A01825] text-white">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Category
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px] bg-white">
                         <form onSubmit={handleAddSubmit}>
                             <DialogHeader>
-                                <DialogTitle className="text-gray-900 font-bold text-xl">Add Expense Category</DialogTitle>
+                                <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add Expense Category</DialogTitle>
                                 <DialogDescription className="text-gray-600">
                                     Create a new category for expense tracking.
                                 </DialogDescription>
@@ -210,7 +253,7 @@ const ExpenseCategoryMaster = () => {
                                 <div className="flex items-center justify-between space-x-2 border rounded-md p-3">
                                     <Label htmlFor="active" className="flex flex-col gap-1 text-gray-900 font-medium">
                                         <span>Status</span>
-                                        <span className="font-normal text-xs text-muted-foreground text-gray-500">Enable or disable this category</span>
+                                        <span className="text-[13px] text-brand-text-light">Enable or disable this category</span>
                                     </Label>
                                     <Switch
                                         id="active"
@@ -221,8 +264,8 @@ const ExpenseCategoryMaster = () => {
                             </div>
                             <DialogFooter>
                                 <Button variant="outline" type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-                                <Button type="submit" disabled={submitting} className="bg-[#C72030] hover:bg-[#A01825]">
-                                    {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                <Button type="submit" disabled={submitting} className="fm-button-fix fm-button-brand px-6 py-2">
+                                    {submitting ? <Spinner className="mr-2" /> : null}
                                     Save Category
                                 </Button>
                             </DialogFooter>
@@ -231,124 +274,34 @@ const ExpenseCategoryMaster = () => {
                 </Dialog>
             </div>
 
-            <Card className="bg-white">
-                <CardHeader>
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <Input
-                                placeholder="Search by name or code..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Button onClick={handleSearch} variant="outline">Search</Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-gray-50/50">
-                                    <TableHead>Category Name</TableHead>
-                                    <TableHead>Code</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Created At</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {loading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            <div className="flex flex-col items-center justify-center gap-2">
-                                                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-                                                <span className="text-sm text-gray-500">Loading categories...</span>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : categories.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center text-gray-500">
-                                            No categories found.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    categories.map((category) => (
-                                        <TableRow key={category.id}>
-                                            <TableCell className="font-medium text-gray-900">{category.name}</TableCell>
-                                            <TableCell className="text-gray-600 font-mono text-xs">{category.code}</TableCell>
-                                            <TableCell>
-                                                {category.active ? (
-                                                    <div className="flex items-center text-green-600 gap-1.5 text-xs font-medium">
-                                                        <CheckCircle2 className="h-3.5 w-3.5" />
-                                                        Active
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center text-gray-400 gap-1.5 text-xs font-medium">
-                                                        <XCircle className="h-3.5 w-3.5" />
-                                                        Inactive
-                                                    </div>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-gray-500 text-xs">
-                                                {new Date(category.created_at).toLocaleDateString()}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button variant="ghost" size="icon" onClick={() => handleViewClick(category)}>
-                                                        <Eye className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(category)}>
-                                                        <Edit className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDelete(category.id)}>
-                                                        <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {/* Pagination */}
-                    {!loading && pagination.total_pages > 1 && (
-                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-                            <p className="text-xs text-gray-500">
-                                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} categories
-                            </p>
-                            <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={pagination.current_page === 1}
-                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                </Button>
-                                <div className="text-xs font-medium">
-                                    Page {pagination.current_page} of {pagination.total_pages}
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={pagination.current_page === pagination.total_pages}
-                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            <div>
+                <EnhancedTable
+                    data={categories}
+                    columns={columns}
+                    renderCell={renderCell}
+                    renderActions={renderActions}
+                    getItemId={(category) => String(category.id)}
+                    storageKey="expense-categories-master-table"
+                    leftActions={leftActions}
+                    emptyMessage="No categories found."
+                    loading={loading}
+                    loadingMessage="Loading categories..."
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Search by name or code..."
+                    disableClientSearch={true}
+                    enableSearch={true}
+                    enableSelection={false}
+                    exportFileName="expense-categories"
+                    pagination={true}
+                    pageSize={pagination.per_page}
+                    currentPage={pagination.current_page}
+                    totalPages={pagination.total_pages}
+                    onPageChange={(page) =>
+                        setPagination(prev => ({ ...prev, current_page: page }))
+                    }
+                />
+            </div>
 
             {/* Edit Modal */}
             <Dialog open={isEditModalOpen} onOpenChange={(open) => {
@@ -358,7 +311,7 @@ const ExpenseCategoryMaster = () => {
                 <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
                     <form onSubmit={handleEditSubmit}>
                         <DialogHeader>
-                            <DialogTitle className="text-gray-900 font-bold text-xl">Edit Expense Category</DialogTitle>
+                            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Edit Expense Category</DialogTitle>
                             <DialogDescription className="text-gray-600">
                                 Update categories for expense tracking.
                             </DialogDescription>
@@ -387,7 +340,7 @@ const ExpenseCategoryMaster = () => {
                             <div className="flex items-center justify-between space-x-2 border rounded-md p-3">
                                 <Label htmlFor="edit-active" className="flex flex-col gap-1 text-gray-900 font-medium">
                                     <span>Status</span>
-                                    <span className="font-normal text-xs text-muted-foreground text-gray-500">Enable or disable this category</span>
+                                    <span className="text-[13px] text-brand-text-light">Enable or disable this category</span>
                                 </Label>
                                 <Switch
                                     id="edit-active"
@@ -398,8 +351,8 @@ const ExpenseCategoryMaster = () => {
                         </div>
                         <DialogFooter>
                             <Button variant="outline" type="button" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
-                            <Button type="submit" disabled={submitting} className="bg-[#C72030] hover:bg-[#A01825]">
-                                {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            <Button type="submit" disabled={submitting} className="fm-button-fix fm-button-brand px-6 py-2">
+                                {submitting ? <Spinner className="mr-2" /> : null}
                                 Update Category
                             </Button>
                         </DialogFooter>
@@ -411,30 +364,30 @@ const ExpenseCategoryMaster = () => {
             <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
                 <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
                     <DialogHeader>
-                        <DialogTitle className="text-gray-900 font-bold text-xl">View Expense Category</DialogTitle>
+                        <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">View Expense Category</DialogTitle>
                         <DialogDescription className="text-gray-600">
                             Detailed information for this category.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Category Name</span>
-                            <span className="text-sm font-medium text-gray-900">{viewingCategory?.name}</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Category Name</span>
+                            <span className="text-[15px] font-medium text-brand-text">{viewingCategory?.name}</span>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Category Code</span>
-                            <span className="text-sm font-medium text-gray-900 font-mono">{viewingCategory?.code}</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Category Code</span>
+                            <span className="text-[15px] font-medium font-mono text-brand-text">{viewingCategory?.code}</span>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Status</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Status</span>
                             <div className="flex items-center gap-1.5 pt-0.5">
                                 {viewingCategory?.active ? (
-                                    <div className="flex items-center text-green-600 gap-1 text-xs font-semibold">
+                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-success">
                                         <CheckCircle2 className="h-4 w-4" />
                                         ACTIVE
                                     </div>
                                 ) : (
-                                    <div className="flex items-center text-gray-400 gap-1 text-xs font-semibold">
+                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-text-light">
                                         <XCircle className="h-4 w-4" />
                                         INACTIVE
                                     </div>
@@ -442,8 +395,8 @@ const ExpenseCategoryMaster = () => {
                             </div>
                         </div>
                         <div className="grid gap-1">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Created On</span>
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Created On</span>
+                            <span className="text-[15px] font-medium text-brand-text">
                                 {viewingCategory && new Date(viewingCategory.created_at).toLocaleDateString(undefined, {
                                     year: 'numeric',
                                     month: 'long',
@@ -453,13 +406,13 @@ const ExpenseCategoryMaster = () => {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" onClick={() => setIsViewModalOpen(false)} className="bg-[#C72030] hover:bg-[#A01825]">
+                        <Button type="button" onClick={() => setIsViewModalOpen(false)} className="fm-button-fix fm-button-brand px-6 py-2">
                             Close
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </PageContainer>
     );
 };
 

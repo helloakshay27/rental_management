@@ -1,16 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
+import { Spinner } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight, Loader2, CheckCircle2, XCircle, Eye, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, CheckCircle2, XCircle, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface ServiceType {
     id: number;
@@ -21,6 +25,14 @@ interface ServiceType {
     created_at: string;
     updated_at: string;
 }
+
+const columns: ColumnConfig[] = [
+    { key: 'name', label: 'Name', sortable: true, draggable: true },
+    { key: 'description', label: 'Description', sortable: true, draggable: true },
+    { key: 'billable', label: 'Billable', sortable: true, draggable: true },
+    { key: 'monthly', label: 'Monthly', sortable: true, draggable: true },
+    { key: 'created_at', label: 'Created At', sortable: true, draggable: true },
+];
 
 const ServiceTypeMaster = () => {
     const navigate = useNavigate();
@@ -151,38 +163,76 @@ const ServiceTypeMaster = () => {
         }
     };
 
+    /** Shared yes/no flag cell for the billable + monthly columns. */
+    const renderFlag = (on: boolean) =>
+        on ? (
+            <div className="flex items-center text-brand-success gap-1.5 text-[13px] font-medium">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Yes
+            </div>
+        ) : (
+            <div className="flex items-center text-brand-text-light gap-1.5 text-[13px] font-medium">
+                <XCircle className="h-3.5 w-3.5" />
+                No
+            </div>
+        );
+
+    const renderCell = (service: ServiceType, columnKey: string) => {
+        switch (columnKey) {
+            case 'name':
+                return <span className="font-medium text-brand-text">{service.name}</span>;
+            case 'description':
+                return <span className="text-brand-text-light">{service.description}</span>;
+            case 'billable':
+                return renderFlag(!!service.billable);
+            case 'monthly':
+                return renderFlag(!!service.monthly);
+            case 'created_at':
+                return (
+                    <span className="text-[13px] text-brand-text-light">
+                        {new Date(service.created_at).toLocaleDateString()}
+                    </span>
+                );
+            default:
+                return service[columnKey as keyof ServiceType] as React.ReactNode;
+        }
+    };
+
+    const renderActions = (service: ServiceType) => (
+        <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="icon" title="View" onClick={() => handleViewClick(service)}>
+                <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Edit" onClick={() => handleEditClick(service)}>
+                <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Delete" className="text-brand-error" onClick={() => handleDelete(service.id)}>
+                <Trash2 className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+
+
+    const leftActions = (
+            <Button onClick={() => setIsAddModalOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Service Type
+            </Button>
+        );
+
     return (
-        <div className="p-6 space-y-6">
+        <PageContainer>
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate('/masters')}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Agreement Service Master</h1>
-                        <p className="text-gray-600">Manage service types for agreements</p>
-                    </div>
-                </div>
+                <PageHeader title="Agreement Service Master" description="Manage service types for agreements" backTo="/masters" />
 
                 <Dialog open={isAddModalOpen} onOpenChange={(open) => {
                     setIsAddModalOpen(open);
                     if (!open) handleResetForm();
                 }}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-[#C72030] hover:bg-[#A01825] text-white">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Service Type
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px] bg-white">
                         <form onSubmit={handleAddSubmit}>
                             <DialogHeader>
-                                <DialogTitle className="text-gray-900 font-bold text-xl">Add Service Type</DialogTitle>
+                                <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add Service Type</DialogTitle>
                                 <DialogDescription className="text-gray-600">
                                     Create a new service type for agreements.
                                 </DialogDescription>
@@ -213,7 +263,7 @@ const ServiceTypeMaster = () => {
                                 <div className="flex items-center justify-between space-x-2 border rounded-md p-3">
                                     <Label htmlFor="billable" className="flex flex-col gap-1 text-gray-900 font-medium">
                                         <span>Billable</span>
-                                        <span className="font-normal text-xs text-muted-foreground text-gray-500">Is this service billable?</span>
+                                        <span className="text-[13px] text-brand-text-light">Is this service billable?</span>
                                     </Label>
                                     <Switch
                                         id="billable"
@@ -224,7 +274,7 @@ const ServiceTypeMaster = () => {
                                 <div className="flex items-center justify-between space-x-2 border rounded-md p-3">
                                     <Label htmlFor="monthly" className="flex flex-col gap-1 text-gray-900 font-medium">
                                         <span>Monthly</span>
-                                        <span className="font-normal text-xs text-muted-foreground text-gray-500">Is this a monthly recurring service?</span>
+                                        <span className="text-[13px] text-brand-text-light">Is this a monthly recurring service?</span>
                                     </Label>
                                     <Switch
                                         id="monthly"
@@ -235,8 +285,8 @@ const ServiceTypeMaster = () => {
                             </div>
                             <DialogFooter>
                                 <Button variant="outline" type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-                                <Button type="submit" disabled={submitting} className="bg-[#C72030] hover:bg-[#A01825]">
-                                    {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                <Button type="submit" disabled={submitting} className="fm-button-fix fm-button-brand px-6 py-2">
+                                    {submitting ? <Spinner className="mr-2" /> : null}
                                     Save Service Type
                                 </Button>
                             </DialogFooter>
@@ -245,138 +295,34 @@ const ServiceTypeMaster = () => {
                 </Dialog>
             </div>
 
-            <Card className="bg-white">
-                <CardHeader>
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <Input
-                                placeholder="Search by name..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Button onClick={handleSearch} variant="outline">Search</Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-gray-50/50">
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead>Billable</TableHead>
-                                    <TableHead>Monthly</TableHead>
-                                    <TableHead>Created At</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {loading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center">
-                                            <div className="flex flex-col items-center justify-center gap-2">
-                                                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-                                                <span className="text-sm text-gray-500">Loading service types...</span>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : serviceTypes.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center text-gray-500">
-                                            No service types found.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    serviceTypes.map((service) => (
-                                        <TableRow key={service.id}>
-                                            <TableCell className="font-medium text-gray-900">{service.name}</TableCell>
-                                            <TableCell className="text-gray-600">{service.description}</TableCell>
-                                            <TableCell>
-                                                {service.billable ? (
-                                                    <div className="flex items-center text-green-600 gap-1.5 text-xs font-medium">
-                                                        <CheckCircle2 className="h-3.5 w-3.5" />
-                                                        Yes
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center text-gray-400 gap-1.5 text-xs font-medium">
-                                                        <XCircle className="h-3.5 w-3.5" />
-                                                        No
-                                                    </div>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {service.monthly ? (
-                                                    <div className="flex items-center text-green-600 gap-1.5 text-xs font-medium">
-                                                        <CheckCircle2 className="h-3.5 w-3.5" />
-                                                        Yes
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center text-gray-400 gap-1.5 text-xs font-medium">
-                                                        <XCircle className="h-3.5 w-3.5" />
-                                                        No
-                                                    </div>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-gray-500 text-xs">
-                                                {new Date(service.created_at).toLocaleDateString()}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button variant="ghost" size="icon" onClick={() => handleViewClick(service)}>
-                                                        <Eye className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(service)}>
-                                                        <Edit className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDelete(service.id)}>
-                                                        <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {/* Pagination */}
-                    {!loading && pagination.total_pages > 1 && (
-                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-                            <p className="text-xs text-gray-500">
-                                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} entries
-                            </p>
-                            <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={pagination.current_page === 1}
-                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                </Button>
-                                <div className="text-xs font-medium">
-                                    Page {pagination.current_page} of {pagination.total_pages}
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={pagination.current_page === pagination.total_pages}
-                                    onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            <div>
+                <EnhancedTable
+                    data={serviceTypes}
+                    columns={columns}
+                    renderCell={renderCell}
+                    renderActions={renderActions}
+                    getItemId={(service) => String(service.id)}
+                    storageKey="service-types-master-table"
+                    leftActions={leftActions}
+                    emptyMessage="No service types found."
+                    loading={loading}
+                    loadingMessage="Loading service types..."
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Search by name..."
+                    disableClientSearch={true}
+                    enableSearch={true}
+                    enableSelection={false}
+                    exportFileName="service-types"
+                    pagination={true}
+                    pageSize={pagination.per_page}
+                    currentPage={pagination.current_page}
+                    totalPages={pagination.total_pages}
+                    onPageChange={(page) =>
+                        setPagination(prev => ({ ...prev, current_page: page }))
+                    }
+                />
+            </div>
 
             {/* Edit Modal */}
             <Dialog open={isEditModalOpen} onOpenChange={(open) => {
@@ -386,7 +332,7 @@ const ServiceTypeMaster = () => {
                 <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
                     <form onSubmit={handleEditSubmit}>
                         <DialogHeader>
-                            <DialogTitle className="text-gray-900 font-bold text-xl">Edit Service Type</DialogTitle>
+                            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Edit Service Type</DialogTitle>
                             <DialogDescription className="text-gray-600">
                                 Update service type information.
                             </DialogDescription>
@@ -415,7 +361,7 @@ const ServiceTypeMaster = () => {
                             <div className="flex items-center justify-between space-x-2 border rounded-md p-3">
                                 <Label htmlFor="edit-billable" className="flex flex-col gap-1 text-gray-900 font-medium">
                                     <span>Billable</span>
-                                    <span className="font-normal text-xs text-muted-foreground text-gray-500">Is this service billable?</span>
+                                    <span className="text-[13px] text-brand-text-light">Is this service billable?</span>
                                 </Label>
                                 <Switch
                                     id="edit-billable"
@@ -426,7 +372,7 @@ const ServiceTypeMaster = () => {
                             <div className="flex items-center justify-between space-x-2 border rounded-md p-3">
                                 <Label htmlFor="edit-monthly" className="flex flex-col gap-1 text-gray-900 font-medium">
                                     <span>Monthly</span>
-                                    <span className="font-normal text-xs text-muted-foreground text-gray-500">Is this a monthly recurring service?</span>
+                                    <span className="text-[13px] text-brand-text-light">Is this a monthly recurring service?</span>
                                 </Label>
                                 <Switch
                                     id="edit-monthly"
@@ -437,8 +383,8 @@ const ServiceTypeMaster = () => {
                         </div>
                         <DialogFooter>
                             <Button variant="outline" type="button" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
-                            <Button type="submit" disabled={submitting} className="bg-[#C72030] hover:bg-[#A01825]">
-                                {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            <Button type="submit" disabled={submitting} className="fm-button-fix fm-button-brand px-6 py-2">
+                                {submitting ? <Spinner className="mr-2" /> : null}
                                 Update Service Type
                             </Button>
                         </DialogFooter>
@@ -450,30 +396,30 @@ const ServiceTypeMaster = () => {
             <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
                 <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
                     <DialogHeader>
-                        <DialogTitle className="text-gray-900 font-bold text-xl">View Service Type</DialogTitle>
+                        <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">View Service Type</DialogTitle>
                         <DialogDescription className="text-gray-600">
                             Detailed information for this service type.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Name</span>
-                            <span className="text-sm font-medium text-gray-900">{viewingService?.name}</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Name</span>
+                            <span className="text-[15px] font-medium text-brand-text">{viewingService?.name}</span>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Description</span>
-                            <span className="text-sm font-medium text-gray-900">{viewingService?.description}</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Description</span>
+                            <span className="text-[15px] font-medium text-brand-text">{viewingService?.description}</span>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Billable</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Billable</span>
                             <div className="flex items-center gap-1.5 pt-0.5">
                                 {viewingService?.billable ? (
-                                    <div className="flex items-center text-green-600 gap-1 text-xs font-semibold">
+                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-success">
                                         <CheckCircle2 className="h-4 w-4" />
                                         YES
                                     </div>
                                 ) : (
-                                    <div className="flex items-center text-gray-400 gap-1 text-xs font-semibold">
+                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-text-light">
                                         <XCircle className="h-4 w-4" />
                                         NO
                                     </div>
@@ -481,15 +427,15 @@ const ServiceTypeMaster = () => {
                             </div>
                         </div>
                         <div className="grid gap-1 border-b pb-2">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Monthly Service</span>
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Monthly Service</span>
                             <div className="flex items-center gap-1.5 pt-0.5">
                                 {viewingService?.monthly ? (
-                                    <div className="flex items-center text-green-600 gap-1 text-xs font-semibold">
+                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-success">
                                         <CheckCircle2 className="h-4 w-4" />
                                         YES
                                     </div>
                                 ) : (
-                                    <div className="flex items-center text-gray-400 gap-1 text-xs font-semibold">
+                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-text-light">
                                         <XCircle className="h-4 w-4" />
                                         NO
                                     </div>
@@ -497,8 +443,8 @@ const ServiceTypeMaster = () => {
                             </div>
                         </div>
                         <div className="grid gap-1">
-                            <span className="text-xs text-gray-500 uppercase font-semibold">Created On</span>
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Created On</span>
+                            <span className="text-[15px] font-medium text-brand-text">
                                 {viewingService && new Date(viewingService.created_at).toLocaleDateString(undefined, {
                                     year: 'numeric',
                                     month: 'long',
@@ -508,13 +454,13 @@ const ServiceTypeMaster = () => {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" onClick={() => setIsViewModalOpen(false)} className="bg-[#C72030] hover:bg-[#A01825]">
+                        <Button type="button" onClick={() => setIsViewModalOpen(false)} className="fm-button-fix fm-button-brand px-6 py-2">
                             Close
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </PageContainer>
     );
 };
 

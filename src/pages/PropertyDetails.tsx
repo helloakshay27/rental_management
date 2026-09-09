@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import { PageContainer } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Calendar, ArrowLeft, Edit, Trash2, FileText, Users, DollarSign, FileCheck, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Building2, MapPin, Calendar, ArrowLeft, Edit, Trash2, FileText, Users, DollarSign, FileCheck, AlertTriangle, CheckCircle, LayoutDashboard, Wrench, Files } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import AddPropertyComplianceDialog from '@/components/Properties/AddPropertyComplianceDialog';
+import { Heading } from '@/components/ui/typography';
 
 // Mock data - in real app this would come from API
 const properties = [
@@ -126,6 +129,14 @@ const propertyCompliances = {
   ]
 };
 
+const complianceColumns: ColumnConfig[] = [
+  { key: 'name', label: 'Compliance', sortable: true, draggable: true },
+  { key: 'type', label: 'Type', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+  { key: 'issueDate', label: 'Validity', sortable: true, draggable: true },
+  { key: 'authority', label: 'Authority', sortable: true, draggable: true },
+];
+
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -138,7 +149,7 @@ const PropertyDetails = () => {
     return (
       <div className="p-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Property Not Found</h1>
+          <h1 className="text-brand-body-1 font-bold text-gray-900 mb-4">Property Not Found</h1>
           <Button onClick={() => navigate('/properties')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Properties
@@ -194,70 +205,80 @@ const PropertyDetails = () => {
     return Object.values(typeGroups);
   };
 
+  const renderComplianceCell = (compliance: any, columnKey: string) => {
+    switch (columnKey) {
+      case 'name':
+        return (
+          <div className="flex items-center space-x-2">
+            {getComplianceIcon(compliance.status)}
+            <div>
+              <p className="font-medium">{compliance.name}</p>
+              <p className="text-brand-body-5 text-brand-text-light">
+                Cert: {compliance.certificateNumber}
+              </p>
+            </div>
+          </div>
+        );
+      case 'type':
+        return <Badge variant="outline">{compliance.type}</Badge>;
+      case 'status':
+        return (
+          <div>
+            <Badge className={getComplianceStatusColor(compliance.status)}>
+              {compliance.status}
+            </Badge>
+            {compliance.daysToExpiry <= compliance.renewalNotice && compliance.status !== 'Expired' && (
+              <p className="text-brand-caption text-brand-warning mt-1">
+                Expires in {compliance.daysToExpiry} days
+              </p>
+            )}
+          </div>
+        );
+      case 'issueDate':
+        return (
+          <div className="text-brand-body-5">
+            <p>Issue: {new Date(compliance.issueDate).toLocaleDateString()}</p>
+            <p>Expiry: {new Date(compliance.expiryDate).toLocaleDateString()}</p>
+          </div>
+        );
+      case 'authority':
+        return <p className="text-brand-body-5">{compliance.authority}</p>;
+      default:
+        return compliance[columnKey];
+    }
+  };
+
+  const renderComplianceActions = () => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm" title="Certificate">
+        <FileText className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Edit">
+        <Edit className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   const renderComplianceTable = (compliancesToShow: any[]) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Compliance</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Validity</TableHead>
-          <TableHead>Authority</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {compliancesToShow.map((compliance) => (
-          <TableRow key={compliance.id}>
-            <TableCell>
-              <div className="flex items-center space-x-2">
-                {getComplianceIcon(compliance.status)}
-                <div>
-                  <p className="font-medium">{compliance.name}</p>
-                  <p className="text-sm text-gray-500">Cert: {compliance.certificateNumber}</p>
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <Badge variant="outline">{compliance.type}</Badge>
-            </TableCell>
-            <TableCell>
-              <Badge className={getComplianceStatusColor(compliance.status)}>
-                {compliance.status}
-              </Badge>
-              {compliance.daysToExpiry <= compliance.renewalNotice && compliance.status !== 'Expired' && (
-                <p className="text-xs text-yellow-600 mt-1">
-                  Expires in {compliance.daysToExpiry} days
-                </p>
-              )}
-            </TableCell>
-            <TableCell>
-              <div className="text-sm">
-                <p>Issue: {new Date(compliance.issueDate).toLocaleDateString()}</p>
-                <p>Expiry: {new Date(compliance.expiryDate).toLocaleDateString()}</p>
-              </div>
-            </TableCell>
-            <TableCell>
-              <p className="text-sm">{compliance.authority}</p>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm">
-                  <FileText className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <EnhancedTable
+      data={compliancesToShow}
+      columns={complianceColumns}
+      renderCell={renderComplianceCell}
+      renderActions={renderComplianceActions}
+      getItemId={(compliance) => String(compliance.id)}
+      storageKey="property-compliances-table"
+      emptyMessage="No compliances found"
+      searchPlaceholder="Search compliances..."
+      enableSearch={true}
+      enableSelection={false}
+      exportFileName="property-compliances"
+      pagination={true}
+      pageSize={10}
+    />
   );
 
   return (
-    <div className="p-6 space-y-6">
+    <PageContainer>
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex items-center space-x-4">
@@ -265,7 +286,7 @@ const PropertyDetails = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{property.name}</h1>
+            <Heading level="h1">{property.name}</Heading>
             <div className="flex items-center space-x-4 mt-2">
               <Badge className={getStatusColor(property.status)}>
                 {property.status}
@@ -355,12 +376,27 @@ const PropertyDetails = () => {
 
       {/* Tabs for detailed information */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="financial">Financial</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="compliances">Compliances</TabsTrigger>
-          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="overview">
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="financial">
+            <DollarSign className="h-4 w-4 mr-2" />
+            Financial
+          </TabsTrigger>
+          <TabsTrigger value="documents">
+            <FileText className="h-4 w-4 mr-2" />
+            Documents
+          </TabsTrigger>
+          <TabsTrigger value="compliances">
+            <FileCheck className="h-4 w-4 mr-2" />
+            Compliances
+          </TabsTrigger>
+          <TabsTrigger value="maintenance">
+            <Wrench className="h-4 w-4 mr-2" />
+            Maintenance
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -451,7 +487,7 @@ const PropertyDetails = () => {
                 </div>
                 <Button 
                   size="sm" 
-                  className="bg-[#C72030] hover:bg-[#A01825]"
+                  className="fm-button-fix fm-button-brand px-6 py-2"
                   onClick={() => setShowAddComplianceDialog(true)}
                 >
                   Add Compliance
@@ -461,10 +497,14 @@ const PropertyDetails = () => {
             <CardContent>
               {compliances.length > 0 ? (
                 <Tabs defaultValue="all" className="w-full">
-                  <TabsList className="grid w-full grid-cols-auto" style={{gridTemplateColumns: `repeat(${complianceTypes.length + 1}, minmax(0, 1fr))`}}>
-                    <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsList>
+                    <TabsTrigger value="all">
+                      <Files className="h-4 w-4 mr-2" />
+                      All
+                    </TabsTrigger>
                     {complianceTypes.map((type) => (
                       <TabsTrigger key={type} value={type.toLowerCase()}>
+                        <FileCheck className="h-4 w-4 mr-2" />
                         {type}
                       </TabsTrigger>
                     ))}
@@ -491,7 +531,7 @@ const PropertyDetails = () => {
                   <FileCheck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">No compliances assigned to this property</p>
                   <Button 
-                    className="mt-4 bg-[#C72030] hover:bg-[#A01825]"
+                    className="mt-4 fm-button-fix fm-button-brand px-6 py-2"
                     onClick={() => setShowAddComplianceDialog(true)}
                   >
                     Add First Compliance
@@ -521,7 +561,7 @@ const PropertyDetails = () => {
         onSave={handleAddCompliance}
         propertyId={id || ''}
       />
-    </div>
+    </PageContainer>
   );
 };
 

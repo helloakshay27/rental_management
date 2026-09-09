@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { SectionLoader } from '@/components/ui/loader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, User, CheckCircle, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Panel } from '@/components/ui/panel';
+import { Calendar, Clock, User, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -87,108 +89,81 @@ const ServiceScheduling = () => {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <Card className="bg-white border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-gray-900">Upcoming Services</CardTitle>
-          <CardDescription className="text-gray-600">Scheduled maintenance activities</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {loading ? (
-              <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                <Loader2 className="h-8 w-8 text-[#C72030] animate-spin" />
-                <p className="text-sm text-gray-500">Loading schedules...</p>
-              </div>
-            ) : [...overdueSchedules, ...upcomingSchedules].length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                No upcoming services found.
-              </div>
-            ) : (
-              <>
-                {/* Overdue Services - Show First */}
-                {overdueSchedules.map((schedule) => (
-                  <div key={schedule.id} className="flex items-center justify-between p-4 border-2 border-red-300 bg-red-50 rounded-lg hover:bg-red-100">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <Calendar className="h-8 w-8 text-red-600 bg-red-100 p-1.5 rounded-lg" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-semibold text-gray-900">
-                            {schedule.service_type || 'Maintenance Service'}
-                          </h3>
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white">
-                            Overdue
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600">{schedule.amc_contract?.site_name || 'Various Sites'}</p>
-                        <div className="flex items-center space-x-4 mt-1">
-                          <span className="text-xs text-gray-500 flex items-center">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {schedule.scheduled_date}
-                          </span>
-                          <span className="text-xs text-gray-500 flex items-center">
-                            <User className="h-3 w-3 mr-1" />
-                            {schedule.amc_contract?.vendor_name || 'Unassigned Vendor'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusStyle(schedule.status)}`}>
-                        {schedule.status_badge?.label || schedule.status}
-                      </span>
-                      <Button variant="outline" size="sm" className="border-gray-200">
-                        Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Upcoming Services */}
-                {upcomingSchedules.map((schedule) => (
-                  <div key={schedule.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <Calendar className="h-8 w-8 text-[#C72030] bg-red-50 p-1.5 rounded-lg" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900">
-                          {schedule.service_type || 'Maintenance Service'}
-                        </h3>
-                        <p className="text-sm text-gray-600">{schedule.amc_contract?.site_name || 'Various Sites'}</p>
-                        <div className="flex items-center space-x-4 mt-1">
-                          <span className="text-xs text-gray-500 flex items-center">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {schedule.scheduled_date}
-                          </span>
-                          <span className="text-xs text-gray-500 flex items-center">
-                            <User className="h-3 w-3 mr-1" />
-                            {schedule.amc_contract?.vendor_name || 'Unassigned Vendor'}
-                          </span>
-                          {schedule.days_until !== undefined && (
-                            <span className="text-xs text-blue-600 font-medium">
-                              in {schedule.days_until} days
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusStyle(schedule.status)}`}>
-                        {schedule.status_badge?.label || schedule.status}
-                      </span>
-                      <Button variant="outline" size="sm" className="border-gray-200">
-                        Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </>
+  /**
+   * One schedule row. Overdue entries only change the accent — a red left rule
+   * and a red badge — instead of getting their own fill, border weight and
+   * hover colour, so both lists read as the same component.
+   */
+  const renderSchedule = (schedule: any, overdue = false) => (
+    <div
+      key={schedule.id}
+      className={`flex items-center justify-between gap-3 rounded-md border border-brand-border px-4 py-3 transition-colors hover:bg-brand-selected ${overdue ? 'border-l-[3px] border-l-brand-error' : ''
+        }`}
+    >
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-light">
+          <Calendar className="h-4 w-4 text-brand" />
+        </span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="truncate text-brand-body-4 font-medium text-brand-text">
+              {schedule.service_type || 'Maintenance Service'}
+            </span>
+            {overdue && (
+              <span className="shrink-0 rounded-full bg-brand-error-bg px-2 py-0.5 text-brand-caption font-medium text-brand-error">
+                Overdue
+              </span>
             )}
           </div>
+          <div className="truncate text-brand-body-5 text-brand-text-light">
+            {schedule.amc_contract?.site_name || 'Various Sites'}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="flex items-center text-brand-caption text-brand-text-light">
+              <Clock className="mr-1 h-3 w-3" />
+              {schedule.scheduled_date}
+            </span>
+            <span className="flex items-center text-brand-caption text-brand-text-light">
+              <User className="mr-1 h-3 w-3" />
+              {schedule.amc_contract?.vendor_name || 'Unassigned Vendor'}
+            </span>
+            {!overdue && schedule.days_until !== undefined && (
+              <span className="text-brand-caption font-medium text-brand-text-light">
+                in {schedule.days_until} days
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2">
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-brand-caption font-medium capitalize ${getStatusStyle(schedule.status)}`}
+        >
+          {schedule.status_badge?.label || schedule.status}
+        </span>
+        <Button variant="outline" size="sm" className="fm-button-fix px-4">
+          Details
+        </Button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-5">
+      <Panel title="Upcoming Services" description="Scheduled maintenance activities">
+        {loading ? (
+          <SectionLoader message="Loading schedules..." />
+        ) : [...overdueSchedules, ...upcomingSchedules].length === 0 ? (
+          <div className="py-12 text-center text-brand-body-5 text-brand-text-light">
+            No upcoming services found.
+          </div>
+        ) : (
+          <>
+            {overdueSchedules.map((schedule) => renderSchedule(schedule, true))}
+            {upcomingSchedules.map((schedule) => renderSchedule(schedule))}
+          </>
+        )}
 
           {/* Pagination */}
           {!loading && upcomingPagination.total_pages > 1 && (
@@ -221,10 +196,9 @@ const ServiceScheduling = () => {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+      </Panel>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="bg-white border border-gray-200">
           <CardHeader>
             <CardTitle className="text-gray-900">Service Calendar</CardTitle>
@@ -266,9 +240,7 @@ const ServiceScheduling = () => {
           <CardContent>
             <div className="space-y-4">
               {loading ? (
-                <div className="flex justify-center py-6">
-                  <Loader2 className="h-6 w-6 animate-spin text-[#C72030]" />
-                </div>
+                <SectionLoader />
               ) : completedSchedules.length === 0 ? (
                 <div className="text-center py-6 text-gray-500 text-sm">
                   No completed services recently.

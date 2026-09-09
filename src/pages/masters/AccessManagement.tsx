@@ -1,17 +1,31 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageContainer, StatsGrid, PageHeader } from '@/components/ui/page';
+import { StatsCard } from '@/components/ui/stats-card';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Switch } from '@/components/ui/switch';
-import { Search, Plus, Edit, Trash2, Key, Lock, Unlock, Shield, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Key, Lock, Unlock, Shield, Calendar } from 'lucide-react';
+import { Heading, Text } from '@/components/ui/typography';
+
+const columns: ColumnConfig[] = [
+  { key: 'user', label: 'User & Role', sortable: true, draggable: true },
+  { key: 'module', label: 'Module Access', sortable: true, draggable: true },
+  { key: 'permissions', label: 'Permissions', sortable: false, draggable: true },
+  { key: 'ipRestriction', label: 'Restrictions', sortable: false, draggable: true },
+  { key: 'lastAccess', label: 'Last Access', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const AccessManagement = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
   const accessControls = [
@@ -71,20 +85,77 @@ const AccessManagement = () => {
     access.module.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const renderCell = (access: typeof accessControls[number], columnKey: string) => {
+    switch (columnKey) {
+      case 'user':
+        return (
+          <div>
+            <p className="font-medium">{access.user}</p>
+            <p className="text-brand-body-5 text-brand-text-light">{access.role}</p>
+          </div>
+        );
+      case 'module':
+        return <Badge variant="outline">{access.module}</Badge>;
+      case 'permissions':
+        return (
+          <div className="flex flex-wrap gap-1">
+            {access.permissions.map((permission) => (
+              <Badge key={permission} variant="secondary" className="text-brand-caption">
+                {permission}
+              </Badge>
+            ))}
+          </div>
+        );
+      case 'ipRestriction':
+        return (
+          <div>
+            <p className="text-brand-body-5">IP: {access.ipRestriction}</p>
+            <p className="text-brand-body-5">Time: {access.timeRestriction}</p>
+          </div>
+        );
+      case 'lastAccess':
+        return (
+          <div className="flex items-center text-brand-body-5">
+            <Calendar className="h-3 w-3 mr-1" />
+            {access.lastAccess}
+          </div>
+        );
+      case 'status':
+        return (
+          <Badge variant={access.status === 'Active' ? 'active' : 'rejected'}>
+            {access.status}
+          </Badge>
+        );
+      default:
+        return access[columnKey as keyof typeof access] as React.ReactNode;
+    }
+  };
+
+  const renderActions = () => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm" title="Edit">
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Revoke" className="text-brand-error">
+        <Lock className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+
+  const leftActions = (
+    <Button onClick={() => setIsConfigOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+      <Plus className="w-4 h-4 mr-2" />
+      Configure Access
+    </Button>
+  );
+
   return (
-    <div className="p-6 space-y-6">
+    <PageContainer>
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Access Management</h1>
-          <p className="text-gray-600">Control user permissions and access levels</p>
-        </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]">
-              <Plus className="h-4 w-4 mr-2" />
-              Configure Access
-            </Button>
-          </DialogTrigger>
+        <PageHeader title="Access Management" description="Control user permissions and access levels" backTo="/masters" />
+        <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
           <DialogContent className="max-w-2xl bg-white">
             <DialogHeader>
               <DialogTitle>Configure User Access</DialogTitle>
@@ -161,151 +232,42 @@ const AccessManagement = () => {
               <Label htmlFor="enable-access">Enable Access</Label>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline">Cancel</Button>
-              <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Access Configuration</Button>
+              <Button variant="outline" className="fm-button-fix px-6 py-2">Cancel</Button>
+              <Button className="fm-button-fix fm-button-brand px-6 py-2">Save Access Configuration</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">24</p>
-              </div>
-              <Shield className="h-8 w-8 text-[#C72030]" />
-            </div>
-          </CardContent>
-        </Card>
+      <StatsGrid>
+        <StatsCard title="Total Users" value={24} icon={<Shield />} />
+        <StatsCard title="Active Sessions" value={18} icon={<Unlock />} />
+        <StatsCard title="Restricted Access" value={3} icon={<Lock />} />
+        <StatsCard title="Suspended" value={1} icon={<Key />} />
+      </StatsGrid>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Sessions</p>
-                <p className="text-2xl font-bold text-gray-900">18</p>
-              </div>
-              <Unlock className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Restricted Access</p>
-                <p className="text-2xl font-bold text-gray-900">3</p>
-              </div>
-              <Lock className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Suspended</p>
-                <p className="text-2xl font-bold text-gray-900">1</p>
-              </div>
-              <Key className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
+      <div>
+        <EnhancedTable
+        data={filteredAccess}
+        columns={columns}
+        renderCell={renderCell}
+        renderActions={renderActions}
+        getItemId={(access) => String(access.id)}
+        storageKey="access-control-table"
+        leftActions={leftActions}
+        emptyMessage="No access controls found"
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search access controls..."
+        disableClientSearch={true}
+        enableSearch={true}
+        enableSelection={false}
+        exportFileName="access-controls"
+        pagination={true}
+        pageSize={10}
+        />
       </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Access Control Matrix</CardTitle>
-              <CardDescription>Detailed view of user permissions and access restrictions</CardDescription>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search access controls..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64 bg-white"
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User & Role</TableHead>
-                <TableHead>Module Access</TableHead>
-                <TableHead>Permissions</TableHead>
-                <TableHead>Restrictions</TableHead>
-                <TableHead>Last Access</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAccess.map((access) => (
-                <TableRow key={access.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{access.user}</p>
-                      <p className="text-sm text-gray-500">{access.role}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{access.module}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {access.permissions.map((permission) => (
-                        <Badge key={permission} variant="secondary" className="text-xs">
-                          {permission}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="text-sm">IP: {access.ipRestriction}</p>
-                      <p className="text-sm">Time: {access.timeRestriction}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center text-sm">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {access.lastAccess}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={access.status === 'Active' ? 'default' : 'destructive'}>
-                      {access.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
-                        <Lock className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+    </PageContainer>
   );
 };
 

@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Spinner } from '@/components/ui/loader';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { postAuth } from '@/lib/api';
 import { toast } from 'sonner';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface MaintenanceCostEntry {
     cost_type: string;
@@ -85,7 +86,7 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[800px] bg-white max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold">
+                    <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                         Add Maintenance Costs
                     </DialogTitle>
                 </DialogHeader>
@@ -174,10 +175,10 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
                     <Button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white font-medium min-w-[140px]"
+                        className="fm-button-fix fm-button-brand px-6 py-2"
                     >
                         {isLoading ? (
-                            <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</>
+                            <><Spinner className="mr-2" /> Processing...</>
                         ) : (
                             'Submit All Costs'
                         )}

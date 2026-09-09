@@ -256,7 +256,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
                 id={`property-type-${propertyType.id}`}
                 checked={formData.property_type_ids.includes(propertyType.id)}
                 onCheckedChange={() => handlePropertyTypeToggle(propertyType.id)}
-                className="border-2 border-[#C72030] data-[state=checked]:bg-[#C72030] data-[state=checked]:border-[#C72030]"
+                className="border-brand data-[state=checked]:bg-brand data-[state=checked]:border-brand data-[state=checked]:text-white"
               />
               <Label htmlFor={`property-type-${propertyType.id}`} className="text-sm text-gray-900 cursor-pointer">
                 {propertyType.name}
@@ -320,7 +320,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
           Cancel
         </Button>
         <Button
-          className="bg-[#C72030] hover:bg-[#A01825] text-white"
+          className="fm-button-fix fm-button-brand px-6 py-2"
           onClick={handleSubmit}
           disabled={isLoading}
         >

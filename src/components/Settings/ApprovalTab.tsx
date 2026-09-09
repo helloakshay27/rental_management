@@ -5,8 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Badge } from '@/components/ui/badge';
+
+const columns: ColumnConfig[] = [
+  { key: 'name', label: 'Flow Name', sortable: true, draggable: true },
+  { key: 'threshold', label: 'Threshold', sortable: true, draggable: true },
+  { key: 'levels', label: 'Approval Levels', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const ApprovalTab = () => {
   const approvalFlows = [
@@ -36,8 +44,33 @@ const ApprovalTab = () => {
     }
   ];
 
+  const renderCell = (flow: typeof approvalFlows[number], columnKey: string) => {
+    switch (columnKey) {
+      case 'name':
+        return (
+          <div>
+            <p className="font-medium">{flow.name}</p>
+            <p className="text-brand-body-5 text-brand-text-light">{flow.description}</p>
+          </div>
+        );
+      case 'levels':
+        return `${flow.levels} levels`;
+      case 'status':
+        return <Badge variant="active">{flow.status}</Badge>;
+      default:
+        return flow[columnKey as keyof typeof flow];
+    }
+  };
+
+  const renderActions = () => (
+    <div className="flex space-x-2">
+      <Button variant="outline" size="sm">Edit</Button>
+      <Button variant="outline" size="sm">Configure</Button>
+    </div>
+  );
+
   return (
-    <Card>
+    <Card className="bg-white">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <GitBranch className="h-5 w-5" />
@@ -47,55 +80,34 @@ const ApprovalTab = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex justify-between items-center">
-          <h4 className="font-medium text-gray-900">Active Approval Flows</h4>
-          <Button className="bg-[#C72030] hover:bg-[#A01825]">Add New Flow</Button>
+          <h4 className="font-medium text-brand-text">Active Approval Flows</h4>
+          <Button>Add New Flow</Button>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Flow Name</TableHead>
-              <TableHead>Threshold</TableHead>
-              <TableHead>Approval Levels</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {approvalFlows.map((flow) => (
-              <TableRow key={flow.id}>
-                <TableCell>
-                  <div>
-                    <p className="font-medium">{flow.name}</p>
-                    <p className="text-sm text-gray-500">{flow.description}</p>
-                  </div>
-                </TableCell>
-                <TableCell>{flow.threshold}</TableCell>
-                <TableCell>{flow.levels} levels</TableCell>
-                <TableCell>
-                  <Badge variant="default">{flow.status}</Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">Edit</Button>
-                    <Button variant="outline" size="sm">Configure</Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <EnhancedTable
+          data={approvalFlows}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(flow) => flow.id}
+          storageKey="approval-flows-table"
+          emptyMessage="No approval flows configured"
+          enableSearch={false}
+          enableSelection={false}
+          hideTableExport={true}
+          pagination={false}
+        />
 
-        <div className="border-t border-gray-200 pt-6">
-          <h4 className="font-medium text-gray-900 mb-4">Escalation Settings</h4>
+        <div className="border-t border-brand-border pt-6">
+          <h4 className="font-medium text-brand-text mb-4">Escalation Settings</h4>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="escalation-time">Default Escalation Time</Label>
               <Select>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger>
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent>
                   <SelectItem value="24">24 Hours</SelectItem>
                   <SelectItem value="48">48 Hours</SelectItem>
                   <SelectItem value="72">72 Hours</SelectItem>
@@ -106,10 +118,10 @@ const ApprovalTab = () => {
             <div className="space-y-2">
               <Label htmlFor="reminder-frequency">Reminder Frequency</Label>
               <Select>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger>
                   <SelectValue placeholder="Select frequency" />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent>
                   <SelectItem value="daily">Daily</SelectItem>
                   <SelectItem value="every-2-days">Every 2 Days</SelectItem>
                   <SelectItem value="weekly">Weekly</SelectItem>
@@ -119,7 +131,7 @@ const ApprovalTab = () => {
           </div>
         </div>
 
-        <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Approval Settings</Button>
+        <Button>Save Approval Settings</Button>
       </CardContent>
     </Card>
   );

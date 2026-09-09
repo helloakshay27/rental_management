@@ -144,7 +144,7 @@ const AddPropertyComplianceDialog = ({ isOpen, onClose, onSave, propertyId }: Ad
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={handleSave}>
+          <Button className="fm-button-fix fm-button-brand px-6 py-2" onClick={handleSave}>
             Add Compliance
           </Button>
         </div>

@@ -1,6 +1,8 @@
 
 
 import React, { useState, useEffect } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,11 +12,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, MapPin, ChevronLeft } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Plus, Edit, Trash2, Eye, Phone, Mail, MapPin } from 'lucide-react';
 import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Heading, Text } from '@/components/ui/typography';
+
+const columns: ColumnConfig[] = [
+  { key: 'name', label: 'Lessee Details', sortable: true, draggable: true },
+  { key: 'email', label: 'Contact Info', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const TenantsManagement = () => {
   const navigate = useNavigate();
@@ -22,6 +32,8 @@ const TenantsManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [tenants, setTenants] = useState<any[]>([]);
   const [loadingTenants, setLoadingTenants] = useState(true);
   const [editingTenant, setEditingTenant] = useState<any>(null);
@@ -210,33 +222,107 @@ const TenantsManagement = () => {
     tenant.company_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/masters')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
+  const renderCell = (tenant: any, columnKey: string) => {
+    switch (columnKey) {
+      case 'name':
+        return (
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Lessee Management</h1>
-            <p className="text-gray-600">Manage lessee information, documents, and profiles</p>
+            <p className="font-medium">{tenant.name}</p>
+            <p className="text-brand-body-5 text-brand-text-light">ID: {tenant.id}</p>
+            <p className="text-brand-body-5 text-brand-text-light">PAN: {tenant.pan}</p>
           </div>
-        </div>
+        );
+      case 'email':
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center text-brand-body-5">
+              <Mail className="h-3 w-3 mr-1" />
+              {tenant.email}
+            </div>
+            <div className="flex items-center text-brand-body-5">
+              <Phone className="h-3 w-3 mr-1" />
+              {tenant.phone}
+            </div>
+          </div>
+        );
+      case 'status':
+        return (
+          <Select
+            value={tenant.is_active === false ? 'Inactive' : (tenant.status || 'Active')}
+            onValueChange={(value) => handleUpdateStatus(tenant.id, value)}
+          >
+            <SelectTrigger
+              className={`w-32 h-8 ${tenant.is_active === false || tenant.status?.toLowerCase() === 'inactive'
+                ? 'bg-brand-muted text-brand-text'
+                : 'bg-brand-success-bg text-brand-success'}`}
+            >
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      default:
+        return tenant[columnKey];
+    }
+  };
+
+  const renderActions = (tenant: any) => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm" title="View" onClick={() => navigate(`/masters/tenants/${tenant.id}`)}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Edit" onClick={() => handleEditTenant(tenant.id)}>
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Delete" className="text-brand-error" onClick={() => handleDeleteTenant(tenant.id)}>
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const leftActions = (
+    <div className="flex items-center gap-2">
+        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Lessee
+        </Button>
+
+        <TableFilterDialog
+            open={isFilterOpen}
+            onOpenChange={setIsFilterOpen}
+            onApply={() => setStatusFilter(pendingStatus)}
+            onReset={() => {
+                setPendingStatus('all');
+                setStatusFilter('all');
+            }}
+        >
+            <FilterField label="Status">
+                <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                    <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                        <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
+                    </SelectContent>
+                </Select>
+            </FilterField>
+        </TableFilterDialog>
+    </div>
+  );
+
+  return (
+    <PageContainer>
+      <div className="flex items-center justify-between">
+        <PageHeader title="Lessee Management" description="Manage lessee information, documents, and profiles" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Lessee
-            </Button>
-          </DialogTrigger>
           <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-gray-900 font-semibold text-xl">
+              <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                 {editingTenant ? 'Edit Lessee' : 'Add New Lessee'}
               </DialogTitle>
               <DialogDescription className="text-gray-600">
@@ -253,7 +339,7 @@ const TenantsManagement = () => {
                     placeholder="Enter full name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
                 <div className="space-y-2">
@@ -264,7 +350,7 @@ const TenantsManagement = () => {
                     placeholder="Enter email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
                 <div className="space-y-2">
@@ -274,7 +360,7 @@ const TenantsManagement = () => {
                     placeholder="Enter phone number"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
                 <div className="space-y-2">
@@ -284,7 +370,7 @@ const TenantsManagement = () => {
                     placeholder="Enter alternate phone"
                     value={formData.alternate_phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, alternate_phone: e.target.value }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
               </div>
@@ -298,7 +384,7 @@ const TenantsManagement = () => {
                     placeholder="Enter company name"
                     value={formData.company_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
                 <div className="space-y-2">
@@ -308,7 +394,7 @@ const TenantsManagement = () => {
                     placeholder="Enter designation"
                     value={formData.designation}
                     onChange={(e) => setFormData(prev => ({ ...prev, designation: e.target.value }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
               </div>
@@ -321,7 +407,7 @@ const TenantsManagement = () => {
                   placeholder="Enter permanent address"
                   value={formData.permanent_address}
                   onChange={(e) => setFormData(prev => ({ ...prev, permanent_address: e.target.value }))}
-                  className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  className="bg-white border-gray-300 text-gray-900"
                   rows={3}
                 />
               </div>
@@ -335,7 +421,7 @@ const TenantsManagement = () => {
                     placeholder="Enter Aadhar number"
                     value={formData.aadhar_number}
                     onChange={(e) => setFormData(prev => ({ ...prev, aadhar_number: e.target.value }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                     maxLength={12}
                   />
                 </div>
@@ -346,7 +432,7 @@ const TenantsManagement = () => {
                     placeholder="Enter PAN number"
                     value={formData.pan_number}
                     onChange={(e) => setFormData(prev => ({ ...prev, pan_number: e.target.value.toUpperCase() }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                     maxLength={10}
                   />
                 </div>
@@ -391,7 +477,7 @@ const TenantsManagement = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                className="fm-button-fix fm-button-brand px-6 py-2"
               >
                 {isLoading ? 'Saving...' : (editingTenant ? 'Update Lessee' : 'Save Lessee')}
               </Button>
@@ -400,123 +486,34 @@ const TenantsManagement = () => {
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Lessee Directory</CardTitle>
-              <CardDescription>Complete list of all lessees in the system</CardDescription>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 bg-white">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search lessees..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64 bg-white"
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Lessee Details</TableHead>
-                <TableHead>Contact Info</TableHead>
-                {/* <TableHead>Current Property</TableHead>
-                <TableHead>Rent (₹)</TableHead> */}
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTenants.map((tenant) => (
-                <TableRow key={tenant.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{tenant.name}</p>
-                      <p className="text-sm text-gray-500">ID: {tenant.id}</p>
-                      <p className="text-sm text-gray-500">PAN: {tenant.pan}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm">
-                        <Mail className="h-3 w-3 mr-1" />
-                        {tenant.email}
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <Phone className="h-3 w-3 mr-1" />
-                        {tenant.phone}
-                      </div>
-                    </div>
-                  </TableCell>
-                  {/* <TableCell>
-                    {tenant.currentProperty ? (
-                      <div>
-                        <p className="font-medium">{tenant.currentProperty}</p>
-                        <p className="text-sm text-gray-500">
-                          {tenant.leaseStart} to {tenant.leaseEnd}
-                        </p>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">No active lease</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {tenant.rent ? (
-                      <span className="font-medium">₹{tenant.rent.toLocaleString()}</span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell> */}
-                  <TableCell>
-                    <Select
-                      value={tenant.is_active === false ? 'Inactive' : (tenant.status || 'Active')}
-                      onValueChange={(value) => handleUpdateStatus(tenant.id, value)}
-                    >
-                      <SelectTrigger className={`w-32 h-8 ${tenant.is_active === false || tenant.status?.toLowerCase() === 'inactive' ? 'bg-gray-100 text-gray-800 border-gray-200' : 'bg-green-100 text-green-800 border-green-200'}`}>
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/tenants/${tenant.id}`)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleEditTenant(tenant.id)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteTenant(tenant.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+      <div>
+        <EnhancedTable
+          data={filteredTenants}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(tenant) => String(tenant.id)}
+          storageKey="lessees-master-table"
+          emptyMessage="No lessees found"
+          loading={loadingTenants}
+          loadingMessage="Loading lessees..."
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search lessees..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={leftActions}
+          onFilterClick={() => {
+          setPendingStatus(statusFilter);
+          setIsFilterOpen(true);
+          }}
+          exportFileName="lessees"
+          pagination={true}
+          pageSize={10}
+        />
+      </div>
+    </PageContainer>
   );
 };
 

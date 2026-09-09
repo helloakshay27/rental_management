@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Building2, DollarSign, Users, AlertTriangle, TrendingUp, MapPin, Calendar, FileText, Shield, Wrench, Receipt } from 'lucide-react';
+import { StatsGrid } from '@/components/ui/page';
+import { Building2, DollarSign, Users, AlertTriangle, TrendingUp, MapPin, Calendar, FileText, Shield, Wrench, Receipt, BarChart3 } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
 import RecentActivity from './RecentActivity';
@@ -18,9 +19,9 @@ import InvoiceManagement from './InvoiceManagement';
 
 const LandlordAnalyticalDashboard = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Enhanced Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StatsGrid>
         <StatCard
           title="Total Portfolio Value"
           value="₹245.8Cr"
@@ -57,10 +58,10 @@ const LandlordAnalyticalDashboard = () => {
           color="bg-[#C72030]"
           backgroundColor="bg-[#f6f4ee]"
         />
-      </div>
+      </StatsGrid>
 
       {/* Additional KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StatsGrid>
         <StatCard
           title="Average Rent/SqFt"
           value="₹125"
@@ -97,7 +98,7 @@ const LandlordAnalyticalDashboard = () => {
           color="bg-[#C72030]"
           backgroundColor="bg-[#f6f4ee]"
         />
-      </div>
+      </StatsGrid>
 
       {/* Quick Actions */}
       <QuickActions />
@@ -107,27 +108,28 @@ const LandlordAnalyticalDashboard = () => {
 
       {/* Tabbed Analytics Section */}
       <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid w-full grid-cols-6 bg-white border border-gray-200 rounded-lg p-1">
-          <TabsTrigger value="analytics" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+        <TabsList>
+          <TabsTrigger value="analytics">
+            <BarChart3 className="h-4 w-4 mr-2" />
             Analytics
           </TabsTrigger>
-          <TabsTrigger value="fitout" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="fitout">
             <Wrench className="h-4 w-4 mr-2" />
             Fitout & Lockin
           </TabsTrigger>
-          <TabsTrigger value="deposits" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="deposits">
             <Shield className="h-4 w-4 mr-2" />
             Security Deposits
           </TabsTrigger>
-          <TabsTrigger value="invoicing" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="invoicing">
             <Receipt className="h-4 w-4 mr-2" />
             Invoicing
           </TabsTrigger>
-          <TabsTrigger value="kyc" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="kyc">
             <FileText className="h-4 w-4 mr-2" />
             KYC Management
           </TabsTrigger>
-          <TabsTrigger value="regional" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="regional">
             <MapPin className="h-4 w-4 mr-2" />
             Regional
           </TabsTrigger>

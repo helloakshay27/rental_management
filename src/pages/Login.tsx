@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { post, saveToken } from "@/lib/api";
+import { post, saveToken, isAuthenticated } from "@/lib/api";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -17,6 +17,14 @@ export const LoginPage = ({ setToken }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  // Where the guard bounced the user from, so login can return them there.
+  const from = (location.state as { from?: string } | null)?.from || "/dashboard";
+
+  // A token already in localStorage means there is nothing to log in to.
+  if (isAuthenticated()) {
+    return <Navigate to={from} replace />;
+  }
 
   const hostname = window.location.hostname;
 
@@ -110,8 +118,8 @@ export const LoginPage = ({ setToken }) => {
 
       toast.success("Welcome back! Login successful.");
 
-      // Redirect to dashboard route
-      navigate("/dashboard", { replace: true });
+      // Back to whatever the user was trying to open, else the dashboard
+      navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Login error:", error);
       const resp = error?.response;

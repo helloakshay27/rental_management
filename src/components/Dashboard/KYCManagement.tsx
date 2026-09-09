@@ -1,16 +1,20 @@
 
 import React, { useState } from 'react';
+import { StatsGrid } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Search, Plus, Upload, FileText, CheckCircle, AlertCircle, Clock, User, Building } from 'lucide-react';
+import { Plus, Upload, FileText, CheckCircle, AlertCircle, Clock, User, Building } from 'lucide-react';
 
 interface KYCDocument {
   id: string;
@@ -37,9 +41,19 @@ interface KYCProfile {
   };
 }
 
+const profileColumns: ColumnConfig[] = [
+  { key: 'tenantName', label: 'Tenant', sortable: true, draggable: true },
+  { key: 'property', label: 'Property', sortable: true, draggable: true },
+  { key: 'completionPercentage', label: 'Progress', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+  { key: 'lastUpdated', label: 'Last Updated', sortable: true, draggable: true },
+];
+
 const KYCManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
 
   const kycProfiles: KYCProfile[] = [
     {
@@ -123,77 +137,92 @@ const KYCManagement = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const renderProfileCell = (profile: KYCProfile, columnKey: string) => {
+    switch (columnKey) {
+      case 'tenantName':
+        return (
+          <div>
+            <p className="font-medium">{profile.tenantName}</p>
+            <p className="text-brand-body-5 text-brand-text-light">{profile.personalInfo.email}</p>
+          </div>
+        );
+      case 'completionPercentage':
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-brand-body-5">{profile.completionPercentage}%</span>
+            </div>
+            <Progress value={profile.completionPercentage} className="w-24" />
+          </div>
+        );
+      case 'status':
+        return getStatusBadge(profile.status);
+      default:
+        return profile[columnKey as keyof KYCProfile] as React.ReactNode;
+    }
+  };
+
+  const renderProfileActions = () => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm">View</Button>
+      <Button variant="ghost" size="sm">Review</Button>
+    </div>
+  );
+
+  const profileLeftActions = (
+    <TableFilterDialog
+      open={isFilterOpen}
+      onOpenChange={setIsFilterOpen}
+      onApply={() => setStatusFilter(pendingStatus)}
+      onReset={() => {
+        setPendingStatus('all');
+        setStatusFilter('all');
+      }}
+    >
+      <FilterField label="Status">
+        <Select value={pendingStatus} onValueChange={setPendingStatus}>
+          <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="complete">Complete</SelectItem>
+            <SelectItem value="incomplete">Incomplete</SelectItem>
+            <SelectItem value="under_review">Under Review</SelectItem>
+          </SelectContent>
+        </Select>
+      </FilterField>
+    </TableFilterDialog>
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <User className="h-8 w-8 text-[#C72030]" />
-              <div>
-                <p className="text-2xl font-bold">156</p>
-                <p className="text-sm text-gray-600">Total Profiles</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold">142</p>
-                <p className="text-sm text-gray-600">Complete KYC</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-8 w-8 text-yellow-600" />
-              <div>
-                <p className="text-2xl font-bold">8</p>
-                <p className="text-sm text-gray-600">Under Review</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-              <div>
-                <p className="text-2xl font-bold">6</p>
-                <p className="text-sm text-gray-600">Incomplete</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsGrid>
+        <StatsCard title="Total Profiles" value={156} icon={<User />} />
+        <StatsCard title="Complete KYC" value={142} icon={<CheckCircle />} />
+        <StatsCard title="Under Review" value={8} icon={<Clock />} />
+        <StatsCard title="Incomplete" value={6} icon={<AlertCircle />} />
+      </StatsGrid>
 
       <Tabs defaultValue="profiles" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
-          <TabsTrigger value="profiles" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+        <TabsList>
+          <TabsTrigger value="profiles">
             <User className="h-4 w-4 mr-2" />
             KYC Profiles
           </TabsTrigger>
-          <TabsTrigger value="documents" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="documents">
             <FileText className="h-4 w-4 mr-2" />
             Document Review
           </TabsTrigger>
-          <TabsTrigger value="compliance" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="compliance">
             <Building className="h-4 w-4 mr-2" />
             Compliance
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profiles" className="space-y-6">
-          <Card>
+          <Card className="bg-white">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -202,7 +231,7 @@ const KYCManagement = () => {
                 </div>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="bg-[#C72030] hover:bg-[#A01825]">
+                    <Button className="fm-button-fix fm-button-brand px-6 py-2">
                       <Plus className="h-4 w-4 mr-2" />
                       New KYC Profile
                     </Button>
@@ -249,81 +278,36 @@ const KYCManagement = () => {
                     </div>
                     <div className="flex justify-end space-x-2">
                       <Button variant="outline">Cancel</Button>
-                      <Button className="bg-[#C72030] hover:bg-[#A01825]">Create Profile</Button>
+                      <Button className="fm-button-fix fm-button-brand px-6 py-2">Create Profile</Button>
                     </div>
                   </DialogContent>
                 </Dialog>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search tenants..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-white"
-                  />
-                </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-48 bg-white">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="complete">Complete</SelectItem>
-                    <SelectItem value="incomplete">Incomplete</SelectItem>
-                    <SelectItem value="under_review">Under Review</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tenant</TableHead>
-                    <TableHead>Property</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Updated</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredProfiles.map((profile) => (
-                    <TableRow key={profile.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{profile.tenantName}</p>
-                          <p className="text-sm text-gray-500">{profile.personalInfo.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>{profile.property}</TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">{profile.completionPercentage}%</span>
-                          </div>
-                          <Progress value={profile.completionPercentage} className="w-24" />
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(profile.status)}</TableCell>
-                      <TableCell>{profile.lastUpdated}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
-                            View
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            Review
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <EnhancedTable
+                data={filteredProfiles}
+                columns={profileColumns}
+                renderCell={renderProfileCell}
+                renderActions={renderProfileActions}
+                getItemId={(profile) => String(profile.id)}
+                storageKey="kyc-profiles-table"
+                emptyMessage="No KYC profiles found"
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                searchPlaceholder="Search tenants..."
+                disableClientSearch={true}
+                enableSearch={true}
+                enableSelection={false}
+                leftActions={profileLeftActions}
+                onFilterClick={() => {
+                  setPendingStatus(statusFilter);
+                  setIsFilterOpen(true);
+                }}
+                exportFileName="kyc-profiles"
+                pagination={true}
+                pageSize={10}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -360,7 +344,7 @@ const KYCManagement = () => {
                           <Button variant="outline" size="sm" className="text-red-600">
                             Reject
                           </Button>
-                          <Button size="sm" className="bg-[#C72030] hover:bg-[#A01825]">
+                          <Button size="sm" className="fm-button-fix fm-button-brand px-6 py-2">
                             Approve
                           </Button>
                         </div>
@@ -381,15 +365,15 @@ const KYCManagement = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">91.0%</div>
+                  <div className="text-brand-h2 font-bold text-green-600 mb-2">91.0%</div>
                   <p className="text-sm text-gray-600">Overall Compliance Rate</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-600 mb-2">8</div>
+                  <div className="text-brand-h2 font-bold text-yellow-600 mb-2">8</div>
                   <p className="text-sm text-gray-600">Pending Reviews</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-red-600 mb-2">6</div>
+                  <div className="text-brand-h2 font-bold text-red-600 mb-2">6</div>
                   <p className="text-sm text-gray-600">Non-compliant</p>
                 </div>
               </div>

@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,11 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, Phone, Mail, Building, ChevronLeft } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Plus, Edit, Trash2, Eye, Phone, Mail, Building } from 'lucide-react';
 import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface Landlord {
   id: number;
@@ -33,12 +37,21 @@ interface Landlord {
   }[];
 }
 
+const columns: ColumnConfig[] = [
+  { key: 'contact_person', label: 'Landlord Details', sortable: true, draggable: true },
+  { key: 'email', label: 'Contact Info', sortable: true, draggable: true },
+  { key: 'pan', label: 'Tax Details', sortable: false, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
+
 const LandlordsManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [landlords, setLandlords] = useState<Landlord[]>([]);
   const [loadingLandlords, setLoadingLandlords] = useState(true);
   const [editingLandlord, setEditingLandlord] = useState<any>(null);
@@ -248,33 +261,113 @@ const LandlordsManagement = () => {
     landlord.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/masters')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
+  const renderCell = (landlord: Landlord, columnKey: string) => {
+    switch (columnKey) {
+      case 'contact_person':
+        return (
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Landlords Management</h1>
-            <p className="text-gray-600">Manage landlord profiles, properties, and contact details</p>
+            <p className="font-medium">{landlord.contact_person || landlord.company_name}</p>
+            <p className="text-brand-body-5 text-brand-text-light">ID: {landlord.id}</p>
           </div>
-        </div>
+        );
+      case 'email':
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center text-brand-body-5">
+              <Mail className="h-3 w-3 mr-1" />
+              {landlord.email}
+            </div>
+            <div className="flex items-center text-brand-body-5">
+              <Phone className="h-3 w-3 mr-1" />
+              {landlord.phone}
+            </div>
+          </div>
+        );
+      case 'pan':
+        return (
+          <div>
+            {landlord.pan && <p className="text-brand-body-5">PAN: {landlord.pan}</p>}
+            {landlord.gst && <p className="text-brand-body-5">GST: {landlord.gst}</p>}
+          </div>
+        );
+      case 'status':
+        return (
+          <Select
+            value={landlord.status || 'Active'}
+            onValueChange={(value) => handleUpdateStatus(landlord.id, value)}
+          >
+            <SelectTrigger
+              className={`w-32 h-8 ${landlord.status?.toLowerCase() === 'active'
+                ? 'bg-brand-success-bg text-brand-success'
+                : 'bg-brand-muted text-brand-text'}`}
+            >
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      default:
+        return landlord[columnKey as keyof Landlord] as React.ReactNode;
+    }
+  };
+
+  const renderActions = (landlord: Landlord) => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm" title="View" onClick={() => navigate(`/masters/landlords/${landlord.id}`)}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Edit" onClick={() => handleEditLandlord(landlord.id)}>
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Delete" className="text-brand-error" onClick={() => handleDeleteLandlord(landlord.id)}>
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const leftActions = (
+    <div className="flex items-center gap-2">
+        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Landlord
+        </Button>
+
+        <TableFilterDialog
+            open={isFilterOpen}
+            onOpenChange={setIsFilterOpen}
+            onApply={() => setStatusFilter(pendingStatus)}
+            onReset={() => {
+                setPendingStatus('all');
+                setStatusFilter('all');
+            }}
+        >
+            <FilterField label="Status">
+                <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                    <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                        <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
+                    </SelectContent>
+                </Select>
+            </FilterField>
+        </TableFilterDialog>
+    </div>
+  );
+
+  return (
+    <PageContainer>
+      <div className="flex items-center justify-between">
+        <PageHeader title="Landlords Management" description="Manage landlord profiles, properties, and contact details" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Landlord
-            </Button>
-          </DialogTrigger>
           <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-gray-900 font-semibold text-xl">
+              <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                 {editingLandlord ? 'Edit Landlord' : 'Add New Landlord'}
               </DialogTitle>
               <DialogDescription className="text-gray-600">
@@ -291,7 +384,7 @@ const LandlordsManagement = () => {
                     placeholder="Enter business name"
                     value={formData.company_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
                 <div className="space-y-2 ">
@@ -301,7 +394,7 @@ const LandlordsManagement = () => {
                     placeholder="Enter name"
                     value={formData.contact_person}
                     onChange={(e) => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
                 <div className="space-y-2">
@@ -312,7 +405,7 @@ const LandlordsManagement = () => {
                     placeholder="Enter email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
                 <div className="space-y-2">
@@ -322,7 +415,7 @@ const LandlordsManagement = () => {
                     placeholder="Enter phone number"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
               </div>
@@ -336,7 +429,7 @@ const LandlordsManagement = () => {
                     placeholder="Enter PAN number"
                     value={formData.pan}
                     onChange={(e) => setFormData(prev => ({ ...prev, pan: e.target.value.toUpperCase() }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                     maxLength={10}
                   />
                 </div>
@@ -347,7 +440,7 @@ const LandlordsManagement = () => {
                     placeholder="Enter GST number"
                     value={formData.gst}
                     onChange={(e) => setFormData(prev => ({ ...prev, gst: e.target.value.toUpperCase() }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
                 <div className="space-y-2 col-span-2">
@@ -357,7 +450,7 @@ const LandlordsManagement = () => {
                     placeholder="Enter Aadhar number"
                     value={formData.aadhaar_number}
                     onChange={(e) => setFormData(prev => ({ ...prev, aadhaar_number: e.target.value }))}
-                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-gray-300 text-gray-900"
                     maxLength={12}
                   />
                 </div>
@@ -374,7 +467,7 @@ const LandlordsManagement = () => {
                       placeholder="Enter account number"
                       value={formData.bank_account_number}
                       onChange={(e) => setFormData(prev => ({ ...prev, bank_account_number: e.target.value }))}
-                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                      className="bg-white border-gray-300 text-gray-900"
                     />
                   </div>
                   <div className="space-y-2">
@@ -384,7 +477,7 @@ const LandlordsManagement = () => {
                       placeholder="e.g., HDFC Bank"
                       value={formData.bank_name}
                       onChange={(e) => setFormData(prev => ({ ...prev, bank_name: e.target.value }))}
-                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                      className="bg-white border-gray-300 text-gray-900"
                     />
                   </div>
                   <div className="space-y-2">
@@ -394,7 +487,7 @@ const LandlordsManagement = () => {
                       placeholder="e.g., HDFC0001234"
                       value={formData.bank_ifsc_code}
                       onChange={(e) => setFormData(prev => ({ ...prev, bank_ifsc_code: e.target.value.toUpperCase() }))}
-                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                      className="bg-white border-gray-300 text-gray-900"
                     />
                   </div>
                   <div className="space-y-2">
@@ -403,7 +496,7 @@ const LandlordsManagement = () => {
                       id="account-type"
                       value={formData.bank_account_type}
                       onChange={(e) => setFormData(prev => ({ ...prev, bank_account_type: e.target.value }))}
-                      className="w-full p-2 border-2 border-gray-300 hover:border-[#C72030] rounded-md bg-white text-gray-900 focus:border-[#C72030] focus:ring-[#C72030] focus:outline-none"
+                      className="w-full p-2 border-gray-300 hover:border-[#C72030] rounded-md bg-white text-gray-900 focus:border-[#C72030] focus:ring-[#C72030] focus:outline-none"
                     >
                       <option value="">Select account type</option>
                       <option value="Savings">Savings</option>
@@ -419,7 +512,7 @@ const LandlordsManagement = () => {
                       placeholder="e.g., Mumbai - Andheri East"
                       value={formData.bank_branch}
                       onChange={(e) => setFormData(prev => ({ ...prev, bank_branch: e.target.value }))}
-                      className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                      className="bg-white border-gray-300 text-gray-900"
                     />
                   </div>
                 </div>
@@ -464,7 +557,7 @@ const LandlordsManagement = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                className="fm-button-fix fm-button-brand px-6 py-2"
               >
                 {isLoading ? 'Saving...' : (editingLandlord ? 'Update Landlord' : 'Save Landlord')}
               </Button>
@@ -473,122 +566,34 @@ const LandlordsManagement = () => {
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Landlords Directory</CardTitle>
-              <CardDescription>Complete list of all landlords and property owners</CardDescription>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 bg-white">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search landlords..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64 bg-white border-gray-300"
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Landlord Details</TableHead>
-                <TableHead>Contact Info</TableHead>
-                <TableHead>Tax Details</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loadingLandlords ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                    Loading landlords...
-                  </TableCell>
-                </TableRow>
-              ) : filteredLandlords.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                    No landlords found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredLandlords.map((landlord) => (
-                  <TableRow key={landlord.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{landlord.contact_person || landlord.company_name}</p>
-                        <p className="text-sm text-gray-500">ID: {landlord.id}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center text-sm">
-                          <Mail className="h-3 w-3 mr-1" />
-                          {landlord.email}
-                        </div>
-                        <div className="flex items-center text-sm">
-                          <Phone className="h-3 w-3 mr-1" />
-                          {landlord.phone}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        {landlord.pan && <p className="text-sm">PAN: {landlord.pan}</p>}
-                        {landlord.gst && <p className="text-sm">GST: {landlord.gst}</p>}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={landlord.status || 'Active'}
-                        onValueChange={(value) => handleUpdateStatus(landlord.id, value)}
-                      >
-                        <SelectTrigger className={`w-32 h-8 ${landlord.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
-                          <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/landlords/${landlord.id}`)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEditLandlord(landlord.id)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteLandlord(landlord.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+      <div>
+        <EnhancedTable
+          data={filteredLandlords}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(landlord) => String(landlord.id)}
+          storageKey="landlords-master-table"
+          emptyMessage="No landlords found"
+          loading={loadingLandlords}
+          loadingMessage="Loading landlords..."
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search landlords..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={leftActions}
+          onFilterClick={() => {
+          setPendingStatus(statusFilter);
+          setIsFilterOpen(true);
+          }}
+          exportFileName="landlords"
+          pagination={true}
+          pageSize={10}
+        />
+      </div>
+    </PageContainer>
   );
 };
 

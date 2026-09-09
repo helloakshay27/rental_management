@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
 
 interface StatCardProps {
   title: string;
@@ -9,39 +9,44 @@ interface StatCardProps {
   change?: string;
   changeType?: 'positive' | 'negative' | 'neutral' | 'warning';
   icon: LucideIcon;
-  color: string;
+  /**
+   * Kept for call-site compatibility. The tile now takes its colours from the
+   * design tokens — the icon chip is always the brand tan — so this is ignored.
+   */
+  color?: string;
   backgroundColor?: string;
 }
 
-const StatCard = ({ title, value, change, changeType, icon: Icon, color, backgroundColor = 'bg-white' }: StatCardProps) => {
-  const getChangeColor = () => {
+/**
+ * Dashboard stat tile. Thin wrapper over the shared `StatsCard` so the
+ * dashboards pick up the fm-matrix-revamp look, while keeping the optional
+ * change/delta line those dashboards pass.
+ */
+const StatCard = ({ title, value, change, changeType, icon: Icon }: StatCardProps) => {
+  const changeColor = () => {
     switch (changeType) {
-      case 'positive': return 'text-green-600';
-      case 'negative': return 'text-red-600';
-      case 'warning': return 'text-amber-600';
-      default: return 'text-gray-600';
+      case 'positive':
+        return 'text-brand-success';
+      case 'negative':
+        return 'text-brand-error';
+      case 'warning':
+        return 'text-brand-warning';
+      default:
+        return 'text-brand-text-light';
     }
   };
 
   return (
-    <Card className={`${backgroundColor} border border-gray-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1`}>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">{title}</p>
-            <p className="text-3xl font-bold text-[#1a1a1a] mt-3">{value}</p>
-            {change && (
-              <p className={`text-sm mt-2 font-medium ${getChangeColor()}`}>
-                {change}
-              </p>
-            )}
-          </div>
-          <div className={`p-4 rounded-xl ${color} shadow-lg`}>
-            <Icon className="h-7 w-7 text-white" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <StatsCard
+      title={title}
+      value={value}
+      icon={<Icon />}
+      footer={
+        change ? (
+          <p className={`mt-0.5 text-brand-caption font-medium ${changeColor()}`}>{change}</p>
+        ) : null
+      }
+    />
   );
 };
 

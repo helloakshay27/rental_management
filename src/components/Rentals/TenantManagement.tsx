@@ -1,21 +1,21 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import TenantSummaryCards from './TenantSummaryCards';
-import TenantFilters from './TenantFilters';
 import TenantTable from './TenantTable';
 import TenantViewDialog from './TenantViewDialog';
 import TenantEditDialog from './TenantEditDialog';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 const TenantManagement = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTenant, setSelectedTenant] = useState(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const { toast } = useToast();
 
   // Mock data for tenants
   const tenants = [
@@ -95,8 +95,7 @@ const TenantManagement = () => {
   const handleCallTenant = (tenantId: string, phone: string) => {
     console.log('Calling tenant:', tenantId, 'at', phone);
     window.open(`tel:${phone}`);
-    toast({
-      title: "Calling Tenant",
+    toast.success("Calling Tenant", {
       description: `Initiating call to ${phone}`,
     });
   };
@@ -104,8 +103,7 @@ const TenantManagement = () => {
   const handleEmailTenant = (tenantId: string, email: string) => {
     console.log('Emailing tenant:', tenantId, 'at', email);
     window.open(`mailto:${email}`);
-    toast({
-      title: "Opening Email Client",
+    toast.success("Opening Email Client", {
       description: `Composing email to ${email}`,
     });
   };
@@ -116,37 +114,29 @@ const TenantManagement = () => {
     tenant.propertyName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const leftActions = (
+    <Button onClick={() => navigate('/masters/tenants')} className="fm-button-fix fm-button-brand px-6 py-2">
+      <Plus className="w-4 h-4 mr-2" />
+      Add New Tenant
+    </Button>
+  );
+
   return (
-    <div className="space-y-6 bg-white">
+    <div className="space-y-5">
       {/* Summary Cards */}
       <TenantSummaryCards tenants={tenants} />
 
       {/* Tenant Management */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="bg-white border-b border-gray-200">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-[#1a1a1a]">Tenant Directory</CardTitle>
-            <Button className="bg-[#C72030] hover:bg-[#A01825] text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Tenant
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="bg-white">
-          <TenantFilters 
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
-
-          <TenantTable 
-            tenants={filteredTenants}
-            onViewTenant={handleViewTenant}
-            onEditTenant={handleEditTenant}
-            onCallTenant={handleCallTenant}
-            onEmailTenant={handleEmailTenant}
-          />
-        </CardContent>
-      </Card>
+      <div>
+        <TenantTable 
+          tenants={filteredTenants}
+          leftActions={leftActions}
+          onViewTenant={handleViewTenant}
+          onEditTenant={handleEditTenant}
+          onCallTenant={handleCallTenant}
+          onEmailTenant={handleEmailTenant}
+        />
+      </div>
 
       {/* Dialogs */}
       <TenantViewDialog 

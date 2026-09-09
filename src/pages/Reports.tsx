@@ -1,11 +1,15 @@
 
 import React, { useState } from 'react';
-import { BarChart3, TrendingUp, Download, Calendar, FileText, PieChart, DollarSign } from 'lucide-react';
+import { PageContainer, StatsGrid } from '@/components/ui/page';
+import { BarChart3, TrendingUp, Download, Calendar, FileText, PieChart, DollarSign, LayoutDashboard, Activity } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Cell, LineChart, Line, Pie } from 'recharts';
+import { Heading, Text } from '@/components/ui/typography';
 
 const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
@@ -36,7 +40,7 @@ const Reports = () => {
     { name: 'Others', value: 5, amount: 125000 }
   ];
 
-  const COLORS = ['#C72030', '#FF6B35', '#F7931E', '#FFD23F', '#6BCF7F'];
+  const COLORS = ANALYTICS_PALETTE.slice(0, 5);
 
   const reports = [
     {
@@ -70,11 +74,11 @@ const Reports = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <PageContainer>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-          <p className="text-gray-600">Comprehensive insights into your property portfolio performance</p>
+          <Heading level="h1">Reports & Analytics</Heading>
+          <Text size="sm" variant="muted">Comprehensive insights into your property portfolio performance</Text>
         </div>
         <div className="flex items-center space-x-3">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -88,7 +92,7 @@ const Reports = () => {
               <SelectItem value="yearly">Yearly</SelectItem>
             </SelectContent>
           </Select>
-          <Button className="bg-[#C72030] hover:bg-[#A01825]">
+          <Button className="fm-button-fix fm-button-brand px-6 py-2">
             <Download className="h-4 w-4 mr-2" />
             Export All
           </Button>
@@ -96,67 +100,52 @@ const Reports = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-white border border-gray-200">
-          <TabsTrigger value="overview" className="text-gray-700">Overview</TabsTrigger>
-          <TabsTrigger value="financial" className="text-gray-700">Financial</TabsTrigger>
-          <TabsTrigger value="operational" className="text-gray-700">Operational</TabsTrigger>
-          <TabsTrigger value="custom" className="text-gray-700">Custom Reports</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="overview">
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="financial">
+            <DollarSign className="h-4 w-4 mr-2" />
+            Financial
+          </TabsTrigger>
+          <TabsTrigger value="operational">
+            <Activity className="h-4 w-4 mr-2" />
+            Operational
+          </TabsTrigger>
+          <TabsTrigger value="custom">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Custom Reports
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                    <p className="text-2xl font-bold text-gray-900">₹3.18Cr</p>
-                    <p className="text-sm text-green-600">+12.5% from last month</p>
-                  </div>
-                  <DollarSign className="h-8 w-8 text-[#C72030]" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Occupancy Rate</p>
-                    <p className="text-2xl font-bold text-gray-900">94.2%</p>
-                    <p className="text-sm text-green-600">+2.1% from last month</p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-[#C72030]" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                    <p className="text-2xl font-bold text-gray-900">₹1.27Cr</p>
-                    <p className="text-sm text-red-600">+5.3% from last month</p>
-                  </div>
-                  <BarChart3 className="h-8 w-8 text-[#C72030]" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Net Income</p>
-                    <p className="text-2xl font-bold text-gray-900">₹1.91Cr</p>
-                    <p className="text-sm text-green-600">+18.2% from last month</p>
-                  </div>
-                  <PieChart className="h-8 w-8 text-[#C72030]" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <StatsGrid>
+            <StatsCard
+              title="Total Revenue"
+              value="₹3.18Cr"
+              icon={<DollarSign />}
+              footer={<p className="mt-0.5 text-brand-caption text-brand-success">+12.5% from last month</p>}
+            />
+            <StatsCard
+              title="Occupancy Rate"
+              value="94.2%"
+              icon={<TrendingUp />}
+              footer={<p className="mt-0.5 text-brand-caption text-brand-success">+2.1% from last month</p>}
+            />
+            <StatsCard
+              title="Total Expenses"
+              value="₹1.27Cr"
+              icon={<BarChart3 />}
+              footer={<p className="mt-0.5 text-brand-caption text-brand-error">+5.3% from last month</p>}
+            />
+            <StatsCard
+              title="Net Income"
+              value="₹1.91Cr"
+              icon={<PieChart />}
+              footer={<p className="mt-0.5 text-brand-caption text-brand-success">+18.2% from last month</p>}
+            />
+          </StatsGrid>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
@@ -171,8 +160,8 @@ const Reports = () => {
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="revenue" fill="#C72030" />
-                    <Bar dataKey="expenses" fill="#FF6B35" />
+                    <Bar dataKey="revenue" fill={ANALYTICS_PALETTE[0]} />
+                    <Bar dataKey="expenses" fill={ANALYTICS_PALETTE[1]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -190,7 +179,7 @@ const Reports = () => {
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="occupancy" stroke="#C72030" strokeWidth={2} />
+                    <Line type="monotone" dataKey="occupancy" stroke="#DA7756" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -214,7 +203,7 @@ const Reports = () => {
                       cy="50%"
                       labelLine={false}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="#8E7BE0"
                       dataKey="value"
                       label={({ name, value }) => `${name}: ${value}%`}
                     >
@@ -262,7 +251,7 @@ const Reports = () => {
               <CardContent className="p-6">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Average Occupancy</h3>
-                  <p className="text-3xl font-bold text-[#C72030]">94.2%</p>
+                  <p className="text-brand-h2 font-bold text-[#C72030]">94.2%</p>
                   <p className="text-sm text-gray-600 mt-1">Across all properties</p>
                 </div>
               </CardContent>
@@ -272,7 +261,7 @@ const Reports = () => {
               <CardContent className="p-6">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Maintenance Requests</h3>
-                  <p className="text-3xl font-bold text-orange-500">23</p>
+                  <p className="text-brand-h2 font-bold text-orange-500">23</p>
                   <p className="text-sm text-gray-600 mt-1">This month</p>
                 </div>
               </CardContent>
@@ -282,7 +271,7 @@ const Reports = () => {
               <CardContent className="p-6">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Tenant Satisfaction</h3>
-                  <p className="text-3xl font-bold text-green-500">4.6/5</p>
+                  <p className="text-brand-h2 font-bold text-green-500">4.6/5</p>
                   <p className="text-sm text-gray-600 mt-1">Average rating</p>
                 </div>
               </CardContent>
@@ -329,7 +318,7 @@ const Reports = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 };
 

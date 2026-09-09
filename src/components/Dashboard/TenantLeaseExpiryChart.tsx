@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Legend } from 'recharts';
+import { DURATION_BUCKET_COLORS } from '@/styles/chartPalette';
 
 const chartConfig = {
   count: {
@@ -33,43 +34,41 @@ const TenantLeaseExpiryChart = ({ data }: { data?: LeaseExpiryData }) => {
     percentage: total > 0 ? Math.round((item.count / total) * 100) : 0
   }));
 
-  const COLORS = ['#FF6B6B', '#FFA726', '#FFEB3B', '#66BB6A'];
-
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Lease Expiry Distribution</CardTitle>
+        <CardTitle className="text-brand-body-1 font-bold text-[#1a1a1a]">Lease Expiry Distribution</CardTitle>
         <p className="text-sm text-gray-600">Portfolio breakdown by remaining lease duration</p>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={dataWithPercentages}
-                cx="50%"
-                cy="50%"
-                outerRadius={120}
-                fill="#8884d8"
-                dataKey="count"
-                label={({ percentage }) => percentage > 0 ? `${percentage}%` : ''}
-              >
-                {dataWithPercentages.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <ChartTooltip
-                content={<ChartTooltipContent />}
-                formatter={(value, name) => [`${value} properties`, name]}
-              />
-              <Legend
-                formatter={(value, entry) => {
-                  const item = dataWithPercentages.find(d => d.category === value);
-                  return item ? `${item.category}: ${item.count} properties` : value;
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <PieChart>
+            <Pie
+              data={dataWithPercentages}
+              cx="50%"
+              cy="50%"
+              outerRadius="80%"
+              dataKey="count"
+              /* Without nameKey, recharts labels legend entries by row index —
+                 which is why the legend read "0 1 2 3" instead of the buckets. */
+              nameKey="category"
+              label={({ percentage }) => percentage > 0 ? `${percentage}%` : ''}
+            >
+              {dataWithPercentages.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={DURATION_BUCKET_COLORS[index % DURATION_BUCKET_COLORS.length]} />
+              ))}
+            </Pie>
+            <ChartTooltip
+              content={<ChartTooltipContent />}
+              formatter={(value, name) => [`${value} properties`, name]}
+            />
+            <Legend
+              formatter={(value, entry) => {
+                const item = dataWithPercentages.find(d => d.category === value);
+                return item ? `${item.category}: ${item.count} properties` : value;
+              }}
+            />
+          </PieChart>
         </ChartContainer>
       </CardContent>
     </Card>

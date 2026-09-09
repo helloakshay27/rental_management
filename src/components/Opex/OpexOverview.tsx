@@ -1,7 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { SectionLoader } from '@/components/ui/loader';
+import { StatsGrid } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, TrendingDown, Calendar, PieChart, Calculator, Target, Loader2 } from 'lucide-react';
+import { StatsCard } from '@/components/ui/stats-card';
+import { DollarSign, TrendingUp, TrendingDown, Calendar, PieChart, Calculator, Target } from 'lucide-react';
 import { getAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -29,9 +32,7 @@ const OpexOverview = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-      </div>
+      <SectionLoader />
     );
   }
 
@@ -56,27 +57,35 @@ const OpexOverview = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="space-y-5">
+      <StatsGrid>
         {stats.map((stat: any, index: number) => {
           const IconComponent = getIcon(stat.icon);
+          const up = stat.trend === 'up';
           return (
-            <Card key={index} className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">{stat.title}</CardTitle>
-                <IconComponent className="h-4 w-4 text-[#C72030]" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-black text-gray-900">{stat.amount}</div>
-                <p className={`text-xs ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'} flex items-center mt-1`}>
-                  {stat.trend === 'up' ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.amount}
+              icon={<IconComponent />}
+              footer={
+                <p
+                  className={`mt-0.5 flex items-center text-brand-caption ${
+                    up ? 'text-brand-success' : 'text-brand-error'
+                  }`}
+                >
+                  {up ? (
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3 mr-1" />
+                  )}
                   {stat.change} from last month
                 </p>
-              </CardContent>
-            </Card>
+              }
+            />
           );
         })}
-      </div>
+      </StatsGrid>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="bg-white border border-gray-200 shadow-sm">

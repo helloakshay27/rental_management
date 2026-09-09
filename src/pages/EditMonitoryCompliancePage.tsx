@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer } from '@/components/ui/page';
 import MonitorComplianceForm from '@/components/Tenant/MonitorComplianceForm';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Heading, Text } from '@/components/ui/typography';
 
 const EditMonitoryCompliancePage = () => {
     const navigate = useNavigate();
@@ -32,14 +34,12 @@ const EditMonitoryCompliancePage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-white">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     return (
-        <div className="p-8 space-y-6 bg-white min-h-screen">
+        <PageContainer>
             <div className="flex items-center gap-4">
                 <Button
                     variant="ghost"
@@ -50,15 +50,15 @@ const EditMonitoryCompliancePage = () => {
                     <ChevronLeft className="h-6 w-6" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Edit Compliance</h1>
-                    <p className="text-sm text-gray-500">Update compliance record information</p>
+                    <Heading level="h1">Edit Compliance</Heading>
+                    <Text size="sm" variant="muted">Update compliance record information</Text>
                 </div>
             </div>
 
             <div className="w-full">
                 <MonitorComplianceForm initialData={initialData} isEdit={true} />
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

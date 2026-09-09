@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface Tenant {
   id: string;
@@ -29,7 +29,6 @@ interface TenantEditDialogProps {
 }
 
 const TenantEditDialog = ({ tenant, open, onOpenChange, onSave }: TenantEditDialogProps) => {
-  const { toast } = useToast();
   const [formData, setFormData] = useState<Tenant | null>(null);
 
   useEffect(() => {
@@ -42,8 +41,7 @@ const TenantEditDialog = ({ tenant, open, onOpenChange, onSave }: TenantEditDial
 
   const handleSave = () => {
     onSave(formData);
-    toast({
-      title: "Tenant Updated",
+    toast.success("Tenant Updated", {
       description: `${formData.name}'s information has been updated successfully.`,
     });
     onOpenChange(false);
@@ -53,7 +51,7 @@ const TenantEditDialog = ({ tenant, open, onOpenChange, onSave }: TenantEditDial
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl bg-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-[#1a1a1a]">
+          <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
             Edit Tenant - {tenant.name}
           </DialogTitle>
         </DialogHeader>
@@ -165,7 +163,7 @@ const TenantEditDialog = ({ tenant, open, onOpenChange, onSave }: TenantEditDial
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} className="bg-[#C72030] hover:bg-[#A01825]">
+          <Button onClick={handleSave} className="fm-button-fix fm-button-brand px-6 py-2">
             Save Changes
           </Button>
         </div>

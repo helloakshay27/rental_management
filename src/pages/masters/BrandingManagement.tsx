@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,16 +10,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, Upload, Palette, ChevronLeft } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Plus, Edit, Trash2, Eye, Upload, Palette } from 'lucide-react';
 import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Heading, Text } from '@/components/ui/typography';
+
+const columns: ColumnConfig[] = [
+  { key: 'profile_name', label: 'Profile Details', sortable: true, draggable: true },
+  { key: 'company_name', label: 'Company Info', sortable: true, draggable: true },
+  { key: 'primary_color', label: 'Brand Colors', sortable: false, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const BrandingManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [profiles, setProfiles] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -243,33 +256,124 @@ const BrandingManagement = () => {
     profile.company_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/masters')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Invoice Branding Management</h1>
-            <p className="text-gray-600">Manage branding profiles for invoices and communications</p>
+  const renderCell = (profile: any, columnKey: string) => {
+    switch (columnKey) {
+      case 'profile_name':
+        return (
+          <div className="flex items-center space-x-3">
+            {profile.logo_url && (
+              <img src={profile.logo_url} alt="Logo" className="w-8 h-8 rounded object-cover" />
+            )}
+            <div>
+              <p className="font-medium">{profile.profile_name}</p>
+              <p className="text-brand-body-5 text-brand-text-light">ID: {profile.id}</p>
+            </div>
           </div>
-        </div>
+        );
+      case 'company_name':
+        return (
+          <div>
+            <p className="font-medium text-brand-body-5">{profile.company_name}</p>
+            <p className="text-brand-body-5 text-brand-text-light">{profile.billing_email}</p>
+          </div>
+        );
+      case 'primary_color':
+        return (
+          <div className="flex items-center space-x-2">
+            {profile.primary_color && (
+              <div
+                className="w-4 h-4 rounded border border-brand-border"
+                style={{ backgroundColor: profile.primary_color }}
+                title={`Primary: ${profile.primary_color}`}
+              />
+            )}
+            {profile.secondary_color && (
+              <div
+                className="w-4 h-4 rounded border border-brand-border"
+                style={{ backgroundColor: profile.secondary_color }}
+                title={`Secondary: ${profile.secondary_color}`}
+              />
+            )}
+          </div>
+        );
+      case 'status':
+        return (
+          <Select
+            value={profile.status || 'Active'}
+            onValueChange={(value) => handleUpdateStatus(profile.id, value)}
+          >
+            <SelectTrigger
+              className={`w-32 h-8 ${profile.status?.toLowerCase() === 'active'
+                ? 'bg-brand-success-bg text-brand-success'
+                : 'bg-brand-muted text-brand-text'}`}
+            >
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      default:
+        return profile[columnKey];
+    }
+  };
+
+  const renderActions = (profile: any) => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm" title="View" onClick={() => navigate(`/masters/branding/${profile.id}`)}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Edit" onClick={() => handleEditProfile(profile.id)}>
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Delete" className="text-brand-error" onClick={() => handleDeleteProfile(profile.id)}>
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const leftActions = (
+    <div className="flex items-center gap-2">
+        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Branding Profile
+        </Button>
+
+        <TableFilterDialog
+            open={isFilterOpen}
+            onOpenChange={setIsFilterOpen}
+            onApply={() => setStatusFilter(pendingStatus)}
+            onReset={() => {
+                setPendingStatus('all');
+                setStatusFilter('all');
+            }}
+        >
+            <FilterField label="Status">
+                <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                    <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                        <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
+                    </SelectContent>
+                </Select>
+            </FilterField>
+        </TableFilterDialog>
+    </div>
+  );
+
+  return (
+    <PageContainer>
+      <div className="flex items-center justify-between">
+        <PageHeader title="Invoice Branding Management" description="Manage branding profiles for invoices and communications" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Branding Profile
-            </Button>
-          </DialogTrigger>
           <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-gray-900 font-semibold text-xl">
+              <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                 {editingProfile ? 'Edit Branding Profile' : 'Create New Branding Profile'}
               </DialogTitle>
               <DialogDescription className="text-gray-600">
@@ -284,7 +388,7 @@ const BrandingManagement = () => {
                   placeholder="e.g., Premium Properties Branding"
                   value={formData.profile_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, profile_name: e.target.value }))}
-                  className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  className="bg-white border-2 border-[#C72030] text-gray-900"
                 />
               </div>
               <div className="space-y-2">
@@ -294,7 +398,7 @@ const BrandingManagement = () => {
                   placeholder="Enter company name"
                   value={formData.company_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
-                  className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  className="bg-white border-2 border-[#C72030] text-gray-900"
                 />
               </div>
               <div className="space-y-2">
@@ -305,7 +409,7 @@ const BrandingManagement = () => {
                   placeholder="billing@company.com"
                   value={formData.billing_email}
                   onChange={(e) => setFormData(prev => ({ ...prev, billing_email: e.target.value }))}
-                  className="bg-white border-2 border-[#C72030] hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  className="bg-white border-2 border-[#C72030] text-gray-900"
                 />
               </div>
               <div className="space-y-2 col-span-2">
@@ -315,7 +419,7 @@ const BrandingManagement = () => {
                   placeholder="Enter complete address"
                   value={formData.company_address}
                   onChange={(e) => setFormData(prev => ({ ...prev, company_address: e.target.value }))}
-                  className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  className="bg-white border-gray-300 text-gray-900"
                 />
               </div>
               <div className="space-y-2 col-span-2">
@@ -330,7 +434,7 @@ const BrandingManagement = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-2 border-gray-300 hover:border-[#C72030] text-gray-900"
+                  className="w-full border-gray-300 hover:border-[#C72030] text-gray-900"
                   onClick={() => document.getElementById('logo')?.click()}
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -409,7 +513,7 @@ const BrandingManagement = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                className="fm-button-fix fm-button-brand px-6 py-2"
               >
                 {isLoading ? 'Saving...' : (editingProfile ? 'Update Profile' : 'Save Branding Profile')}
               </Button>
@@ -418,133 +522,34 @@ const BrandingManagement = () => {
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Branding Profiles</CardTitle>
-              <CardDescription>Manage invoice branding and company information</CardDescription>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 bg-white border-gray-300 h-10">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-200">
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search profiles..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64 bg-white border-gray-300 h-10"
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Profile Details</TableHead>
-                <TableHead>Company Info</TableHead>
-                <TableHead>Brand Colors</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loadingProfiles ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                    Loading branding profiles...
-                  </TableCell>
-                </TableRow>
-              ) : filteredProfiles.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                    No branding profiles found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredProfiles.map((profile) => (
-                  <TableRow key={profile.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        {profile.logo_url && (
-                          <img src={profile.logo_url} alt="Logo" className="w-8 h-8 rounded object-cover" />
-                        )}
-                        <div>
-                          <p className="font-medium">{profile.profile_name}</p>
-                          <p className="text-sm text-gray-500">ID: {profile.id}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-sm">{profile.company_name}</p>
-                        <p className="text-sm text-gray-500">{profile.billing_email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        {profile.primary_color && (
-                          <div
-                            className="w-4 h-4 rounded border"
-                            style={{ backgroundColor: profile.primary_color }}
-                            title={`Primary: ${profile.primary_color}`}
-                          />
-                        )}
-                        {profile.secondary_color && (
-                          <div
-                            className="w-4 h-4 rounded border"
-                            style={{ backgroundColor: profile.secondary_color }}
-                            title={`Secondary: ${profile.secondary_color}`}
-                          />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={profile.status || 'Active'}
-                        onValueChange={(value) => handleUpdateStatus(profile.id, value)}
-                      >
-                        <SelectTrigger className={`w-32 h-8 ${profile.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
-                          <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/branding/${profile.id}`)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEditProfile(profile.id)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteProfile(profile.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+      <div>
+        <EnhancedTable
+          data={filteredProfiles}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(profile) => String(profile.id)}
+          storageKey="branding-profiles-master-table"
+          emptyMessage="No branding profiles found"
+          loading={loadingProfiles}
+          loadingMessage="Loading branding profiles..."
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search profiles..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={leftActions}
+          onFilterClick={() => {
+          setPendingStatus(statusFilter);
+          setIsFilterOpen(true);
+          }}
+          exportFileName="branding-profiles"
+          pagination={true}
+          pageSize={10}
+        />
+      </div>
+    </PageContainer>
   );
 };
 

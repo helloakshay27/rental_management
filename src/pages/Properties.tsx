@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { PageContainer } from '@/components/ui/page';
 import { useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Calendar, Filter } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import AddPropertyDialog from '@/components/Properties/AddPropertyDialog';
+import { Heading } from '@/components/ui/typography';
 
 const properties = [
   {
@@ -77,10 +79,10 @@ const Properties = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-white min-h-full">
+    <PageContainer>
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-[#D5DbDB]">Properties</h1>
+          <Heading level="h1">Properties</Heading>
           <p className="text-[#D5DbDB]/80 mt-2">Manage your property portfolio</p>
         </div>
         <AddPropertyDialog onPropertyAdded={handlePropertyAdded} />
@@ -174,7 +176,7 @@ const Properties = () => {
           </Card>
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

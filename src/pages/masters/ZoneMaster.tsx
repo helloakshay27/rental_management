@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, MapPinned, ChevronLeft, Eye } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Plus, Edit, Trash2, MapPinned, Eye } from 'lucide-react';
 import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface Zone {
     id: number;
@@ -34,10 +38,19 @@ interface Region {
     code: string;
 }
 
+const columns: ColumnConfig[] = [
+    { key: 'name', label: 'Zone Details', sortable: true, draggable: true },
+    { key: 'code', label: 'Zone Code', sortable: true, draggable: true },
+    { key: 'region', label: 'Region', sortable: true, draggable: true },
+    { key: 'is_active', label: 'Status', sortable: true, draggable: true },
+];
+
 const ZoneMaster = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [pendingStatus, setPendingStatus] = useState('all');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [editingZone, setEditingZone] = useState<Zone | null>(null);
@@ -220,33 +233,106 @@ const ZoneMaster = () => {
         }
     };
 
-    return (
-        <div className="p-6 space-y-6 text-[#1a1a1a]">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate('/masters')}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </Button>
+    const renderCell = (zone: Zone, columnKey: string) => {
+        switch (columnKey) {
+            case 'name':
+                return (
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Zone Master</h1>
-                        <p className="text-gray-600">Manage zones and their association with regions</p>
+                        <div className="flex items-center mb-1">
+                            <MapPinned className="h-4 w-4 mr-2 text-brand" />
+                            <p className="font-medium">{zone.name}</p>
+                        </div>
+                        <p className="text-brand-caption text-brand-text-light">ID: {zone.id}</p>
                     </div>
-                </div>
+                );
+            case 'code':
+                return <Badge variant="outline">{zone.code}</Badge>;
+            case 'region':
+                return (
+                    <div>
+                        <p className="font-medium text-brand-body-5">{zone.region?.name || 'N/A'}</p>
+                        {zone.region?.code && (
+                            <Badge variant="secondary" className="mt-1">{zone.region.code}</Badge>
+                        )}
+                    </div>
+                );
+            case 'is_active':
+                return (
+                    <Select
+                        value={zone.is_active ? 'Active' : 'Inactive'}
+                        onValueChange={(value) => handleUpdateStatus(zone.id, value === 'Active')}
+                    >
+                        <SelectTrigger
+                            className={`w-32 h-8 ${zone.is_active
+                                ? 'bg-brand-success-bg text-brand-success'
+                                : 'bg-brand-muted text-brand-text'}`}
+                        >
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+                );
+            default:
+                return zone[columnKey as keyof Zone] as React.ReactNode;
+        }
+    };
+
+    const renderActions = (zone: Zone) => (
+        <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="sm" title="View" onClick={() => navigate(`/masters/zones/${zone.id}`)}>
+                <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Edit" onClick={() => handleEditZone(zone)}>
+                <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Delete" className="text-brand-error" onClick={() => handleDeleteZone(zone.id)}>
+                <Trash2 className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+
+    const leftActions = (
+        <div className="flex items-center gap-2">
+            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Zone
+            </Button>
+
+            <TableFilterDialog
+                open={isFilterOpen}
+                onOpenChange={setIsFilterOpen}
+                onApply={() => setStatusFilter(pendingStatus)}
+                onReset={() => {
+                    setPendingStatus('all');
+                    setStatusFilter('all');
+                }}
+            >
+                <FilterField label="Status">
+                    <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                        <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                            <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </FilterField>
+            </TableFilterDialog>
+        </div>
+    );
+    return (
+        <PageContainer>
+            <div className="flex items-center justify-between">
+                <PageHeader title="Zone Master" description="Manage zones and their association with regions" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Zone
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent className="max-w-2xl bg-white">
                         <DialogHeader>
-                            <DialogTitle className="text-gray-900 font-semibold text-xl">
+                            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingZone ? 'Edit Zone' : 'Add New Zone'}
                             </DialogTitle>
                             <DialogDescription className="text-gray-600">
@@ -343,7 +429,7 @@ const ZoneMaster = () => {
                                 Cancel
                             </Button>
                             <Button
-                                className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                                className="fm-button-fix fm-button-brand px-6 py-2"
                                 onClick={handleSubmit}
                                 disabled={isLoading}
                             >
@@ -354,116 +440,34 @@ const ZoneMaster = () => {
                 </Dialog>
             </div>
 
-            <Card className="bg-white">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-[#1a1a1a]">Zones Database</CardTitle>
-                            <CardDescription>Complete list of all zones in the system</CardDescription>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger className="w-40 bg-white">
-                                    <SelectValue placeholder="All Status" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white">
-                                    <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value="Active">Active</SelectItem>
-                                    <SelectItem value="Inactive">Inactive</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                <Input
-                                    placeholder="Search zones..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 w-64 bg-white"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {loadingZones ? (
-                        <div className="text-center py-8 text-gray-500">Loading zones...</div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Zone Details</TableHead>
-                                    <TableHead>Zone Code</TableHead>
-                                    <TableHead>Region</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredZones.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                                            No zones found
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    filteredZones.map((zone) => (
-                                        <TableRow key={zone.id}>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="flex items-center mb-1">
-                                                        <MapPinned className="h-4 w-4 mr-2 text-[#C72030]" />
-                                                        <p className="font-medium">{zone.name}</p>
-                                                    </div>
-                                                    <p className="text-xs text-gray-400">ID: {zone.id}</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline">{zone.code}</Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <p className="font-medium text-sm">{zone.region?.name || 'N/A'}</p>
-                                                    {zone.region?.code && (
-                                                        <Badge variant="secondary" className="mt-1">{zone.region.code}</Badge>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Select
-                                                    value={zone.is_active ? 'Active' : 'Inactive'}
-                                                    onValueChange={(value) => handleUpdateStatus(zone.id, value === 'Active')}
-                                                >
-                                                    <SelectTrigger className={`w-32 h-8 ${zone.is_active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
-                                                        <SelectValue placeholder="Status" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-white">
-                                                        <SelectItem value="Active">Active</SelectItem>
-                                                        <SelectItem value="Inactive">Inactive</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center space-x-2">
-                                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/zones/${zone.id}`)}>
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="sm" onClick={() => handleEditZone(zone)}>
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteZone(zone.id)}>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+            <div>
+                <EnhancedTable
+                    data={filteredZones}
+                    columns={columns}
+                    renderCell={renderCell}
+                    renderActions={renderActions}
+                    getItemId={(item) => String(item.id)}
+                    storageKey="zones-master-table"
+                    emptyMessage="No zones found"
+                    loading={loadingZones}
+                    loadingMessage="Loading zones..."
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Search zones..."
+                    disableClientSearch={true}
+                    enableSearch={true}
+                    enableSelection={false}
+                    leftActions={leftActions}
+                    onFilterClick={() => {
+                        setPendingStatus(statusFilter);
+                        setIsFilterOpen(true);
+                    }}
+                    exportFileName="zones"
+                    pagination={true}
+                    pageSize={10}
+                />
+            </div>
+        </PageContainer>
     );
 };
 

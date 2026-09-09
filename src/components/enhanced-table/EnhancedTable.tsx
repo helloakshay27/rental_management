@@ -1,0 +1,2122 @@
+import React, { useMemo, useState, useEffect, useRef } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
+import { SortableColumnHeader } from "./SortableColumnHeader";
+import { ColumnVisibilityMenu } from "./ColumnVisibilityMenu";
+import { useEnhancedTable, ColumnConfig } from "@/hooks/useEnhancedTable";
+import { useDebounce } from "@/hooks/useDebounce";
+import {
+  Search,
+  Download,
+  Loader2,
+  Grid3x3,
+  Plus,
+  X,
+  Filter,
+  Check,
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  ArrowUpDown,
+  ArrowUpNarrowWide,
+  ArrowDownWideNarrow,
+  ChevronUp,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { isMobileUiSite } from "@/utils/mobileUiSites";
+import {
+  calculateColumnLeftOffset,
+  isColumnFrozen,
+  getFrozenColumnConfig,
+} from "./stickyColumnUtils";
+import "./EnhancedTable.css";
+
+// Excel export utility function
+const exportToExcel = <T extends Record<string, any>>(
+  data: T[],
+  columns: ColumnConfig[],
+  fileName: string = "table-export"
+) => {
+  if (data.length === 0) {
+    alert("No data to export");
+    return;
+  }
+
+  // Create CSV content
+  const headers = columns.map((col) => col.label).join(",");
+  const csvContent = [
+    headers,
+    ...data.map((row) =>
+      columns
+        .map((col) => {
+          const value = row[col.key];
+          // Handle values that might contain commas or quotes
+          const stringValue = String(value || "").replace(/"/g, '""');
+          return stringValue.includes(",") ||
+            stringValue.includes('"') ||
+            stringValue.includes("\n")
+            ? `"${stringValue}"`
+            : stringValue;
+        })
+        .join(",")
+    ),
+  ].join("\n");
+
+  // Create and trigger download
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${fileName}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+export interface ColumnGroup {
+  /** Text shown in the spanning header cell above this group's columns. */
+  label: string;
+  /** Column keys (matching ColumnConfig.key) this group spans — render contiguously in `columns` for a clean colSpan; a drag that breaks contiguity just splits the span gracefully. */
+  columnKeys: string[];
+  className?: string;
+}
+
+interface BulkAction<T> {
+  label: string;
+  icon?: React.ComponentType<any>;
+  onClick: (selectedItems: T[]) => void;
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+}
+
+interface EnhancedTableProps<T> {
+  data: T[];
+  columns: ColumnConfig[];
+  renderCell?: (item: T, columnKey: string) => React.ReactNode;
+  renderRow?: (item: T, index: number) => Record<string, any>;
+  renderActions?: (item: T) => React.ReactNode;
+  onRowClick?: (item: T) => void;
+  onSort?: (columnKey: string) => void;
+  storageKey?: string;
+  className?: string;
+  emptyMessage?: string;
+  selectable?: boolean;
+  selectedItems?: string[];
+  onSelectAll?: (checked: boolean) => void;
+  onSelectItem?: (itemId: string, checked: boolean) => void;
+  getItemId?: (item: T) => string;
+  selectAllLabel?: string;
+  searchTerm?: string;
+  onSearchChange?: (searchTerm: string) => void;
+  searchPlaceholder?: string;
+  enableExport?: boolean;
+  exportFileName?: string;
+  /** Set when the page already reports its own download event (e.g. the M-Safe lists,
+   *  which fire `Msafe Download: …` from their own handler). Stops this table from
+   *  reporting a second, generic event for the same click. */
+  analyticsDownloadHandled?: boolean;
+  onExport?: () => void;
+  bulkActions?: BulkAction<T>[];
+  showBulkActions?: boolean;
+  pagination?: boolean;
+  pageSize?: number;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  loading?: boolean;
+  enableSearch?: boolean;
+  enableSelection?: boolean;
+  hideTableExport?: boolean;
+  hideTableSearch?: boolean;
+  hideColumnsButton?: boolean;
+  leftActions?: React.ReactNode;
+  rightActions?: React.ReactNode;
+  onFilterClick?: () => void;
+  filterAdjacentActions?: React.ReactNode;
+  canAddRow?: boolean;
+  onAddRow?: (newRowData: Partial<T>) => void;
+  renderEditableCell?: (
+    columnKey: string,
+    value: any,
+    onChange: (value: any) => void
+  ) => React.ReactNode;
+  newRowPlaceholder?: string;
+  readonlyColumns?: string[];
+  handleExport?: (columnVisibility?: Record<string, boolean>) => void;
+  isExporting?: boolean;
+  enableGlobalSearch?: boolean;
+  onGlobalSearch?: (searchTerm: string) => void;
+  customSearchInput?: React.ReactNode;
+  searchValue?: string;
+  searchStatus?: string;
+  disableClientSearch?: boolean;
+  loadingMessage?: string;
+  rowClassName?: (item: T) => string;
+  isRowDisabled?: (item: T) => boolean;
+  collapsible?: boolean;
+  getChildrenKey?: (item: T) => string;
+  renderChildrenRows?: (children: T[], parentId: string) => React.ReactNode;
+  enableFreeze?: boolean;
+  freezeColumnsCount?: number;
+  /** Renders a spanning group-header row above the normal header row (e.g. a category name spanning its Total/Non-Stack/Stack/Reserved sub-columns). Opt-in — omit for the existing single-row header. */
+  columnGroups?: ColumnGroup[];
+}
+
+export function EnhancedTable<T extends Record<string, any>>({
+  handleExport,
+  data,
+  columns,
+  renderCell,
+  renderRow,
+  renderActions,
+  onRowClick,
+  onSort,
+  storageKey,
+  className,
+  emptyMessage = "No data available",
+  selectable = false,
+  selectedItems = [],
+  onSelectAll,
+  onSelectItem,
+  getItemId = (item: T) => item.id,
+  selectAllLabel = "Select all",
+  searchTerm: externalSearchTerm,
+  onSearchChange,
+  searchPlaceholder = "Search...",
+  enableExport = false,
+  exportFileName = "table-export",
+  analyticsDownloadHandled = false,
+  onExport,
+  bulkActions = [],
+  showBulkActions = false,
+  pagination = false,
+  pageSize = 10,
+  currentPage: externalCurrentPage,
+  totalPages: externalTotalPages,
+  onPageChange: externalOnPageChange,
+  loading = false,
+  enableSearch = false,
+  enableSelection = false,
+  hideTableExport = false,
+  hideTableSearch = false,
+  hideColumnsButton = false,
+  leftActions,
+  rightActions,
+  onFilterClick,
+  filterAdjacentActions,
+  canAddRow = false,
+  onAddRow,
+  renderEditableCell,
+  newRowPlaceholder = "Click to add new record",
+  readonlyColumns = [],
+  isExporting = false,
+  enableGlobalSearch = false,
+  onGlobalSearch,
+  customSearchInput,
+  searchValue,
+  searchStatus,
+  disableClientSearch = false,
+  loadingMessage = "Loading...",
+  rowClassName,
+  isRowDisabled,
+  collapsible = false,
+  getChildrenKey,
+  renderChildrenRows,
+  enableFreeze = false,
+  freezeColumnsCount = 0,
+  columnGroups,
+}: EnhancedTableProps<T>) {
+  // Mobile card/list view aur uske saare mobile-only layout tweaks sirf
+  // goPhygital site par. Baaki tenants par table pehle jaisa hi render hota
+  // hai (mobile par horizontally scroll hone wala table).
+  const mobileView = isMobileUiSite();
+
+  // Analytics shim: the reference app reports download events to PostHog.
+  // This project has no analytics wired up, so downloads are a no-op here.
+  const moduleDownloadEvents = { onModuleDownloaded: (_payload: Record<string, any>) => {} };
+  // Names the export in the event ("Maintenance Download: Assets"). storageKey is the
+  // per-table id every page already sets, so it is a stable, low-cardinality label.
+  const exportLabel = (exportFileName && exportFileName !== "table-export"
+    ? exportFileName
+    : storageKey || "Export"
+  )
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const [internalSearchTerm, setInternalSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [internalCurrentPage, setInternalCurrentPage] = useState(1);
+  const [apiSearchResults, setApiSearchResults] = useState<T[] | null>(null);
+
+  // Use external pagination if provided, otherwise use internal
+  const currentPage = externalCurrentPage ?? internalCurrentPage;
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchAbortController, setSearchAbortController] =
+    useState<AbortController | null>(null);
+  const [lastProcessedSearch, setLastProcessedSearch] = useState("");
+
+  // Add row functionality state
+  const [isAddingRow, setIsAddingRow] = useState(false);
+  const [newRowData, setNewRowData] = useState<Partial<T>>({});
+  const addRowRef = useRef<HTMLTableRowElement>(null);
+
+  // Collapsible state - track which rows are expanded
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
+  // Mobile cards: kaunse card ke "more fields" khule hain
+  const [mobileDetailRows, setMobileDetailRows] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Column width state - track widths for resizable columns
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
+  const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+  const [startX, setStartX] = useState(0);
+  const [startWidth, setStartWidth] = useState(0);
+
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearchInput = useDebounce(searchInput, 800);
+
+  // Update internal search term when debounced input changes
+  useEffect(() => {
+    if (externalSearchTerm === undefined) {
+      if (enableGlobalSearch && onGlobalSearch) {
+        // Prevent duplicate processing of the same search term
+        if (debouncedSearchInput === lastProcessedSearch) {
+          return;
+        }
+
+        // Cancel previous search if it exists
+        if (searchAbortController) {
+          searchAbortController.abort();
+        }
+
+        // For global search, call the API search function
+        if (debouncedSearchInput.trim()) {
+          setIsSearching(true);
+          setLastProcessedSearch(debouncedSearchInput);
+          const newAbortController = new AbortController();
+          setSearchAbortController(newAbortController);
+          onGlobalSearch(debouncedSearchInput.trim());
+        } else {
+          // Clear search results when search is empty
+          setIsSearching(false);
+          setLastProcessedSearch("");
+          setSearchAbortController(null);
+          onGlobalSearch("");
+        }
+      } else {
+        // For local search, set internal search term
+        setInternalSearchTerm(debouncedSearchInput);
+      }
+    }
+  }, [
+    debouncedSearchInput,
+    externalSearchTerm,
+    enableGlobalSearch,
+    onGlobalSearch,
+    lastProcessedSearch,
+  ]);
+
+  // Synchronize external search term with internal search input
+  useEffect(() => {
+    if (
+      externalSearchTerm !== undefined &&
+      searchInput !== externalSearchTerm
+    ) {
+      setSearchInput(externalSearchTerm);
+    }
+  }, [externalSearchTerm, searchInput]);
+
+  // Add effect to reset loading state when search completes
+  useEffect(() => {
+    if (enableGlobalSearch && !loading) {
+      setIsSearching(false);
+      setSearchAbortController(null);
+    }
+  }, [loading, enableGlobalSearch]);
+
+  // Reset search state when data changes (search completes)
+  useEffect(() => {
+    if (enableGlobalSearch && data.length > 0 && isSearching) {
+      setIsSearching(false);
+    }
+  }, [data, enableGlobalSearch, isSearching]);
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      if (searchAbortController) {
+        searchAbortController.abort();
+      }
+    };
+  }, []);
+
+  // Handle click outside to save new row
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isAddingRow &&
+        addRowRef.current &&
+        !addRowRef.current.contains(event.target as Node)
+      ) {
+        handleSaveNewRow();
+      }
+    };
+
+    if (isAddingRow) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isAddingRow, newRowData]);
+
+  // Get initial column visibility state from localStorage
+  const getSavedColumnVisibility = () => {
+    if (storageKey) {
+      const savedVisibility = localStorage.getItem(`${storageKey}-columns`);
+      if (savedVisibility) {
+        try {
+          return JSON.parse(savedVisibility);
+        } catch (e) {
+          console.error("Error parsing saved column visibility:", e);
+        }
+      }
+    }
+    return null;
+  };
+
+  // Get saved column widths from localStorage
+  const getSavedColumnWidths = () => {
+    if (storageKey) {
+      const savedWidths = localStorage.getItem(`${storageKey}-column-widths`);
+      if (savedWidths) {
+        try {
+          return JSON.parse(savedWidths);
+        } catch (e) {
+          console.error("Error parsing saved column widths:", e);
+        }
+      }
+    }
+    return {};
+  };
+
+  const {
+    sortedData: baseSortedData,
+    sortState,
+    columnVisibility,
+    visibleColumns,
+    handleSort,
+    toggleColumnVisibility,
+    reorderColumns,
+    resetToDefaults,
+  } = useEnhancedTable({
+    data,
+    columns,
+    storageKey,
+    initialColumnVisibility: getSavedColumnVisibility(),
+  });
+
+  // Initialize column widths from localStorage
+  useEffect(() => {
+    const savedWidths = getSavedColumnWidths();
+    if (Object.keys(savedWidths).length > 0) {
+      setColumnWidths(savedWidths);
+    }
+  }, [storageKey]);
+
+  // Wrap resetToDefaults to handle localStorage
+  const handleResetToDefaults = () => {
+    resetToDefaults();
+    if (storageKey) {
+      // Remove all stored column state
+      localStorage.removeItem(`${storageKey}-columns`);
+      localStorage.removeItem(`${storageKey}-column-order`);
+      localStorage.removeItem(`${storageKey}-column-widths`);
+
+      // Set default column visibility state
+      const defaultVisibility = columns.reduce(
+        (acc, column) => ({
+          ...acc,
+          [column.key]: column.defaultVisible !== false,
+        }),
+        {}
+      );
+      localStorage.setItem(
+        `${storageKey}-columns`,
+        JSON.stringify(defaultVisibility)
+      );
+
+      // Set default column order
+      const defaultOrder = columns.map((column) => column.key);
+      localStorage.setItem(
+        `${storageKey}-column-order`,
+        JSON.stringify(defaultOrder)
+      );
+
+      // Reset column widths
+      setColumnWidths({});
+    }
+  };
+
+  // Wrap toggleColumnVisibility to handle localStorage
+  const handleToggleColumnVisibility = (columnKey: string) => {
+    toggleColumnVisibility(columnKey);
+    if (storageKey) {
+      const updatedVisibility = {
+        ...columnVisibility,
+        [columnKey]: !columnVisibility[columnKey],
+      };
+      localStorage.setItem(
+        `${storageKey}-columns`,
+        JSON.stringify(updatedVisibility)
+      );
+    }
+  };
+
+  // Use external search value if provided (for custom search input)
+  const effectiveSearchValue =
+    searchValue !== undefined ? searchValue : searchInput;
+  const effectiveSearchTerm =
+    externalSearchTerm !== undefined ? externalSearchTerm : internalSearchTerm;
+
+  // Use API search results or filter data based on search term
+  const filteredData = useMemo(() => {
+    // If client search is disabled, don't filter - return original data
+    if (disableClientSearch) {
+      return baseSortedData;
+    }
+
+    // If we have API search results, use them instead of filtering original data
+    if (apiSearchResults) {
+      return apiSearchResults;
+    }
+
+    if (!effectiveSearchTerm) return baseSortedData;
+
+    return baseSortedData.filter((item) =>
+      Object.values(item).some((value) =>
+        String(value).toLowerCase().includes(effectiveSearchTerm.toLowerCase())
+      )
+    );
+  }, [
+    baseSortedData,
+    effectiveSearchTerm,
+    apiSearchResults,
+    disableClientSearch,
+  ]);
+
+  // Paginate data if pagination is enabled
+  const paginatedData = useMemo(() => {
+    if (!pagination) return filteredData;
+    if (externalCurrentPage !== undefined || externalOnPageChange) {
+      return filteredData;
+    }
+
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredData.slice(startIndex, startIndex + pageSize);
+  }, [
+    filteredData,
+    currentPage,
+    pageSize,
+    pagination,
+    externalCurrentPage,
+    externalOnPageChange,
+  ]);
+
+  const sortedData = pagination ? paginatedData : filteredData;
+  // Use external totalPages if provided, otherwise calculate from filtered data
+  const totalPages =
+    externalTotalPages ??
+    (pagination ? Math.ceil(filteredData.length / pageSize) : 1);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      reorderColumns(String(active.id), String(over.id));
+      // Save the new column order to localStorage
+      if (storageKey) {
+        const newOrder = columnIds.filter((id) => id !== active.id);
+        const overIndex = newOrder.indexOf(String(over.id));
+        newOrder.splice(overIndex, 0, String(active.id));
+        localStorage.setItem(
+          `${storageKey}-column-order`,
+          JSON.stringify(newOrder)
+        );
+      }
+    }
+  };
+
+  // Create column IDs for drag and drop, excluding checkbox and actions columns
+  const columnIds = visibleColumns
+    .map((col) => col.key)
+    .filter((key) => key !== "__checkbox__");
+
+  // Merge visible columns into contiguous runs per columnGroups, in current
+  // column order — a column not covered by any group renders as its own
+  // "single" segment. A drag that breaks a group's contiguity just splits it
+  // into multiple spans next render rather than breaking anything.
+  type HeaderSegment =
+    | { type: "group"; group: ColumnGroup; columns: ColumnConfig[] }
+    | { type: "single"; column: ColumnConfig };
+
+  const headerSegments = useMemo<HeaderSegment[] | null>(() => {
+    if (!columnGroups || columnGroups.length === 0) return null;
+    const groupByKey = new Map<string, ColumnGroup>();
+    columnGroups.forEach((group) => {
+      group.columnKeys.forEach((key) => groupByKey.set(key, group));
+    });
+
+    const segments: HeaderSegment[] = [];
+    visibleColumns.forEach((column) => {
+      const group = groupByKey.get(column.key);
+      const last = segments[segments.length - 1];
+      if (group && last && last.type === "group" && last.group === group) {
+        last.columns.push(column);
+      } else if (group) {
+        segments.push({ type: "group", group, columns: [column] });
+      } else {
+        segments.push({ type: "single", column });
+      }
+    });
+    return segments;
+  }, [columnGroups, visibleColumns]);
+
+  const renderColumnHeaderCell = (
+    column: ColumnConfig,
+    columnIndex: number,
+    rowSpan?: number
+  ) => {
+    const frozenConfig = enableFreeze
+      ? getFrozenColumnConfig(
+          columnIndex,
+          freezeColumnsCount,
+          visibleColumns,
+          columnWidths,
+          true // isStickyHeader = true
+        )
+      : null;
+
+    return (
+      <SortableColumnHeader
+        key={column.key}
+        id={column.key}
+        sortable={column.sortable !== false}
+        draggable={column.draggable}
+        rowSpan={rowSpan}
+        sortDirection={
+          sortState.column === column.key ? sortState.direction : null
+        }
+        onSort={() => {
+          if (column.sortable !== false) {
+            if (onSort) {
+              onSort(column.key);
+            } else {
+              handleSort(column.key);
+            }
+          }
+        }}
+        className={cn(
+          "bg-[#f6f4ee] text-left text-black min-w-32 sticky top-0",
+          frozenConfig?.isFrozen && "frozen-header-cell",
+          frozenConfig?.isLastFrozen && "frozen-last-cell"
+        )}
+        style={{
+          width: columnWidths[column.key]
+            ? `${columnWidths[column.key]}px`
+            : column.width
+            ? `${column.width}px`
+            : undefined,
+          minWidth: columnWidths[column.key]
+            ? `${columnWidths[column.key]}px`
+            : column.width
+            ? `${column.width}px`
+            : undefined,
+          position: "relative",
+          ...(frozenConfig?.isFrozen && {
+            position: "sticky" as const,
+            zIndex: frozenConfig.zIndex,
+          }),
+        }}
+        data-frozen={frozenConfig?.isFrozen}
+        data-frozen-shadow={frozenConfig?.showShadow}
+      >
+        {column.label}
+        <div
+          className="column-resize-handle"
+          onMouseDown={(e) => handleResizeStart(column.key, e)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      </SortableColumnHeader>
+    );
+  };
+
+  // Check if all visible items are selected
+  const selectableRows = selectable
+    ? sortedData.filter((item) => !isRowDisabled?.(item))
+    : sortedData;
+
+  const hasSelectableRows = selectableRows.length > 0;
+
+  const isAllSelected =
+    selectable &&
+    hasSelectableRows &&
+    selectableRows.every((item) => selectedItems.includes(getItemId(item)));
+
+  // Check if some (but not all) items are selected
+  const isIndeterminate =
+    selectable && selectedItems.length > 0 && !isAllSelected;
+
+  const handleSelectAllChange = (checked: boolean) => {
+    if (onSelectAll) {
+      onSelectAll(checked);
+    }
+  };
+
+  const handleSelectItemChange = (itemId: string, checked: boolean) => {
+    if (onSelectItem) {
+      onSelectItem(itemId, checked);
+    }
+  };
+
+  const handleRowClick = (item: T, event: React.MouseEvent) => {
+    // Don't trigger row click if clicking on checkbox or actions
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-checkbox]") || target.closest("[data-actions]")) {
+      return;
+    }
+    onRowClick?.(item);
+  };
+
+  // Handle search input changes
+  const handleSearchInputChange = (value: string) => {
+    setSearchInput(value);
+    // Reset to first page when searching
+    if (externalOnPageChange) {
+      externalOnPageChange(1);
+    } else {
+      setInternalCurrentPage(1);
+    }
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setInternalSearchTerm("");
+    setApiSearchResults(null);
+    // Reset to first page
+    if (externalOnPageChange) {
+      externalOnPageChange(1);
+    } else {
+      setInternalCurrentPage(1);
+    }
+    setLastProcessedSearch("");
+    if (onSearchChange) {
+      onSearchChange("");
+    }
+    if (enableGlobalSearch && onGlobalSearch) {
+      onGlobalSearch("");
+    }
+  };
+
+  // Toggle expand/collapse for collapsible rows
+  const handleToggleExpand = (itemId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const newExpandedRows = new Set(expandedRows);
+    if (newExpandedRows.has(itemId)) {
+      newExpandedRows.delete(itemId);
+    } else {
+      newExpandedRows.add(itemId);
+    }
+    setExpandedRows(newExpandedRows);
+  };
+
+  // Column resize handlers
+  const handleResizeStart = (columnKey: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setResizingColumn(columnKey);
+    setStartX(e.clientX);
+    // ColumnConfig.width accepts a CSS string too (some pages pass "150px"), but the
+    // resize maths needs a number — parseInt drops the unit, NaN falls back to the default.
+    const configuredWidth = columns.find((c) => c.key === columnKey)?.width;
+    const configuredWidthPx =
+      typeof configuredWidth === "number"
+        ? configuredWidth
+        : parseInt(String(configuredWidth ?? ""), 10);
+    setStartWidth(
+      columnWidths[columnKey] ||
+        (Number.isFinite(configuredWidthPx) ? configuredWidthPx : 128) // Default min-w-32 = 128px
+    );
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (!resizingColumn) return;
+    const diff = e.clientX - startX;
+    const newWidth = Math.max(80, startWidth + diff); // Minimum 80px
+    setColumnWidths((prev) => ({
+      ...prev,
+      [resizingColumn]: newWidth,
+    }));
+  };
+
+  const handleResizeEnd = () => {
+    if (resizingColumn && storageKey) {
+      const updatedWidths = {
+        ...columnWidths,
+        [resizingColumn]: columnWidths[resizingColumn],
+      };
+      localStorage.setItem(
+        `${storageKey}-column-widths`,
+        JSON.stringify(updatedWidths)
+      );
+    }
+    setResizingColumn(null);
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  };
+
+  // Add mouse event listeners for column resizing
+  useEffect(() => {
+    if (resizingColumn) {
+      document.addEventListener("mousemove", handleResizeMove);
+      document.addEventListener("mouseup", handleResizeEnd);
+      return () => {
+        document.removeEventListener("mousemove", handleResizeMove);
+        document.removeEventListener("mouseup", handleResizeEnd);
+      };
+    }
+  }, [resizingColumn, startX, startWidth, columnWidths]);
+
+  // Custom search input render function
+  const renderCustomSearchInput = () => {
+    if (customSearchInput) {
+      return customSearchInput;
+    }
+
+    // Default search input
+    return (
+      <div className="relative w-[300px] max-w-full">
+        {isSearching && (
+          <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 animate-spin" />
+        )}
+        {!isSearching && (
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        )}
+        <Input
+          placeholder={
+            enableGlobalSearch ? `${searchPlaceholder}` : searchPlaceholder
+          }
+          value={effectiveSearchValue}
+          onChange={(e) => handleSearchInputChange(e.target.value)}
+          className="h-9 pl-10 pr-10"
+          disabled={isSearching}
+        />
+        {effectiveSearchValue && (
+          <button
+            onClick={handleClearSearch}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            disabled={isSearching}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const selectedItemObjects = useMemo(() => {
+    return filteredData.filter((item) =>
+      selectedItems.includes(getItemId(item))
+    );
+  }, [filteredData, selectedItems, getItemId]);
+
+  // Add row functionality
+  const handleAddRowClick = () => {
+    setIsAddingRow(true);
+    setNewRowData({});
+  };
+
+  const handleCancelAddRow = () => {
+    setIsAddingRow(false);
+    setNewRowData({});
+  };
+
+  const handleSaveNewRow = () => {
+    if (onAddRow && Object.keys(newRowData).length > 0) {
+      onAddRow(newRowData);
+    }
+    setIsAddingRow(false);
+    setNewRowData({});
+  };
+
+  const handleNewRowDataChange = (columnKey: string, value: any) => {
+    setNewRowData((prev) => ({
+      ...prev,
+      [columnKey]: value,
+    }));
+  };
+
+  const renderDefaultEditableCell = (
+    columnKey: string,
+    value: any,
+    onChange: (value: any) => void
+  ) => {
+    // Check if column is readonly - if so, show nothing
+    if (readonlyColumns.includes(columnKey)) {
+      return null;
+    }
+
+    return (
+      <Input
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={`Enter ${columns.find((col) => col.key === columnKey)?.label || columnKey}`}
+        className="h-9 w-full"
+        autoFocus={
+          columnKey ===
+          visibleColumns.find((col) => !readonlyColumns.includes(col.key))?.key
+        }
+      />
+    );
+  };
+
+  // Generate page numbers for pagination
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (startPage > 1) {
+        pages.push(1);
+        if (startPage > 2) pages.push("ellipsis-start");
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) pages.push("ellipsis-end");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
+  // Remove the hardcoded exportTicketRecords function and replace with conditional logic
+  const handleExportClick = () => {
+    // Single choke point for every EnhancedTable export in the app, so one capture here
+    // covers every module's list export instead of ~105 pages each remembering to report.
+    // The page-supplied handlers (onExport/handleExport) own their own success/failure, so
+    // this reports the click as succeeded; the built-in CSV path below is checked for real.
+    const reportDownload = (succeeded: boolean, failureReason?: string) => {
+      if (analyticsDownloadHandled) return;
+      moduleDownloadEvents.onModuleDownloaded({
+        label: exportLabel,
+        source: "list_export",
+        file_format: onExport || handleExport ? "xlsx" : "csv",
+        row_count: data.length,
+        succeeded,
+        failure_reason: failureReason ?? null,
+      });
+    };
+
+    if (onExport) {
+      // Use custom export function if provided
+      onExport();
+      reportDownload(true);
+    } else if (handleExport) {
+      // Use handleExport with column visibility if provided
+      handleExport(columnVisibility);
+      reportDownload(true);
+    } else {
+      // Fallback to CSV export
+      const exportColumns = columns.filter(col => col.key !== 'action' && col.key !== 'actions');
+      if (data.length === 0) {
+        // exportToExcel alerts and returns without writing a file in this case.
+        reportDownload(false, "no_data");
+      }
+      exportToExcel(data, exportColumns, exportFileName);
+      if (data.length > 0) reportDownload(true);
+    }
+  };
+
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    if (externalOnPageChange) {
+      externalOnPageChange(page);
+    } else {
+      setInternalCurrentPage(page);
+    }
+  };
+
+  // ── Mobile (<640px) list view ────────────────────────────────────────────
+  // Desktop ka table jaisa hai waisa hi rehta hai. Mobile par wahi data —
+  // same visibleColumns, renderCell/renderRow, renderActions aur selection
+  // handlers — cards ki list me dikhta hai, taaki horizontal scroll na karna pade.
+  const isEmptyCellValue = (value: React.ReactNode) =>
+    value === null || value === undefined || value === "";
+
+  // Table header mobile par hidden hai, isliye sorting ke liye ek compact
+  // control diya hai — wahi handler jo desktop header use karta hai.
+  const triggerSort = (columnKey: string) => {
+    if (onSort) {
+      onSort(columnKey);
+    } else {
+      handleSort(columnKey);
+    }
+  };
+
+  // Bahut se pages actions ko ek normal column ke roop me bhejte hain
+  // (renderActions ke bajaye). Mobile card me wo column ek "field" ban jaata
+  // tha — card ka title hi "ACTIONS" + icon ban raha tha. Isliye aise columns
+  // ko field list se nikaal kar card ke action slot me rakhte hain.
+  const isActionColumn = (column: ColumnConfig) =>
+    /^(actions?|action_?buttons?|view)$/i.test(column.key.trim()) ||
+    /^actions?$/i.test((column.label || "").trim());
+
+  const mobileSortableColumns = visibleColumns.filter(
+    (column) => column.sortable !== false && !isActionColumn(column)
+  );
+
+  const toggleMobileDetails = (itemId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setMobileDetailRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+      } else {
+        next.add(itemId);
+      }
+      return next;
+    });
+  };
+
+  const renderMobileCard = (item: T, index: number) => {
+    const itemId = getItemId(item);
+    const isSelected = selectedItems.includes(itemId);
+    const rowDisabled = !!isRowDisabled?.(item);
+    const isExpanded = expandedRows.has(itemId);
+    const childrenKey = getChildrenKey ? getChildrenKey(item) : "children";
+    const children = collapsible && item[childrenKey] ? item[childrenKey] : [];
+    const hasChildren = collapsible && children && children.length > 0;
+    const renderedRow = renderRow ? renderRow(item, index) : item;
+    const cellFor = (key: string): React.ReactNode =>
+      renderRow ? renderedRow[key] : renderCell?.(item, key);
+
+    const actionColumns = visibleColumns.filter(isActionColumn);
+    const fieldColumns = visibleColumns.filter(
+      (column) => !isActionColumn(column)
+    );
+    const primaryColumn = fieldColumns[0];
+    // Pehle 4 fields turant dikhte hain, baaki "more fields" ke peeche —
+    // warna 10-column table par har card poori screen kha jaata hai.
+    const summaryColumns = fieldColumns.slice(1, 5);
+    const extraColumns = fieldColumns.slice(5);
+    const detailsOpen = mobileDetailRows.has(itemId);
+    const primaryValue = primaryColumn ? cellFor(primaryColumn.key) : null;
+
+    // Fields ek ke neeche ek (poori width). Collapse waise hi rehta hai —
+    // pehle 4 fields dikhte hain, baaki "+N more fields" ke peeche.
+    const renderFieldGrid = (fieldColumns: ColumnConfig[]) => (
+      <dl className="divide-y divide-[#f4f0e8]">
+        {fieldColumns.map((column) => {
+          const value = cellFor(column.key);
+          return (
+            <div key={column.key} className="min-w-0 px-3 py-2">
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                {column.label}
+              </dt>
+              <dd className="mt-0.5 min-w-0 max-w-full overflow-x-auto text-[13px] leading-snug text-gray-800 [overflow-wrap:anywhere] [&_*]:max-w-full [&_img]:h-auto">
+                {isEmptyCellValue(value) ? (
+                  <span className="text-gray-400">-</span>
+                ) : (
+                  value
+                )}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    );
+
+    return (
+      <div
+        key={String(itemId ?? index)}
+        className={cn(
+          "enhanced-mobile-card overflow-hidden rounded-lg border border-[#D5DbDB] bg-white",
+          onRowClick && !rowDisabled && "cursor-pointer active:bg-gray-50",
+          !rowDisabled && isSelected && "border-brand bg-brand-selected",
+          rowDisabled && "opacity-60",
+          rowClassName?.(item)
+        )}
+        onClick={(e) => {
+          if (rowDisabled) return;
+          handleRowClick(item, e);
+        }}
+        aria-disabled={rowDisabled}
+      >
+        <div className="flex items-start gap-2.5 px-3 pb-2.5 pt-3">
+          {selectable && (
+            <div className="pt-0.5" data-checkbox>
+              <Checkbox
+                checked={!rowDisabled && isSelected}
+                disabled={rowDisabled}
+                onCheckedChange={(checked) => {
+                  if (rowDisabled) return;
+                  handleSelectItemChange(itemId, !!checked);
+                }}
+                aria-label={"Select row " + (index + 1)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            {primaryColumn && (
+              <>
+                <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                  {primaryColumn.label}
+                </div>
+                <div className="mt-0.5 text-[15px] font-semibold leading-snug text-gray-900 [overflow-wrap:anywhere]">
+                  {isEmptyCellValue(primaryValue) ? "-" : primaryValue}
+                </div>
+              </>
+            )}
+          </div>
+          {collapsible && hasChildren && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 shrink-0 p-0"
+              onClick={(e) => handleToggleExpand(itemId, e)}
+              aria-label={isExpanded ? "Collapse row" : "Expand row"}
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+          {(renderActions || actionColumns.length > 0) && (
+            <div
+              className="flex max-w-[45%] shrink-0 flex-wrap items-center justify-end gap-1.5"
+              data-actions
+            >
+              {actionColumns.map((column) => (
+                <React.Fragment key={column.key}>
+                  {cellFor(column.key)}
+                </React.Fragment>
+              ))}
+              {renderActions?.(item)}
+            </div>
+          )}
+        </div>
+
+        {summaryColumns.length > 0 && (
+          <div className="border-t border-[#eee9df]">
+            {renderFieldGrid(summaryColumns)}
+          </div>
+        )}
+
+        {extraColumns.length > 0 && detailsOpen && (
+          <div className="border-t border-[#f0ece3] bg-[#fbfaf7]">
+            {renderFieldGrid(extraColumns)}
+          </div>
+        )}
+
+        {extraColumns.length > 0 && (
+          <button
+            type="button"
+className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e8] py-1.5 text-[11px] font-medium text-gray-500"
+            onClick={(e) => toggleMobileDetails(itemId, e)}
+            aria-expanded={detailsOpen}
+          >
+            {detailsOpen ? (
+              <>
+                Show less <ChevronUp className="h-3.5 w-3.5" />
+              </>
+            ) : (
+              <>
+                +{extraColumns.length} more{" "}
+                {extraColumns.length === 1 ? "field" : "fields"}
+                <ChevronDown className="h-3.5 w-3.5" />
+              </>
+            )}
+          </button>
+        )}
+
+        {/* Child rows TableRow return karte hain, isliye ek chhote table me wrap kiya hai. */}
+        {collapsible && hasChildren && isExpanded && renderChildrenRows && (
+          <div className="border-t border-[#eee9df] px-1.5 pb-2">
+            <Table className="w-full min-w-max text-xs">
+              <TableBody>{renderChildrenRows(children, itemId)}</TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderMobileList = () => (
+    <div className="sm:hidden">
+      {mobileSortableColumns.length > 0 && !loading && sortedData.length > 0 && (
+        <div className="mb-2 flex w-full min-w-0 max-w-full items-center gap-2">
+          <span className="shrink-0 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+            Sort by
+          </span>
+          <select
+            className="h-8 min-w-0 flex-1 rounded-md border border-[#D5DbDB] bg-white px-2 text-xs text-gray-800"
+            value={sortState.direction ? sortState.column ?? "" : ""}
+            onChange={(e) => {
+              const key = e.target.value;
+              if (key && key !== sortState.column) triggerSort(key);
+            }}
+            aria-label="Sort by column"
+          >
+            <option value="">Default</option>
+            {mobileSortableColumns.map((column) => (
+              <option key={column.key} value={column.key}>
+                {column.label}
+              </option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 shrink-0 !rounded-md border border-[#D5DbDB]"
+            disabled={!sortState.column}
+            onClick={() => sortState.column && triggerSort(sortState.column)}
+            title={
+              sortState.direction === "asc"
+                ? "Sorted ascending — tap for descending"
+                : sortState.direction === "desc"
+                  ? "Sorted descending — tap to clear"
+                  : "Change sort direction"
+            }
+            aria-label="Change sort direction"
+          >
+            {sortState.direction === "asc" ? (
+              <ArrowUpNarrowWide className="h-4 w-4" />
+            ) : sortState.direction === "desc" ? (
+              <ArrowDownWideNarrow className="h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      )}
+
+      {selectable && hasSelectableRows && !loading && (
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-[#D5DbDB] bg-[#f6f4ee] px-3 py-2">
+          <label className="flex items-center gap-2 text-xs font-medium text-gray-700">
+            <Checkbox
+              checked={isAllSelected}
+              onCheckedChange={handleSelectAllChange}
+              aria-label={selectAllLabel}
+              {...(isIndeterminate && { "data-state": "indeterminate" })}
+            />
+            {selectAllLabel}
+          </label>
+          {selectedItems.length > 0 && (
+            <span className="text-xs text-gray-600">
+              {selectedItems.length} selected
+            </span>
+          )}
+        </div>
+      )}
+
+      {canAddRow && isAddingRow && (
+        <div className="mb-2 rounded-lg border-2 border-blue-200 bg-blue-50 p-3">
+          <div className="space-y-3">
+            {visibleColumns
+              .filter((column) => !readonlyColumns.includes(column.key))
+              .map((column) => {
+                const customCell = renderEditableCell
+                  ? renderEditableCell(
+                      column.key,
+                      newRowData[column.key],
+                      (value) => handleNewRowDataChange(column.key, value)
+                    )
+                  : null;
+                return (
+                  <div key={column.key}>
+                    <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                      {column.label}
+                    </div>
+                    {customCell !== null
+                      ? customCell
+                      : renderDefaultEditableCell(
+                          column.key,
+                          newRowData[column.key],
+                          (value) => handleNewRowDataChange(column.key, value)
+                        )}
+                  </div>
+                );
+              })}
+          </div>
+          <div className="mt-3 flex justify-end gap-2">
+            <Button size="sm" variant="outline" onClick={handleCancelAddRow}>
+              <X className="mr-1 h-4 w-4" /> Cancel
+            </Button>
+            <Button
+              size="sm"
+              className="bg-brand text-white hover:bg-brand-hover"
+              onClick={handleSaveNewRow}
+            >
+              <Check className="mr-1 h-4 w-4" /> Save
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex items-center justify-center rounded-lg border border-[#D5DbDB] bg-white py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-brand" />
+          <span className="ml-2 text-brand-body-5 text-brand-text-light">{loadingMessage}</span>
+        </div>
+      )}
+
+      {!loading && sortedData.length === 0 && (
+        <div className="rounded-lg border border-[#D5DbDB] bg-white px-4 py-10 text-center text-sm text-gray-500">
+          <div>{emptyMessage}</div>
+          {canAddRow && !isAddingRow && (
+            <Button
+              onClick={handleAddRowClick}
+              variant="icon"
+              size="icon"
+              className="mx-auto mt-3 h-8 w-8 !rounded-full bg-brand p-0 text-white hover:bg-brand-hover [&_svg]:text-white"
+              aria-label={newRowPlaceholder}
+              title={newRowPlaceholder}
+            >
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">{newRowPlaceholder}</span>
+            </Button>
+          )}
+        </div>
+      )}
+
+      {!loading && sortedData.length > 0 && (
+        <div className="space-y-3">
+          {sortedData.map((item, index) => renderMobileCard(item, index))}
+        </div>
+      )}
+
+      {canAddRow && !isAddingRow && !loading && sortedData.length > 0 && (
+        <button
+          type="button"
+          className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 bg-white py-3 text-xs font-medium text-gray-500"
+          onClick={handleAddRowClick}
+        >
+          <Plus className="h-4 w-4" /> {newRowPlaceholder}
+        </button>
+      )}
+    </div>
+  );
+
+  return (
+    <div
+      className={cn(
+        "space-y-2 sm:space-y-4",
+        mobileView && "max-sm:min-w-0 max-sm:max-w-full"
+      )}
+    >
+      {/* Mobile: Search bar on top row, full width */}
+      {enableSearch && !hideTableSearch &&
+        (onSearchChange || !externalSearchTerm || enableGlobalSearch) && (
+          <div className="block sm:hidden w-full">
+            {customSearchInput ? (
+              <div className="relative w-full">
+                {isSearching && (
+                  <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 animate-spin" />
+                )}
+                {!isSearching && (
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                )}
+                <Input
+                  placeholder={searchPlaceholder}
+                  value={effectiveSearchValue}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  className="pl-10 pr-10 w-full"
+                  disabled={isSearching}
+                />
+                {effectiveSearchValue && (
+                  <button
+                    onClick={handleClearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    disabled={isSearching}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="relative w-full">
+                {isSearching && (
+                  <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 animate-spin" />
+                )}
+                {!isSearching && (
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                )}
+                <Input
+                  placeholder={
+                    enableGlobalSearch
+                      ? `${searchPlaceholder}`
+                      : searchPlaceholder
+                  }
+                  value={effectiveSearchValue}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  className="pl-10 pr-10 w-full"
+                  disabled={isSearching}
+                />
+                {effectiveSearchValue && (
+                  <button
+                    onClick={handleClearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    disabled={isSearching}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+      {/* Main toolbar row */}
+      <div
+        className={cn(
+          "flex flex-wrap items-center justify-between gap-2",
+          mobileView && "max-sm:flex-col max-sm:items-stretch"
+        )}
+      >
+        {/* Pages apne leftActions/rightActions me nowrap flex rows bhejte hain —
+            mobile par unhe wrap hone dete hain warna ek doosre ke upar chadh jaate hain. */}
+        <div
+          className={cn(
+            "flex items-center gap-2 flex-wrap flex-1 min-w-0",
+            mobileView &&
+              "max-sm:w-full max-sm:[&>*]:min-w-0 max-sm:[&>*]:max-w-full max-sm:[&>*]:flex-wrap max-sm:[&>*]:gap-2"
+          )}
+        >
+          {leftActions}
+
+          {showBulkActions && selectedItems.length > 0 && (
+            <div className="flex items-center gap-2"></div>
+          )}
+        </div>
+
+        <div
+          className={cn(
+            "flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end",
+            mobileView &&
+              "max-sm:w-full max-sm:justify-between max-sm:[&>*]:flex-wrap"
+          )}
+        >
+          {rightActions}
+          {/* Mobile: filter, export, and columns on right side */}
+          <div className="flex items-center gap-1 sm:hidden">
+            {onFilterClick && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="!rounded-lg h-8 w-8 border border-brand text-brand"
+                onClick={onFilterClick}
+                title="Filter"
+              >
+                <Filter className="w-4 h-4" />
+              </Button>
+            )}
+            {filterAdjacentActions}
+            {!hideTableExport && enableExport && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleExportClick}
+                disabled={isExporting}
+                className="!rounded-lg h-8 w-8 border border-brand text-brand"
+                title={isExporting ? "Exporting..." : "Export"}
+              >
+                {isExporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+              </Button>
+            )}
+            {!hideColumnsButton && (
+              <ColumnVisibilityMenu
+                columns={columns}
+                columnVisibility={columnVisibility}
+                onToggleVisibility={handleToggleColumnVisibility}
+                onResetToDefaults={handleResetToDefaults}
+              />
+            )}
+          </div>
+          {/* Desktop: search, filter, columns */}
+          <div className="hidden sm:flex items-center gap-2">
+            {enableSearch && !hideTableSearch &&
+              (onSearchChange || !externalSearchTerm || enableGlobalSearch) &&
+              (customSearchInput ? customSearchInput : renderCustomSearchInput())}
+
+            {onFilterClick && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="!rounded-lg border border-brand text-brand"
+                onClick={onFilterClick}
+                title="Filter"
+              >
+                <Filter className="w-4 h-4" />
+              </Button>
+            )}
+
+            {filterAdjacentActions}
+
+            {!hideTableExport && enableExport && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleExportClick}
+                disabled={isExporting}
+                className="!rounded-lg border border-brand text-brand"
+                title={isExporting ? "Exporting..." : "Export"}
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </>
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+              </Button>
+            )}
+
+            {!hideColumnsButton && (
+              <ColumnVisibilityMenu
+                columns={columns}
+                columnVisibility={columnVisibility}
+                onToggleVisibility={handleToggleColumnVisibility}
+                onResetToDefaults={handleResetToDefaults}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          "bg-white rounded-lg border border-[#D5DbDB] overflow-hidden",
+          mobileView && "hidden sm:block"
+        )}
+      >
+        <div className="table-container">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <Table className={cn(className, "w-full min-w-max enhancedTable")}>
+              <TableHeader className="sticky-header">
+                <SortableContext
+                  items={columnIds}
+                  strategy={horizontalListSortingStrategy}
+                >
+                  <TableRow>
+                    {collapsible && (
+                      <TableHead
+                        className="bg-[#f6f4ee] text-center w-12 min-w-12 sticky top-0"
+                        rowSpan={headerSegments ? 2 : undefined}
+                        data-collapse
+                      >
+                        <div className="flex justify-center items-center text-center">
+                          {/* Collapse/Expand column */}
+                        </div>
+                      </TableHead>
+                    )}
+                    {selectable && (
+                      <TableHead
+                        className="bg-[#f6f4ee] w-12 min-w-12 text-center sticky top-0"
+                        rowSpan={headerSegments ? 2 : undefined}
+                        data-checkbox
+                      >
+                        <div className="flex justify-center">
+                          <Checkbox
+                            checked={isAllSelected}
+                            onCheckedChange={handleSelectAllChange}
+                            aria-label={selectAllLabel}
+                            disabled={!hasSelectableRows}
+                            {...(isIndeterminate && {
+                              "data-state": "indeterminate",
+                            })}
+                          />
+                        </div>
+                      </TableHead>
+                    )}
+                    {renderActions && (
+                      <TableHead
+                        className="bg-[#f6f4ee] text-center w-16 min-w-16 sticky top-0"
+                        rowSpan={headerSegments ? 2 : undefined}
+                        data-actions
+                      >
+                        <div className="flex justify-center items-center text-center">
+                          Actions
+                        </div>
+                      </TableHead>
+                    )}
+                    {headerSegments
+                      ? headerSegments.map((segment) =>
+                          segment.type === "single" ? (
+                            renderColumnHeaderCell(
+                              segment.column,
+                              visibleColumns.indexOf(segment.column),
+                              2
+                            )
+                          ) : (
+                            <TableHead
+                              key={`group-${segment.columns[0].key}`}
+                              colSpan={segment.columns.length}
+                              className={cn(
+                                // TableHead's own base class ships `text-left`; because Tailwind's
+                                // generated stylesheet orders utilities alphabetically rather than
+                                // by className string order, a plain `text-center` here loses to
+                                // that base `text-left` — `!text-center` forces the override.
+                                "bg-[#f6f4ee] !text-center text-black sticky top-0",
+                                segment.group.className
+                              )}
+                            >
+                              {segment.group.label}
+                            </TableHead>
+                          )
+                        )
+                      : visibleColumns.map((column, columnIndex) =>
+                          renderColumnHeaderCell(column, columnIndex)
+                        )}
+                  </TableRow>
+                  {headerSegments && (
+                    <TableRow>
+                      {headerSegments.flatMap((segment) =>
+                        segment.type === "group"
+                          ? segment.columns.map((column) =>
+                              renderColumnHeaderCell(
+                                column,
+                                visibleColumns.indexOf(column)
+                              )
+                            )
+                          : []
+                      )}
+                    </TableRow>
+                  )}
+                </SortableContext>
+              </TableHeader>
+              <TableBody>
+                {/* Add Row when canAddRow is true and isAddingRow is true */}
+                {canAddRow && isAddingRow && (
+                  <TableRow
+                    ref={addRowRef}
+                    className="bg-blue-50 border-2 border-blue-200"
+                  >
+                    {collapsible && (
+                      <TableCell
+                        className="p-4 text-center w-12 min-w-12"
+                        data-collapse
+                      >
+                        {/* Empty for add row */}
+                      </TableCell>
+                    )}
+                    {selectable && (
+                      <TableCell
+                        className="p-4 w-12 min-w-12 text-center"
+                        data-checkbox
+                      >
+                        <div className="flex justify-center">
+                          <Checkbox disabled />
+                        </div>
+                      </TableCell>
+                    )}
+                    {renderActions && (
+                      <TableCell
+                        className="p-4 text-center w-16 min-w-16"
+                        data-actions
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleSaveNewRow}
+                            className="h-6 w-6 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            title="Save"
+                          >
+                            <Check className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleCancelAddRow}
+                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            title="Cancel"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
+                    {visibleColumns.map((column, columnIndex) => {
+                      const isReadonly = readonlyColumns.includes(column.key);
+
+                      // For readonly columns, don't call renderEditableCell at all
+                      if (isReadonly) {
+                        return (
+                          <TableCell
+                            key={column.key}
+                            className="p-4 text-center min-w-32"
+                          >
+                            {/* Empty cell for readonly columns */}
+                          </TableCell>
+                        );
+                      }
+
+                      const frozenConfig = enableFreeze
+                        ? getFrozenColumnConfig(
+                            columnIndex,
+                            freezeColumnsCount,
+                            visibleColumns,
+                            columnWidths,
+                            false // isStickyHeader = false
+                          )
+                        : null;
+
+                      const customCell = renderEditableCell
+                        ? renderEditableCell(
+                            column.key,
+                            newRowData[column.key],
+                            (value) => handleNewRowDataChange(column.key, value)
+                          )
+                        : null;
+
+                      return (
+                        <TableCell
+                          key={column.key}
+                          className={cn(
+                            "p-4 text-center min-w-32",
+                            frozenConfig?.isFrozen && "frozen-body-cell",
+                            frozenConfig?.isLastFrozen && "frozen-last-cell"
+                          )}
+                          style={{
+                            ...(frozenConfig?.isFrozen && {
+                              position: "sticky" as const,
+                              left: `${frozenConfig.leftOffset}px`,
+                              zIndex: frozenConfig.zIndex,
+                            }),
+                          }}
+                          data-frozen={frozenConfig?.isFrozen}
+                          data-frozen-shadow={frozenConfig?.showShadow}
+                        >
+                          {customCell !== null
+                            ? customCell
+                            : renderDefaultEditableCell(
+                                column.key,
+                                newRowData[column.key],
+                                (value) =>
+                                  handleNewRowDataChange(column.key, value)
+                              )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                )}
+
+                {loading && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={
+                        visibleColumns.length +
+                        (collapsible ? 1 : 0) +
+                        (renderActions ? 1 : 0) +
+                        (selectable ? 1 : 0)
+                      }
+                      className="h-24 text-center"
+                    >
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+                        <span className="ml-2 text-brand-body-5 text-brand-text-light">{loadingMessage}</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!loading && sortedData.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={
+                        visibleColumns.length +
+                        (collapsible ? 1 : 0) +
+                        (renderActions ? 1 : 0) +
+                        (selectable ? 1 : 0)
+                      }
+                      className="text-center py-8 text-gray-500"
+                    >
+                      {canAddRow ? (
+                        <div className="space-y-2">
+                          <div>{emptyMessage}</div>
+                          <Button
+                            onClick={handleAddRowClick}
+                            variant="icon"
+                            size="icon"
+                            className="h-8 w-8 !rounded-full bg-brand p-0 text-white hover:bg-brand-hover [&_svg]:text-white"
+                            aria-label={newRowPlaceholder}
+                            title={newRowPlaceholder}
+                          >
+                            <Plus className="h-4 w-4" />
+                            <span className="sr-only">{newRowPlaceholder}</span>
+                          </Button>
+                        </div>
+                      ) : (
+                        emptyMessage
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!loading &&
+                  sortedData.map((item, index) => {
+                    const itemId = getItemId(item);
+                    const isSelected = selectedItems.includes(itemId);
+                    const rowDisabled = !!isRowDisabled?.(item);
+                    const isExpanded = expandedRows.has(itemId);
+                    const childrenKey = getChildrenKey
+                      ? getChildrenKey(item)
+                      : "children";
+                    const children =
+                      collapsible && item[childrenKey] ? item[childrenKey] : [];
+                    const hasChildren =
+                      collapsible && children && children.length > 0;
+
+                    return (
+                      <React.Fragment key={index}>
+                        <TableRow
+                          className={cn(
+                            onRowClick && "cursor-pointer",
+                            "hover:bg-gray-50",
+                            !rowDisabled && isSelected && "bg-blue-50",
+                            rowClassName?.(item)
+                          )}
+                          onClick={(e) => {
+                            if (rowDisabled) return;
+                            handleRowClick(item, e);
+                          }}
+                          aria-disabled={rowDisabled}
+                        >
+                          {collapsible && (
+                            <TableCell
+                              className="p-4 text-center w-12 min-w-12"
+                              data-collapse
+                            >
+                              {hasChildren && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-6 w-6 p-0"
+                                  onClick={(e) => handleToggleExpand(itemId, e)}
+                                >
+                                  {isExpanded ? (
+                                    <ChevronDown className="w-4 h-4" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4" />
+                                  )}
+                                </Button>
+                              )}
+                            </TableCell>
+                          )}
+                          {selectable && (
+                            <TableCell
+                              className="p-4 w-12 min-w-12 text-center"
+                              data-checkbox
+                            >
+                              <div className="flex justify-center">
+                                <Checkbox
+                                  checked={!rowDisabled && isSelected}
+                                  disabled={rowDisabled}
+                                  onCheckedChange={(checked) => {
+                                    if (rowDisabled) return;
+                                    handleSelectItemChange(itemId, !!checked);
+                                  }}
+                                  aria-label={`Select row ${index + 1}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                            </TableCell>
+                          )}
+                          {renderActions && (
+                            <TableCell
+                              className="p-4 text-center w-16 min-w-16"
+                              data-actions
+                            >
+                              <div className="flex justify-center items-center gap-2">
+                                {renderActions(item)}
+                              </div>
+                            </TableCell>
+                          )}
+                          {visibleColumns.map((column, columnIndex) => {
+                            const renderedRow = renderRow
+                              ? renderRow(item, index)
+                              : item;
+                            const cellContent = renderRow
+                              ? renderedRow[column.key]
+                              : renderCell?.(item, column.key);
+
+                            const frozenConfig = enableFreeze
+                              ? getFrozenColumnConfig(
+                                  columnIndex,
+                                  freezeColumnsCount,
+                                  visibleColumns,
+                                  columnWidths,
+                                  false // isStickyHeader = false
+                                )
+                              : null;
+
+                            return (
+                              <TableCell
+                                key={column.key}
+                                className={cn(
+                                  "p-4 text-left min-w-32",
+                                  frozenConfig?.isFrozen && "frozen-body-cell",
+                                  frozenConfig?.isLastFrozen &&
+                                    "frozen-last-cell"
+                                )}
+                                style={{
+                                  width: columnWidths[column.key]
+                                    ? `${columnWidths[column.key]}px`
+                                    : column.width
+                                    ? `${column.width}px`
+                                    : undefined,
+                                  minWidth: columnWidths[column.key]
+                                    ? `${columnWidths[column.key]}px`
+                                    : column.width
+                                    ? `${column.width}px`
+                                    : undefined,
+                                  maxWidth: columnWidths[column.key]
+                                    ? `${columnWidths[column.key]}px`
+                                    : column.width
+                                    ? `${column.width}px`
+                                    : undefined,
+                                  ...(frozenConfig?.isFrozen && {
+                                    position: "sticky" as const,
+                                    left: `${frozenConfig.leftOffset}px`,
+                                    zIndex: frozenConfig.zIndex,
+                                  }),
+                                }}
+                                data-frozen={frozenConfig?.isFrozen}
+                                data-frozen-shadow={frozenConfig?.showShadow}
+                              >
+                                {cellContent}
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
+
+                        {/* Render child rows when expanded */}
+                        {collapsible &&
+                          hasChildren &&
+                          isExpanded &&
+                          renderChildrenRows &&
+                          renderChildrenRows(children, itemId)}
+                      </React.Fragment>
+                    );
+                  })}
+
+                {/* Add Row Placeholder at the bottom when canAddRow is true but not currently adding */}
+                {canAddRow &&
+                  !isAddingRow &&
+                  !loading &&
+                  sortedData.length > 0 && (
+                    <TableRow
+                      className="cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-200"
+                      onClick={handleAddRowClick}
+                    >
+                      <TableCell
+                        colSpan={
+                          visibleColumns.length +
+                          (collapsible ? 1 : 0) +
+                          (renderActions ? 1 : 0) +
+                          (selectable ? 1 : 0)
+                        }
+                        className="text-center py-4 text-gray-500 hover:text-gray-700"
+                      >
+                        <div className="flex items-center justify-start">
+                          <Button
+                            onClick={handleAddRowClick}
+                            variant="icon"
+                            size="icon"
+                            className="h-8 w-8 !rounded-full bg-brand p-0 text-white hover:bg-brand-hover [&_svg]:text-white"
+                            aria-label={newRowPlaceholder}
+                            title={newRowPlaceholder}
+                          >
+                            <Plus className="h-4 w-4" />
+                            <span className="sr-only">{newRowPlaceholder}</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+              </TableBody>
+            </Table>
+          </DndContext>
+        </div>
+      </div>
+
+      {/* Mobile: wahi rows list/card form me — table sirf sm+ par dikhta hai */}
+      {mobileView && renderMobileList()}
+
+      {/* Pagination */}
+      {mobileView && pagination && totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between gap-2 sm:hidden">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-3 text-xs"
+            disabled={currentPage === 1}
+            onClick={() => goToPage(currentPage - 1)}
+          >
+            Previous
+          </Button>
+          <span className="text-xs font-medium text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-3 text-xs"
+            disabled={currentPage === totalPages}
+            onClick={() => goToPage(currentPage + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+
+      {pagination && totalPages > 1 && (
+        <Pagination className={cn("mt-6", mobileView && "hidden sm:flex")}>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => {
+                  const newPage = currentPage - 1;
+                  if (externalOnPageChange) {
+                    externalOnPageChange(newPage);
+                  } else {
+                    setInternalCurrentPage(newPage);
+                  }
+                }}
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+
+            {generatePageNumbers().map((page, index) => (
+              <PaginationItem key={index}>
+                {page === "ellipsis-start" || page === "ellipsis-end" ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink
+                    onClick={() => {
+                      if (externalOnPageChange) {
+                        externalOnPageChange(page as number);
+                      } else {
+                        setInternalCurrentPage(page as number);
+                      }
+                    }}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => {
+                  const newPage = currentPage + 1;
+                  if (externalOnPageChange) {
+                    externalOnPageChange(newPage);
+                  } else {
+                    setInternalCurrentPage(newPage);
+                  }
+                }}
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+    </div>
+  );
+}

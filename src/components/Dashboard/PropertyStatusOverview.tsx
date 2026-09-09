@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { StatsGrid } from '@/components/ui/page';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Building2, MapPin, Calendar, Users } from 'lucide-react';
@@ -60,10 +61,10 @@ const PropertyStatusOverview = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-900">Property Status Overview</CardTitle>
+        <CardTitle className="text-brand-body-1 font-bold text-gray-900">Property Status Overview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsGrid>
           {properties.map((property) => (
             <div key={property.id} className="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
               <div className="flex items-start justify-between mb-4">
@@ -103,7 +104,7 @@ const PropertyStatusOverview = () => {
               )}
             </div>
           ))}
-        </div>
+        </StatsGrid>
       </CardContent>
     </Card>
   );

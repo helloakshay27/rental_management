@@ -71,7 +71,7 @@ const NotificationsTab = () => {
           </div>
         </div>
 
-        <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Notification Settings</Button>
+        <Button className="fm-button-fix fm-button-brand px-6 py-2">Save Notification Settings</Button>
       </CardContent>
     </Card>
   );

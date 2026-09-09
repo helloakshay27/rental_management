@@ -59,7 +59,7 @@ const AppearanceTab = () => {
           </Select>
         </div>
 
-        <Button className="bg-[#C72030] hover:bg-[#A01825]">Save Appearance Settings</Button>
+        <Button className="fm-button-fix fm-button-brand px-6 py-2">Save Appearance Settings</Button>
       </CardContent>
     </Card>
   );

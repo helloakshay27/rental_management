@@ -50,7 +50,7 @@ const AgreementDetailsDialog = ({ agreement, open, onOpenChange }: AgreementDeta
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Property Information */}
           <div>
             <h3 className="text-lg font-semibold mb-3 flex items-center">

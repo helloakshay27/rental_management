@@ -1,15 +1,18 @@
 
 import React, { useState } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, ChevronLeft } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ComplianceForm from '@/components/Compliances/ComplianceForm';
 import ComplianceTable from '@/components/Compliances/ComplianceTable';
-import ComplianceFilters from '@/components/Compliances/ComplianceFilters';
 import { getAuth, deleteAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface PropertyType {
   id: number;
@@ -44,6 +47,8 @@ const CompliancesMaster = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [editingCompliance, setEditingCompliance] = useState<Compliance | null>(null);
   const [compliances, setCompliances] = useState<Compliance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -147,32 +152,13 @@ const CompliancesMaster = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <PageContainer>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/masters')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Compliances Master</h1>
-            <p className="text-gray-600">Manage property compliance requirements and tracking</p>
-          </div>
-        </div>
+        <PageHeader title="Compliances Master" description="Manage property compliance requirements and tracking" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Compliance
-            </Button>
-          </DialogTrigger>
           <DialogContent className="max-w-3xl bg-white">
             <DialogHeader>
-              <DialogTitle className="text-gray-900 font-semibold text-xl">Add New Compliance</DialogTitle>
+              <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add New Compliance</DialogTitle>
               <DialogDescription className="text-gray-600">Create a new compliance requirement</DialogDescription>
             </DialogHeader>
             <ComplianceForm
@@ -183,35 +169,56 @@ const CompliancesMaster = () => {
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Compliance Requirements</CardTitle>
-              <CardDescription>Manage all compliance requirements and their applicability</CardDescription>
-            </div>
-            <ComplianceFilters
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              statusFilter={statusFilter}
-              onStatusChange={setStatusFilter}
-            />
+      <div>
+        {isLoading ? (
+          <div className="text-center py-8 text-gray-500">Loading compliance requirements...</div>
+        ) : (
+          <ComplianceTable
+        leftActions={
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Compliance
+            </Button>
+
+            <TableFilterDialog
+              open={isFilterOpen}
+              onOpenChange={setIsFilterOpen}
+              onApply={() => setStatusFilter(pendingStatus)}
+              onReset={() => {
+                setPendingStatus('all');
+                setStatusFilter('all');
+              }}
+            >
+              <FilterField label="Status">
+                <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                  <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Overdue">Overdue</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FilterField>
+            </TableFilterDialog>
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8 text-gray-500">Loading compliance requirements...</div>
-          ) : (
-            <ComplianceTable
-              compliances={filteredCompliances}
-              onEdit={handleEditCompliance}
-              onDelete={handleDeleteCompliance}
-              onView={handleViewCompliance}
-              onStatusUpdate={handleUpdateStatus}
-            />
-          )}
-        </CardContent>
-      </Card>
+        }
+        compliances={filteredCompliances}
+        onFilterClick={() => {
+          setPendingStatus(statusFilter);
+          setIsFilterOpen(true);
+        }}
+        onEdit={handleEditCompliance}
+        onDelete={handleDeleteCompliance}
+        onView={handleViewCompliance}
+        onStatusUpdate={handleUpdateStatus}
+          />
+        )}
+      </div>
 
       {/* Edit Compliance Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => !open && handleCancelEdit()}>
@@ -228,7 +235,7 @@ const CompliancesMaster = () => {
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   );
 };
 

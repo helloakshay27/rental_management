@@ -1,8 +1,10 @@
 
 import React from 'react';
+import { StatsGrid } from '@/components/ui/page';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Legend, PieChart, Pie, Cell } from 'recharts';
 import { Building, Clock, DollarSign, TrendingDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -15,20 +17,20 @@ const fitoutData = [
 ];
 
 const lockinStatusData = [
-  { status: 'High Risk (< 6 months)', count: 12, percentage: 15, color: '#FF6B6B' },
-  { status: 'Medium Risk (6-12 months)', count: 18, percentage: 22, color: '#FFA726' },
-  { status: 'Safe (12-24 months)', count: 28, percentage: 35, color: '#FFEB3B' },
-  { status: 'Very Safe (24+ months)', count: 22, percentage: 28, color: '#66BB6A' }
+  { status: 'High Risk (< 6 months)', count: 12, percentage: 15, color: '#E7848E' },
+  { status: 'Medium Risk (6-12 months)', count: 18, percentage: 22, color: '#EDC488' },
+  { status: 'Safe (12-24 months)', count: 28, percentage: 35, color: '#CECBF6' },
+  { status: 'Very Safe (24+ months)', count: 22, percentage: 28, color: '#798C5E' }
 ];
 
 const chartConfig = {
   fitoutCost: {
     label: 'Fitout Cost (₹)',
-    color: '#C72030'
+    color: '#DA7756'
   },
   monthsRemaining: {
     label: 'Months Remaining',
-    color: '#66BB6A'
+    color: '#798C5E'
   }
 };
 
@@ -44,57 +46,31 @@ const FitoutAnalytics = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Fitout Investment</p>
-                <p className="text-2xl font-bold text-[#C72030]">₹{(totalFitoutInvestment / 10000000).toFixed(1)}Cr</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-[#C72030]" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Avg Lockin Period</p>
-                <p className="text-2xl font-bold text-[#C72030]">{avgLockinPeriod.toFixed(0)} months</p>
-              </div>
-              <Clock className="h-8 w-8 text-[#C72030]" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Properties with Fitout</p>
-                <p className="text-2xl font-bold text-[#C72030]">{fitoutData.length}</p>
-              </div>
-              <Building className="h-8 w-8 text-[#C72030]" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">At Risk Properties</p>
-                <p className="text-2xl font-bold text-red-600">12</p>
-              </div>
-              <TrendingDown className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsGrid>
+        <StatsCard
+          title="Total Fitout Investment"
+          value={`₹${(totalFitoutInvestment / 10000000).toFixed(1)}Cr`}
+          icon={<DollarSign />}
+        />
+        <StatsCard
+          title="Avg Lockin Period"
+          value={`${avgLockinPeriod.toFixed(0)} months`}
+          icon={<Clock />}
+        />
+        <StatsCard
+          title="Properties with Fitout"
+          value={fitoutData.length}
+          icon={<Building />}
+        />
+        <StatsCard
+          title="At Risk Properties"
+          value={12}
+          icon={<TrendingDown />}
+          valueClassName="text-brand-error"
+        />
+      </StatsGrid>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -106,17 +82,15 @@ const FitoutAnalytics = () => {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={fitoutData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <XAxis dataKey="property" angle={-45} textAnchor="end" height={80} fontSize={10} />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
-                  <Bar yAxisId="left" dataKey="fitoutCost" fill="#C72030" name="Fitout Cost (₹)" />
-                  <Bar yAxisId="right" dataKey="monthsRemaining" fill="#66BB6A" name="Months Remaining" />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart data={fitoutData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <XAxis dataKey="property" angle={-45} textAnchor="end" height={80} fontSize={10} />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Legend />
+                <Bar yAxisId="left" dataKey="fitoutCost" fill="#DA7756" name="Fitout Cost (₹)" />
+                <Bar yAxisId="right" dataKey="monthsRemaining" fill="#798C5E" name="Months Remaining" />
+              </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
@@ -129,25 +103,23 @@ const FitoutAnalytics = () => {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={lockinStatusData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="count"
-                    label={({ percentage }) => `${percentage}%`}
-                  >
-                    {lockinStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={lockinStatusData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8E7BE0"
+                  dataKey="count"
+                  label={({ percentage }) => `${percentage}%`}
+                >
+                  {lockinStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Legend />
+              </PieChart>
             </ChartContainer>
           </CardContent>
         </Card>

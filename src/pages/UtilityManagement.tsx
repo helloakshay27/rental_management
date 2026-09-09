@@ -1,52 +1,45 @@
 
 import React from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Plus, Zap, Droplets, Thermometer, Activity } from 'lucide-react';
+import { Zap, Droplets, Thermometer, Activity } from 'lucide-react';
 import UtilityOverview from '@/components/Utilities/UtilityOverview';
 import BillManagement from '@/components/Utilities/BillManagement';
 import ConsumptionTracking from '@/components/Utilities/ConsumptionTracking';
 import UtilityReporting from '@/components/Utilities/UtilityReporting';
 import { useNavigate } from 'react-router-dom';
+import { Heading } from '@/components/ui/typography';
 
 const UtilityManagement = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 space-y-6 bg-white min-h-full">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Utility Management</h1>
-          <p className="text-gray-600 mt-2">Monitor and manage utility consumption and billing across properties</p>
-        </div>
-        <Button onClick={() => navigate('/utilities/new')} className="bg-[#C72030] hover:bg-[#A01825]">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Utility
-        </Button>
-      </div>
+    <PageContainer>
+      <PageHeader title="Utility Management" description="Monitor and manage utility consumption and billing across properties" />
 
       {/* ... existing tabs content ... */}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList>
           <TabsTrigger
             value="overview"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2"
           >
             <Zap className="h-4 w-4" />
             Overview
           </TabsTrigger>
           <TabsTrigger
             value="bills"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2"
           >
             <Droplets className="h-4 w-4" />
             Bill Management
           </TabsTrigger>
           <TabsTrigger
             value="consumption"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2"
           >
             <Activity className="h-4 w-4" />
             Consumption
@@ -65,7 +58,7 @@ const UtilityManagement = () => {
           <ConsumptionTracking />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 };
 

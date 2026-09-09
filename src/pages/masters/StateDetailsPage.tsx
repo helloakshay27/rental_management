@@ -1,12 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
+import { DetailSection } from '@/components/ui/detail-section';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
-import { MapPin, ArrowLeft, Loader2, Globe, Hash, Info } from 'lucide-react';
+import { MapPin, ArrowLeft, Globe, Hash, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 const StateDetailsPage = () => {
     const { id } = useParams();
@@ -33,75 +37,46 @@ const StateDetailsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     if (!state) {
         return (
-            <div className="p-8 w-full bg-gray-50 min-h-screen">
+            <PageContainer>
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
                     <p className="text-gray-500">State not found</p>
                     <Button onClick={() => navigate('/masters/states')} className="mt-4">
                         Go Back
                     </Button>
                 </div>
-            </div>
+            </PageContainer>
         );
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate('/masters/states')}
-                        className="text-gray-600 hover:text-gray-900"
-                    >
-                        <ArrowLeft className="h-5 w-5 mr-2" />
-                        Back to States
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">State Details</h1>
-                        <p className="text-gray-500">ID: {state.id}</p>
-                    </div>
-                </div>
-            </div>
+        <PageContainer>
+            <PageHeader title="State Details" backTo="/masters/states" />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2 bg-white border border-gray-200 shadow-sm overflow-hidden">
-                    <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-red-100 rounded-xl text-[#C72030]">
-                                <MapPin className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-2xl font-bold text-gray-900">{state.name}</CardTitle>
-                                <p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Administrative Division</p>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-8">
+                <DetailSection title="Administrative Division" className="lg:col-span-2">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div className="space-y-8">
+                            <div className="space-y-5">
                                 <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                                        <Hash className="h-5 w-5" />
+                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                        <Hash className="h-4 w-4" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">State Code</p>
-                                        <p className="text-xl font-mono font-bold text-gray-900">{state.code || 'N/A'}</p>
+                                        <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">State Code</p>
+                                        <p className="text-[14px] font-medium text-brand-text">{state.code || 'N/A'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                                        <Info className="h-5 w-5" />
+                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                        <Info className="h-4 w-4" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Metadata Status</p>
+                                        <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Metadata Status</p>
                                         <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700 font-bold">Verified</Badge>
                                     </div>
                                 </div>
@@ -120,8 +95,7 @@ const StateDetailsPage = () => {
                                 </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                </DetailSection>
 
                 <Card className="bg-[#C72030] border-none shadow-xl text-white overflow-hidden relative">
                     <div className="absolute -right-16 -top-16 opacity-10">
@@ -138,7 +112,7 @@ const StateDetailsPage = () => {
                             <>
                                 <div>
                                     <p className="text-white/60 text-xs uppercase font-semibold tracking-wider mb-1">Parent Country</p>
-                                    <p className="text-2xl font-bold truncate">{state.country.name}</p>
+                                    <p className="text-brand-body-1 font-bold truncate">{state.country.name}</p>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="flex-1 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
@@ -166,7 +140,7 @@ const StateDetailsPage = () => {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

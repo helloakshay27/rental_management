@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,11 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, ChevronLeft, Upload, FileText, X, Building, Layers } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, Upload, FileText, X, Building, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { postAuth, getAuth, patchAuth, deleteAuth, API_BASE_URL } from '@/lib/api';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface Property {
   id: number;
@@ -42,6 +45,13 @@ interface Property {
   ites_valid_till?: string;
   ownership_type?: string;
 }
+
+const columns: ColumnConfig[] = [
+  { key: 'name', label: 'Property Details', sortable: true, draggable: true },
+  { key: 'address', label: 'Location & Type', sortable: true, draggable: true },
+  { key: 'facilities', label: 'Facilities & Tech', sortable: false, draggable: true },
+  { key: 'leasable_area', label: 'Area & Year', sortable: true, draggable: true },
+];
 
 const PropertiesMaster = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -594,33 +604,114 @@ const PropertiesMaster = () => {
     }
   };
 
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/masters')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
+  const renderCell = (property: Property, columnKey: string) => {
+    switch (columnKey) {
+      case 'name':
+
+        return (
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Properties Master</h1>
-            <p className="text-gray-600">Central property database with all property details</p>
+            <p className="font-medium">{property.name}</p>
+            <p className="text-brand-body-5 text-brand-text-light">ID: {property.id}</p>
+            {property.description && (
+              <p className="text-brand-caption text-brand-text-light">{property.description}</p>
+            )}
           </div>
-        </div>
+        );
+      case 'address':
+        return (
+          <div>
+            <div className="flex items-center text-brand-body-5 mb-1">
+              <MapPin className="h-3 w-3 mr-1" />
+              <span className="truncate max-w-32">{renderValue(property.address)}</span>
+            </div>
+            {property.city && (
+              <p className="text-brand-caption text-brand-text-light">
+                {renderValue(property.city)}, {renderValue(property.state)}
+              </p>
+            )}
+            <Badge variant="outline">{renderValue(property.property_type)}</Badge>
+          </div>
+        );
+      case 'facilities':
+        return (
+          <div>
+            <div className="flex items-center text-brand-body-5 font-medium mb-1">
+              <Building className="h-3 w-3 mr-1 text-brand-info" />
+              <span>{property.pms_site_facilities?.length || 0} Facilities</span>
+            </div>
+            {property.circle && (
+              <div className="flex items-center text-brand-caption text-brand-text-light">
+                <Layers className="h-3 w-3 mr-1" />
+                <span>Circle: {renderValue(property.circle)}</span>
+              </div>
+            )}
+            {(property.property_takeover_condition_name || (property as any).property_takeover_condition?.name) && (
+              <div className="mt-1">
+                <Badge variant="warning" className="text-brand-caption italic">
+                  {property.property_takeover_condition_name || (property as any).property_takeover_condition?.name}
+                </Badge>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-1 mt-1">
+              {property.ownership_type && (
+                <Badge variant="info" className="text-brand-caption">
+                  {property.ownership_type}
+                </Badge>
+              )}
+              {property.ites_certification === 'Yes' && (
+                <Badge variant="success" className="text-brand-caption">
+                  ITES Certified {property.ites_valid_till ? `(Till: ${new Date(property.ites_valid_till).toLocaleDateString()})` : ''}
+                </Badge>
+              )}
+            </div>
+          </div>
+        );
+      case 'leasable_area':
+        return (
+          <div>
+            <p className="text-brand-body-5 font-medium">Area: {renderValue(property.leasable_area)} sq ft</p>
+            <p className="text-brand-caption text-brand-text-light">Built: {renderValue(property.built_year)}</p>
+            {property.carpet_area && (
+              <p className="text-brand-caption text-brand-text-light">
+                Carpet: {renderValue(property.carpet_area)} sq ft
+              </p>
+            )}
+          </div>
+        );
+      default:
+        return property[columnKey as keyof Property] as React.ReactNode;
+    }
+  };
+
+  const renderActions = (property: Property) => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm" title="View" onClick={() => handleViewProperty(property)}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Edit" onClick={() => handleEditProperty(property)}>
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Delete" className="text-brand-error" onClick={() => handleDeleteProperty(property)}>
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const leftActions = (
+              <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Property
+              </Button>
+          );
+
+  return (
+    <div className="p-6 space-y-5">
+      <div className="flex items-center justify-between">
+        <PageHeader title="Properties Master" description="Central property database with all property details" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Property
-            </Button>
-          </DialogTrigger>
           <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-gray-900 font-semibold text-xl">{editingProperty ? 'Edit Property' : 'Add New Property'}</DialogTitle>
+              <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">{editingProperty ? 'Edit Property' : 'Add New Property'}</DialogTitle>
               <DialogDescription className="text-gray-600">{editingProperty ? 'Update the property details below' : 'Enter complete property information'}</DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-4 py-4">
@@ -1154,7 +1245,7 @@ const PropertiesMaster = () => {
                 Cancel
               </Button>
               <Button
-                className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                className="fm-button-fix fm-button-brand px-6 py-2"
                 onClick={handleSubmit}
                 disabled={isLoading}
               >
@@ -1165,143 +1256,29 @@ const PropertiesMaster = () => {
         </Dialog >
       </div >
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Properties Database</CardTitle>
-              <CardDescription>Complete inventory of all properties in the system</CardDescription>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search properties..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64 bg-white"
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoadingData ? (
-            <div className="text-center py-8 text-gray-500">Loading properties...</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Property Details</TableHead>
-                  <TableHead>Location & Type</TableHead>
-                  <TableHead>Facilities & Tech</TableHead>
-                  <TableHead>Area & Year</TableHead>
-                  {/* <TableHead>Amenities</TableHead> */}
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProperties.map((property) => (
-                  <TableRow key={property.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{property.name}</p>
-                        <p className="text-sm text-gray-500">ID: {property.id}</p>
-                        {property.description && (
-                          <p className="text-xs text-gray-500">{property.description}</p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="flex items-center text-sm mb-1">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          <span className="truncate max-w-32">{renderValue(property.address)}</span>
-                        </div>
-                        {property.city && (
-                          <p className="text-xs text-gray-500">{renderValue(property.city)}, {renderValue(property.state)}</p>
-                        )}
-                        <Badge variant="outline">{renderValue(property.property_type)}</Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="flex items-center text-sm font-medium mb-1">
-                          <Building className="h-3 w-3 mr-1 text-blue-600" />
-                          <span>{property.pms_site_facilities?.length || 0} Facilities</span>
-                        </div>
-                        {property.circle && (
-                          <div className="flex items-center text-xs text-gray-500">
-                            <Layers className="h-3 w-3 mr-1" />
-                            <span>Circle: {renderValue(property.circle)}</span>
-                          </div>
-                        )}
-                        {(property.property_takeover_condition_name || property as any).property_takeover_condition?.name && (
-                          <div className="mt-1">
-                            <Badge variant="secondary" className="text-[10px] bg-amber-50 text-amber-700 border-amber-100 italic">
-                              {property.property_takeover_condition_name || (property as any).property_takeover_condition?.name}
-                            </Badge>
-                          </div>
-                        )}
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {property.ownership_type && (
-                            <Badge variant="outline" className="text-[10px] border-blue-200 text-blue-700 bg-blue-50/30">
-                              {property.ownership_type}
-                            </Badge>
-                          )}
-                          {property.ites_certification === 'Yes' && (
-                            <Badge variant="outline" className="text-[10px] border-green-200 text-green-700 bg-green-50/30">
-                              ITES Certified {property.ites_valid_till ? `(Till: ${new Date(property.ites_valid_till).toLocaleDateString()})` : ''}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="text-sm font-medium">Area: {renderValue(property.leasable_area)} sq ft</p>
-                        <p className="text-xs text-gray-500">Built: {renderValue(property.built_year)}</p>
-                        {property.carpet_area && (
-                          <p className="text-xs text-gray-500">Carpet: {renderValue(property.carpet_area)} sq ft</p>
-                        )}
-                      </div>
-                    </TableCell>
-                    {/* <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {property.amenities && property.amenities.length > 0 ? (
-                          property.amenities.slice(0, 3).map((amenity, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
-                              {renderValue(amenity)}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-xs text-gray-400">No amenities</span>
-                        )}
-                        {property.amenities && property.amenities.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">+{property.amenities.length - 3}</Badge>
-                        )}
-                      </div>
-                    </TableCell> */}
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewProperty(property)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEditProperty(property)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteProperty(property)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      <div>
+          <EnhancedTable
+            data={filteredProperties}
+            columns={columns}
+            renderCell={renderCell}
+            renderActions={renderActions}
+            getItemId={(property) => String(property.id)}
+            storageKey="properties-master-table"
+            leftActions={leftActions}
+            emptyMessage="No properties found"
+            loading={isLoadingData}
+            loadingMessage="Loading properties..."
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search properties..."
+            disableClientSearch={true}
+            enableSearch={true}
+            enableSelection={false}
+            exportFileName="properties"
+            pagination={true}
+            pageSize={10}
+          />
+      </div>
 
 
     </div >

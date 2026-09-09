@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import { PageLoader, Spinner } from '@/components/ui/loader';
+import { PageContainer } from '@/components/ui/page';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { getAuth, patchAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 const EditExpensePage = () => {
     const { id } = useParams();
@@ -123,22 +126,20 @@ const EditExpensePage = () => {
 
     if (loadingResources) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
+        <PageContainer>
             <div className="max-w-full mx-auto space-y-6">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" onClick={() => navigate(-1)} className="p-0 hover:bg-transparent">
                         <ArrowLeft className="h-6 w-6 text-gray-600" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Edit Expense</h1>
-                        <p className="text-sm text-gray-500">Update operational expense record</p>
+                        <Heading level="h1">Edit Expense</Heading>
+                        <Text size="sm" variant="muted">Update operational expense record</Text>
                     </div>
                 </div>
 
@@ -148,7 +149,7 @@ const EditExpensePage = () => {
                             <CardTitle className="text-lg font-semibold text-gray-900">Expense Details</CardTitle>
                             <CardDescription>Enter the details for the operational expense</CardDescription>
                         </CardHeader>
-                        <CardContent className="p-6 space-y-6">
+                        <CardContent className="p-6 space-y-5">
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Property Selection */}
@@ -266,15 +267,15 @@ const EditExpensePage = () => {
                             <Button type="button" variant="outline" onClick={() => navigate(-1)} className="border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isLoading} className="bg-[#C72030] hover:bg-[#A01825] text-white min-w-[140px] font-medium shadow-sm transition-all active:scale-95">
-                                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand px-6 py-2">
+                                {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                                 Update Expense
                             </Button>
                         </div>
                     </Card>
                 </form>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

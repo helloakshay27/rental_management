@@ -1,15 +1,21 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Upload, FileText, Bell, BarChart3, Settings, CreditCard, Calendar, MapPin, AlertTriangle, Users, Search } from 'lucide-react';
+import { Plus, Upload, FileText, Bell, BarChart3, Settings, CreditCard, Calendar, AlertTriangle, Users, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+
+interface QuickAction {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  href: string;
+}
 
 const QuickActions = () => {
   const navigate = useNavigate();
 
   // Different actions based on current dashboard context
-  const landlordActions = [
+  const landlordActions: QuickAction[] = [
     {
       title: 'Add Property',
       description: 'Register a new property',
@@ -48,7 +54,7 @@ const QuickActions = () => {
     }
   ];
 
-  const tenantActions = [
+  const tenantActions: QuickAction[] = [
     {
       title: 'Pay Rent',
       description: 'Process rent payments',
@@ -69,7 +75,7 @@ const QuickActions = () => {
     },
     {
       title: 'Compliance',
-      description: 'Compliance',
+      description: 'Track compliance status',
       icon: AlertTriangle,
       href: '/compliance'
     },
@@ -89,32 +95,43 @@ const QuickActions = () => {
   // This could be enhanced to check actual user context
   const actions = isOnMainDashboard ? landlordActions : tenantActions;
 
-  const handleActionClick = (href: string) => {
-    navigate(href);
-  };
-
   return (
-    <Card className="bg-white border border-gray-200">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Quick Actions</CardTitle>
+        <CardTitle>Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {actions.map((action) => {
             const Icon = action.icon;
             return (
-              <Button
+              <button
                 key={action.title}
-                variant="outline"
-                className={`h-24 flex flex-col items-center justify-center space-y-2 border-2 hover:border-[#C72030] hover:bg-[#C72030]/10 transition-all duration-200`}
-                onClick={() => handleActionClick(action.href)}
+                type="button"
+                onClick={() => navigate(action.href)}
+                className={cn(
+                  // A tall multi-line tile is its own shape, not a Button
+                  // variant — the shared Button forces one row, a fixed height
+                  // and 16px icons, which is what pushed the icon and caption
+                  // outside the border here.
+                  'group flex h-full flex-col items-center justify-start gap-2 rounded-lg p-4 text-center',
+                  'border border-brand-card-border bg-brand-card',
+                  'transition-all duration-200 hover:border-brand hover:shadow-system-md',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2'
+                )}
               >
-                <Icon size={24} className="text-[#C72030]" />
-                <div className="text-center">
-                  <p className="text-sm font-medium text-[#1a1a1a]">{action.title}</p>
-                  <p className="text-xs text-gray-500">{action.description}</p>
-                </div>
-              </Button>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-brand-stat-icon transition-colors group-hover:bg-brand-light">
+                  <Icon className="h-5 w-5 text-brand" />
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-brand-body-4 font-semibold text-brand-text">
+                    {action.title}
+                  </span>
+                  <span className="text-brand-caption text-brand-text-light">
+                    {action.description}
+                  </span>
+                </span>
+              </button>
             );
           })}
         </div>

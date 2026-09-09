@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { PageContainer } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -7,42 +8,43 @@ import { Plus, Home, CreditCard, Calendar, FileText } from 'lucide-react';
 import MyRentals from '@/components/Tenant/MyRentals';
 import PaymentHistory from '@/components/Tenant/PaymentHistory';
 import Documents from '@/components/Tenant/Documents';
+import { Heading } from '@/components/ui/typography';
 
 const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   return (
-    <div className="p-6 space-y-6 bg-white min-h-full">
+    <PageContainer>
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-[#1a1a1a]">Tenant Dashboard</h1>
+          <Heading level="h1">Tenant Dashboard</Heading>
           <p className="text-[#1a1a1a]/70 mt-2">Manage your rental properties and landlord relationships</p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)} className="bg-[#C72030] hover:bg-[#A01825] text-white">
+        <Button onClick={() => setIsAddDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
           <Plus className="h-4 w-4 mr-2" />
           Add New Rental
         </Button>
       </div>
 
       <Tabs defaultValue={initialTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
+        <TabsList>
           <TabsTrigger
             value="rentals"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2"
           >
             <Home className="h-4 w-4" />
             My Rentals
           </TabsTrigger>
           <TabsTrigger
             value="payments"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2"
           >
             <CreditCard className="h-4 w-4" />
             Payment History
           </TabsTrigger>
           <TabsTrigger
             value="documents"
-            className="flex items-center gap-2 text-[#D5DbDB] data-[state=active]:bg-[#C72030] data-[state=active]:text-white rounded-md"
+            className="flex items-center gap-2"
           >
             <FileText className="h-4 w-4" />
             Documents
@@ -61,7 +63,7 @@ const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) =>
           <Documents />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 };
 

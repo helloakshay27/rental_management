@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import MaintenanceSummaryCards from './MaintenanceSummaryCards';
-import MaintenanceFilters from './MaintenanceFilters';
 import MaintenanceTable from './MaintenanceTable';
 import { getAuth } from '@/lib/api';
 
@@ -13,6 +14,8 @@ const MaintenanceRequests = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingFilter, setPendingFilter] = useState('all');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -71,39 +74,53 @@ const MaintenanceRequests = () => {
   });
 
   return (
-    <div className="space-y-6 bg-white">
+    <div className="space-y-5">
       {/* Summary Cards */}
       <MaintenanceSummaryCards requests={requests} />
 
-      {/* Main Content Card */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="bg-white border-b border-gray-200 pb-6">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-[#1a1a1a]">Maintenance Requests</CardTitle>
-            <Button
-              className="bg-[#C72030] hover:bg-[#A01825]"
-              onClick={handleCreateRequest}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Request
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="bg-white pt-6">
-          <MaintenanceFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-          />
+      <div>
+        <MaintenanceTable
+          requests={filteredRequests}
+          onFilterClick={() => {
+            setPendingFilter(statusFilter);
+            setIsFilterOpen(true);
+          }}
+          onViewDetails={handleViewDetails}
+          onViewMessages={handleViewMessages}
+          leftActions={
+            <>
+              <Button onClick={handleCreateRequest} className="fm-button-fix fm-button-brand px-6 py-2">
+                <Plus className="w-4 h-4 mr-2" />
+                New Request
+              </Button>
 
-          <MaintenanceTable
-            requests={filteredRequests}
-            onViewDetails={handleViewDetails}
-            onViewMessages={handleViewMessages}
-          />
-        </CardContent>
-      </Card>
+              <TableFilterDialog
+              open={isFilterOpen}
+              onOpenChange={setIsFilterOpen}
+              onApply={() => setStatusFilter(pendingFilter)}
+              onReset={() => {
+                setPendingFilter('all');
+                setStatusFilter('all');
+              }}
+            >
+              <FilterField label="Status">
+                <Select value={pendingFilter} onValueChange={setPendingFilter}>
+                  <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FilterField>
+              </TableFilterDialog>
+            </>
+          }
+        />
+      </div>
     </div>
   );
 };

@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, MapPin, User, DollarSign, Save, Plus, Receipt } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Calendar, MapPin, User, DollarSign, Save, Plus, Receipt, FileText } from 'lucide-react';
+import { toast } from 'sonner';
 import InvoiceRules from './InvoiceRules';
 
 interface Agreement {
@@ -30,7 +30,6 @@ interface EditableAgreementDialogProps {
 }
 
 const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgreementDialogProps) => {
-  const { toast } = useToast();
   const [formData, setFormData] = useState({
     propertyName: agreement?.propertyName || '',
     tenantName: agreement?.tenantName || '',
@@ -46,23 +45,20 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
   });
 
   const handleSave = () => {
-    toast({
-      title: "Agreement Saved",
+    toast.success("Agreement Saved", {
       description: `Agreement ${agreement?.id} has been updated successfully.`,
     });
     onOpenChange(false);
   };
 
   const handleAddTenant = () => {
-    toast({
-      title: "Add New Tenant",
+    toast.success("Add New Tenant", {
       description: "Opening tenant master form...",
     });
   };
 
   const handleAddLandlord = () => {
-    toast({
-      title: "Add New Landlord",
+    toast.success("Add New Landlord", {
       description: "Opening landlord master form...",
     });
   };
@@ -83,9 +79,15 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
         </DialogHeader>
         
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="details">Agreement Details</TabsTrigger>
-            <TabsTrigger value="invoicing">Invoice Rules</TabsTrigger>
+          <TabsList>
+            <TabsTrigger value="details">
+              <FileText className="h-4 w-4 mr-2" />
+              Agreement Details
+            </TabsTrigger>
+            <TabsTrigger value="invoicing">
+              <Receipt className="h-4 w-4 mr-2" />
+              Invoice Rules
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="details" className="space-y-6">

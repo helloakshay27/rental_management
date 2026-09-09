@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -5,83 +6,78 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* ---------------------------------------------
+       Shadcn HSL tokens, aligned to the Lockated
+       brand palette in src/styles/theme.css
+       --------------------------------------------- */
+    --background: 45 27% 95%; /* #f6f4ee */
+    --foreground: 0 0% 17%; /* #2c2c2c */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 17%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 17 63% 60%; /* #da7756 */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 82 20% 46%; /* #798c5e */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 45 15% 80%; /* #d3d1c7 */
+    --muted-foreground: 47 4% 52%; /* #888780 */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 17 63% 60%;
+    --accent-foreground: 0 0% 17%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 70% 71%; /* #e7848e */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 180 9% 85%; /* #d5dbdb */
+    --input: 180 9% 85%;
+    --ring: 17 63% 60%;
 
-    --radius: 0.5rem;
+    --radius: 8px;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Updated Design System Colors */
-    --red-primary: #C72030;
-    --navigation-fill: #f6f4ee;
-    --card-fill: #f6f4ee;
-    --text-color: #D5DbDB;
-    --nav-text-color: #1a1a1a;
-    --base-white: #FFFFFF;
-    --base-black: #060504;
+    --sidebar-background: 42 27% 76%; /* #c4b89d */
+    --sidebar-foreground: 0 0% 17%;
+    --sidebar-primary: 17 63% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 42 27% 88%;
+    --sidebar-accent-foreground: 0 0% 17%;
+    --sidebar-border: 42 27% 76%;
+    --sidebar-ring: 17 63% 60%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --background: 0 0% 10%;
+    --foreground: 45 27% 95%;
+    --card: 0 0% 17%;
+    --card-foreground: 45 27% 95%;
+    --popover: 0 0% 17%;
+    --popover-foreground: 45 27% 95%;
+    --primary: 17 63% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 82 20% 46%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 17 63% 60%;
+    --accent-foreground: 45 27% 95%;
+    --destructive: 354 70% 71%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 17 63% 60%;
+    --sidebar-background: 0 0% 17%;
+    --sidebar-foreground: 45 27% 95%;
+    --sidebar-primary: 17 63% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 0 0% 22%;
+    --sidebar-accent-foreground: 45 27% 95%;
+    --sidebar-border: 0 0% 25%;
+    --sidebar-ring: 17 63% 60%;
   }
 }
 
@@ -96,8 +92,9 @@
   }
 
   body {
-    @apply bg-white text-[#D5DbDB];
-    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    @apply bg-brand-bg text-brand-text;
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "Roboto", sans-serif;
     font-weight: 400;
     line-height: 1.5;
     height: 100%;
@@ -106,73 +103,172 @@
     padding: 0;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "Roboto", sans-serif;
     font-weight: 600;
     line-height: 1.2;
-    color: #D5DbDB;
+    color: var(--color-text);
   }
 
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
-  h4 { font-size: 1.125rem; }
-  h5 { font-size: 1rem; }
-  h6 { font-size: 0.875rem; }
+  h1 {
+    font-size: var(--font-size-h1);
+  }
+  h2 {
+    font-size: var(--font-size-h2);
+  }
+  h3 {
+    font-size: var(--font-size-body-1);
+  }
+  h4 {
+    font-size: var(--font-size-body-2);
+  }
+  h5 {
+    font-size: var(--font-size-body-3);
+  }
+  h6 {
+    font-size: var(--font-size-body-4);
+  }
 }
 
 @layer components {
-  /* Updated Design System Button Styles */
+  /* ---------------------------------------------
+     BUTTONS
+     --------------------------------------------- */
   .btn-primary {
-    @apply bg-[#C72030] text-white hover:bg-[#A01825] border-0 rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply bg-brand text-white hover:bg-brand-hover border-0 rounded-md px-6 py-3 font-medium shadow-system-sm hover:shadow-system-md;
+    transition: all var(--transition-normal);
   }
 
   .btn-secondary {
-    @apply bg-gray-100 text-[#D5DbDB] hover:bg-gray-200 border-0 rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply bg-brand-card-bg text-brand-text hover:bg-brand-selected border border-brand-border rounded-md px-6 py-3 font-medium shadow-system-sm hover:shadow-system-md;
+    transition: all var(--transition-normal);
   }
 
   .btn-outline {
-    @apply bg-transparent text-[#C72030] border border-[#C72030] hover:bg-[#C72030] hover:text-white rounded-lg px-6 py-3 font-medium transition-all duration-200;
+    @apply bg-transparent text-brand border border-brand hover:bg-brand hover:text-white rounded-md px-6 py-3 font-medium;
+    transition: all var(--transition-normal);
   }
 
-  /* Updated Design System Card Styles */
+  .btn-ghost {
+    @apply bg-transparent text-brand-text hover:bg-brand-selected rounded-md px-6 py-3 font-medium;
+    transition: all var(--transition-normal);
+  }
+
+  /* ---------------------------------------------
+     CARDS
+     --------------------------------------------- */
   .card-primary {
-    @apply bg-[#f6f4ee] border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6;
+    @apply bg-brand-card-bg border border-brand-border-card rounded-lg shadow-brand-card hover:shadow-system-md p-6;
+    transition: all var(--transition-normal);
   }
 
-  /* Design System Status Styles */
+  .card-white {
+    @apply bg-brand-card border border-brand-border rounded-lg shadow-system-sm hover:shadow-system-md p-6;
+    transition: all var(--transition-normal);
+  }
+
+  /* ---------------------------------------------
+     STATUS PILLS
+     --------------------------------------------- */
   .status-pending {
-    @apply bg-[#F3C94A] text-[#8B5A00] px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-brand-warning-light text-brand-text px-3 py-1 rounded-full text-brand-body-5 font-medium;
   }
 
   .status-rejected {
-    @apply bg-[#C72030] text-white px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-brand-error-bg text-brand-error px-3 py-1 rounded-full text-brand-body-5 font-medium;
   }
 
   .status-accepted {
-    @apply bg-[#4AF3E7] text-[#006B5F] px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-brand-success-bg text-brand-success px-3 py-1 rounded-full text-brand-body-5 font-medium;
   }
 
-  /* Search Bar Styles */
+  /* ---------------------------------------------
+     FORM CONTROLS
+     --------------------------------------------- */
   .search-input {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-lg bg-white placeholder-gray-400 text-[#D5DbDB] focus:outline-none focus:ring-2 focus:ring-[#C72030] focus:border-transparent;
+    @apply w-full px-4 py-3 border border-brand-border rounded-md bg-brand-card placeholder-brand-text-light text-brand-text focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand;
   }
 
-  /* Table Styles */
+  .select-trigger {
+    @apply w-full px-4 py-3 border border-brand-border rounded-md bg-brand-card text-brand-text focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand;
+  }
+
+  /* ---------------------------------------------
+     TABLES
+     --------------------------------------------- */
   .table-header {
-    @apply bg-[#f6f4ee] border-b border-gray-200 px-4 py-3 text-left text-sm font-medium text-[#D5DbDB];
+    @apply bg-brand-bg border-b border-brand-border px-4 py-3 text-left text-brand-body-4 font-semibold text-brand-text;
   }
 
   .table-cell {
-    @apply px-4 py-3 border-b border-gray-200 text-sm text-[#D5DbDB];
+    @apply px-4 py-3 border-b border-brand-border text-brand-body-4 text-brand-text;
   }
 
-  /* Sidebar Styles */
+  /* ---------------------------------------------
+     SIDEBAR
+     --------------------------------------------- */
   .sidebar-item {
-    @apply flex items-center px-4 py-3 text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a] rounded-lg transition-all duration-200 font-medium;
+    @apply flex items-center px-4 py-3 text-brand-text hover:bg-brand-selected rounded-md font-medium;
+    transition: all var(--transition-normal);
   }
 
   .sidebar-item-active {
-    @apply flex items-center px-4 py-3 bg-[#C72030] text-white rounded-lg font-medium;
+    @apply flex items-center px-4 py-3 bg-brand text-white rounded-md font-medium;
   }
+}
+
+/* ---------------------------------------------
+   FORM PAGE BUTTONS (fm-matrix-revamp parity)
+   Add/Edit pages use these two classes so every
+   Cancel/Submit pair renders identically.
+   --------------------------------------------- */
+.fm-button-fix,
+button.fm-button-fix,
+a.fm-button-fix,
+[role="button"].fm-button-fix {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 36px !important;
+  padding: 8px 14px !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  border-radius: 0 !important;
+}
+
+.fm-button-fix svg,
+.fm-button-fix .lucide {
+  flex-shrink: 0 !important;
+}
+
+button.fm-button-fix.fm-button-brand,
+a.fm-button-fix.fm-button-brand,
+[role="button"].fm-button-fix.fm-button-brand {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+button.fm-button-fix.fm-button-brand svg,
+button.fm-button-fix.fm-button-brand .lucide {
+  color: #ffffff !important;
+}
+
+button.fm-button-fix.fm-button-brand:hover:not(:disabled),
+a.fm-button-fix.fm-button-brand:hover,
+[role="button"].fm-button-fix.fm-button-brand:hover {
+  background-color: var(--color-primary-hover) !important;
+  border-color: var(--color-primary-hover) !important;
+  color: #ffffff !important;
 }

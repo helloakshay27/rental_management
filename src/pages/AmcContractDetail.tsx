@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Spinner } from '@/components/ui/loader';
+import { PageContainer } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -34,8 +36,8 @@ const AmcContractDetail = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C72030]"></div>
+            <div className="flex justify-center items-center h-screen bg-white">
+                <Spinner className="h-6 w-6 text-brand" />
             </div>
         );
     }
@@ -60,7 +62,7 @@ const AmcContractDetail = () => {
     const daysToExpiry = getDaysToExpiry(contract.end_date);
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
+        <PageContainer>
             <div className="max-w-full mx-auto space-y-6">
 
                 {/* Header */}
@@ -70,7 +72,7 @@ const AmcContractDetail = () => {
                             <ArrowLeft className="h-6 w-6 text-gray-600" />
                         </Button>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                            <h1 className="text-brand-body-1 font-bold text-gray-900 flex items-center gap-3">
                                 AMC Contract #{contract.id}
                                 <Badge className={`text-sm font-medium capitalize ${contract.status === 'active' ? 'bg-green-100 text-green-800' :
                                     contract.status === 'expired' ? 'bg-red-100 text-red-800' :
@@ -84,7 +86,7 @@ const AmcContractDetail = () => {
                     </div>
                     <Button
                         onClick={() => navigate(`/amc/edit/${id}`)}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                        className="fm-button-fix fm-button-brand px-6 py-2"
                     >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Contract
@@ -184,7 +186,7 @@ const AmcContractDetail = () => {
                     </div>
 
                     {/* Sidebar Info */}
-                    <div className="space-y-6">
+                    <div className="space-y-5">
                         <Card className="border-gray-200">
                             <CardHeader>
                                 <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -263,7 +265,7 @@ const AmcContractDetail = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

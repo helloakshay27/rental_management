@@ -177,7 +177,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[800px] bg-white max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold">
+                    <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                         {initialData ? 'Edit Compliance' : 'Add Compliance'}
                     </DialogTitle>
                 </DialogHeader>
@@ -317,7 +317,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                     </Button>
                     <Button
                         onClick={handleSubmit}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                        className="fm-button-fix fm-button-brand px-6 py-2"
                         disabled={isLoading}
                     >
                         {isLoading ? 'Processing...' : (initialData ? 'Update Compliance' : 'Submit Compliance')}

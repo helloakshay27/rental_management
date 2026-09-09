@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { Spinner } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, Edit, Save, Plus, Loader2, Trash } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { FileText, Edit, Save, Plus, Trash } from 'lucide-react';
 import { getAuth, postAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 type Amenity = {
     id: number | string;
@@ -15,7 +20,13 @@ type Amenity = {
     active: boolean;
 };
 
+const columns: ColumnConfig[] = [
+    { key: 'name', label: 'Amenity Details', sortable: true, draggable: true },
+    { key: 'active', label: 'Status', sortable: true, draggable: true },
+];
+
 const AmenityMaster = () => {
+    const navigate = useNavigate();
     const [amenities, setAmenities] = useState<Amenity[]>([]);
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -116,177 +127,136 @@ const AmenityMaster = () => {
     };
 
     const getStatusStyle = (active: boolean) => {
-        return active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+        return active ? 'bg-brand-success-bg text-brand-success' : 'bg-brand-error-bg text-brand-error';
     };
 
-    return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="max-w-7xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Amenity Master</h1>
-                        <p className="text-sm text-gray-500">
-                            Manage standard amenities across properties
-                        </p>
+    const renderCell = (amenity: Amenity, columnKey: string) => {
+        switch (columnKey) {
+            case 'name':
+                return (
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-brand-light rounded-md">
+                            <FileText className="h-5 w-5 text-brand" />
+                        </div>
+                        <div>
+                            <div className="font-semibold text-brand-text">{amenity.name}</div>
+                            <div className="text-brand-caption text-brand-text-light font-bold uppercase tracking-wider">
+                                ID: {amenity.id}
+                            </div>
+                        </div>
                     </div>
-                </div>
+                );
+            case 'active':
+                return (
+                    <span
+                        className={`px-2 py-0.5 rounded text-brand-caption font-bold uppercase tracking-wider ${getStatusStyle(
+                            amenity.active
+                        )}`}
+                    >
+                        {amenity.active ? 'Active' : 'Inactive'}
+                    </span>
+                );
+            default:
+                return amenity[columnKey as keyof Amenity] as React.ReactNode;
+        }
+    };
 
-                <form onSubmit={handleSubmit}>
-                    <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="h-1 bg-[#C72030]"></div>
-                        <CardHeader className="border-b border-gray-100 pb-4">
-                            <CardTitle className="text-xs text-[#C72030] font-bold uppercase tracking-widest">
-                                {editingId ? 'Edit Amenity' : 'Add New Amenity'}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div className="space-y-2 sm:col-span-2">
-                                    <Label className="text-gray-700 font-medium">Amenity Name</Label>
-                                    <Input
-                                        placeholder="e.g., Swimming Pool"
-                                        value={formData.name}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, name: e.target.value })
-                                        }
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-gray-700 font-medium">Active</Label>
-                                    <div className="flex items-center h-10 px-3 bg-white border border-gray-300 rounded-md">
-                                        <Switch
-                                            checked={formData.active}
-                                            onCheckedChange={(v) =>
-                                                setFormData({ ...formData, active: !!v })
-                                            }
-                                        />
-                                        <span className="ml-3 text-sm text-gray-700">
-                                            {formData.active ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <Button
-                                    type="submit"
-                                    className="gap-2 bg-[#C72030] hover:bg-[#b51b28]"
-                                    disabled={submitting}
-                                >
-                                    {submitting ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Save className="h-4 w-4" />
-                                    )}
-                                    {editingId ? 'Save Changes' : 'Create Amenity'}
-                                </Button>
-                                {editingId && (
-                                    <Button variant="outline" onClick={cancelEdit}>
-                                        Cancel
-                                    </Button>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </form>
+    const renderActions = (amenity: Amenity) => (
+        <div className="flex items-center justify-end gap-1">
+            <Button variant="ghost" size="icon" title="Edit" onClick={() => startEdit(amenity)}>
+                <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Delete" className="text-brand-error" onClick={() => deleteAmenity(amenity)}>
+                <Trash className="h-4 w-4" />
+            </Button>
+        </div>
+    );
 
-                <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                    <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-                        <CardTitle className="text-xs text-[#C72030] font-bold uppercase tracking-widest">
-                            Amenities List
+    return (
+        <PageContainer>
+            <PageHeader
+                title="Amenity Master"
+                description="Manage standard amenities across properties"
+                backTo="/masters"
+            />
+
+            <form onSubmit={handleSubmit}>
+                <Card className="bg-white shadow-none hover:shadow-none">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-brand-body-3">
+                            {editingId ? 'Edit Amenity' : 'Add New Amenity'}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-0">
-                        <div className="border rounded-xl bg-white border-gray-200 overflow-hidden">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="bg-gray-50 border-b border-gray-200">
-                                        <TableHead className="text-gray-900 font-semibold py-4 px-4 text-sm uppercase">
-                                            Amenity Details
-                                        </TableHead>
-                                        <TableHead className="text-gray-900 font-semibold text-sm uppercase">
-                                            Status
-                                        </TableHead>
-                                        <TableHead className="text-gray-900 font-semibold text-sm uppercase text-right px-4">
-                                            Actions
-                                        </TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {loading ? (
-                                        <TableRow>
-                                            <TableCell colSpan={3} className="py-8 text-center">
-                                                <Loader2 className="h-5 w-5 animate-spin text-[#C72030]" />
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : amenities.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell
-                                                colSpan={3}
-                                                className="text-center py-12 text-gray-500 font-medium italic"
-                                            >
-                                                No amenities found
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        amenities.map((amenity) => (
-                                            <TableRow
-                                                key={amenity.id}
-                                                className="hover:bg-gray-50 transition-colors border-b border-gray-100"
-                                            >
-                                                <TableCell className="py-4 px-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="p-2 bg-red-50 rounded-lg">
-                                                            <FileText className="h-5 w-5 text-[#C72030]" />
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-semibold text-gray-900">
-                                                                {amenity.name}
-                                                            </div>
-                                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                                                                ID: {amenity.id}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span
-                                                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getStatusStyle(
-                                                            amenity.active
-                                                        )}`}
-                                                    >
-                                                        {amenity.active ? 'Active' : 'Inactive'}
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell className="text-right px-4">
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-gray-400 hover:text-[#C72030] hover:bg-red-50"
-                                                            onClick={() => startEdit(amenity)}
-                                                        >
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-gray-400 hover:text-[#C72030] hover:bg-red-50"
-                                                            onClick={() => deleteAmenity(amenity)}
-                                                        >
-                                                            <Trash className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
+                    <CardContent className="space-y-4 pt-0">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="space-y-2 sm:col-span-2">
+                                <Label className="text-gray-700 font-medium">Amenity Name</Label>
+                                <Input
+                                    placeholder="e.g., Swimming Pool"
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-gray-700 font-medium">Active</Label>
+                                <div className="flex items-center h-10 px-3 bg-white border border-gray-300 rounded-md">
+                                    <Switch
+                                        checked={formData.active}
+                                        onCheckedChange={(v) =>
+                                            setFormData({ ...formData, active: !!v })
+                                        }
+                                    />
+                                    <span className="ml-3 text-sm text-gray-700">
+                                        {formData.active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <Button
+                                type="submit"
+                                className="gap-2 bg-[#C72030] hover:bg-[#b51b28]"
+                                disabled={submitting}
+                            >
+                                {submitting ? (
+                                    <Spinner />
+                                ) : (
+                                    <Save className="h-4 w-4" />
+                                )}
+                                {editingId ? 'Save Changes' : 'Create Amenity'}
+                            </Button>
+                            {editingId && (
+                                <Button variant="outline" onClick={cancelEdit}>
+                                    Cancel
+                                </Button>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
+            </form>
+
+            <div>
+                <EnhancedTable
+                    data={amenities}
+                    columns={columns}
+                    renderCell={renderCell}
+                    renderActions={renderActions}
+                    getItemId={(amenity) => String(amenity.id)}
+                    storageKey="amenities-master-table"
+                    emptyMessage="No amenities found"
+                    loading={loading}
+                    loadingMessage="Loading amenities..."
+                    searchPlaceholder="Search amenities..."
+                    enableSearch={true}
+                    enableSelection={false}
+                    exportFileName="amenities"
+                    pagination={true}
+                    pageSize={10}
+                />
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

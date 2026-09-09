@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts';
 
 const maintenanceData = [
   { month: 'Jan', preventive: 45, reactive: 32, emergency: 8, totalCost: 2.8 },
@@ -16,15 +16,15 @@ const maintenanceData = [
 const chartConfig = {
   preventive: {
     label: 'Preventive',
-    color: '#66BB6A'
+    color: '#798C5E'
   },
   reactive: {
     label: 'Reactive',
-    color: '#FFA726'
+    color: '#EDC488'
   },
   emergency: {
     label: 'Emergency',
-    color: '#FF6B6B'
+    color: '#E7848E'
   }
 };
 
@@ -32,22 +32,20 @@ const LandlordMaintenanceChart = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Maintenance Analysis</CardTitle>
+        <CardTitle className="text-brand-body-1 font-bold text-[#1a1a1a]">Maintenance Analysis</CardTitle>
         <p className="text-sm text-gray-600">Monthly maintenance requests by type</p>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={maintenanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Legend />
-              <Bar dataKey="preventive" fill={chartConfig.preventive.color} name="Preventive" />
-              <Bar dataKey="reactive" fill={chartConfig.reactive.color} name="Reactive" />
-              <Bar dataKey="emergency" fill={chartConfig.emergency.color} name="Emergency" />
-            </BarChart>
-          </ResponsiveContainer>
+          <BarChart data={maintenanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <XAxis dataKey="month" />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Bar dataKey="preventive" fill={chartConfig.preventive.color} name="Preventive" />
+            <Bar dataKey="reactive" fill={chartConfig.reactive.color} name="Reactive" />
+            <Bar dataKey="emergency" fill={chartConfig.emergency.color} name="Emergency" />
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>

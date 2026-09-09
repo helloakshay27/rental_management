@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { DetailSection } from '@/components/ui/detail-section';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer, StatsGrid, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth, API_BASE_URL } from '@/lib/api';
-import { Building2, ArrowLeft, Loader2, MapPin, Home, Calendar, Layers, Maximize2, Info, CheckCircle2, User, Globe, Map, Hash, FileText } from 'lucide-react';
+import { Building2, ArrowLeft, MapPin, Home, Calendar, Layers, Maximize2, Info, CheckCircle2, User, Globe, Map, Hash, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { Heading } from '@/components/ui/typography';
 
 const PropertyMasterDetailsPage = () => {
     const { id } = useParams();
@@ -38,22 +42,20 @@ const PropertyMasterDetailsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     if (!property) {
         return (
-            <div className="p-8 w-full bg-gray-50 min-h-screen">
+            <PageContainer>
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
                     <p className="text-gray-500">Property not found</p>
                     <Button onClick={() => navigate('/masters/properties')} className="mt-4">
                         Go Back
                     </Button>
                 </div>
-            </div>
+            </PageContainer>
         );
     }
 
@@ -62,31 +64,17 @@ const PropertyMasterDetailsPage = () => {
     const imageUrl = siteImage ? (siteImage.url?.startsWith('http') ? siteImage.url : `${API_BASE_URL}${siteImage.url}`) : null;
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="mb-8 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate('/masters/properties')}
-                        className="text-gray-600 hover:text-gray-900"
-                    >
-                        <ArrowLeft className="h-5 w-5 mr-2" />
-                        Back to Property Master
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{property.name}</h1>
-                        <p className="text-sm font-medium text-gray-400">Master Asset ID: #{property.id}</p>
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 px-4 py-1.5 rounded-full font-bold">
-                        {renderValue(property.property_type)}
-                    </Badge>
-                    <Badge className="bg-[#C72030] px-4 py-1.5 rounded-full text-white font-bold shadow-sm">
-                        {property.ownership_type || 'Owned'}
-                    </Badge>
-                </div>
-            </div>
+        <PageContainer>
+            <PageHeader
+                title={property.name}
+                backTo="/masters/properties"
+                actions={
+                    <>
+                        <Badge variant="outline">{renderValue(property.property_type)}</Badge>
+                        <Badge>{property.ownership_type || 'Owned'}</Badge>
+                    </>
+                }
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
@@ -100,7 +88,7 @@ const PropertyMasterDetailsPage = () => {
                             </div>
                         </CardHeader>
                         <CardContent className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <StatsGrid>
                                 <div className="space-y-1">
                                     <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Built Year</p>
                                     <div className="flex items-center gap-2">
@@ -129,19 +117,12 @@ const PropertyMasterDetailsPage = () => {
                                         <p className="text-sm font-bold text-gray-900">{renderValue(property.area_efficiency)}%</p>
                                     </div>
                                 </div>
-                            </div>
+                            </StatsGrid>
                         </CardContent>
                     </Card>
 
                     {/* Location Matrix */}
-                    <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                        <CardHeader className="border-b border-gray-50 p-6 bg-gray-50/30">
-                            <div className="flex items-center gap-3">
-                                <MapPin className="h-5 w-5 text-blue-600" />
-                                <CardTitle className="text-lg font-bold text-gray-900">Location Intelligence</CardTitle>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-6">
+                    <DetailSection title="Location Intelligence">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                                 <div className="space-y-1">
                                     <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Country</p>
@@ -176,8 +157,7 @@ const PropertyMasterDetailsPage = () => {
                                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Full Address</p>
                                 <p className="text-sm font-medium text-gray-700 leading-relaxed">{property.address}</p>
                             </div>
-                        </CardContent>
-                    </Card>
+                    </DetailSection>
 
                     {/* Description */}
                     <Card className="bg-white border border-gray-200 shadow-sm">
@@ -190,7 +170,7 @@ const PropertyMasterDetailsPage = () => {
                     </Card>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-5">
                     {/* Property Image */}
                     {imageUrl && (
                         <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
@@ -300,13 +280,7 @@ const PropertyMasterDetailsPage = () => {
                     </Card> */}
 
                     {/* Registered Facilities */}
-                    <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                        <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-                            <CardTitle className="text-xs text-[#C72030] font-bold uppercase tracking-widest flex items-center gap-2">
-                                <Info className="h-4 w-4" /> Registered Facilities
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4">
+                    <DetailSection title="Details">
                             <div className="flex flex-wrap gap-2">
                                 {property.pms_site_facilities && property.pms_site_facilities.length > 0 ? (
                                     property.pms_site_facilities.map((fac: any, idx: number) => (
@@ -324,11 +298,10 @@ const PropertyMasterDetailsPage = () => {
                                     <p className="text-xs text-gray-400 italic text-center w-full py-4">No specialized facilities registered</p>
                                 )}
                             </div>
-                        </CardContent>
-                    </Card>
+                    </DetailSection>
                 </div>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

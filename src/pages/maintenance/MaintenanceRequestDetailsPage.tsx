@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,8 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { getAuth, patchAuth } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, Edit, Calendar, FileText, Receipt, Plus, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, Calendar, FileText, Receipt, Plus } from 'lucide-react';
 import AddMaintenanceCostModal from '@/components/maintenance/AddMaintenanceCostModal';
+import { Heading, Text } from '@/components/ui/typography';
 
 const MaintenanceRequestDetailsPage = () => {
     const { id } = useParams();
@@ -69,9 +72,7 @@ const MaintenanceRequestDetailsPage = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
@@ -85,18 +86,9 @@ const MaintenanceRequestDetailsPage = () => {
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
+        <PageContainer>
             <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => navigate(-1)} className="text-gray-600 hover:text-gray-900">
-                        <ArrowLeft className="h-5 w-5 mr-2" />
-                        Back
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Request Details</h1>
-                        <p className="text-gray-500">ID: {request.id}</p>
-                    </div>
-                </div>
+                <PageHeader title="Request Details" backTo="/maintenance" />
                 <div className="flex gap-3">
                     <Button
                         variant="outline"
@@ -108,7 +100,7 @@ const MaintenanceRequestDetailsPage = () => {
                     </Button>
                     <Button
                         onClick={() => navigate(`/maintenance/edit/${id}`)}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                        className="fm-button-fix fm-button-brand px-6 py-2"
                     >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Request
@@ -120,7 +112,7 @@ const MaintenanceRequestDetailsPage = () => {
                 {/* Main Info */}
                 <Card className="lg:col-span-2 bg-white border border-gray-200 shadow-sm">
                     <CardHeader className="border-b border-gray-100">
-                        <CardTitle className="text-lg font-semibold text-gray-900">
+                        <CardTitle className="text-[14px] font-medium text-brand-text">
                             {request.title}
                         </CardTitle>
                     </CardHeader>
@@ -219,7 +211,7 @@ const MaintenanceRequestDetailsPage = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {request.documents.map((doc: any, index: number) => (
                                         <div key={index} className="flex items-start gap-4 p-4 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all group">
-                                            <div className="p-3 bg-red-50 rounded-xl group-hover:bg-red-100 transition-colors">
+                                            <div className="rounded-md bg-brand-light p-2 text-brand">
                                                 <FileText className="h-6 w-6 text-[#C72030]" />
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -245,7 +237,7 @@ const MaintenanceRequestDetailsPage = () => {
                 </Card>
 
                 {/* Sidebar Info */}
-                <div className="space-y-6">
+                <div className="space-y-5">
                     {/* Status Card */}
                     <Card className="bg-white border border-gray-200 shadow-sm">
                         <CardHeader className="border-b border-gray-100 pb-4">
@@ -340,7 +332,7 @@ const MaintenanceRequestDetailsPage = () => {
                 maintenanceRequestId={id || ''}
                 onSuccess={fetchRequest}
             />
-        </div>
+        </PageContainer>
     );
 };
 

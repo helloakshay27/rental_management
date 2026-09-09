@@ -1,19 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
+import { StatsGrid } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, FileText, Calendar, Send, Eye, DollarSign, AlertCircle, CheckCircle, Clock, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, FileText, Calendar, Send, Eye, DollarSign, AlertCircle, CheckCircle, Clock, CreditCard } from 'lucide-react';
 import { postAuth, getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import PaymentHistory from '@/components/Tenant/PaymentHistory';
+
+const columns: ColumnConfig[] = [
+  { key: 'invoice_number', label: 'Invoice ID', sortable: true, draggable: true },
+  { key: 'tenant_name', label: 'Tenant', sortable: true, draggable: true },
+  { key: 'property_name', label: 'Property', sortable: true, draggable: true },
+  { key: 'amount', label: 'Amount', sortable: true, draggable: true },
+  { key: 'due_date', label: 'Due Date', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const InvoiceManagement = () => {
   const navigate = useNavigate();
@@ -36,6 +49,8 @@ const InvoiceManagement = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
 
   useEffect(() => {
     fetchInvoices();
@@ -205,216 +220,141 @@ const InvoiceManagement = () => {
     return `₹${amount.toLocaleString()}`;
   };
 
+  const renderCell = (invoice: any, columnKey: string) => {
+    switch (columnKey) {
+      case 'invoice_number':
+        return <span className="font-medium">{invoice.invoice_number || `INV-${invoice.id}`}</span>;
+      case 'tenant_name':
+        return invoice.billable?.tenant_name || 'N/A';
+      case 'property_name':
+        return invoice.billable?.property_name || 'N/A';
+      case 'amount':
+        return `₹${invoice.amount?.toLocaleString()}`;
+      case 'status':
+        return getStatusBadge(invoice.status);
+      default:
+        return invoice[columnKey];
+    }
+  };
+
+  const leftActions = (
+    <TableFilterDialog
+      open={isFilterOpen}
+      onOpenChange={setIsFilterOpen}
+      onApply={() => handleStatusFilterChange(pendingStatus)}
+      onReset={() => {
+        setPendingStatus('all');
+        handleStatusFilterChange('all');
+      }}
+    >
+      <FilterField label="Status">
+        <Select value={pendingStatus} onValueChange={setPendingStatus}>
+          <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+          </SelectContent>
+        </Select>
+      </FilterField>
+    </TableFilterDialog>
+  );
+
+  const renderActions = (invoice: any) => (
+    <div className="flex items-center space-x-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        title="View Details"
+        onClick={() => navigate(`/invoicing/${invoice.id}`)}
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Send Invoice">
+        <Send className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        title="Pay"
+        className="text-brand"
+        onClick={() => handlePay(invoice)}
+      >
+        <CreditCard className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-8 w-8 text-[#C72030]" />
-              <div>
-                <p className="text-2xl font-bold">{formatCurrency(stats.outstanding)}</p>
-                <p className="text-sm text-gray-600">Total Outstanding</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <FileText className="h-8 w-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold">{stats.pending}</p>
-                <p className="text-sm text-gray-600">Pending Invoices</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-              <div>
-                <p className="text-2xl font-bold">{stats.overdue}</p>
-                <p className="text-sm text-gray-600">Overdue</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold">{stats.collection_rate}%</p>
-                <p className="text-sm text-gray-600">Collection Rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsGrid>
+        <StatsCard
+          title="Total Outstanding"
+          value={formatCurrency(stats.outstanding)}
+          icon={<DollarSign />}
+        />
+        <StatsCard title="Pending Invoices" value={stats.pending} icon={<FileText />} />
+        <StatsCard title="Overdue" value={stats.overdue} icon={<AlertCircle />} />
+        <StatsCard
+          title="Collection Rate"
+          value={`${stats.collection_rate}%`}
+          icon={<CheckCircle />}
+        />
+      </StatsGrid>
 
       <Tabs defaultValue="invoices" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200 rounded-lg p-1">
-          <TabsTrigger value="invoices" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+        <TabsList>
+          <TabsTrigger value="invoices">
             <FileText className="h-4 w-4 mr-2" />
             Invoices
           </TabsTrigger>
-          <TabsTrigger value="payments" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="payments">
             <CreditCard className="h-4 w-4 mr-2" />
             Payment History
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="invoices" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Invoice Management</CardTitle>
-                  <CardDescription>Track and manage all tenant invoices</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-4 mb-6">
-                <Input
-                  placeholder="Search invoices..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-sm bg-white"
-                />
-                <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-                  <SelectTrigger className="w-48 bg-white">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Invoice ID</TableHead>
-                    <TableHead>Tenant</TableHead>
-                    <TableHead>Property</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">Loading invoices...</TableCell>
-                    </TableRow>
-                  ) : filteredInvoices.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">No invoices found</TableCell>
-                    </TableRow>
-                  ) : filteredInvoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell className="font-medium">{invoice.invoice_number || `INV-${invoice.id}`}</TableCell>
-                      <TableCell>{invoice.billable?.tenant_name || 'N/A'}</TableCell>
-                      <TableCell>{invoice.billable?.property_name || 'N/A'}</TableCell>
-                      <TableCell>₹{invoice.amount?.toLocaleString()}</TableCell>
-                      <TableCell>{invoice.due_date}</TableCell>
-                      <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            title="View Details"
-                            onClick={() => navigate(`/invoicing/${invoice.id}`)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" title="Send Invoice">
-                            <Send className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            title="Pay"
-                            className="text-[#C72030] hover:bg-[#C72030]/10"
-                            onClick={() => handlePay(invoice)}
-                          >
-                            <CreditCard className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              {!loading && pagination.total_pages > 1 && (
-                <div className="flex items-center justify-between mt-6 px-2">
-                  <p className="text-sm text-gray-600">
-                    Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} entries
-                  </p>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(pagination.current_page - 1)}
-                      disabled={pagination.current_page === 1}
-                      className="h-8 w-8 p-0"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <div className="flex items-center space-x-1">
-                      {Array.from({ length: Math.min(pagination.total_pages, 5) }, (_, i) => {
-                        let pageNum = i + 1;
-                        // Simple logic for sliding window if total pages > 5
-                        if (pagination.total_pages > 5 && pagination.current_page > 3) {
-                          pageNum = pagination.current_page - 2 + i;
-                          if (pageNum > pagination.total_pages) pageNum = pagination.total_pages - (4 - i);
-                        }
-
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={pagination.current_page === pageNum ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handlePageChange(pageNum)}
-                            className={`h-8 w-8 p-0 ${pagination.current_page === pageNum ? "bg-[#C72030] text-white hover:bg-[#A01825]" : ""}`}
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(pagination.current_page + 1)}
-                      disabled={pagination.current_page === pagination.total_pages}
-                      className="h-8 w-8 p-0"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="invoices" className="space-y-5">
+          <div>
+            <EnhancedTable
+              data={filteredInvoices}
+              columns={columns}
+              renderCell={renderCell}
+              renderActions={renderActions}
+              getItemId={(invoice) => String(invoice.id)}
+              storageKey="invoices-table"
+              emptyMessage="No invoices found"
+              loading={loading}
+              loadingMessage="Loading invoices..."
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              searchPlaceholder="Search invoices..."
+              disableClientSearch={true}
+              enableSearch={true}
+              enableSelection={false}
+              leftActions={leftActions}
+              onFilterClick={() => {
+                setPendingStatus(statusFilter);
+                setIsFilterOpen(true);
+              }}
+              exportFileName="invoices"
+              pagination={true}
+              pageSize={pagination.per_page}
+              currentPage={pagination.current_page}
+              totalPages={pagination.total_pages}
+              onPageChange={(page) =>
+                setPagination(prev => ({ ...prev, current_page: page }))
+              }
+            />
+          </div>
         </TabsContent>
 
-        <TabsContent value="payments" className="space-y-6">
+        <TabsContent value="payments" className="space-y-5">
           <PaymentHistory />
         </TabsContent>
       </Tabs>
@@ -422,7 +362,7 @@ const InvoiceManagement = () => {
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
         <DialogContent className="sm:max-w-[500px] bg-white">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-gray-900">Record Invoice Payment</DialogTitle>
+            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Record Invoice Payment</DialogTitle>
             <DialogDescription>
               Enter the payment details for this invoice.
             </DialogDescription>
@@ -450,7 +390,7 @@ const InvoiceManagement = () => {
                 id="amount"
                 type="number"
                 placeholder="0.00"
-                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.amount}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, amount: e.target.value }))}
               />
@@ -464,7 +404,7 @@ const InvoiceManagement = () => {
                 <Input
                   id="payment_date"
                   type="date"
-                  className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  className="bg-white border-gray-300 text-gray-900"
                   value={paymentFormData.payment_date}
                   onChange={(e) => setPaymentFormData(prev => ({ ...prev, payment_date: e.target.value }))}
                 />
@@ -490,7 +430,7 @@ const InvoiceManagement = () => {
               <Input
                 id="transaction_id"
                 placeholder="UPI / Bank Ref No."
-                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.transaction_id}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, transaction_id: e.target.value }))}
               />
@@ -503,7 +443,7 @@ const InvoiceManagement = () => {
               <Input
                 id="description"
                 placeholder="Optional notes"
-                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.description}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, description: e.target.value }))}
               />
@@ -521,7 +461,7 @@ const InvoiceManagement = () => {
             <Button
               onClick={handlePaymentSubmit}
               disabled={isSubmittingPayment}
-              className="bg-[#C72030] hover:bg-[#A01825] text-white"
+              className="fm-button-fix fm-button-brand px-6 py-2"
             >
               {isSubmittingPayment ? "Processing..." : "Submit Payment"}
             </Button>

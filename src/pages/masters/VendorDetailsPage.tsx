@@ -1,12 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
+import { DetailSection } from '@/components/ui/detail-section';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
-import { Building, ArrowLeft, Loader2, User, Mail, Phone, MapPin, Receipt, Star, Landmark, CreditCard } from 'lucide-react';
+import { Building, ArrowLeft, User, Mail, Phone, MapPin, Receipt, Star, Landmark, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 const VendorDetailsPage = () => {
     const { id } = useParams();
@@ -33,72 +37,58 @@ const VendorDetailsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     if (!vendor) {
         return (
-            <div className="p-8 w-full bg-gray-50 min-h-screen">
+            <PageContainer>
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
                     <p className="text-gray-500">Vendor not found</p>
                     <Button onClick={() => navigate('/masters/vendors')} className="mt-4">
                         Go Back
                     </Button>
                 </div>
-            </div>
+            </PageContainer>
         );
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate('/masters/vendors')}
-                        className="text-gray-600 hover:text-gray-900"
-                    >
-                        <ArrowLeft className="h-5 w-5 mr-2" />
-                        Back to Vendors
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Vendor Profile</h1>
-                        <p className="text-gray-500">ID: {vendor.id}</p>
-                    </div>
-                </div>
+        <PageContainer>
+            <PageHeader
+                title="Vendor Profile"
+                backTo="/masters/vendors"
+                actions={
+                    <>
                 <div className="flex items-center gap-3">
                     <Badge className={vendor.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}>
                         {vendor.is_active ? 'Active' : 'Inactive'}
                     </Badge>
-                </div>
-            </div>
+                    </div>
+                    </>
+                }
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Info */}
-                <Card className="lg:col-span-2 bg-white border border-gray-200 shadow-sm">
-                    <CardHeader className="border-b border-gray-100 bg-gray-50/30">
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="flex items-center gap-2 text-xl font-bold text-gray-900">
-                                <Building className="h-6 w-6 text-[#C72030]" />
-                                {vendor.vendor_name}
-                            </CardTitle>
-                            <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-100">
-                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-bold text-yellow-700">{Number(vendor.rating || 0).toFixed(1)}</span>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="pt-8">
+                <DetailSection
+                    title={vendor.vendor_name}
+                    className="lg:col-span-2"
+                    action={
+                        <span className="flex items-center gap-1 text-brand-body-5 font-medium text-brand-text">
+                            <Star className="h-4 w-4 fill-brand-warning text-brand-warning" />
+                            {Number(vendor.rating || 0).toFixed(1)}
+                        </span>
+                    }
+                >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <div className="space-y-6">
+                            <div className="space-y-5">
                                 <div>
                                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Primary Contact</p>
                                     <div className="flex items-center gap-4">
-                                        <div className="p-2 bg-red-50 rounded-lg text-[#C72030]">
-                                            <User className="h-5 w-5" />
+                                        <div className="rounded-md bg-brand-light p-2 text-brand">
+                                            <User className="h-4 w-4" />
                                         </div>
                                         <div>
                                             <p className="font-bold text-gray-900">{vendor.contact_person || 'N/A'}</p>
@@ -122,8 +112,8 @@ const VendorDetailsPage = () => {
                                 <div>
                                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Business Address</p>
                                     <div className="flex items-start gap-4">
-                                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
-                                            <MapPin className="h-5 w-5" />
+                                        <div className="rounded-md bg-brand-light p-2 text-brand">
+                                            <MapPin className="h-4 w-4" />
                                         </div>
                                         <div className="text-sm text-gray-700 leading-relaxed font-medium">
                                             {vendor.address || 'Address not provided'}<br />
@@ -134,16 +124,11 @@ const VendorDetailsPage = () => {
                                 </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                </DetailSection>
 
                 {/* Statutory & Bank */}
-                <div className="space-y-6">
-                    <Card className="bg-white border border-gray-200 shadow-sm">
-                        <CardHeader className="border-b border-gray-100">
-                            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-gray-500">Statutory Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-6 space-y-4">
+                <div className="space-y-5">
+                    <DetailSection title="Statutory Details">
                             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                 <span className="text-xs font-semibold text-gray-400 flex items-center gap-2 uppercase tracking-wider">
                                     <Receipt className="h-3 w-3" /> GSTIN
@@ -156,8 +141,7 @@ const VendorDetailsPage = () => {
                                 </span>
                                 <span className="text-sm font-mono font-bold text-gray-900">{vendor.pan_number || '---'}</span>
                             </div>
-                        </CardContent>
-                    </Card>
+                    </DetailSection>
 
                     <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
                         <div className="bg-[#C72030]/5 p-4 border-b border-gray-100 flex items-center gap-2">
@@ -202,7 +186,7 @@ const VendorDetailsPage = () => {
                     </Card>
                 </div>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { SectionLoader } from '@/components/ui/loader';
+import { StatsGrid } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CreditCard, DollarSign, Clock, CheckCircle, Loader2 } from 'lucide-react';
-import PaymentFilters from './PaymentFilters';
+import { StatsCard } from '@/components/ui/stats-card';
+import { CreditCard, DollarSign, Clock, CheckCircle } from 'lucide-react';
 import PaymentTable from './PaymentTable';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -9,6 +13,8 @@ import { toast } from 'sonner';
 const PaymentHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingFilter, setPendingFilter] = useState('all');
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -69,91 +75,74 @@ const PaymentHistory = () => {
   const totalPending = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
 
   return (
-    <div className="space-y-6 bg-white">
+    <div className="space-y-5">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Total Payments</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{payments.length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                <CreditCard className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <StatsGrid>
+        <StatsCard title="Total Payments" value={payments.length} icon={<CreditCard />} />
+        <StatsCard
+          title="Total Paid"
+          value={`₹${totalPaid.toLocaleString()}`}
+          icon={<CheckCircle />}
+        />
+        <StatsCard
+          title="Pending Amount"
+          value={`₹${totalPending.toLocaleString()}`}
+          icon={<Clock />}
+        />
+        <StatsCard
+          title="This Month"
+          value={`₹${payments
+            .filter(
+              (p) =>
+                p.paymentDate &&
+                new Date(p.paymentDate).getMonth() === new Date().getMonth()
+            )
+            .reduce((sum, p) => sum + p.amount, 0)
+            .toLocaleString()}`}
+          icon={<DollarSign />}
+        />
+      </StatsGrid>
 
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Total Paid</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{totalPaid.toLocaleString()}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Pending Amount</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{totalPending.toLocaleString()}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">This Month</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{payments.filter(p => p.paymentDate && new Date(p.paymentDate).getMonth() === new Date().getMonth()).reduce((sum, p) => sum + p.amount, 0).toLocaleString()}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="bg-white border border-gray-200">
-        <CardHeader className="bg-white border-b border-gray-200 pb-6">
-          <CardTitle className="text-[#1a1a1a]">Payment History</CardTitle>
-        </CardHeader>
-        <CardContent className="bg-white pt-6">
-          <PaymentFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-          />
-
+      <div>
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 text-[#C72030] animate-spin" />
-            </div>
+            <SectionLoader />
           ) : (
             <PaymentTable
               payments={filteredPayments}
+              onFilterClick={() => {
+                setPendingFilter(statusFilter);
+                setIsFilterOpen(true);
+              }}
               onDownloadReceipt={handleDownloadReceipt}
               onPayNow={handlePayNow}
+              leftActions={
+                <TableFilterDialog
+                  open={isFilterOpen}
+                  onOpenChange={setIsFilterOpen}
+                  onApply={() => setStatusFilter(pendingFilter)}
+                  onReset={() => {
+                    setPendingFilter('all');
+                    setStatusFilter('all');
+                  }}
+                >
+                  <FilterField label="Status">
+                    <Select value={pendingFilter} onValueChange={setPendingFilter}>
+                      <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="overdue">Overdue</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FilterField>
+                </TableFilterDialog>
+              }
             />
           )}
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

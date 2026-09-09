@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Calendar, Building2, User, Wallet, Info, IndianRupee, Clock, RotateCcw } from 'lucide-react';
 import { getAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 const ExpenseDetailsPage = () => {
     const { id } = useParams();
@@ -34,7 +36,7 @@ const ExpenseDetailsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
+            <div className="flex justify-center items-center h-screen bg-white">
                 <RotateCcw className="h-8 w-8 animate-spin text-[#C72030]" />
             </div>
         );
@@ -54,26 +56,21 @@ const ExpenseDetailsPage = () => {
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
+        <PageContainer>
             <div className="max-w-full mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Button variant="ghost" onClick={() => navigate('/opex')} className="p-0 hover:bg-transparent">
-                            <ArrowLeft className="h-6 w-6 text-gray-600" />
+                <PageHeader
+                    title="Expense Details"
+                    backTo="/opex"
+                    actions={
+                        <Button
+                            onClick={() => navigate(`/opex/edit/${id}`)}
+                            className="fm-button-fix fm-button-brand px-6 py-2"
+                        >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Expense
                         </Button>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Expense Details</h1>
-                            <p className="text-sm text-gray-500">EXP{expense.id?.toString().padStart(3, '0')}</p>
-                        </div>
-                    </div>
-                    <Button
-                        onClick={() => navigate(`/opex/edit/${id}`)}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white font-medium shadow-sm"
-                    >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Expense
-                    </Button>
-                </div>
+                    }
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Main Details */}
@@ -83,11 +80,11 @@ const ExpenseDetailsPage = () => {
                             <CardHeader className="pb-4">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <CardTitle className="text-xl font-bold text-gray-900">Financial Summary</CardTitle>
+                                        <CardTitle className="text-[14px] font-medium text-brand-text">Financial Summary</CardTitle>
                                         <CardDescription>Breakdown of the expense amount and categorization</CardDescription>
                                     </div>
                                     <div className="text-right">
-                                        <div className="flex items-center text-2xl font-black text-gray-900">
+                                        <div className="flex items-center text-brand-body-1 font-black text-gray-900">
                                             <IndianRupee className="h-5 w-5 mr-1" />
                                             {parseFloat(expense.amount || 0).toLocaleString()}
                                         </div>
@@ -103,7 +100,7 @@ const ExpenseDetailsPage = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
                                         <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-gray-50 rounded-lg">
+                                            <div className="rounded-md bg-brand-light p-2 text-brand">
                                                 <Wallet className="h-4 w-4 text-gray-600" />
                                             </div>
                                             <div>
@@ -114,7 +111,7 @@ const ExpenseDetailsPage = () => {
                                         </div>
 
                                         <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-gray-50 rounded-lg">
+                                            <div className="rounded-md bg-brand-light p-2 text-brand">
                                                 <Calendar className="h-4 w-4 text-gray-600" />
                                             </div>
                                             <div>
@@ -132,7 +129,7 @@ const ExpenseDetailsPage = () => {
 
                                     <div className="space-y-4">
                                         <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-gray-50 rounded-lg">
+                                            <div className="rounded-md bg-brand-light p-2 text-brand">
                                                 <Building2 className="h-4 w-4 text-gray-600" />
                                             </div>
                                             <div>
@@ -142,7 +139,7 @@ const ExpenseDetailsPage = () => {
                                         </div>
 
                                         <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-gray-50 rounded-lg">
+                                            <div className="rounded-md bg-brand-light p-2 text-brand">
                                                 <User className="h-4 w-4 text-gray-600" />
                                             </div>
                                             <div>
@@ -155,7 +152,7 @@ const ExpenseDetailsPage = () => {
 
                                 <div className="mt-8 pt-8 border-t border-gray-100">
                                     <div className="flex items-start gap-3">
-                                        <div className="p-2 bg-gray-50 rounded-lg">
+                                        <div className="rounded-md bg-brand-light p-2 text-brand">
                                             <Info className="h-4 w-4 text-gray-600" />
                                         </div>
                                         <div className="flex-1">
@@ -171,7 +168,7 @@ const ExpenseDetailsPage = () => {
                     </div>
 
                     {/* Meta Sidebar */}
-                    <div className="space-y-6">
+                    <div className="space-y-5">
                         <Card className="bg-white border border-gray-200 shadow-sm">
                             <CardHeader>
                                 <CardTitle className="text-sm font-bold uppercase tracking-widest text-gray-400">Timeline</CardTitle>
@@ -216,7 +213,7 @@ const ExpenseDetailsPage = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

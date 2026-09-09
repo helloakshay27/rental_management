@@ -42,13 +42,13 @@ const LandlordPortfolioSummary = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">Portfolio Summary & Alerts</CardTitle>
+        <CardTitle className="text-brand-body-1 font-bold text-[#1a1a1a]">Portfolio Summary & Alerts</CardTitle>
         <p className="text-sm text-gray-600">Comprehensive overview of your property portfolio</p>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Portfolio Breakdown */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             <h3 className="text-lg font-semibold text-[#1a1a1a]">Portfolio Breakdown</h3>
             {portfolioMetrics.map((metric) => (
               <div key={metric.category} className="bg-gray-50 rounded-xl p-5 border border-gray-200">
@@ -79,7 +79,7 @@ const LandlordPortfolioSummary = () => {
           </div>
 
           {/* Urgent Actions Required */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             <h3 className="text-lg font-semibold text-[#1a1a1a]">Urgent Actions Required</h3>
             <div className="space-y-4">
               {urgentItems.map((item) => (
@@ -112,25 +112,25 @@ const LandlordPortfolioSummary = () => {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-blue-50 rounded-xl p-6 border border-blue-200 text-center">
             <DollarSign size={24} className="text-blue-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-blue-600">₹2.8Cr</p>
+            <p className="text-brand-body-1 font-bold text-blue-600">₹2.8Cr</p>
             <p className="text-sm text-blue-700">Monthly Revenue</p>
           </div>
           
           <div className="bg-green-50 rounded-xl p-6 border border-green-200 text-center">
             <Building2 size={24} className="text-green-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-green-600">206</p>
+            <p className="text-brand-body-1 font-bold text-green-600">206</p>
             <p className="text-sm text-green-700">Total Properties</p>
           </div>
           
           <div className="bg-purple-50 rounded-xl p-6 border border-purple-200 text-center">
             <Users size={24} className="text-purple-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-purple-600">94.2%</p>
+            <p className="text-brand-body-1 font-bold text-purple-600">94.2%</p>
             <p className="text-sm text-purple-700">Occupancy Rate</p>
           </div>
           
           <div className="bg-amber-50 rounded-xl p-6 border border-amber-200 text-center">
             <MapPin size={24} className="text-amber-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-amber-600">12</p>
+            <p className="text-brand-body-1 font-bold text-amber-600">12</p>
             <p className="text-sm text-amber-700">Cities Covered</p>
           </div>
         </div>

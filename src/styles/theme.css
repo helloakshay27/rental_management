@@ -1,0 +1,1011 @@
+/* ===========================================
+   LOCKATED BRAND THEME SYSTEM
+   Ported from fm-matrix-revamp.
+   Global theming - Edit ONLY this file for color changes.
+   =========================================== */
+
+/* ===========================================
+   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   =========================================== */
+
+:root {
+  /* =====================
+     PRIMARY COLORS
+     ===================== */
+  --color-primary: #da7756;
+  --color-primary-rgb: 218, 119, 86;
+  --color-primary-hover: rgba(218, 119, 86, 0.85);
+  --color-primary-light: rgba(218, 119, 86, 0.15);
+  --color-primary-selected: rgba(218, 119, 86, 0.08);
+
+  /* Background & Text */
+  --color-bg: #f6f4ee;
+  --color-bg-rgb: 246, 244, 238;
+  --color-text: #2c2c2c;
+  --color-text-rgb: 44, 44, 44;
+  --color-text-light: #888780;
+
+  /* =====================
+     SECONDARY COLORS
+     ===================== */
+  --color-secondary-green: #798c5e;
+  --color-secondary-green-rgb: 121, 140, 94;
+  --color-secondary-green-light: rgba(121, 140, 94, 0.15);
+  --color-secondary-green-bg: rgba(121, 140, 94, 0.3);
+
+  --color-secondary-purple: #cecbf6;
+  --color-secondary-purple-rgb: 206, 203, 246;
+  --color-secondary-purple-light: rgba(206, 203, 246, 0.3);
+  --color-secondary-purple-bg: rgba(206, 203, 246, 0.3);
+
+  --color-secondary-teal: #9ec8ba;
+  --color-secondary-teal-rgb: 158, 200, 186;
+  --color-secondary-teal-light: rgba(158, 200, 186, 0.3);
+  --color-secondary-teal-bg: rgba(158, 200, 186, 0.3);
+
+  /* =====================
+     TERTIARY / SEMANTIC COLORS
+     ===================== */
+  --color-info: #6b9bcc;
+  --color-info-rgb: 107, 155, 204;
+  --color-disabled: #d3d1c7;
+  --color-muted: #d3d1c7;
+  --color-tags: #cecbf6;
+  --color-danger: #e49191;
+  --color-danger-light: #f8dada;
+  --color-warning: #edc488;
+  --color-warning-light: #f8e4c7;
+  --color-growth: rgba(16, 140, 114, 0.3);
+  --color-growth-solid: #108c72;
+
+  /* =====================
+     STATUS COLORS
+     ===================== */
+  --color-success: #89f7e7;
+  --color-success-solid: #798c5e;
+  --color-success-bg: rgba(121, 140, 94, 0.15);
+  --color-error: #e7848e;
+  --color-error-bg: rgba(231, 132, 142, 0.15);
+  --color-exception: #aab9c5;
+
+  /* =====================
+     SURFACE & BORDER COLORS
+     ===================== */
+  --color-card-border: #c4b89d;
+  --color-card-bg: #f6f4ee;
+  --color-card-white: #ffffff;
+  --color-border-subtle: #d5dbdb;
+  --color-divider: #e5e5e5;
+
+  /* Tabs & stat cards */
+  --color-tab-active-bg: #edeae3;
+  --color-stat-card-bg: #f6f4ee;
+  --color-stat-card-selected-bg: #e6e2da;
+  --color-stat-icon-bg: rgba(196, 184, 157, 0.33);
+
+  /* Sidebar */
+  --color-sidebar: #c4b89d;
+  --color-sidebar-hover: #dbc2a9;
+  --color-sidebar-active-bg: #f0e8dc;
+  --color-sidebar-border: #e5e1d8;
+
+  /* =====================
+     GRADIENT TOKENS
+     ===================== */
+  --gradient-highlight: radial-gradient(circle, #f6f4ee 0%, #2c2c2c 100%);
+  --gradient-primary: linear-gradient(135deg, #da7756 0%, #c4b89d 100%);
+  --gradient-card: linear-gradient(180deg, #ffffff 0%, #f6f4ee 100%);
+
+  /* =====================
+     SHADOW TOKENS
+     ===================== */
+  --shadow-sm: 0px 1px 2px 0px rgba(44, 44, 44, 0.06);
+  --shadow-md: 0px 4px 8px 0px rgba(44, 44, 44, 0.1);
+  --shadow-lg: 0px 4px 16px 0px rgba(44, 44, 44, 0.12);
+  --shadow-xl: 0px 8px 24px 0px rgba(44, 44, 44, 0.15);
+  --shadow-card: 0px 2px 8px rgba(196, 184, 157, 0.15);
+
+  /* =====================
+     TYPOGRAPHY
+     ===================== */
+  --font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  --font-family-mono: "Fira Code", "Consolas", monospace;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-h1: 22px;
+  --font-size-h2: 19px;
+  --font-size-body-1: 17px;
+  --font-size-body-2: 16px;
+  --font-size-body-3: 15px;
+  --font-size-body-4: 13px;
+  --font-size-body-5: 12px;
+  --font-size-caption: 10px;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* =====================
+     SPACING
+     ===================== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  /* =====================
+     BORDER RADIUS
+     ===================== */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadcn compatibility */
+  --radius: 8px;
+
+  /* =====================
+     TRANSITIONS
+     ===================== */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* =====================
+     Z-INDEX SCALE
+     ===================== */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+
+/* ===========================================
+   TABLET TYPOGRAPHY (768px - 1023px)
+   =========================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --font-size-h1: 20px;
+    --font-size-h2: 18px;
+    --font-size-body-1: 16px;
+    --font-size-body-2: 15px;
+    --font-size-body-3: 14px;
+    --font-size-body-4: 13px;
+    --font-size-body-5: 12px;
+    --font-size-caption: 10px;
+  }
+}
+
+/* ===========================================
+   MOBILE TYPOGRAPHY (< 768px)
+   =========================================== */
+@media (max-width: 767px) {
+  :root {
+    --font-size-h1: 16px;
+    --font-size-h2: 14px;
+    --font-size-body-1: 12px;
+    --font-size-body-2: 12px;
+    --font-size-body-3: 12px;
+    --font-size-body-4: 10px;
+    --font-size-body-5: 10px;
+    --font-size-caption: 10px;
+  }
+}
+
+/* ===========================================
+   DARK MODE SUPPORT
+   =========================================== */
+.dark,
+[data-theme="dark"] {
+  --color-bg: #1a1a1a;
+  --color-bg-rgb: 26, 26, 26;
+  --color-text: #f6f4ee;
+  --color-text-rgb: 246, 244, 238;
+  --color-text-light: #a0a0a0;
+  --color-card-bg: #2c2c2c;
+  --color-card-white: #363636;
+  --color-border-subtle: #404040;
+  --color-divider: #404040;
+}
+
+/* ===========================================
+   GLOBAL ELEMENT OVERRIDES
+   =========================================== */
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family) !important;
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  line-height: var(--line-height-normal);
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+  margin: 0;
+}
+
+p,
+span,
+div,
+label,
+button,
+input,
+textarea,
+select,
+th,
+td {
+  font-family: var(--font-family);
+}
+
+/* ===========================================
+   LINK COLOR OVERRIDES
+   =========================================== */
+
+a[class*="text-[#C72030]"],
+a.text-\[\#C72030\] {
+  color: var(--color-primary) !important;
+}
+
+a[class*="text-[#C72030]"]:hover,
+a.text-\[\#C72030\]:hover {
+  color: var(--color-primary-hover) !important;
+}
+
+/* ===========================================
+   HEADER NAVIGATION
+   =========================================== */
+
+header .hover\:text-\[\#C72030\]:hover,
+header [class*="hover:text-[#C72030]"]:hover,
+.fixed.top-0 .hover\:text-\[\#C72030\]:hover,
+.fixed.top-0 [class*="hover:text-[#C72030]"]:hover {
+  color: var(--color-primary) !important;
+}
+
+header [class*="text-[#1a1a1a]"],
+header .text-\[\#1a1a1a\],
+.fixed.top-0 [class*="text-[#1a1a1a]"],
+.fixed.top-0 .text-\[\#1a1a1a\] {
+  color: var(--color-text) !important;
+}
+
+/* ===========================================
+   PRIMARY / BUTTON COLOR OVERRIDES
+   =========================================== */
+
+.bg-primary {
+  background-color: var(--color-primary) !important;
+}
+
+.bg-primary:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+
+.border-primary {
+  border-color: var(--color-primary) !important;
+}
+
+/* ===========================================
+   CARD OVERRIDES
+   =========================================== */
+
+.card-brand,
+.bg-card-brand {
+  background-color: var(--color-card-bg) !important;
+}
+
+/* ===========================================
+   FORM ELEMENT FOCUS OVERRIDES
+   =========================================== */
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary) !important;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-selected) !important;
+}
+
+/* ===========================================
+   OVERRIDE LEGACY RED COLORS (#C72030)
+   Replace old brand red with new primary #DA7756
+   =========================================== */
+
+/* Text colors */
+.text-\[\#C72030\],
+.text-\[\#c72030\],
+[class*="text-[#C72030]"],
+[class*="text-[#c72030]"] {
+  color: var(--color-primary) !important;
+}
+
+/* Background colors - exact selectors only, so that
+   hover:bg-[#C72030] / border-[#C72030] are not caught. */
+.bg-\[\#C72030\],
+.bg-\[\#c72030\],
+.bg-\[\#A01825\],
+.bg-\[\#a81c29\],
+.bg-\[\#b51b28\],
+.bg-\[\#C72031\] {
+  background-color: var(--color-primary) !important;
+}
+
+/* Border colors */
+.border-\[\#C72030\],
+.border-\[\#c72030\],
+[class*="border-[#C72030]"],
+[class*="border-[#c72030]"] {
+  border-color: var(--color-primary) !important;
+}
+
+/* Hover states */
+.hover\:bg-\[\#C72030\]:hover,
+.hover\:bg-\[\#c72030\]:hover,
+.hover\:bg-\[\#A01825\]:hover,
+.hover\:bg-\[\#a81c29\]:hover,
+.hover\:bg-\[\#b51b28\]:hover,
+[class*="hover:bg-[#C72030]"]:hover,
+[class*="hover:bg-[#A01825]"]:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+
+[class*="hover:bg-[#C72030]/10"]:hover,
+.hover\:bg-\[\#C72030\]\/10:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.1) !important;
+}
+
+.hover\:text-\[\#C72030\]:hover,
+.hover\:text-\[\#c72030\]:hover,
+[class*="hover:text-[#C72030]"]:hover {
+  color: var(--color-primary) !important;
+}
+
+/* Focus ring states */
+.focus\:ring-\[\#C72030\]:focus,
+.focus-visible\:ring-\[\#C72030\]:focus-visible,
+[class*="focus:ring-[#C72030]"]:focus,
+[class*="focus-visible:ring-[#C72030]"]:focus-visible,
+[class*="ring-[#C72030]"] {
+  --tw-ring-color: var(--color-primary) !important;
+}
+
+/* Legacy neutral text greys -> brand text */
+.text-\[\#1a1a1a\],
+.text-\[\#1A1A1A\],
+[class*="text-[#1a1a1a]"],
+[class*="text-[#1A1A1A]"],
+.text-\[\#D5DbDB\],
+[class*="text-[#D5DbDB]"] {
+  color: var(--color-text) !important;
+}
+
+/* Legacy cream surfaces -> brand card bg */
+.bg-\[\#f6f4ee\],
+.bg-\[\#F6F4EE\],
+.bg-\[\#FAF9F6\],
+[class*="bg-[#f6f4ee]"],
+[class*="bg-[#F6F4EE]"] {
+  background-color: var(--color-card-bg) !important;
+}
+
+/* Tan stat-card icon chips */
+.bg-\[\#C4B89D54\],
+[class*="bg-[#C4B89D54]"] {
+  background-color: rgba(196, 184, 157, 0.33) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* ===========================================
+   BUTTON GLOBAL OVERRIDES
+   =========================================== */
+
+button.bg-\[\#C72030\],
+[type="button"].bg-\[\#C72030\],
+[type="submit"].bg-\[\#C72030\],
+a.bg-\[\#C72030\],
+.btn.bg-\[\#C72030\],
+.btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+button.bg-\[\#C72030\] svg,
+button.bg-\[\#C72030\] .lucide,
+.btn-primary svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+button.bg-\[\#C72030\]:hover,
+[type="button"].bg-\[\#C72030\]:hover,
+[type="submit"].bg-\[\#C72030\]:hover,
+a.bg-\[\#C72030\]:hover,
+.btn-primary:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+
+/* Outline / text buttons */
+button.text-\[\#C72030\],
+a.text-\[\#C72030\],
+.btn.text-\[\#C72030\],
+button[class*="text-[#C72030]"],
+button[class*="border-[#C72030]"] {
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+button[class*="text-[#C72030]"] svg,
+button[class*="border-[#C72030]"] svg,
+button.text-\[\#C72030\] svg {
+  color: var(--color-primary) !important;
+}
+
+/* Legacy purple / violet action buttons -> brand */
+button[class*="bg-purple-"],
+button[class*="bg-violet-"],
+a[class*="bg-purple-"],
+a[class*="bg-violet-"] {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+button[class*="hover:bg-purple-"]:hover,
+button[class*="hover:bg-violet-"]:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+
+/* ===========================================
+   TAB COMPONENT OVERRIDES
+   =========================================== */
+
+.data-\[state\=active\]\:text-\[\#C72030\][data-state="active"],
+[data-state="active"][class*="text-[#C72030]"],
+[data-state="active"].text-\[\#C72030\],
+[role="tab"][data-state="active"][class*="text-[#C72030]"] {
+  color: var(--color-primary) !important;
+}
+
+.data-\[state\=active\]\:bg-\[\#EDEAE3\][data-state="active"],
+[data-state="active"][class*="bg-[#EDEAE3]"],
+[data-state="active"].bg-\[\#EDEAE3\] {
+  background-color: #edeae3 !important;
+}
+
+[data-state="active"][class*="border-[#C72030]"],
+[data-state="active"].border-\[\#C72030\] {
+  border-color: var(--color-primary) !important;
+}
+
+[data-state="inactive"][class*="data-[state=inactive]:bg-white"],
+.data-\[state\=inactive\]\:bg-white[data-state="inactive"] {
+  background-color: #ffffff !important;
+  color: var(--color-text) !important;
+}
+
+/* ===========================================
+   SHADCN / RADIX COMPONENT COLOR OVERRIDES
+   =========================================== */
+
+/* Native checkbox tint */
+input[type="checkbox"] {
+  accent-color: var(--color-primary) !important;
+}
+
+/* Native radio: drawn as a brand ring with a brand dot, so every plain
+   <input type="radio"> in the app matches the Radix RadioGroup control
+   instead of falling back to the browser's default disc. */
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  display: inline-grid;
+  place-content: center;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="radio"]::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  transform: scale(0);
+  transition: transform 0.15s ease-in-out;
+}
+
+input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+
+input[type="radio"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+input[type="radio"]:disabled {
+  border-color: var(--color-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+input[type="radio"]:disabled::before {
+  background-color: var(--color-disabled);
+}
+
+/* The tick stays white: a checked checkbox is brand-filled, and the generic
+   [data-state="checked"][class*="#C72030"] rule further down also sets color,
+   which the indicator icon would otherwise inherit — orange on orange. */
+[role="checkbox"] svg,
+[role="checkbox"] .lucide {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Radix Checkbox - checked */
+[data-state="checked"][class*="bg-[#C72030]"],
+[data-state="checked"].bg-\[\#C72030\],
+[data-state="checked"][class*="border-[#C72030]"],
+[data-state="checked"].border-\[\#C72030\],
+[role="checkbox"][data-state="checked"] {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* Radix Switch - checked */
+[role="switch"][data-state="checked"],
+[data-state="checked"][class*="bg-[#C72030]"] {
+  background-color: var(--color-primary) !important;
+}
+
+/* Radix Radio */
+[role="radio"] {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+  border-radius: var(--radius-full) !important;
+}
+
+/* The indicator is the dot itself — sized here so it can never stretch to
+   cover the control and turn the checked state into a solid disc. */
+[role="radio"] > span {
+  width: 9px !important;
+  height: 9px !important;
+  background-color: var(--color-primary) !important;
+  border-radius: var(--radius-full) !important;
+}
+
+[role="radio"] svg {
+  fill: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Radix popper layers (Select / Dropdown / Popover) */
+[data-radix-popper-content-wrapper] {
+  z-index: var(--z-popover) !important;
+}
+
+/* Dropdown / Select / Popover surfaces */
+[role="menu"],
+[role="listbox"],
+[data-radix-menu-content],
+[data-radix-select-content],
+[data-radix-popover-content] {
+  background-color: var(--color-card-white) !important;
+  border-color: var(--color-border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  color: var(--color-text) !important;
+  font-family: var(--font-family) !important;
+}
+
+/* Dropdown / Select items - hover & highlighted states */
+[role="menuitem"],
+[role="option"],
+[role="menuitemcheckbox"],
+[role="menuitemradio"] {
+  border-radius: var(--radius-sm) !important;
+  font-size: var(--font-size-body-4) !important;
+}
+
+[role="menuitem"]:hover,
+[role="menuitemcheckbox"]:hover,
+[role="menuitemradio"]:hover,
+[role="menuitem"][data-highlighted],
+[role="option"][data-highlighted],
+[role="menuitemcheckbox"][data-highlighted],
+[role="menuitemradio"][data-highlighted] {
+  background-color: var(--color-primary-selected) !important;
+  color: var(--color-text) !important;
+  outline: none !important;
+}
+
+[role="option"][data-state="checked"],
+[role="option"][aria-selected="true"] {
+  background-color: var(--color-primary-light) !important;
+  color: var(--color-text) !important;
+}
+
+/* Select / dropdown triggers */
+[role="combobox"],
+[data-radix-select-trigger] {
+  border-color: var(--color-border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  background-color: var(--color-card-white) !important;
+  color: var(--color-text) !important;
+  font-family: var(--font-family) !important;
+}
+
+[role="combobox"]:focus,
+[role="combobox"][data-state="open"] {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px var(--color-primary-selected) !important;
+  outline: none !important;
+}
+
+/* Dialog / sheet surfaces */
+[role="dialog"] {
+  font-family: var(--font-family) !important;
+}
+
+/* ===========================================
+   TABLE COMPONENT OVERRIDES
+   =========================================== */
+
+thead th:not(.analytics-header),
+.table-header,
+[class*="TableHead"] {
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  font-size: var(--font-size-body-4) !important;
+}
+
+tbody td,
+.table-cell,
+[class*="TableCell"] {
+  font-size: var(--font-size-body-4) !important;
+  color: var(--color-text) !important;
+}
+
+tbody tr.hover-brand:hover {
+  background-color: var(--color-primary-selected) !important;
+}
+
+/* ===========================================
+   NAVIGATION & SIDEBAR OVERRIDES
+   =========================================== */
+
+nav [class*="text-[#C72030]"],
+.sidebar [class*="text-[#C72030]"],
+[class*="sidebar"] [class*="text-[#C72030]"] {
+  color: var(--color-primary) !important;
+}
+
+/* ===========================================
+   LUCIDE ICON COLOR OVERRIDES
+   =========================================== */
+
+svg[class*="text-[#C72030]"],
+svg.text-\[\#C72030\],
+.lucide[class*="text-[#C72030]"],
+.lucide.text-\[\#C72030\] {
+  color: var(--color-primary) !important;
+}
+
+svg[class*="stroke-[#C72030]"],
+svg.stroke-\[\#C72030\],
+.lucide[class*="stroke-[#C72030]"] {
+  stroke: var(--color-primary) !important;
+}
+
+svg[fill="#C72030"],
+svg[fill="#c72030"],
+svg[stroke="#C72030"],
+svg[stroke="#c72030"],
+path[fill="#C72030"],
+path[fill="#c72030"],
+path[stroke="#C72030"],
+path[stroke="#c72030"] {
+  fill: var(--color-primary) !important;
+  stroke: var(--color-primary) !important;
+}
+
+svg.fill-red-500,
+svg.text-red-500.fill-red-500 {
+  fill: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ===========================================
+   INLINE STYLE OVERRIDES
+   =========================================== */
+
+[style*="color: #C72030"],
+[style*="color:#C72030"],
+[style*="color: #c72030"],
+[style*="color:#c72030"],
+[style*="color: rgb(199, 32, 48)"],
+[style*="color:rgb(199, 32, 48)"] {
+  color: var(--color-primary) !important;
+}
+
+[style*="background-color: #C72030"],
+[style*="background-color:#C72030"],
+[style*="background-color: #c72030"],
+[style*="background-color:#c72030"],
+[style*="background: #C72030"],
+[style*="background:#C72030"],
+[style*="background: #c72030"],
+[style*="background:#c72030"] {
+  background-color: var(--color-primary) !important;
+}
+
+[style*="border-color: #C72030"],
+[style*="border-color:#C72030"],
+[style*="border-color: #c72030"],
+[style*="border-color:#c72030"],
+[style*="border: 1px solid #C72030"],
+[style*="border:1px solid #C72030"] {
+  border-color: var(--color-primary) !important;
+}
+
+[style*="background-color: #f6f4ee"],
+[style*="background-color:#f6f4ee"],
+[style*="background-color: #F6F4EE"],
+[style*="background-color:#F6F4EE"] {
+  background-color: var(--color-card-bg) !important;
+}
+
+/* ===========================================
+   DATA STATE ATTRIBUTE OVERRIDES
+   =========================================== */
+
+/* Radios are excluded: this fills the element, which would turn a checked
+   radio into a solid disc instead of leaving the ring + dot. */
+[data-state="active"][class*="#C72030"]:not([role="radio"]),
+[data-state="checked"][class*="#C72030"]:not([role="radio"]),
+[data-state="selected"][class*="#C72030"]:not([role="radio"]) {
+  color: var(--color-primary) !important;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* ===========================================
+   CHART COLOR OVERRIDES
+   =========================================== */
+
+.recharts-default-legend,
+.recharts-legend-item-text,
+.recharts-text {
+  font-family: var(--font-family) !important;
+}
+
+.recharts-legend-item-text,
+.recharts-cartesian-axis-tick-value {
+  fill: var(--color-text) !important;
+  color: var(--color-text) !important;
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--color-divider) !important;
+}
+
+/* ===========================================
+   SCROLLBAR STYLING
+   =========================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-card-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-light);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-card-border) var(--color-bg);
+}
+
+/* ===========================================
+   SELECTION STYLING
+   =========================================== */
+
+::selection {
+  background-color: var(--color-primary-light);
+  color: var(--color-text);
+}
+
+::-moz-selection {
+  background-color: var(--color-primary-light);
+  color: var(--color-text);
+}
+
+/* ===========================================
+   BRAND FOCUS STYLES
+   =========================================== */
+
+.focus-brand:focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: 2px;
+}
+
+/* ===========================================
+   TYPOGRAPHY UTILITY CLASSES
+   =========================================== */
+
+.heading-1 {
+  font-size: var(--font-size-h1) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  line-height: var(--line-height-tight) !important;
+  color: var(--color-text) !important;
+}
+
+.heading-2 {
+  font-size: var(--font-size-h2) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  line-height: var(--line-height-tight) !important;
+  color: var(--color-text) !important;
+}
+
+.body-1 {
+  font-size: var(--font-size-body-1) !important;
+}
+.body-2 {
+  font-size: var(--font-size-body-2) !important;
+}
+.body-3 {
+  font-size: var(--font-size-body-3) !important;
+}
+.body-4 {
+  font-size: var(--font-size-body-4) !important;
+}
+.body-5 {
+  font-size: var(--font-size-body-5) !important;
+}
+
+.caption {
+  font-size: var(--font-size-caption) !important;
+  color: var(--color-text-light) !important;
+}
+
+/* ===========================================
+   COLOR UTILITY CLASSES
+   =========================================== */
+
+.text-brand-primary {
+  color: var(--color-primary) !important;
+}
+.text-brand-secondary {
+  color: var(--color-secondary-green) !important;
+}
+.text-brand-text {
+  color: var(--color-text) !important;
+}
+.text-brand-muted {
+  color: var(--color-text-light) !important;
+}
+
+.bg-brand-primary {
+  background-color: var(--color-primary) !important;
+}
+.bg-brand-bg {
+  background-color: var(--color-bg) !important;
+}
+.bg-brand-card {
+  background-color: var(--color-card-white) !important;
+}
+
+.border-brand-primary {
+  border-color: var(--color-primary) !important;
+}
+.border-brand-subtle {
+  border-color: var(--color-border-subtle) !important;
+}
+.border-brand-card {
+  border-color: var(--color-card-border) !important;
+}
+
+.text-brand-success {
+  color: var(--color-success-solid) !important;
+}
+.text-brand-warning {
+  color: var(--color-warning) !important;
+}
+.text-brand-error {
+  color: var(--color-error) !important;
+}
+.text-brand-info {
+  color: var(--color-info) !important;
+}
+
+.bg-brand-success {
+  background-color: var(--color-success-bg) !important;
+}
+.bg-brand-warning {
+  background-color: var(--color-warning-light) !important;
+}
+.bg-brand-error {
+  background-color: var(--color-error-bg) !important;
+}
+.bg-brand-info {
+  background-color: rgba(var(--color-info-rgb), 0.15) !important;
+}
+
+/* ===========================================
+   ANIMATION UTILITIES
+   =========================================== */
+
+.transition-brand {
+  transition: all var(--transition-normal) !important;
+}
+
+.transition-brand-fast {
+  transition: all var(--transition-fast) !important;
+}
+
+/* ===========================================
+   SHADOW UTILITIES
+   =========================================== */
+
+.shadow-brand-sm {
+  box-shadow: var(--shadow-sm) !important;
+}
+.shadow-brand-md {
+  box-shadow: var(--shadow-md) !important;
+}
+.shadow-brand-lg {
+  box-shadow: var(--shadow-lg) !important;
+}
+.shadow-brand-xl {
+  box-shadow: var(--shadow-xl) !important;
+}
+.shadow-brand-card {
+  box-shadow: var(--shadow-card) !important;
+}

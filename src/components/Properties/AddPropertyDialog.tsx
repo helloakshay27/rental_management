@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Upload } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface AddPropertyDialogProps {
   onPropertyAdded: () => void;
@@ -24,17 +24,14 @@ const AddPropertyDialog = ({ onPropertyAdded }: AddPropertyDialogProps) => {
     owner: '',
     status: 'Vacant'
   });
-  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
     if (!formData.name || !formData.type || !formData.location || !formData.area) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Please fill in all required fields.",
-        variant: "destructive",
       });
       return;
     }
@@ -42,8 +39,7 @@ const AddPropertyDialog = ({ onPropertyAdded }: AddPropertyDialogProps) => {
     // In a real app, this would make an API call to save the property
     console.log('Adding property:', formData);
     
-    toast({
-      title: "Success",
+    toast.success("Success", {
       description: "Property added successfully!",
     });
 

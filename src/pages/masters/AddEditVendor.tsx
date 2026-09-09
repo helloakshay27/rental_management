@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { FormSection } from '@/components/ui/form-section';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { Star, ArrowLeft, Save } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { postAuth, getAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface BankDetail {
     account_number: string;
@@ -228,12 +230,12 @@ const AddEditVendor = () => {
                         Back
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <Heading level="h1">
                             {isEditMode ? 'Edit Vendor' : 'Add New Vendor'}
-                        </h1>
-                        <p className="text-gray-600">
+                        </Heading>
+                        <Text size="sm" variant="muted">
                             {isEditMode ? 'Update vendor information' : 'Enter vendor details'}
-                        </p>
+                        </Text>
                     </div>
                 </div>
             </div>
@@ -241,12 +243,7 @@ const AddEditVendor = () => {
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Basic Information Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Basic Information</CardTitle>
-                            <CardDescription>Essential vendor details</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                    <FormSection step={1} title="Basic Information" className="mb-5">
                             <div className="space-y-2">
                                 <Label htmlFor="vendor-name" className="text-gray-900 font-medium">Vendor Name *</Label>
                                 <Input
@@ -317,16 +314,10 @@ const AddEditVendor = () => {
                                     </label>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                    </FormSection>
 
                     {/* Tax Information Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Tax Information</CardTitle>
-                            <CardDescription>GST and PAN details</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                    <FormSection step={2} title="Tax Information" className="mb-5">
                             <div className="space-y-2">
                                 <Label htmlFor="gst-number" className="text-gray-900 font-medium">GST Number</Label>
                                 <Input
@@ -349,16 +340,10 @@ const AddEditVendor = () => {
                                     maxLength={10}
                                 />
                             </div>
-                        </CardContent>
-                    </Card>
+                    </FormSection>
 
                     {/* Contact Details Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Contact Details</CardTitle>
-                            <CardDescription>Email and phone information</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                    <FormSection step={3} title="Contact Details" className="mb-5">
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="text-gray-900 font-medium">Email</Label>
                                 <Input
@@ -392,16 +377,10 @@ const AddEditVendor = () => {
                                     className="bg-white border-gray-300 text-gray-900"
                                 />
                             </div>
-                        </CardContent>
-                    </Card>
+                    </FormSection>
 
                     {/* Address Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Address</CardTitle>
-                            <CardDescription>Location details</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                    <FormSection step={4} title="Address" className="mb-5">
                             <div className="space-y-2">
                                 <Label htmlFor="address" className="text-gray-900 font-medium">Street Address</Label>
                                 <Input
@@ -458,16 +437,10 @@ const AddEditVendor = () => {
                                     />
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                    </FormSection>
 
                     {/* Bank Details Card - Full Width */}
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Bank Details</CardTitle>
-                            <CardDescription>Banking information for transactions</CardDescription>
-                        </CardHeader>
-                        <CardContent>
+                    <FormSection step={5} title="Bank Details" className="mb-5">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="account-number" className="text-gray-900 font-medium">Account Number</Label>
@@ -530,8 +503,7 @@ const AddEditVendor = () => {
                                     />
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                    </FormSection>
                 </div>
 
                 {/* Action Buttons */}
@@ -548,7 +520,7 @@ const AddEditVendor = () => {
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                        className="fm-button-fix fm-button-brand px-8 py-2"
                     >
                         <Save className="h-4 w-4 mr-2" />
                         {isLoading ? 'Saving...' : (isEditMode ? 'Update Vendor' : 'Save Vendor')}

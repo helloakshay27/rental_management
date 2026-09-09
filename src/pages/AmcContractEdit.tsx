@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { PageLoader, Spinner } from '@/components/ui/loader';
+import { PageContainer } from '@/components/ui/page';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { getAuth, putAuth, getToken } from '@/lib/api'; // Changed postAuth to putAuth for update
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 const AmcContractEdit = () => {
     const { id } = useParams();
@@ -147,22 +150,20 @@ const AmcContractEdit = () => {
 
     if (loadingResources) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
+        <PageContainer>
             <div className="max-w-full mx-auto space-y-6">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" onClick={() => navigate('/amc')} className="p-0 hover:bg-transparent">
                         <ArrowLeft className="h-6 w-6 text-gray-600" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Edit AMC Contract</h1>
-                        <p className="text-sm text-gray-500">Update Annual Maintenance Contract details</p>
+                        <Heading level="h1">Edit AMC Contract</Heading>
+                        <Text size="sm" variant="muted">Update Annual Maintenance Contract details</Text>
                     </div>
                 </div>
 
@@ -347,15 +348,15 @@ const AmcContractEdit = () => {
                             <Button type="button" variant="outline" onClick={() => navigate('/amc')} className="border-gray-300 bg-white hover:bg-gray-50">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isLoading} className="bg-[#C72030] hover:bg-[#A01825] text-white min-w-[120px]">
-                                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand px-6 py-2">
+                                {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                                 Update Contract
                             </Button>
                         </div>
                     </Card>
                 </form>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

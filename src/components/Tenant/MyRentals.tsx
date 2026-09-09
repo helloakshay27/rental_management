@@ -1,21 +1,38 @@
 
 import React, { useState, useEffect } from 'react';
+import { StatsGrid } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCard } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, MapPin, Phone, Mail, Eye, FileText, CreditCard, Home, Users, DollarSign, CheckCircle, Edit } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { MapPin, Phone, Mail, Eye, CreditCard, Home, DollarSign, CheckCircle, Edit, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, getToken } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 
+const columns: ColumnConfig[] = [
+  { key: 'srNo', label: 'Sr. No', sortable: false, draggable: true, width: 80 },
+  { key: 'sap_number', label: 'SAP ID', sortable: true, draggable: true },
+  { key: 'lease_number', label: 'Unique Code', sortable: true, draggable: true },
+  { key: 'property', label: 'Property Details', sortable: true, draggable: true },
+  { key: 'landlord', label: 'Landlord', sortable: false, draggable: true },
+  { key: 'start_date', label: 'Lease Period', sortable: true, draggable: true },
+  { key: 'monthly_rent', label: 'Monthly Rent', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
+
 const MyRentals = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [loading, setLoading] = useState(false);
   const [myRentals, setMyRentals] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({
@@ -176,227 +193,181 @@ const MyRentals = () => {
     fetchRentals();
   }, [statusFilter]);
 
-  return (
-    <div className="space-y-6 bg-white">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Total Properties</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{summary.total_properties}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Home className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  /** Sr. No is positional, so it is derived from the filtered order. */
+  const rentalRows = filteredRentals.map((rental, index) => ({ ...rental, srNo: index + 1 }));
 
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Monthly Rent</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{totalMonthlyRent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-green-600" />
-              </div>
+  const renderCell = (rental: any, columnKey: string) => {
+    switch (columnKey) {
+      case 'srNo':
+        return <span className="text-brand-text-light font-medium">{rental.srNo}</span>;
+      case 'sap_number':
+        return <div className="font-medium text-brand">{renderValue(rental.sap_number)}</div>;
+      case 'lease_number':
+        return <div className="font-medium text-brand-text">{renderValue(rental.lease_number)}</div>;
+      case 'property':
+        return (
+          <div>
+            <div className="font-medium text-brand-text">
+              {renderValue(rental.property?.name || rental.lease_number)}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Security Deposits</p>
-                <p className="text-heading-2 font-semibold text-gray-900">₹{totalSecurityDeposit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
-                <CreditCard className="h-6 w-6 text-yellow-600" />
-              </div>
+            <div className="text-brand-body-5 text-brand-text-light flex items-center mt-1">
+              <MapPin className="h-3 w-3 mr-1" />
+              {renderValue(rental.property?.address)}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:shadow-md transition-all duration-200 bg-[#f6f4ee] border border-gray-200">
-          <CardContent className="p-6 bg-[#f6f4ee]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-body text-gray-600">Active Leases</p>
-                <p className="text-heading-2 font-semibold text-gray-900">{summary.active_leases}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Card */}
-      <CardContent className="bg-white pt-6 px-0 mx-0">
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search by property, landlord, or address..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white text-[#1a1a1a] border border-gray-200"
-              />
+            <div className="text-brand-body-5 text-brand-text-light mt-1">
+              {renderValue(rental.property?.city)} {renderValue(rental.property?.state)}
             </div>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full md:w-48 bg-white text-[#1a1a1a] border border-gray-200">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="expiring_soon">Expiring Soon</SelectItem>
-              <SelectItem value="expired">Expired</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        );
+      case 'landlord':
+        return (
+          <div>
+            <div className="font-medium text-brand-text">
+              {renderValue(rental.property?.landlord?.company_name || rental.property?.landlord?.contact_person || rental.tenant?.company_name)}
+            </div>
+            <div className="text-brand-body-5 text-brand-text-light flex items-center mt-1">
+              <Phone className="h-3 w-3 mr-1" />
+              {renderValue(rental.property?.landlord?.phone || rental.tenant?.phone)}
+            </div>
+            <div className="text-brand-body-5 text-brand-text-light flex items-center mt-1">
+              <Mail className="h-3 w-3 mr-1" />
+              {renderValue(rental.property?.landlord?.email || rental.tenant?.email)}
+            </div>
+          </div>
+        );
+      case 'start_date':
+        return (
+          <div className="text-brand-body-5">
+            <div className="text-brand-text">
+              {rental.start_date ? new Date(rental.start_date).toLocaleDateString() : 'N/A'} -
+            </div>
+            <div className="text-brand-text">
+              {rental.end_date ? new Date(rental.end_date).toLocaleDateString() : 'N/A'}
+            </div>
+            <div className="text-brand-caption text-brand-text-light mt-1">
+              Rent due: Day {renderValue(rental.rent_due_date)} of month
+            </div>
+          </div>
+        );
+      case 'monthly_rent':
+        return (
+          <span className="font-medium text-brand-text">
+            ₹{parseFloat(rental.monthly_rent || rental.basic_rent || 0).toLocaleString()}
+          </span>
+        );
+      case 'status':
+        return getStatusBadge(rental.status);
+      default:
+        return rental[columnKey];
+    }
+  };
 
-        {/* Rentals Table */}
-        <div className="border rounded-lg bg-white border-gray-200">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50 border-b border-gray-200">
-                <TableHead className="text-[#1a1a1a] font-medium w-[80px]">Sr. No</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">SAP ID</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">Unique Code</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">Property Details</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">Landlord</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">Lease Period</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">Monthly Rent</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">Status</TableHead>
-                <TableHead className="text-[#1a1a1a] font-medium">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="bg-white">
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-500">
-                    Loading rentals...
-                  </TableCell>
-                </TableRow>
-              ) : filteredRentals.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-500">
-                    No rentals found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredRentals.map((rental, index) => (
-                  <TableRow key={rental.id} className="bg-white border-b border-gray-100">
-                    <TableCell className="bg-white text-gray-500 font-medium">{index + 1}</TableCell>
-                    <TableCell className="bg-white">
-                      <div className="font-medium text-[#c72030]">
-                        {renderValue(rental.sap_number)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="bg-white">
-                      <div className="font-medium text-[#1a1a1a]">
-                        {renderValue(rental.lease_number)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="bg-white">
-                      <div>
-                        <div className="font-medium text-[#1a1a1a]">
-                          {renderValue(rental.property?.name || rental.lease_number)}
-                        </div>
-                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {renderValue(rental.property?.address)}
-                        </div>
-                        <div className="text-sm text-[#1a1a1a]/60 mt-1">
-                          {renderValue(rental.property?.city)} {renderValue(rental.property?.state)}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="bg-white">
-                      <div>
-                        <div className="font-medium text-[#1a1a1a]">
-                          {renderValue(rental.property?.landlord?.company_name || rental.property?.landlord?.contact_person || rental.tenant?.company_name)}
-                        </div>
-                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
-                          <Phone className="h-3 w-3 mr-1" />
-                          {renderValue(rental.property?.landlord?.phone || rental.tenant?.phone)}
-                        </div>
-                        <div className="text-sm text-[#1a1a1a]/70 flex items-center mt-1">
-                          <Mail className="h-3 w-3 mr-1" />
-                          {renderValue(rental.property?.landlord?.email || rental.tenant?.email)}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="bg-white">
-                      <div className="text-sm">
-                        <div className="text-[#1a1a1a]">
-                          {rental.start_date ? new Date(rental.start_date).toLocaleDateString() : 'N/A'} -
-                        </div>
-                        <div className="text-[#1a1a1a]">
-                          {rental.end_date ? new Date(rental.end_date).toLocaleDateString() : 'N/A'}
-                        </div>
-                        <div className="text-xs text-[#1a1a1a]/60 mt-1">
-                          Rent due: Day {renderValue(rental.rent_due_date)} of month
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium text-[#1a1a1a] bg-white">
-                      ₹{parseFloat(rental.monthly_rent || rental.basic_rent || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="bg-white">{getStatusBadge(rental.status)}</TableCell>
-                    <TableCell className="bg-white">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="View Details"
-                          className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handleViewDetails(rental.id)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="View Contract"
-                          className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handleEdit(String(rental.id))}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="Pay Rent"
-                          className="text-[#C72030] hover:bg-[#C72030]/10"
-                          onClick={() => handlePayRent(rental)}
-                        >
-                          <CreditCard className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
+  const renderActions = (rental: any) => (
+    <div className="flex items-center gap-2">
+      <Button variant="ghost" size="sm" title="View Details" onClick={() => handleViewDetails(rental.id)}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="View Contract" onClick={() => handleEdit(String(rental.id))}>
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Pay Rent" onClick={() => handlePayRent(rental)}>
+        <CreditCard className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const leftActions = (
+    <div className="flex items-center gap-2">
+      <Button onClick={() => navigate('/rental/new')} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Plus className="w-4 h-4 mr-2" />
+        Add Rental Agreement
+      </Button>
+
+      <TableFilterDialog
+          open={isFilterOpen}
+          onOpenChange={setIsFilterOpen}
+          onApply={() => setStatusFilter(pendingStatus)}
+          onReset={() => {
+              setPendingStatus('all');
+              setStatusFilter('all');
+          }}
+      >
+          <FilterField label="Status">
+              <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                  <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                      <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="expiring_soon">Expiring Soon</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                  </SelectContent>
+              </Select>
+          </FilterField>
+      </TableFilterDialog>
+    </div>
+  );
+
+  return (
+    <div className="space-y-5">
+      {/* Summary Cards */}
+      <StatsGrid>
+        <StatsCard
+          title="Total Properties"
+          value={summary.total_properties}
+          icon={<Home />}
+        />
+        <StatsCard
+          title="Monthly Rent"
+          value={`₹${totalMonthlyRent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          icon={<DollarSign />}
+        />
+        <StatsCard
+          title="Security Deposits"
+          value={`₹${totalSecurityDeposit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          icon={<CreditCard />}
+        />
+        <StatsCard
+          title="Active Leases"
+          value={summary.active_leases}
+          icon={<CheckCircle />}
+        />
+      </StatsGrid>
+
+      <div>
+        <EnhancedTable
+          data={rentalRows}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(rental) => String(rental.id)}
+          storageKey="my-rentals-table"
+          emptyMessage="No rentals found"
+          loading={loading}
+          loadingMessage="Loading rentals..."
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search by property, landlord, or address..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={leftActions}
+          onFilterClick={() => {
+              setPendingStatus(statusFilter);
+              setIsFilterOpen(true);
+          }}
+          exportFileName="my-rentals"
+          pagination={true}
+          pageSize={10}
+        />
+      </div>
 
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
         <DialogContent className="sm:max-w-[500px] bg-white">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-gray-900">Record Rent Payment</DialogTitle>
+            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Record Rent Payment</DialogTitle>
             <DialogDescription>
               Enter the details of your rent payment below.
             </DialogDescription>
@@ -411,7 +382,7 @@ const MyRentals = () => {
                 value={paymentFormData.invoice_id}
                 onValueChange={(value) => setPaymentFormData(prev => ({ ...prev, invoice_id: value }))}
               >
-                <SelectTrigger className="w-full bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                <SelectTrigger className="w-full bg-white border-gray-300 text-gray-900">
                   <SelectValue placeholder={loadingInvoices ? "Loading invoices..." : "Select Invoice"} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -436,7 +407,7 @@ const MyRentals = () => {
                 id="amount"
                 type="number"
                 placeholder="0.00"
-                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.amount}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, amount: e.target.value }))}
               />
@@ -450,7 +421,7 @@ const MyRentals = () => {
                 <Input
                   id="payment_date"
                   type="date"
-                  className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                  className="bg-white border-gray-300 text-gray-900"
                   value={paymentFormData.payment_date}
                   onChange={(e) => setPaymentFormData(prev => ({ ...prev, payment_date: e.target.value }))}
                 />
@@ -476,7 +447,7 @@ const MyRentals = () => {
               <Input
                 id="transaction_id"
                 placeholder="UPI / Bank Ref No."
-                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.transaction_id}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, transaction_id: e.target.value }))}
               />
@@ -489,7 +460,7 @@ const MyRentals = () => {
               <Input
                 id="description"
                 placeholder="Optional notes"
-                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.description}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, description: e.target.value }))}
               />
@@ -507,7 +478,7 @@ const MyRentals = () => {
             <Button
               onClick={handlePaymentSubmit}
               disabled={isSubmittingPayment}
-              className="bg-[#C72030] hover:bg-[#A01825] text-white"
+              className="fm-button-fix fm-button-brand px-6 py-2"
             >
               {isSubmittingPayment ? "Processing..." : "Submit Payment"}
             </Button>

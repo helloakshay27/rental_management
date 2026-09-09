@@ -5,11 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, Calendar, DollarSign, Receipt } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, Receipt } from 'lucide-react';
+
+const columns: ColumnConfig[] = [
+  { key: 'name', label: 'Rule Details', sortable: true, draggable: true },
+  { key: 'propertyName', label: 'Property', sortable: true, draggable: true },
+  { key: 'area', label: 'Area & Rate', sortable: true, draggable: true },
+  { key: 'frequency', label: 'Frequency', sortable: true, draggable: true },
+  { key: 'nextInvoiceDate', label: 'Next Invoice', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -56,14 +66,71 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
     }
   ];
 
+  const renderCell = (rule: typeof invoiceRules[number], columnKey: string) => {
+    switch (columnKey) {
+      case 'name':
+        return (
+          <div>
+            <p className="font-medium">{rule.name}</p>
+            <p className="text-brand-body-5 text-brand-text-light">ID: {rule.id}</p>
+            <div className="flex items-center mt-1">
+              {rule.autoGenerate && (
+                <Badge variant="secondary" className="text-brand-caption">Auto</Badge>
+              )}
+            </div>
+          </div>
+        );
+      case 'propertyName':
+        return <p className="text-brand-body-5">{rule.propertyName}</p>;
+      case 'area':
+        return (
+          <div>
+            <p className="font-medium">{rule.area} sq ft</p>
+            <p className="text-brand-body-5 text-brand-text-light">₹{rule.ratePerSqFt}/sq ft</p>
+            <p className="text-brand-body-5 font-medium text-brand">₹{rule.amount.toLocaleString()}</p>
+          </div>
+        );
+      case 'frequency':
+        return <Badge variant="outline">{rule.frequency}</Badge>;
+      case 'nextInvoiceDate':
+        return (
+          <div className="flex items-center">
+            <Calendar className="h-4 w-4 mr-1 text-brand-text-light" />
+            <span className="text-brand-body-5">
+              {new Date(rule.nextInvoiceDate).toLocaleDateString()}
+            </span>
+          </div>
+        );
+      case 'status':
+        return (
+          <Badge variant={rule.status === 'Active' ? 'active' : 'inactive'}>
+            {rule.status}
+          </Badge>
+        );
+      default:
+        return rule[columnKey as keyof typeof rule];
+    }
+  };
+
+  const renderActions = () => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm" title="Edit">
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="sm" title="Delete" className="text-brand-error">
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-5">
+      <Card className="bg-white">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="flex items-center">
-                <Receipt className="h-5 w-5 mr-2 text-[#C72030]" />
+                <Receipt className="h-5 w-5 mr-2 text-brand" />
                 Invoice Rules & Recurring Billing
               </CardTitle>
               <CardDescription>
@@ -72,12 +139,12 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#C72030] hover:bg-[#A01825]">
+                <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Invoice Rule
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl bg-white">
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Create Invoice Rule</DialogTitle>
                   <DialogDescription>Set up recurring billing rules for property charges</DialogDescription>
@@ -85,15 +152,15 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
                 <div className="grid grid-cols-2 gap-4 py-4">
                   <div className="space-y-2 col-span-2">
                     <Label htmlFor="rule-name">Rule Name</Label>
-                    <Input id="rule-name" placeholder="e.g., Monthly Rent - Floor 1" className="bg-white" />
+                    <Input id="rule-name" placeholder="e.g., Monthly Rent - Floor 1" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="property">Property</Label>
                     <Select>
-                      <SelectTrigger className="bg-white">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select property" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent>
                         <SelectItem value="sunset">Sunset Apartments - Unit 2A</SelectItem>
                         <SelectItem value="green-valley">Green Valley Villa</SelectItem>
                         <SelectItem value="city-center">City Center Office</SelectItem>
@@ -103,10 +170,10 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
                   <div className="space-y-2">
                     <Label htmlFor="frequency">Billing Frequency</Label>
                     <Select>
-                      <SelectTrigger className="bg-white">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select frequency" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent>
                         <SelectItem value="monthly">Monthly</SelectItem>
                         <SelectItem value="quarterly">Quarterly</SelectItem>
                         <SelectItem value="half-yearly">Half-Yearly</SelectItem>
@@ -116,19 +183,19 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="area">Area (sq ft)</Label>
-                    <Input id="area" type="number" placeholder="e.g., 1200" className="bg-white" />
+                    <Input id="area" type="number" placeholder="e.g., 1200" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="rate">Rate per sq ft (₹)</Label>
-                    <Input id="rate" type="number" placeholder="e.g., 25" className="bg-white" />
+                    <Input id="rate" type="number" placeholder="e.g., 25" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="start-date">First Invoice Date</Label>
-                    <Input id="start-date" type="date" className="bg-white" />
+                    <Input id="start-date" type="date" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="end-date">End Date (Optional)</Label>
-                    <Input id="end-date" type="date" className="bg-white" />
+                    <Input id="end-date" type="date" />
                   </div>
                   <div className="space-y-2 col-span-2">
                     <div className="flex items-center space-x-2">
@@ -139,80 +206,28 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-                  <Button className="bg-[#C72030] hover:bg-[#A01825]">Create Rule</Button>
+                  <Button>Create Rule</Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Rule Details</TableHead>
-                <TableHead>Property</TableHead>
-                <TableHead>Area & Rate</TableHead>
-                <TableHead>Frequency</TableHead>
-                <TableHead>Next Invoice</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {invoiceRules.map((rule) => (
-                <TableRow key={rule.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{rule.name}</p>
-                      <p className="text-sm text-gray-500">ID: {rule.id}</p>
-                      <div className="flex items-center mt-1">
-                        {rule.autoGenerate && (
-                          <Badge variant="secondary" className="text-xs">Auto</Badge>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm">{rule.propertyName}</p>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{rule.area} sq ft</p>
-                      <p className="text-sm text-gray-500">₹{rule.ratePerSqFt}/sq ft</p>
-                      <p className="text-sm font-medium text-[#C72030]">₹{rule.amount.toLocaleString()}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{rule.frequency}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                      <span className="text-sm">{new Date(rule.nextInvoiceDate).toLocaleDateString()}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      variant={rule.status === 'Active' ? 'default' : 'secondary'}
-                      className={rule.status === 'Active' ? 'bg-green-100 text-green-800' : ''}
-                    >
-                      {rule.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <EnhancedTable
+            data={invoiceRules}
+            columns={columns}
+            renderCell={renderCell}
+            renderActions={renderActions}
+            getItemId={(rule) => rule.id}
+            storageKey="invoice-rules-table"
+            emptyMessage="No invoice rules configured"
+            searchPlaceholder="Search invoice rules..."
+            enableSearch={true}
+            enableSelection={false}
+            exportFileName="invoice-rules"
+            pagination={true}
+            pageSize={10}
+          />
         </CardContent>
       </Card>
     </div>

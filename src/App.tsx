@@ -1,11 +1,11 @@
 
 import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
+import RequireAuth from "./components/RequireAuth";
 import Dashboard from "./pages/Dashboard";
 import Properties from "./pages/Properties";
 import PropertyDetails from "./pages/PropertyDetails";
@@ -89,82 +89,84 @@ const App = () => {
         <TooltipProvider>
           <div className="h-screen overflow-hidden bg-gray-50">
             <Toaster />
-            <Sonner />
             <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Navigate to="/login" replace />} />
-                <Route path="properties" element={<Properties />} />
-                <Route path="properties/:id" element={<PropertyDetails />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="rentals" element={<RentalManagement />} />
-                <Route path="rental-dashboard" element={<RentalDashboard />} />
-                <Route path="rental/new" element={<AddRentalPage />} />
-                <Route path="rental/edit/:id" element={<EditRentalPage />} />
-                <Route path="rental/:id" element={<RentalDetailsPage />} />
-                <Route path="tenant-dashboard" element={<TenantDashboard />} />
-                <Route path="compliance" element={<MonitoryCompliancePage />} />
-                <Route path="compliance/new" element={<AddMonitoryCompliancePage />} />
-                <Route path="compliance/edit/:id" element={<EditMonitoryCompliancePage />} />
-                <Route path="compliance/view/:id" element={<ViewMonitoryCompliancePage />} />
-                <Route path="invoicing" element={<Invoicing />} />
-                <Route path="invoicing/:id" element={<InvoiceDetails />} />
-                <Route path="opex" element={<OpexManagement />} />
-                <Route path="opex/new" element={<AddExpensePage />} />
-                <Route path="opex/:id" element={<ExpenseDetailsPage />} />
-                <Route path="opex/edit/:id" element={<EditExpensePage />} />
-                <Route path="maintenance" element={<MaintenanceManagement />} />
-                <Route path="maintenance/new" element={<AddMaintenanceRequestPage />} />
-                <Route path="maintenance/edit/:id" element={<EditMaintenanceRequestPage />} />
-                <Route path="maintenance/:id" element={<MaintenanceRequestDetailsPage />} />
-                <Route path="utilities" element={<UtilityManagement />} />
-                <Route path="utilities/new" element={<AddUtilityPage />} />
-                <Route path="utilities/:id" element={<UtilityDetailsPage />} />
-                <Route path="utilities/edit/:id" element={<EditUtilityPage />} />
-                <Route path="amc" element={<AmcManagement />} />
-                <Route path="amc/new" element={<AmcContractAdd />} />
-                <Route path="amc/:id" element={<AmcContractDetail />} />
-                <Route path="amc/edit/:id" element={<AmcContractEdit />} />
-                <Route path="notifications" element={<Notifications />} />
-                <Route path="reports" element={<Reports />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="masters" element={<Masters />} />
-                <Route path="masters/tenants" element={<TenantsManagement />} />
-                <Route path="masters/tenants/:id" element={<TenantDetailsPage />} />
-                <Route path="masters/landlords" element={<LandlordsManagement />} />
-                <Route path="masters/landlords/:id" element={<LandlordDetailsPage />} />
-                <Route path="masters/properties" element={<PropertiesMaster />} />
-                <Route path="masters/properties/:id" element={<PropertyMasterDetailsPage />} />
-                <Route path="masters/compliances" element={<CompliancesMaster />} />
-                <Route path="masters/compliances/:id" element={<ComplianceDetailsPage />} />
-                <Route path="masters/branding" element={<BrandingManagement />} />
-                <Route path="masters/branding/:id" element={<BrandingDetailsPage />} />
-                <Route path="masters/users" element={<UsersManagement />} />
-                <Route path="masters/users/:id" element={<UserDetailsPage />} />
-                <Route path="masters/roles" element={<RolesManagement />} />
-                <Route path="masters/roles/:id" element={<RoleDetailsPage />} />
-                <Route path="masters/access" element={<AccessManagement />} />
-                <Route path="masters/takeover-conditions" element={<TakeoverConditionsManagement />} />
-                <Route path="masters/facility-types" element={<FacilityTypesManagement />} />
-                <Route path="masters/countries" element={<CountryMaster />} />
-                <Route path="masters/countries/:id" element={<CountryDetailsPage />} />
-                <Route path="masters/states" element={<StatesMaster />} />
-                <Route path="masters/states/:id" element={<StateDetailsPage />} />
-                <Route path="masters/vendors" element={<VendorMaster />} />
-                <Route path="masters/vendors/:id" element={<VendorDetailsPage />} />
-                <Route path="masters/vendors/add" element={<AddEditVendor />} />
-                <Route path="masters/vendors/edit/:id" element={<AddEditVendor />} />
-                <Route path="masters/expense-categories" element={<ExpenseCategoryMaster />} />
-                <Route path="masters/budgets" element={<BudgetMaster />} />
-                <Route path="masters/service-types" element={<ServiceTypeMaster />} />
-                <Route path="masters/lease-custom-fields" element={<LeaseCustomFieldsManagement />} />
-                <Route path="masters/lease-custom-fields/:id" element={<LeaseCustomFieldDetailsPage />} />
-                <Route path="masters/regions" element={<RegionMaster />} />
-                <Route path="masters/regions/:id" element={<RegionDetailsPage />} />
-                <Route path="masters/zones" element={<ZoneMaster />} />
-                <Route path="masters/zones/:id" element={<ZoneDetailsPage />} />
-                <Route path="masters/cities" element={<CityMaster />} />
-                <Route path="masters/circles" element={<CircleMaster />} />
-                <Route path="masters/amenities" element={<AmenityMaster />} />
+              {/* Everything below the guard needs a token in localStorage */}
+              <Route element={<RequireAuth />}>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route path="properties" element={<Properties />} />
+                  <Route path="properties/:id" element={<PropertyDetails />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="rentals" element={<RentalManagement />} />
+                  <Route path="rental-dashboard" element={<RentalDashboard />} />
+                  <Route path="rental/new" element={<AddRentalPage />} />
+                  <Route path="rental/edit/:id" element={<EditRentalPage />} />
+                  <Route path="rental/:id" element={<RentalDetailsPage />} />
+                  <Route path="tenant-dashboard" element={<TenantDashboard />} />
+                  <Route path="compliance" element={<MonitoryCompliancePage />} />
+                  <Route path="compliance/new" element={<AddMonitoryCompliancePage />} />
+                  <Route path="compliance/edit/:id" element={<EditMonitoryCompliancePage />} />
+                  <Route path="compliance/view/:id" element={<ViewMonitoryCompliancePage />} />
+                  <Route path="invoicing" element={<Invoicing />} />
+                  <Route path="invoicing/:id" element={<InvoiceDetails />} />
+                  <Route path="opex" element={<OpexManagement />} />
+                  <Route path="opex/new" element={<AddExpensePage />} />
+                  <Route path="opex/:id" element={<ExpenseDetailsPage />} />
+                  <Route path="opex/edit/:id" element={<EditExpensePage />} />
+                  <Route path="maintenance" element={<MaintenanceManagement />} />
+                  <Route path="maintenance/new" element={<AddMaintenanceRequestPage />} />
+                  <Route path="maintenance/edit/:id" element={<EditMaintenanceRequestPage />} />
+                  <Route path="maintenance/:id" element={<MaintenanceRequestDetailsPage />} />
+                  <Route path="utilities" element={<UtilityManagement />} />
+                  <Route path="utilities/new" element={<AddUtilityPage />} />
+                  <Route path="utilities/:id" element={<UtilityDetailsPage />} />
+                  <Route path="utilities/edit/:id" element={<EditUtilityPage />} />
+                  <Route path="amc" element={<AmcManagement />} />
+                  <Route path="amc/new" element={<AmcContractAdd />} />
+                  <Route path="amc/:id" element={<AmcContractDetail />} />
+                  <Route path="amc/edit/:id" element={<AmcContractEdit />} />
+                  <Route path="notifications" element={<Notifications />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="masters" element={<Masters />} />
+                  <Route path="masters/tenants" element={<TenantsManagement />} />
+                  <Route path="masters/tenants/:id" element={<TenantDetailsPage />} />
+                  <Route path="masters/landlords" element={<LandlordsManagement />} />
+                  <Route path="masters/landlords/:id" element={<LandlordDetailsPage />} />
+                  <Route path="masters/properties" element={<PropertiesMaster />} />
+                  <Route path="masters/properties/:id" element={<PropertyMasterDetailsPage />} />
+                  <Route path="masters/compliances" element={<CompliancesMaster />} />
+                  <Route path="masters/compliances/:id" element={<ComplianceDetailsPage />} />
+                  <Route path="masters/branding" element={<BrandingManagement />} />
+                  <Route path="masters/branding/:id" element={<BrandingDetailsPage />} />
+                  <Route path="masters/users" element={<UsersManagement />} />
+                  <Route path="masters/users/:id" element={<UserDetailsPage />} />
+                  <Route path="masters/roles" element={<RolesManagement />} />
+                  <Route path="masters/roles/:id" element={<RoleDetailsPage />} />
+                  <Route path="masters/access" element={<AccessManagement />} />
+                  <Route path="masters/takeover-conditions" element={<TakeoverConditionsManagement />} />
+                  <Route path="masters/facility-types" element={<FacilityTypesManagement />} />
+                  <Route path="masters/countries" element={<CountryMaster />} />
+                  <Route path="masters/countries/:id" element={<CountryDetailsPage />} />
+                  <Route path="masters/states" element={<StatesMaster />} />
+                  <Route path="masters/states/:id" element={<StateDetailsPage />} />
+                  <Route path="masters/vendors" element={<VendorMaster />} />
+                  <Route path="masters/vendors/:id" element={<VendorDetailsPage />} />
+                  <Route path="masters/vendors/add" element={<AddEditVendor />} />
+                  <Route path="masters/vendors/edit/:id" element={<AddEditVendor />} />
+                  <Route path="masters/expense-categories" element={<ExpenseCategoryMaster />} />
+                  <Route path="masters/budgets" element={<BudgetMaster />} />
+                  <Route path="masters/service-types" element={<ServiceTypeMaster />} />
+                  <Route path="masters/lease-custom-fields" element={<LeaseCustomFieldsManagement />} />
+                  <Route path="masters/lease-custom-fields/:id" element={<LeaseCustomFieldDetailsPage />} />
+                  <Route path="masters/regions" element={<RegionMaster />} />
+                  <Route path="masters/regions/:id" element={<RegionDetailsPage />} />
+                  <Route path="masters/zones" element={<ZoneMaster />} />
+                  <Route path="masters/zones/:id" element={<ZoneDetailsPage />} />
+                  <Route path="masters/cities" element={<CityMaster />} />
+                  <Route path="masters/circles" element={<CircleMaster />} />
+                  <Route path="masters/amenities" element={<AmenityMaster />} />
+                </Route>
               </Route>
               <Route path="login" element={<LoginPage setToken={() => { }} />} />
               <Route path="*" element={<NotFound />} />

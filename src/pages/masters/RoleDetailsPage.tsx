@@ -1,12 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
+import { DetailSection } from '@/components/ui/detail-section';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
-import { Shield, ArrowLeft, Loader2, Users, CheckCircle2 } from 'lucide-react';
+import { Shield, ArrowLeft, Users, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 const RoleDetailsPage = () => {
     const { id } = useParams();
@@ -33,63 +37,46 @@ const RoleDetailsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     if (!role) {
         return (
-            <div className="p-8 w-full bg-gray-50 min-h-screen">
+            <PageContainer>
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
                     <p className="text-gray-500">Role not found</p>
                     <Button onClick={() => navigate('/masters/roles')} className="mt-4">
                         Go Back
                     </Button>
                 </div>
-            </div>
+            </PageContainer>
         );
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate('/masters/roles')}
-                        className="text-gray-600 hover:text-gray-900"
-                    >
-                        <ArrowLeft className="h-5 w-5 mr-2" />
-                        Back to Roles
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Role Details</h1>
-                        <p className="text-gray-500">ID: {role.id}</p>
-                    </div>
-                </div>
+        <PageContainer>
+            <PageHeader
+                title="Role Details"
+                backTo="/masters/roles"
+                actions={
+                    <>
                 <div className="flex items-center gap-3">
                     <Badge className={role.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-red-500 hover:bg-red-600'}>
                         {role.is_active ? 'Active' : 'Inactive'}
                     </Badge>
-                </div>
-            </div>
+                    </div>
+                    </>
+                }
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Role Information */}
-                <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
-                    <CardHeader className="border-b border-gray-100">
-                        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                            <Shield className="h-5 w-5 text-[#C72030]" />
-                            General Information
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                        <div className="space-y-6">
+                <DetailSection title="General Information" className="lg:col-span-2">
+                        <div className="space-y-5">
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Role Name</p>
-                                <p className="text-2xl font-bold text-gray-900">{role.name}</p>
+                                <p className="text-brand-body-1 font-bold text-gray-900">{role.name}</p>
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Description</p>
@@ -111,21 +98,13 @@ const RoleDetailsPage = () => {
                                 </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                </DetailSection>
 
                 {/* Usage Statistics */}
-                <Card className="bg-white border border-gray-200 shadow-sm">
-                    <CardHeader className="border-b border-gray-100">
-                        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                            <Users className="h-5 w-5 text-[#C72030]" />
-                            Associated Users
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                        <div className="space-y-6">
+                <DetailSection title="Associated Users">
+                        <div className="space-y-5">
                             <div className="text-center p-6 bg-red-50 rounded-xl border border-red-100">
-                                <p className="text-4xl font-bold text-[#C72030]">{role.users_count || 0}</p>
+                                <p className="text-brand-h1 font-bold text-[#C72030]">{role.users_count || 0}</p>
                                 <p className="text-[10px] text-red-600 uppercase font-semibold tracking-wider mt-1">Active Users</p>
                             </div>
 
@@ -163,10 +142,9 @@ const RoleDetailsPage = () => {
                                 </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                </DetailSection>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

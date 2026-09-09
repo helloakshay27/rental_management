@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { PageContainer } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -161,10 +162,10 @@ const Masters = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <PageContainer>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1a1a1a]">Masters</h1>
+          <h1 className="text-brand-body-1 font-bold text-[#1a1a1a]">Masters</h1>
           <p className="text-[#D5DbDB]">Manage all master data and system configurations</p>
         </div>
       </div>
@@ -183,7 +184,7 @@ const Masters = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <Link to={module.path}>
-                  <Button className="w-full bg-[#C72030] hover:bg-[#A01825]">
+                  <Button className="w-full fm-button-fix fm-button-brand px-6 py-2">
                     Manage {module.title.split(' ')[0]}
                   </Button>
                 </Link>
@@ -192,7 +193,7 @@ const Masters = () => {
           );
         })}
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

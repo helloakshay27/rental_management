@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth, patchAuth, getToken, API_BASE_URL } from '@/lib/api';
 import { toast } from 'sonner';
 import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
+import { Heading, Text } from '@/components/ui/typography';
 
 const EditRentalPage = () => {
     const navigate = useNavigate();
@@ -626,15 +627,15 @@ const EditRentalPage = () => {
     };
 
     return (
-        <div className="p-8 w-full bg-white rounded-lg shadow-sm">
+        <div className="p-6 space-y-5">
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">Edit Rental</h1>
-                <p className="text-gray-500">Update rental agreement details</p>
+                <Heading level="h1">Edit Rental</Heading>
+                <Text size="sm" variant="muted">Update rental agreement details</Text>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Left Column */}
-                <div className="space-y-6">
+                <div className="space-y-5">
                     <div className="space-y-2 w-full">
                         <Label className="text-gray-900 font-medium">Circle *</Label>
                         <Select value={formData.circle} onValueChange={handleCircleSelect}>
@@ -1192,7 +1193,7 @@ const EditRentalPage = () => {
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-6">
+                <div className="space-y-5">
                     <div className="grid grid-cols-1 gap-6">
 
                         <div className="space-y-2">
@@ -1300,14 +1301,14 @@ const EditRentalPage = () => {
                             <Label className="text-gray-900 font-medium">Rent Payment Type</Label>
                             <RadioGroup defaultValue="advance">
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="advance" id="advance" className="text-[#C72030] border-gray-400" />
+                                    <RadioGroupItem value="advance" id="advance" />
                                     <div className="grid gap-0.5">
                                         <Label htmlFor="advance" className="text-gray-900 font-medium">Advance Payment</Label>
                                         <span className="text-xs text-gray-500">Rent is paid before the month begins</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="post" id="post" className="text-[#C72030] border-gray-400" />
+                                    <RadioGroupItem value="post" id="post" />
                                     <div className="grid gap-0.5">
                                         <Label htmlFor="post" className="text-gray-900 font-medium">Post Usage Payment</Label>
                                         <span className="text-xs text-gray-500">Rent is paid after the month ends</span>
@@ -1578,7 +1579,7 @@ const EditRentalPage = () => {
                     <Button
                         type="button"
                         onClick={addParking}
-                        className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                        className="fm-button-fix fm-button-brand px-6 py-2"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Parking
@@ -1819,7 +1820,7 @@ const EditRentalPage = () => {
                 <Button variant="outline" onClick={() => navigate(-1)} className="border-red-600 text-red-600 hover:bg-red-50" disabled={isSubmitting || loadingLease}>Cancel</Button>
                 <Button
                     onClick={handleSubmit}
-                    className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                    className="fm-button-fix fm-button-brand px-6 py-2"
                     disabled={isSubmitting || loadingLease}
                 >
                     {isSubmitting ? 'Updating...' : loadingLease ? 'Loading...' : 'Update Rental'}

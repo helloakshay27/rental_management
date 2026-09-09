@@ -1,19 +1,33 @@
 
 import React, { useState, useEffect } from 'react';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Button } from '@/components/ui/button';
-import { Search, Eye, Edit, AlertTriangle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, Edit, AlertTriangle, Plus } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
+
+const columns: ColumnConfig[] = [
+  { key: 'contract_number', label: 'Contract ID', sortable: true, draggable: true },
+  { key: 'service_type', label: 'Service', sortable: true, draggable: true },
+  { key: 'vendor', label: 'Vendor', sortable: true, draggable: true },
+  { key: 'site', label: 'Property', sortable: true, draggable: true },
+  { key: 'start_date', label: 'Start Date', sortable: true, draggable: true },
+  { key: 'end_date', label: 'End Date', sortable: true, draggable: true },
+  { key: 'contract_value', label: 'Value', sortable: true, draggable: true },
+  { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
 
 const ContractManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState('all');
   const [contracts, setContracts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -62,12 +76,14 @@ const ContractManagement = () => {
     fetchContracts(pagination.current_page);
   }, [statusFilter, pagination.current_page]);
 
-  const handleSearch = () => {
-    setPagination(prev => ({ ...prev, current_page: 1 }));
-    fetchContracts(1);
-  };
-
-  const contractsToDisplay = contracts; // Using server-side filtered data
+  // Server-side search: refetch from page 1 whenever the debounced term settles.
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setPagination(prev => (prev.current_page === 1 ? prev : { ...prev, current_page: 1 }));
+      fetchContracts(1);
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [searchTerm]);
 
   const getDaysToExpiry = (endDate: string) => {
     if (!endDate) return 0;
@@ -77,152 +93,138 @@ const ContractManagement = () => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  const renderCell = (contract: any, columnKey: string) => {
+    switch (columnKey) {
+      case 'contract_number':
+        return (
+          <span className="font-medium text-brand-text">
+            {contract.contract_number || `AMC${contract.id}`}
+          </span>
+        );
+      case 'vendor':
+        return contract.vendor?.vendor_name || contract.vendor?.name || 'N/A';
+      case 'site':
+        return contract.site?.name || 'N/A';
+      case 'contract_value':
+        return (
+          <span className="font-semibold text-brand-text">
+            ₹{parseFloat(contract.contract_value || 0).toLocaleString()}
+          </span>
+        );
+      case 'status': {
+        const daysToExpiry = getDaysToExpiry(contract.end_date);
+        return (
+          <div className="flex items-center space-x-2">
+            <span
+              className={`px-2 py-1 rounded-full text-brand-caption font-medium capitalize ${
+                contract.status === 'active'
+                  ? 'bg-brand-success-bg text-brand-success'
+                  : contract.status === 'expired'
+                  ? 'bg-brand-error-bg text-brand-error'
+                  : 'bg-brand-muted text-brand-text'
+              }`}
+            >
+              {contract.status}
+            </span>
+            {daysToExpiry <= 60 && daysToExpiry > 0 && contract.status === 'active' && (
+              <AlertTriangle className="h-4 w-4 text-brand-warning" />
+            )}
+          </div>
+        );
+      }
+      default:
+        return contract[columnKey];
+    }
+  };
+
+  const renderActions = (contract: any) => (
+    <div className="flex space-x-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        title="View"
+        onClick={() => navigate(`/amc/${contract.id}`)}
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        title="Edit"
+        onClick={() => navigate(`/amc/edit/${contract.id}`)}
+      >
+        <Edit className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const leftActions = (
+    <div className="flex items-center gap-2">
+      <Button onClick={() => navigate('/amc/new')} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Plus className="w-4 h-4 mr-2" />
+        Add AMC Contract
+      </Button>
+
+      <TableFilterDialog
+          open={isFilterOpen}
+          onOpenChange={setIsFilterOpen}
+          onApply={() => setStatusFilter(pendingStatus)}
+          onReset={() => {
+              setPendingStatus('all');
+              setStatusFilter('all');
+          }}
+      >
+          <FilterField label="Status">
+              <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                  <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                      <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                  </SelectContent>
+              </Select>
+          </FilterField>
+      </TableFilterDialog>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      <Card className="bg-white border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-gray-900">AMC Contracts</CardTitle>
-          <CardDescription className="text-gray-600">Manage all Annual Maintenance Contracts</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search contracts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10 bg-white text-gray-900 border border-gray-200"
-                />
-              </div>
-            </div>
-            <Button onClick={handleSearch} className="bg-[#C72030] hover:bg-[#A01825] text-white">
-              Search
-            </Button>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48 bg-white text-gray-900 border border-gray-200">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="border rounded-lg bg-white border-gray-200">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-white border-b border-gray-200">
-                  <TableHead className="text-gray-900 font-medium">Contract ID</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Service</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Vendor</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Property</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Start Date</TableHead>
-                  <TableHead className="text-gray-900 font-medium">End Date</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Value</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Status</TableHead>
-                  <TableHead className="text-gray-900 font-medium">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="bg-white">
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
-                      <div className="flex justify-center items-center">
-                        <Loader2 className="h-6 w-6 animate-spin text-[#C72030]" />
-                        <span className="ml-2 text-gray-500">Loading contracts...</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : contractsToDisplay.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-gray-500">
-                      No contracts found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  contractsToDisplay.map((contract) => {
-                    const daysToExpiry = getDaysToExpiry(contract.end_date);
-                    return (
-                      <TableRow key={contract.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <TableCell className="text-gray-900 font-medium">
-                          {contract.contract_number || `AMC${contract.id}`}
-                        </TableCell>
-                        <TableCell className="text-gray-700">{contract.service_type}</TableCell>
-                        <TableCell className="text-gray-700">{contract.vendor?.vendor_name || contract.vendor?.name || 'N/A'}</TableCell>
-                        <TableCell className="text-gray-700">{contract.site?.name || 'N/A'}</TableCell>
-                        <TableCell className="text-gray-700">{contract.start_date}</TableCell>
-                        <TableCell className="text-gray-700">{contract.end_date}</TableCell>
-                        <TableCell className="text-gray-900 font-semibold">₹{parseFloat(contract.contract_value || 0).toLocaleString()}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${contract.status === 'active' ? 'bg-green-100 text-green-800' :
-                              contract.status === 'expired' ? 'bg-red-100 text-red-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
-                              {contract.status}
-                            </span>
-                            {daysToExpiry <= 60 && daysToExpiry > 0 && contract.status === 'active' && (
-                              <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" onClick={() => navigate(`/amc/${contract.id}`)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" onClick={() => navigate(`/amc/edit/${contract.id}`)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination Controls */}
-          {!isLoading && pagination.total_pages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-              <p className="text-xs text-gray-500">
-                Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total_entries)} of {pagination.total_entries} contracts
-              </p>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={pagination.current_page === 1}
-                  onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="text-xs font-medium">
-                  Page {pagination.current_page} of {pagination.total_pages}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={pagination.current_page === pagination.total_pages}
-                  onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <div className="space-y-5">
+      <div>
+        <EnhancedTable
+          data={contracts}
+          columns={columns}
+          renderCell={renderCell}
+          renderActions={renderActions}
+          getItemId={(contract) => String(contract.id)}
+          storageKey="amc-contracts-table"
+          emptyMessage="No contracts found"
+          loading={isLoading}
+          loadingMessage="Loading contracts..."
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search contracts..."
+          disableClientSearch={true}
+          enableSearch={true}
+          enableSelection={false}
+          leftActions={leftActions}
+          onFilterClick={() => {
+              setPendingStatus(statusFilter);
+              setIsFilterOpen(true);
+          }}
+          exportFileName="amc-contracts"
+          pagination={true}
+          pageSize={pagination.per_page}
+          currentPage={pagination.current_page}
+          totalPages={pagination.total_pages}
+          onPageChange={(page) =>
+            setPagination(prev => ({ ...prev, current_page: page }))
+          }
+        />
+      </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FormSection } from '@/components/ui/form-section';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { getAuth, postAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 
 interface MonitorComplianceFormProps {
     initialData?: any;
@@ -170,17 +170,17 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8">
-            <Card className="bg-white border-gray-200 shadow-xl rounded-3xl overflow-hidden">
-                <CardContent className="p-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-                        <div className="space-y-3">
-                            <Label htmlFor="complianceRequirement" className="text-[#1a1a1a] font-bold text-base">Compliance Requirement *</Label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+            <FormSection step={1} title="Compliance Details">
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                            <Label htmlFor="complianceRequirement" className="text-gray-900 font-medium">Compliance Requirement *</Label>
                             <Select
                                 onValueChange={handleComplianceChange}
                                 value={formData.compliance_requirement_id}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                     <SelectValue placeholder="Select requirement" />
                                 </SelectTrigger>
                                 <SelectContent className='bg-white'>
@@ -193,13 +193,13 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             </Select>
                         </div>
 
-                        <div className="space-y-3">
-                            <Label htmlFor="site" className="text-[#1a1a1a] font-bold text-base">Property *</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="site" className="text-gray-900 font-medium">Property *</Label>
                             <Select
                                 onValueChange={(value) => setFormData({ ...formData, site_id: value })}
                                 value={formData.site_id}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                     <SelectValue placeholder="Select Property" />
                                 </SelectTrigger>
                                 <SelectContent className='bg-white'>
@@ -212,8 +212,8 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             </Select>
                         </div>
 
-                        <div className="space-y-3">
-                            <Label htmlFor="dueDate" className="text-[#1a1a1a] font-bold text-base">Due Date</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="dueDate" className="text-gray-900 font-medium">Due Date</Label>
                             <Input
                                 id="dueDate"
                                 type="date"
@@ -223,8 +223,8 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             />
                         </div>
 
-                        <div className="space-y-3">
-                            <Label htmlFor="issueDate" className="text-[#1a1a1a] font-bold text-base">Issue Date</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="issueDate" className="text-gray-900 font-medium">Issue Date</Label>
                             <Input
                                 id="issueDate"
                                 type="date"
@@ -234,8 +234,8 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             />
                         </div>
 
-                        <div className="space-y-3">
-                            <Label htmlFor="expiryDate" className="text-[#1a1a1a] font-bold text-base">Expiry Date</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="expiryDate" className="text-gray-900 font-medium">Expiry Date</Label>
                             <Input
                                 id="expiryDate"
                                 type="date"
@@ -245,13 +245,13 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             />
                         </div>
 
-                        <div className="space-y-3">
-                            <Label htmlFor="assignedTo" className="text-[#1a1a1a] font-bold text-base">Assigned To</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="assignedTo" className="text-gray-900 font-medium">Assigned To</Label>
                             <Select
                                 onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}
                                 value={formData.assigned_to}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                     <SelectValue placeholder="Select user" />
                                 </SelectTrigger>
                                 <SelectContent className='bg-white'>
@@ -264,8 +264,8 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             </Select>
                         </div>
 
-                        <div className="space-y-3">
-                            <Label htmlFor="documentType" className="text-[#1a1a1a] font-bold text-base">Document Type</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="documentType" className="text-gray-900 font-medium">Document Type</Label>
                             <Input
                                 id="documentType"
                                 value={formData.document_type}
@@ -274,13 +274,13 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             />
                         </div>
 
-                        <div className="space-y-3">
-                            <Label htmlFor="status" className="text-[#1a1a1a] font-bold text-base">Status</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="status" className="text-gray-900 font-medium">Status</Label>
                             <Select
                                 onValueChange={(value) => setFormData({ ...formData, status: value })}
                                 value={formData.status}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent className='bg-white'>
@@ -293,7 +293,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                         </div>
 
                         <div className="space-y-3 md:col-span-2">
-                            <Label htmlFor="remarks" className="text-[#1a1a1a] font-bold text-base">Remarks</Label>
+                            <Label htmlFor="remarks" className="text-gray-900 font-medium">Remarks</Label>
                             <Textarea
                                 id="remarks"
                                 placeholder="Enter any remarks..."
@@ -304,7 +304,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                         </div>
 
                         <div className="space-y-3 md:col-span-2">
-                            <Label htmlFor="file" className="text-[#1a1a1a] font-bold text-base">
+                            <Label htmlFor="file" className="text-gray-900 font-medium">
                                 {isEdit ? 'Replace Document (optional)' : 'Upload Compliance Document *'}
                             </Label>
                             <div className="relative">
@@ -347,20 +347,19 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             type="button"
                             variant="outline"
                             onClick={() => navigate('/compliance')}
-                            className="border-gray-200 text-gray-600 hover:bg-gray-50 h-14 px-10 rounded-xl font-bold transition-all text-base"
+                            className="border-gray-200 text-gray-600 hover:bg-gray-50 h-10 px-8 !rounded-sm font-semibold transition-colors"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
-                            className="bg-[#C72030] hover:bg-[#A01825] text-white h-14 px-12 rounded-xl font-bold shadow-lg shadow-red-100 transition-all active:scale-95 text-base"
+                            className="fm-button-fix fm-button-brand px-6 py-2"
                             disabled={isLoading}
                         >
                             {isLoading ? 'Processing...' : (isEdit ? 'Update Compliance' : 'Submit Compliance')}
                         </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                </div>
+                        </FormSection>
         </form>
     );
 };

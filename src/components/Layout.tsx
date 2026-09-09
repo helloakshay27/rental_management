@@ -13,7 +13,11 @@ const Layout = () => {
         isCollapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* min-w-0 lets this column shrink below its content's intrinsic width.
+          Without it a flex item defaults to min-width:auto, so one oversized
+          child (a chart, a wide table) widens the whole page instead of
+          scrolling inside its own container. */}
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto bg-white p-0 m-0">
           <Outlet />

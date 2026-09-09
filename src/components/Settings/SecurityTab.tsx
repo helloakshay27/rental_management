@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Shield, Loader2, KeyRound } from 'lucide-react';
+import { Spinner } from '@/components/ui/loader';
+import { Shield, KeyRound } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,7 +81,7 @@ const SecurityTab = () => {
   };
 
   return (
-    <Card>
+    <Card className="bg-white">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Shield className="h-5 w-5 text-[#C72030]" />
@@ -108,7 +109,7 @@ const SecurityTab = () => {
             </DialogTrigger>
             <DialogContent className="max-w-md bg-white">
               <DialogHeader>
-                <DialogTitle className="text-gray-900 font-semibold text-xl">Change Password</DialogTitle>
+                <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Change Password</DialogTitle>
                 <DialogDescription className="text-gray-600">
                   Please enter your current password to verify your identity, then enter your new password.
                 </DialogDescription>
@@ -157,13 +158,13 @@ const SecurityTab = () => {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-[#C72030] hover:bg-[#A01825] text-white font-medium"
+                  className="fm-button-fix fm-button-brand px-6 py-2"
                   onClick={handlePasswordChange}
                   disabled={loading}
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Spinner className="mr-2" />
                       Updating...
                     </>
                   ) : (

@@ -104,14 +104,14 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                 <Button
                     type="button"
                     onClick={addService}
-                    className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                    className="fm-button-fix fm-button-brand px-6 py-2"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Service
                 </Button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-5">
                 {services.map((service, index) => (
                     <div key={index} className="p-4 border border-gray-200 rounded-md bg-gray-50/50">
                         <div className="flex justify-between items-start mb-4">

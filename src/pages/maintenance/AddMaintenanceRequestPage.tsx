@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { FormSection, FormActions } from '@/components/ui/form-section';
+import { PageLoader, Spinner } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,9 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Loader2, Upload, X, FileText } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, FileText } from 'lucide-react';
 import { getAuth, postAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { Heading, Text } from '@/components/ui/typography';
 
 const AddMaintenanceRequestPage = () => {
     const navigate = useNavigate();
@@ -168,31 +172,20 @@ const AddMaintenanceRequestPage = () => {
 
     if (loadingResources) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="max-w-8xl mx-auto space-y-6">
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" onClick={() => navigate(-1)} className="p-0 hover:bg-transparent">
-                        <ArrowLeft className="h-6 w-6 text-gray-600" />
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">New Maintenance Request</h1>
-                        <p className="text-sm text-gray-500">Submit a new maintenance ticket</p>
-                    </div>
-                </div>
+        <PageContainer>
+            <PageHeader
+                title="New Maintenance Request"
+                description="Submit a new maintenance ticket"
+                backTo="/maintenance"
+            />
 
                 <form onSubmit={handleSubmit}>
-                    <Card className="bg-white border border-gray-200 shadow-sm">
-                        <CardHeader className="border-b border-gray-100 pb-4">
-                            <CardTitle className="text-lg font-bold text-gray-900">Request Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6 space-y-6">
+                    <FormSection step={1} title="Request Details" className="mb-5">
 
                             {/* Title & Description */}
                             <div className="space-y-4">
@@ -201,7 +194,7 @@ const AddMaintenanceRequestPage = () => {
                                     <Input
                                         value={formData.title}
                                         onChange={(e) => handleChange('title', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="bg-white border-gray-300 text-gray-900 h-11"
                                         placeholder="e.g. AC not cooling"
                                     />
                                 </div>
@@ -210,7 +203,7 @@ const AddMaintenanceRequestPage = () => {
                                     <Textarea
                                         value={formData.description}
                                         onChange={(e) => handleChange('description', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 min-h-[100px]"
+                                        className="bg-white border-gray-300 text-gray-900 h-11 min-h-[100px]"
                                         placeholder="Detailed description of the issue..."
                                     />
                                 </div>
@@ -222,7 +215,7 @@ const AddMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Property (Site) *</Label>
                                     <Select value={formData.site_id} onValueChange={(val) => handleChange('site_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                             <SelectValue placeholder="Select Property" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -237,7 +230,7 @@ const AddMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Tenant</Label>
                                     <Select value={formData.tenant_id} onValueChange={(val) => handleChange('tenant_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                             <SelectValue placeholder="Select Tenant" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -254,7 +247,7 @@ const AddMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Unit</Label>
                                     <Select value={formData.unit_id} onValueChange={(val) => handleChange('unit_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                             <SelectValue placeholder="Select Unit" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -271,7 +264,7 @@ const AddMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Vendor</Label>
                                     <Select value={formData.vendor_id} onValueChange={(val) => handleChange('vendor_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                             <SelectValue placeholder="Select Vendor" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -288,7 +281,7 @@ const AddMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Issue Type *</Label>
                                     <Select value={formData.issue_type} onValueChange={(val) => handleChange('issue_type', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                             <SelectValue placeholder="Select Type" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -306,7 +299,7 @@ const AddMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Priority</Label>
                                     <Select value={formData.priority} onValueChange={(val) => handleChange('priority', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                             <SelectValue placeholder="Select Priority" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -322,7 +315,7 @@ const AddMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Scope</Label>
                                     <Select value={formData.maintenance_scope} onValueChange={(val) => handleChange('maintenance_scope', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-11">
                                             <SelectValue placeholder="Select Scope" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -339,7 +332,7 @@ const AddMaintenanceRequestPage = () => {
                                         type="number"
                                         value={formData.estimated_cost}
                                         onChange={(e) => handleChange('estimated_cost', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="bg-white border-gray-300 text-gray-900 h-11"
                                         placeholder="0.00"
                                     />
                                 </div>
@@ -384,20 +377,19 @@ const AddMaintenanceRequestPage = () => {
                                 )}
                             </div>
 
-                        </CardContent>
-                        <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-                            <Button type="button" variant="outline" onClick={() => navigate(-1)} className="border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-bold h-11 px-6">
+                    </FormSection>
+
+            <FormActions>
+                            <Button type="button" variant="outline" onClick={() => navigate(-1)} className="fm-button-fix px-8 py-2">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isLoading} className="bg-[#C72030] hover:bg-[#A01825] text-white min-w-[160px] font-bold h-11 shadow-sm transition-all active:scale-95">
-                                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand px-8 py-2">
+                                {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                                 Submit Request
                             </Button>
-                        </div>
-                    </Card>
+            </FormActions>
                 </form>
-            </div>
-        </div>
+        </PageContainer>
     );
 };
 

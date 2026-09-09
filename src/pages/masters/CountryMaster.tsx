@@ -1,17 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Edit, Trash2, Globe, ChevronLeft, Eye } from 'lucide-react';
+import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
+import { ColumnConfig } from '@/hooks/useEnhancedTable';
+import { Plus, Edit, Trash2, Globe, Eye } from 'lucide-react';
 import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Heading, Text } from '@/components/ui/typography';
 
 interface Country {
     id: number;
@@ -25,10 +29,20 @@ interface Country {
     updated_at: string;
 }
 
+const columns: ColumnConfig[] = [
+    { key: 'name', label: 'Country Details', sortable: true, draggable: true },
+    { key: 'code', label: 'Codes', sortable: true, draggable: true },
+    { key: 'phone_code', label: 'Phone Code', sortable: true, draggable: true },
+    { key: 'currency_code', label: 'Currency', sortable: true, draggable: true },
+    { key: 'status', label: 'Status', sortable: true, draggable: true },
+];
+
 const CountryMaster = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [pendingStatus, setPendingStatus] = useState('all');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [editingCountry, setEditingCountry] = useState<Country | null>(null);
@@ -201,33 +215,109 @@ const CountryMaster = () => {
         }
     };
 
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate('/masters')}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </Button>
+    const renderCell = (country: Country, columnKey: string) => {
+        switch (columnKey) {
+            case 'name':
+                return (
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Country Master</h1>
-                        <p className="text-gray-600">Manage countries with their codes and currency information</p>
+                        <div className="flex items-center mb-1">
+                            <Globe className="h-4 w-4 mr-2 text-brand" />
+                            <p className="font-medium">{country.name}</p>
+                        </div>
+                        <p className="text-brand-caption text-brand-text-light">ID: {country.id}</p>
                     </div>
-                </div>
+                );
+            case 'code':
+                return (
+                    <div>
+                        <Badge variant="outline" className="mb-1">{country.code}</Badge>
+                        {country.iso_code && (
+                            <p className="text-brand-caption text-brand-text-light">ISO: {country.iso_code}</p>
+                        )}
+                    </div>
+                );
+            case 'phone_code':
+                return <Badge variant="secondary">{country.phone_code || 'N/A'}</Badge>;
+            case 'currency_code':
+                return <Badge variant="success">{country.currency_code || 'N/A'}</Badge>;
+            case 'status':
+                return (
+                    <Select
+                        value={country.status || 'Active'}
+                        onValueChange={(value) => handleUpdateStatus(country.id, value)}
+                    >
+                        <SelectTrigger
+                            className={`w-32 h-8 ${country.status?.toLowerCase() === 'active'
+                                ? 'bg-brand-success-bg text-brand-success'
+                                : 'bg-brand-muted text-brand-text'}`}
+                        >
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+                );
+            default:
+                return country[columnKey as keyof Country];
+        }
+    };
+
+    const renderActions = (country: Country) => (
+        <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="sm" title="View" onClick={() => navigate(`/masters/countries/${country.id}`)}>
+                <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Edit" onClick={() => handleEditCountry(country)}>
+                <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Delete" className="text-brand-error" onClick={() => handleDeleteCountry(country.id)}>
+                <Trash2 className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+
+    const leftActions = (
+        <div className="flex items-center gap-2">
+            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Country
+            </Button>
+
+            <TableFilterDialog
+                open={isFilterOpen}
+                onOpenChange={setIsFilterOpen}
+                onApply={() => setStatusFilter(pendingStatus)}
+                onReset={() => {
+                    setPendingStatus('all');
+                    setStatusFilter('all');
+                }}
+            >
+                <FilterField label="Status">
+                    <Select value={pendingStatus} onValueChange={setPendingStatus}>
+                        <SelectTrigger className="h-auto border-0 p-0 shadow-none focus:ring-0">
+                            <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </FilterField>
+            </TableFilterDialog>
+        </div>
+    );
+
+    return (
+        <PageContainer>
+            <div className="flex items-center justify-between">
+                <PageHeader title="Country Master" description="Manage countries with their codes and currency information" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-[#C72030] hover:bg-[#A01825]" onClick={() => setIsDialogOpen(true)}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Country
-                        </Button>
-                    </DialogTrigger>
                     <DialogContent className="max-w-2xl bg-white">
                         <DialogHeader>
-                            <DialogTitle className="text-gray-900 font-semibold text-xl">
+                            <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingCountry ? 'Edit Country' : 'Add New Country'}
                             </DialogTitle>
                             <DialogDescription className="text-gray-600">
@@ -327,7 +417,7 @@ const CountryMaster = () => {
                                 Cancel
                             </Button>
                             <Button
-                                className="bg-[#C72030] hover:bg-[#A01825] text-white"
+                                className="fm-button-fix fm-button-brand px-6 py-2"
                                 onClick={handleSubmit}
                                 disabled={isLoading}
                             >
@@ -338,120 +428,34 @@ const CountryMaster = () => {
                 </Dialog>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle>Countries Database</CardTitle>
-                            <CardDescription>Complete list of all countries in the system</CardDescription>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger className="w-40 bg-white">
-                                    <SelectValue placeholder="All Status" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white">
-                                    <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value="Active">Active</SelectItem>
-                                    <SelectItem value="Inactive">Inactive</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                <Input
-                                    placeholder="Search countries..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 w-64 bg-white"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {loadingCountries ? (
-                        <div className="text-center py-8 text-gray-500">Loading countries...</div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Country Details</TableHead>
-                                    <TableHead>Codes</TableHead>
-                                    <TableHead>Phone Code</TableHead>
-                                    <TableHead>Currency</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredCountries.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                                            No countries found
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    filteredCountries.map((country) => (
-                                        <TableRow key={country.id}>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="flex items-center mb-1">
-                                                        <Globe className="h-4 w-4 mr-2 text-[#C72030]" />
-                                                        <p className="font-medium">{country.name}</p>
-                                                    </div>
-                                                    <p className="text-xs text-gray-400">ID: {country.id}</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <Badge variant="outline" className="mb-1">{country.code}</Badge>
-                                                    {country.iso_code && (
-                                                        <p className="text-xs text-gray-500">ISO: {country.iso_code}</p>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary">{country.phone_code || 'N/A'}</Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className="bg-green-600 hover:bg-green-700">{country.currency_code || 'N/A'}</Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Select
-                                                    value={country.status || 'Active'}
-                                                    onValueChange={(value) => handleUpdateStatus(country.id, value)}
-                                                >
-                                                    <SelectTrigger className={`w-32 h-8 ${country.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
-                                                        <SelectValue placeholder="Status" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-white">
-                                                        <SelectItem value="Active">Active</SelectItem>
-                                                        <SelectItem value="Inactive">Inactive</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center space-x-2">
-                                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/masters/countries/${country.id}`)}>
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="sm" onClick={() => handleEditCountry(country)}>
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleDeleteCountry(country.id)}>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+            <div>
+                <EnhancedTable
+                    data={filteredCountries}
+                    columns={columns}
+                    renderCell={renderCell}
+                    renderActions={renderActions}
+                    getItemId={(country) => String(country.id)}
+                    storageKey="countries-master-table"
+                    emptyMessage="No countries found"
+                    loading={loadingCountries}
+                    loadingMessage="Loading countries..."
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Search countries..."
+                    disableClientSearch={true}
+                    enableSearch={true}
+                    enableSelection={false}
+                    leftActions={leftActions}
+                    onFilterClick={() => {
+                        setPendingStatus(statusFilter);
+                        setIsFilterOpen(true);
+                    }}
+                    exportFileName="countries"
+                    pagination={true}
+                    pageSize={10}
+                />
+            </div>
+        </PageContainer>
     );
 };
 

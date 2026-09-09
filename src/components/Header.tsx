@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Search, Mail, LogOut, MapPin, Building, ArrowLeft } from 'lucide-react';
+import { Spinner } from '@/components/ui/loader';
+import { Bell, Search, Mail, LogOut, MapPin, Building, ArrowLeft, Shield, ChevronRight, User, Users, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,9 +11,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, postAuth } from '@/lib/api';
+import { getAuth, postAuth, clearToken } from '@/lib/api';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge as UIBadge } from '@/components/ui/badge';
@@ -90,16 +90,11 @@ const Header = () => {
   }, []);
 
   const handleLogout = () => {
+    clearToken();
     try {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userEmail');
+      window.dispatchEvent(new Event('auth-changed'));
     } catch (e) { }
     navigate('/login', { replace: true });
-    // reload to reset any in-memory auth state
-    try {
-      window.location.reload();
-    } catch (e) { }
   };
 
   const initials = (() => {
@@ -131,8 +126,8 @@ const Header = () => {
   ] : [];
 
   return (
-    <header className="bg-[#f6f4ee] px-6 py-4 shadow-sm border-b border-gray-200">
-      <div className="flex items-center justify-between">
+    <header className="h-16 shrink-0 bg-[#f6f4ee] px-6 flex items-center shadow-sm border-b border-gray-200">
+      <div className="flex items-center justify-between w-full">
         {/* Navigation and Location Selectors removed */}
         <div className="flex-1"></div>
 
@@ -141,10 +136,10 @@ const Header = () => {
           {/* Notifications Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative text-gray-600 hover:bg-gray-100">
-                <Bell className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-[#E06A47]">
+                <Bell className="h-5 w-5" strokeWidth={1.75} />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#C72030] text-[10px] font-medium text-white">
+                  <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#E06A47] px-1 text-[10px] font-semibold leading-none text-white">
                     {unreadCount}
                   </span>
                 )}
@@ -174,7 +169,7 @@ const Header = () => {
               <ScrollArea className="h-[350px]">
                 {loadingNotifications ? (
                   <div className="flex justify-center items-center py-8">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#C72030]"></div>
+                    <Spinner className="h-6 w-6 text-brand" />
                   </div>
                 ) : notifications.length > 0 ? (
                   notifications.map((notification: any) => (
@@ -212,41 +207,41 @@ const Header = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="flex items-center space-x-3 text-[#1a1a1a] hover:bg-gray-100 hover:text-[#1a1a1a] px-3 py-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={currentUser?.avatar_url} />
-                  <AvatarFallback className="bg-[#C72030] text-white font-medium">{initials}</AvatarFallback>
-                </Avatar>
-                <div className="hidden md:block text-left">
-                  <p className="text-body font-medium text-[#1a1a1a]">{currentUser?.full_name || currentUser?.email || 'Guest User'}</p>
-                  <p className="text-body-sm text-gray-500">{currentUser?.roles?.[0] || 'User'}</p>
-                </div>
+              <Button variant="ghost" size="icon" className="rounded-full p-0 h-8 w-8 hover:opacity-90 focus-visible:ring-0 [&_svg]:!text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E06A47]">
+                  <UserRound className="h-4 w-4 text-white" fill="none" strokeWidth={1.75} />
+                </span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 bg-white border-gray-200 shadow-dropdown p-3">
-              <div className="flex items-start space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={currentUser?.avatar_url} />
-                  <AvatarFallback className="bg-[#C72030] text-white font-medium">{initials}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="font-medium text-sm text-[#1a1a1a]">{currentUser?.full_name || currentUser?.email || 'Guest User'}</p>
-                  <div className="flex items-center text-sm text-gray-500 space-x-2 mt-1">
-                    <Mail className="h-4 w-4 text-gray-400" />
-                    <span>{currentUser?.email || ''}</span>
-                  </div>
-                  <div className="mt-2">
-                    <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{currentUser?.roles?.[0] || 'User'}</span>
-                  </div>
+            <DropdownMenuContent align="end" className="w-64 bg-white border-gray-200 shadow-dropdown p-0 rounded-md overflow-hidden">
+              {/* Identity */}
+              <div className="px-4 pt-4 pb-3">
+                <p className="font-semibold text-sm text-[#1a1a1a] leading-tight">
+                  {currentUser?.full_name || 'Guest User'}
+                </p>
+                <p className="text-sm text-[#2563eb] mt-1 break-all">{currentUser?.email || ''}</p>
+                <div className="mt-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-[11px] font-medium text-green-700">
+                    <Shield className="h-3 w-3" />
+                    {currentUser?.roles?.[0] || 'User'}
+                  </span>
                 </div>
               </div>
-              <DropdownMenuSeparator className="my-2 bg-gray-200" />
-              <DropdownMenuItem onClick={handleLogout} className="flex items-center space-x-2 text-[#C72030] hover:bg-gray-50">
-                <LogOut size={16} />
-                <span>Logout</span>
-              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-0 bg-gray-200" />
+
+              <div className="py-1">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-500 focus:bg-gray-50 focus:text-gray-700 cursor-pointer rounded-none"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
+
         </div>
       </div>
     </header>

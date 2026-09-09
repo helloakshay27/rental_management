@@ -1,21 +1,16 @@
 
 import React from 'react';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import InvoiceManagement from '@/components/Dashboard/InvoiceManagement';
+import { Heading } from '@/components/ui/typography';
 
 const Invoicing = () => {
   return (
-    <div className="p-6 space-y-6 bg-white min-h-full">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-[#1a1a1a]">Invoice Management</h1>
-          <p className="text-[#1a1a1a]/70 mt-2">
-            Create, manage, and track invoices for your properties
-          </p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader title="Invoice Management" description="Create, manage, and track invoices for your properties" />
 
       <InvoiceManagement />
-    </div>
+    </PageContainer>
   );
 };
 

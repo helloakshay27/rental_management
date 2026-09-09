@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building, Shield, Wrench, Loader2 } from 'lucide-react';
+import { PageLoader } from '@/components/ui/loader';
+import { StatsGrid } from '@/components/ui/page';
+import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building, Shield, Wrench, LayoutDashboard } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
 
@@ -156,16 +158,14 @@ const TenantDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
-        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-      </div>
+      <PageLoader />
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Enhanced Stats Grid for Large-Scale Operations */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StatsGrid>
         <StatCard
           title="Total Properties"
           value={dashboardData?.summary?.total_properties ?? 0}
@@ -202,22 +202,23 @@ const TenantDashboard = () => {
           color="bg-[#C72030]"
           backgroundColor="bg-[#f6f4ee]"
         />
-      </div>
+      </StatsGrid>
 
       {/* Quick Actions for Tenant Operations */}
       <QuickActions />
 
       {/* Tabbed Analytics Section */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg p-1">
-          <TabsTrigger value="overview" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+        <TabsList>
+          <TabsTrigger value="overview">
+            <LayoutDashboard className="h-4 w-4 mr-2" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="deposits" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="deposits">
             <Shield className="h-4 w-4 mr-2" />
             Security Deposits
           </TabsTrigger>
-          <TabsTrigger value="regional" className="text-[#1a1a1a] data-[state=active]:bg-[#C72030] data-[state=active]:text-white">
+          <TabsTrigger value="regional">
             <MapPin className="h-4 w-4 mr-2" />
             Regional
           </TabsTrigger>
@@ -264,7 +265,7 @@ const TenantDashboard = () => {
                       No critical alerts at this time
                     </div>
                   )}
-                  <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
+                  <Button className="w-full fm-button-fix fm-button-brand px-6 py-2">
                     View All Alerts
                   </Button>
                 </div>
@@ -303,7 +304,7 @@ const TenantDashboard = () => {
                       No upcoming rent payments
                     </div>
                   )}
-                  <Button className="w-full bg-[#C72030] hover:bg-[#A01825] text-white">
+                  <Button className="w-full fm-button-fix fm-button-brand px-6 py-2">
                     Bulk Payment Processing
                   </Button>
                 </div>

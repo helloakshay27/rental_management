@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SectionLoader } from '@/components/ui/loader';
+import { Panel, PanelRow, PanelBadge } from '@/components/ui/panel';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts';
-import { MapPin, TrendingUp, Loader2, Clock, CheckCircle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { AreaChart, Area, XAxis, YAxis, Legend } from 'recharts';
+import { MapPin, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 
 const regionalData = [
   { month: 'Jan', mumbai: 12.5, delhi: 11.2, bangalore: 8.9, chennai: 6.1, others: 7.3 },
@@ -15,7 +15,9 @@ const regionalData = [
   { month: 'Jun', mumbai: 14.5, delhi: 12.8, bangalore: 10.3, chennai: 7.2, others: 8.7 }
 ];
 
-const COLORS = ['#C72030', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFA726', '#BDC3C7'];
+// Distinct series colours from the brand palette (two source hexes previously
+// collapsed onto the same mint, making two regions indistinguishable).
+const COLORS = ['#DA7756', '#E7848E', '#9EC8BA', '#76CDC1', '#8E7BE0', '#EDC488', '#D3D1C7'];
 
 const TenantRegionalAnalytics = ({ data, loading }: { data: any, loading: boolean }) => {
   // Transform API data structure to Recharts format
@@ -45,110 +47,118 @@ const TenantRegionalAnalytics = ({ data, loading }: { data: any, loading: boolea
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-      </div>
+      <SectionLoader />
     );
   }
 
   return (
-    <Card className="bg-white border border-gray-200">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a] flex items-center gap-2">
-          <MapPin className="h-6 w-6" />
-          Regional Expense Trends
-        </CardTitle>
-        <p className="text-sm text-gray-600">Monthly expense breakdown by region (₹ Crores)</p>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Chart */}
+    <div className="space-y-5">
+      <Panel
+        title={
+          <span className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-brand" />
+            Regional Expense Trends
+          </span>
+        }
+        description="Monthly expense breakdown by region (₹ Crores)"
+      >
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <ChartContainer config={chartConfig} className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={regionalData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
-                  {Object.keys(chartConfig).map((cityKey) => (
-                    <Area
-                      key={cityKey}
-                      type="monotone"
-                      dataKey={cityKey}
-                      stackId="1"
-                      stroke={chartConfig[cityKey].color}
-                      fill={chartConfig[cityKey].color}
-                      fillOpacity={0.8}
-                    />
-                  ))}
-                </AreaChart>
-              </ResponsiveContainer>
+              <AreaChart data={regionalData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Legend />
+                {Object.keys(chartConfig).map((cityKey) => (
+                  <Area
+                    key={cityKey}
+                    type="monotone"
+                    dataKey={cityKey}
+                    stackId="1"
+                    stroke={chartConfig[cityKey].color}
+                    fill={chartConfig[cityKey].color}
+                    fillOpacity={0.8}
+                  />
+                ))}
+              </AreaChart>
             </ChartContainer>
           </div>
 
-          {/* Regional Summary */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-[#1a1a1a] flex items-center gap-2">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-brand-body-4 font-semibold text-brand-text">
               <TrendingUp className="h-4 w-4" />
               Regional Performance
-            </h4>
-            <div className="space-y-3">
-              {regionalPerformance.map((region: any, index: number) => {
-                const growthVal = parseFloat(region.yoy_growth?.toString() || '0');
-                const growthStr = growthVal >= 0 ? `+${growthVal.toFixed(1)}%` : `${growthVal.toFixed(1)}%`;
-
-                return (
-                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">{region.city}</p>
-                      <p className="text-sm text-gray-600">{region.properties} properties</p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-bold ${growthVal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {growthStr}
-                      </p>
-                      <p className="text-xs text-gray-500">YoY growth</p>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
-          </div>
-        </div>
+            {regionalPerformance.map((region: any, index: number) => {
+              const growthVal = parseFloat(region.yoy_growth?.toString() || '0');
+              const growthStr = growthVal >= 0 ? `+${growthVal.toFixed(1)}%` : `${growthVal.toFixed(1)}%`;
 
-        {/* Recent Activity Section */}
-        <div className="mt-8 pt-8 border-t border-gray-100">
-          <h4 className="font-semibold text-[#1a1a1a] flex items-center gap-2 mb-4">
-            <Clock className="h-4 w-4" />
-            Recent Regional Activity
-          </h4>
-          <div className="space-y-4">
-            {recentActivity.map((activity: any, index: number) => (
-              <div key={index} className="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex gap-4">
-                  <div className={`mt-1 p-2 rounded-full ${activity.status === 'success' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    <CheckCircle className={`h-4 w-4 ${activity.status === 'success' ? 'text-green-600' : 'text-gray-400'}`} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{activity.message}</p>
-                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                      <MapPin className="h-3 w-3" />
-                      {activity.city} • {activity.time_ago}
-                    </p>
-                  </div>
-                </div>
-                {activity.status && (
-                  <Badge className={`${activity.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                    {activity.status}
-                  </Badge>
-                )}
-              </div>
-            ))}
+              return (
+                <PanelRow
+                  key={index}
+                  label={region.city}
+                  hint={`${region.properties} properties`}
+                  value={
+                    <span className="text-right">
+                      <span
+                        className={`block ${growthVal >= 0 ? 'text-brand-success' : 'text-brand-error'}`}
+                      >
+                        {growthStr}
+                      </span>
+                      <span className="block text-brand-caption font-normal text-brand-text-light">
+                        YoY growth
+                      </span>
+                    </span>
+                  }
+                />
+              );
+            })}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </Panel>
+
+      <Panel
+        title={
+          <span className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-brand" />
+            Recent Regional Activity
+          </span>
+        }
+      >
+        {recentActivity.map((activity: any, index: number) => (
+          <PanelRow
+            key={index}
+            leading={
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-light">
+                <CheckCircle
+                  className={`h-4 w-4 ${activity.status === 'success' ? 'text-brand-success' : 'text-brand-text-light'}`}
+                />
+              </span>
+            }
+            label={activity.message}
+            hint={
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {activity.city} • {activity.time_ago}
+              </span>
+            }
+            value={
+              activity.status ? (
+                <PanelBadge tone="text-brand-success" className="capitalize">
+                  {activity.status}
+                </PanelBadge>
+              ) : null
+            }
+          />
+        ))}
+        {recentActivity.length === 0 && (
+          <div className="py-6 text-center text-brand-body-5 text-brand-text-light">
+            No recent activity.
+          </div>
+        )}
+      </Panel>
+    </div>
   );
 };
 

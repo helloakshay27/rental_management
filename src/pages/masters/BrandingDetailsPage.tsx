@@ -1,12 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
+import { DetailSection } from '@/components/ui/detail-section';
+import { PageLoader } from '@/components/ui/loader';
+import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
-import { Palette, ArrowLeft, Loader2, Building2, Mail, MapPin, Download, FileText, Image as ImageIcon } from 'lucide-react';
+import { Palette, ArrowLeft, Building2, Mail, MapPin, Download, FileText, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { Heading } from '@/components/ui/typography';
 
 const BrandingDetailsPage = () => {
     const { id } = useParams();
@@ -33,22 +37,20 @@ const BrandingDetailsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-            </div>
+            <PageLoader />
         );
     }
 
     if (!profile) {
         return (
-            <div className="p-8 w-full bg-gray-50 min-h-screen">
+            <PageContainer>
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
                     <p className="text-gray-500">Branding profile not found</p>
                     <Button onClick={() => navigate('/masters/branding')} className="mt-4">
                         Go Back
                     </Button>
                 </div>
-            </div>
+            </PageContainer>
         );
     }
 
@@ -57,26 +59,16 @@ const BrandingDetailsPage = () => {
     const logoUrl = logoDoc?.file_url ? (logoDoc.file_url.startsWith('http') ? logoDoc.file_url : `${baseUrl}${logoDoc.file_url}`) : null;
 
     return (
-        <div className="p-8 w-full bg-gray-50 min-h-screen">
-            <div className="mb-8 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate('/masters/branding')}
-                        className="text-gray-600 hover:text-gray-900"
-                    >
-                        <ArrowLeft className="h-5 w-5 mr-2" />
-                        Back to Branding
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Profile View</h1>
-                        <p className="text-sm font-medium text-gray-400">Master Identity System</p>
-                    </div>
-                </div>
-                <Badge className={profile.is_active ? 'bg-green-600 px-4 py-1.5 rounded-full' : 'bg-gray-500 px-4 py-1.5 rounded-full'}>
-                    {profile.is_active ? 'Active Profile' : 'Inactive Profile'}
-                </Badge>
-            </div>
+        <PageContainer>
+            <PageHeader
+                title="Profile View"
+                backTo="/masters/branding"
+                actions={
+                    <Badge className={profile.is_active ? 'bg-brand-success text-white' : 'bg-brand-muted text-brand-text'}>
+                        {profile.is_active ? 'Active Profile' : 'Inactive Profile'}
+                    </Badge>
+                }
+            />
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
                 {/* Branding Identity Card */}
@@ -117,14 +109,7 @@ const BrandingDetailsPage = () => {
                 </Card>
 
                 {/* Main Information */}
-                <Card className="xl:col-span-3 bg-white border border-gray-200 shadow-sm">
-                    <CardHeader className="border-b border-gray-100">
-                        <CardTitle className="text-lg font-bold flex items-center gap-2">
-                            <Building2 className="h-5 w-5 text-[#C72030]" />
-                            Corporate Configuration
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
+                <DetailSection title="Corporate Configuration" className="xl:col-span-3">
                         <div className="grid grid-cols-1 md:grid-cols-2">
                             <div className="p-8 space-y-8 border-b md:border-b-0 md:border-r border-gray-100">
                                 <div className="space-y-1">
@@ -146,7 +131,7 @@ const BrandingDetailsPage = () => {
                                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-4">Identity Assets</p>
                                     {logoDoc ? (
                                         <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
-                                            <div className="p-3 bg-red-50 rounded-xl text-[#C72030]">
+                                            <div className="rounded-md bg-brand-light p-2 text-brand">
                                                 <FileText className="h-6 w-6" />
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -181,10 +166,9 @@ const BrandingDetailsPage = () => {
                                 </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                </DetailSection>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 

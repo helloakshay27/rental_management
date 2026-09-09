@@ -16,7 +16,7 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({ open, onOpenChange 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-gray-900">Add New Expense</DialogTitle>
+          <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add New Expense</DialogTitle>
           <DialogDescription className="text-gray-600">
             Record a new operational expense
           </DialogDescription>
@@ -48,7 +48,7 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({ open, onOpenChange 
             <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 border-gray-200">
               Cancel
             </Button>
-            <Button onClick={() => onOpenChange(false)} className="flex-1 bg-[#C72030] hover:bg-[#A01825]">
+            <Button onClick={() => onOpenChange(false)} className="flex-1 fm-button-fix fm-button-brand px-6 py-2">
               Add Expense
             </Button>
           </div>

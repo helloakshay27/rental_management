@@ -53,7 +53,7 @@ const UpcomingRenewals = () => {
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-900">Upcoming Lease Renewals</CardTitle>
+        <CardTitle className="text-brand-body-1 font-bold text-gray-900">Upcoming Lease Renewals</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

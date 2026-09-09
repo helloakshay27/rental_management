@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Loader2, Camera } from 'lucide-react';
+import { SectionLoader, Spinner } from '@/components/ui/loader';
+import { User, Camera } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -132,9 +133,7 @@ const ProfileTab = () => {
 
   if (fetching) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-[#C72030]" />
-      </div>
+      <SectionLoader />
     );
   }
 
@@ -153,7 +152,7 @@ const ProfileTab = () => {
           <div className="relative group">
             <Avatar className="h-24 w-24 border-4 border-white shadow-md">
               <AvatarImage src={base64Image || userData.avatar_url} />
-              <AvatarFallback className="bg-[#C72030] text-white text-2xl font-black">
+              <AvatarFallback className="bg-[#C72030] text-white text-brand-body-1 font-black">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -270,9 +269,9 @@ const ProfileTab = () => {
           <Button
             onClick={handleSave}
             disabled={loading}
-            className="bg-[#C72030] hover:bg-[#A01825] text-white px-10 h-12 rounded-xl font-bold shadow-lg shadow-red-100 transition-all active:scale-95"
+            className="fm-button-fix fm-button-brand px-6 py-2"
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+            {loading ? <Spinner className="mr-2" /> : null}
             Save Changes
           </Button>
         </div>
