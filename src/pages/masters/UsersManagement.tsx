@@ -322,7 +322,7 @@ const UsersManagement = () => {
     <div className="flex items-center gap-2">
         <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
-            Add User
+            User
         </Button>
 
         <TableFilterDialog
@@ -360,7 +360,7 @@ const UsersManagement = () => {
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
               <DialogDescription className="text-gray-600">{editingUser ? 'Update user account information' : 'Create a new user account with basic information'}</DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="user-name" className="text-gray-900 font-medium">Full Name</Label>
                 <Input

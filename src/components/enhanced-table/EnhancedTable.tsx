@@ -861,7 +861,7 @@ export function EnhancedTable<T extends Record<string, any>>({
           }
           value={effectiveSearchValue}
           onChange={(e) => handleSearchInputChange(e.target.value)}
-          className="h-9 pl-10 pr-10"
+          className="h-9 pl-10 pr-10 text-[13px]"
           disabled={isSearching}
         />
         {effectiveSearchValue && (
@@ -1398,7 +1398,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                   placeholder={searchPlaceholder}
                   value={effectiveSearchValue}
                   onChange={(e) => handleSearchInputChange(e.target.value)}
-                  className="pl-10 pr-10 w-full"
+                  className="pl-10 pr-10 w-full text-[13px]"
                   disabled={isSearching}
                 />
                 {effectiveSearchValue && (
@@ -1427,7 +1427,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                   }
                   value={effectiveSearchValue}
                   onChange={(e) => handleSearchInputChange(e.target.value)}
-                  className="pl-10 pr-10 w-full"
+                  className="pl-10 pr-10 w-full text-[13px]"
                   disabled={isSearching}
                 />
                 {effectiveSearchValue && (

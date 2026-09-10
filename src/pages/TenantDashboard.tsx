@@ -22,7 +22,7 @@ const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) =>
         </div>
         <Button onClick={() => setIsAddDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
           <Plus className="h-4 w-4 mr-2" />
-          Add New Rental
+          New Rental
         </Button>
       </div>
 

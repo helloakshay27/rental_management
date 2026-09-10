@@ -41,7 +41,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
 
     return (
         <div
-            className={cn('mb-5 rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm', className)}
+            className={cn('mb-5 rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5', className)}
             {...props}
         >
             <div className="flex items-center gap-3 border-b border-gray-200 pb-3">

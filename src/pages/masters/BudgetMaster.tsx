@@ -280,7 +280,7 @@ const BudgetMaster = () => {
     const leftActions = (
                         <Button onClick={() => setIsAddModalOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
                             <Plus className="w-4 h-4 mr-2" />
-                            Add Budget
+                            Budget
                         </Button>
                     );
 
@@ -334,7 +334,7 @@ const BudgetMaster = () => {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="grid gap-2">
                                         <Label htmlFor="year" className="text-gray-900 font-medium">Year *</Label>
                                         <Input
@@ -448,7 +448,7 @@ const BudgetMaster = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="edit-year" className="text-gray-900 font-medium">Year *</Label>
                                     <Input

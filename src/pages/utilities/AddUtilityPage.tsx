@@ -116,12 +116,12 @@ const AddUtilityPage = () => {
             <form onSubmit={handleSubmit}>
                 <FormSection step={1} title="UTILITY CONNECTION DETAILS" className="mb-5">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">
                                     Property (Site)<span className="text-brand">*</span>
                                 </Label>
                                 <Select value={formData.site_id} onValueChange={(val) => handleChange('site_id', val)}>
-                                    <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 h-11">
+                                    <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 h-9 text-[13px]">
                                         <SelectValue placeholder="Select Property" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white">
@@ -132,12 +132,12 @@ const AddUtilityPage = () => {
                                 </Select>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">
                                     Utility Type<span className="text-brand">*</span>
                                 </Label>
                                 <Select value={formData.utility_type} onValueChange={(val) => handleChange('utility_type', val)}>
-                                    <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 h-11">
+                                    <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 h-9 text-[13px]">
                                         <SelectValue placeholder="Select Type" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white">
@@ -148,12 +148,12 @@ const AddUtilityPage = () => {
                                 </Select>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">
                                     Provider / Company<span className="text-brand">*</span>
                                 </Label>
                                 <Input
-                                    className="bg-white border-gray-300 text-gray-900 h-11"
+                                    className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
                                     placeholder="e.g. MSEB, TPEL, etc."
                                     value={formData.provider}
                                     onChange={(e) => handleChange('provider', e.target.value)}
@@ -161,23 +161,23 @@ const AddUtilityPage = () => {
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Meter Number</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Meter Number</Label>
                                 <Input
-                                    className="bg-white border-gray-300 text-gray-900 h-11"
+                                    className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
                                     placeholder="Enter meter or account number"
                                     value={formData.meter_number}
                                     onChange={(e) => handleChange('meter_number', e.target.value)}
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Estimated Monthly Cost</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Estimated Monthly Cost</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                     <Input
                                         type="number"
-                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
+                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         placeholder="0.00"
                                         value={formData.monthly_cost}
                                         onChange={(e) => handleChange('monthly_cost', e.target.value)}
@@ -185,9 +185,9 @@ const AddUtilityPage = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Status</Label>
-                                <div className="flex items-center justify-between h-11 px-4 border border-gray-300 rounded-md bg-white">
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Status</Label>
+                                <div className="flex items-center justify-between h-9 px-4 border border-gray-300 rounded-md bg-white">
                                     <span className="text-sm text-gray-700">
                                         {formData.is_active ? 'Active' : 'Inactive'}
                                     </span>
@@ -205,7 +205,7 @@ const AddUtilityPage = () => {
                         type="button"
                         variant="outline"
                         onClick={() => navigate(-1)}
-                        className="fm-button-fix px-8 py-2"
+                        className="fm-button-fix h-9 px-5 text-[13px]"
                         disabled={isLoading}
                     >
                         Cancel

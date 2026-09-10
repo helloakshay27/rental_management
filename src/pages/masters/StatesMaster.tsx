@@ -292,7 +292,7 @@ const StatesMaster = () => {
         <div className="flex items-center gap-2">
             <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
-                Add State
+                State
             </Button>
 
             <TableFilterDialog
@@ -352,7 +352,7 @@ const StatesMaster = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="state-name" className="text-gray-900 font-medium">State Name *</Label>
                                     <Input

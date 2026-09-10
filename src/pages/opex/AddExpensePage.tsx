@@ -123,12 +123,12 @@ const AddExpensePage = () => {
                 <form onSubmit={handleSubmit}>
                     <FormSection step={1} title="Expense Details" className="mb-5">
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Property Selection */}
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Property (Site) *</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Property (Site) *</Label>
                                     <Select value={formData.site_id} onValueChange={(val) => handleChange('site_id', val)}>
-                                        <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900">
+                                        <SelectTrigger className="h-9 w-full bg-white border border-gray-300 text-gray-900 text-[13px]">
                                             <SelectValue placeholder="Select Property" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-white">
@@ -140,10 +140,10 @@ const AddExpensePage = () => {
                                 </div>
 
                                 {/* Category Selection */}
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Expense Category *</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Expense Category *</Label>
                                     <Select value={formData.expense_category_id} onValueChange={(val) => handleChange('expense_category_id', val)}>
-                                        <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900">
+                                        <SelectTrigger className="h-9 w-full bg-white border border-gray-300 text-gray-900 text-[13px]">
                                             <SelectValue placeholder="Select Category" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-white">
@@ -155,10 +155,10 @@ const AddExpensePage = () => {
                                 </div>
 
                                 {/* Vendor Selection */}
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Vendor</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Vendor</Label>
                                     <Select value={formData.vendor_id} onValueChange={(val) => handleChange('vendor_id', val)}>
-                                        <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900">
+                                        <SelectTrigger className="h-9 w-full bg-white border border-gray-300 text-gray-900 text-[13px]">
                                             <SelectValue placeholder="Select Vendor" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-white">
@@ -172,10 +172,10 @@ const AddExpensePage = () => {
                                 </div>
 
                                 {/* Subcategory */}
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Subcategory</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Subcategory</Label>
                                     <Input
-                                        className="bg-white border-gray-300 text-gray-900"
+                                        className="h-9 bg-white border-gray-300 text-gray-900 text-[13px]"
                                         placeholder="e.g. Maintenance test"
                                         value={formData.subcategory}
                                         onChange={(e) => handleChange('subcategory', e.target.value)}
@@ -183,13 +183,13 @@ const AddExpensePage = () => {
                                 </div>
 
                                 {/* Amount */}
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Amount *</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Amount *</Label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-2.5 text-gray-500">₹</span>
+                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                         <Input
                                             type="number"
-                                            className="pl-8 bg-white border-gray-300 text-gray-900"
+                                            className="h-9 pl-8 bg-white border-gray-300 text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             placeholder="0.00"
                                             value={formData.amount}
                                             onChange={(e) => handleChange('amount', e.target.value)}
@@ -199,11 +199,11 @@ const AddExpensePage = () => {
                                 </div>
 
                                 {/* Date */}
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Expense Date *</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Expense Date *</Label>
                                     <Input
                                         type="date"
-                                        className="bg-white border-gray-300 text-gray-900"
+                                        className="h-9 bg-white border-gray-300 text-gray-900 text-[13px]"
                                         value={formData.expense_date}
                                         onChange={(e) => handleChange('expense_date', e.target.value)}
                                         required
@@ -212,10 +212,10 @@ const AddExpensePage = () => {
                             </div>
 
                             {/* Description */}
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Description</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Description</Label>
                                 <Textarea
-                                    className="bg-white border-gray-300 text-gray-900 min-h-[100px]"
+                                    className="bg-white border-gray-300 text-gray-900 min-h-[100px] text-[13px]"
                                     placeholder="Enter expense description..."
                                     value={formData.description}
                                     onChange={(e) => handleChange('description', e.target.value)}
@@ -240,7 +240,7 @@ const AddExpensePage = () => {
                             <Button type="button" variant="outline" onClick={() => navigate('/opex')} className="border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand px-8 py-2">
+                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]">
                                 {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                                 Save Expense
                             </Button>

@@ -338,7 +338,7 @@ const BrandingManagement = () => {
     <div className="flex items-center gap-2">
         <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
-            Add Branding Profile
+            Branding Profile
         </Button>
 
         <TableFilterDialog
@@ -380,8 +380,8 @@ const BrandingManagement = () => {
                 {editingProfile ? 'Update branding information' : 'Set up branding for property invoices and communications'}
               </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="space-y-2 col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2 col-span-full">
                 <Label htmlFor="profile-name" className="text-gray-900 font-medium">Profile Name *</Label>
                 <Input
                   id="profile-name"
@@ -412,7 +412,7 @@ const BrandingManagement = () => {
                   className="bg-white border-2 border-[#C72030] text-gray-900"
                 />
               </div>
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2 col-span-full">
                 <Label htmlFor="address" className="text-gray-900 font-medium">Company Address</Label>
                 <Textarea
                   id="address"
@@ -422,7 +422,7 @@ const BrandingManagement = () => {
                   className="bg-white border-gray-300 text-gray-900"
                 />
               </div>
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2 col-span-full">
                 <Label htmlFor="logo" className="text-gray-900 font-medium">Company Logo</Label>
                 <input
                   id="logo"

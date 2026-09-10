@@ -37,7 +37,7 @@ const DocumentUploadDialog = ({ isOpen, onClose, onUpload }: DocumentUploadDialo
                 <DialogHeader>
                     <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Upload Document</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-6 py-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-4">
                     <div className="space-y-2">
                         <Label htmlFor="name" className="text-gray-900 font-medium">Document Name *</Label>
                         <Input

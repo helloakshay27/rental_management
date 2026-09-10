@@ -213,7 +213,7 @@ const TakeoverConditionsManagement = () => {
     const leftActions = (
                         <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
                             <Plus className="w-4 h-4 mr-2" />
-                            Add Condition
+                            Condition
                         </Button>
                     );
 
@@ -238,7 +238,7 @@ const TakeoverConditionsManagement = () => {
                                     placeholder="e.g., Fully Furnished"
                                     value={formData.name}
                                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                    className="bg-white border-2 border-gray-100 focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-12 rounded-xl"
+                                    className="bg-white border-2 border-gray-100 focus:ring-[#C72030] text-gray-900 h-12 rounded-xl"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -273,7 +273,7 @@ const TakeoverConditionsManagement = () => {
                                     placeholder="Enter condition description"
                                     value={formData.description}
                                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                                    className="bg-white border-2 border-gray-100 focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 min-h-[100px] rounded-xl"
+                                    className="bg-white border-2 border-gray-100 focus:ring-[#C72030] text-gray-900 min-h-[100px] rounded-xl"
                                 />
                             </div>
                         </div>

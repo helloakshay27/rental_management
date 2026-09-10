@@ -107,7 +107,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                     className="fm-button-fix fm-button-brand px-6 py-2"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Service
+                    Service
                 </Button>
             </div>
 
@@ -135,7 +135,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     value={service.service_type}
                                     onValueChange={(value) => updateService(index, 'service_type', value)}
                                 >
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                         <SelectValue placeholder="Select Type" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -153,7 +153,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                 <Input
                                     value={service.provider_name}
                                     onChange={(e) => updateService(index, 'provider_name', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="e.g. Electricity Co"
                                 />
                             </div>
@@ -163,7 +163,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                 <Input
                                     value={service.consumer_number}
                                     onChange={(e) => updateService(index, 'consumer_number', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="e.g. E12345"
                                 />
                             </div>
@@ -175,7 +175,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     type="number"
                                     value={service.deposit}
                                     onChange={(e) => updateService(index, 'deposit', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="0"
                                 />
                             </div>
@@ -186,7 +186,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     type="number"
                                     value={service.fixed_monthly_charge}
                                     onChange={(e) => updateService(index, 'fixed_monthly_charge', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="0"
                                 />
                             </div>
@@ -197,7 +197,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     type="number"
                                     value={service.rate_per_sqft}
                                     onChange={(e) => updateService(index, 'rate_per_sqft', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="0"
                                 />
                             </div>
@@ -209,7 +209,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     value={service.billing_cycle}
                                     onValueChange={(value) => updateService(index, 'billing_cycle', value)}
                                 >
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -228,7 +228,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     max="31"
                                     value={service.due_date}
                                     onChange={(e) => updateService(index, 'due_date', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="5"
                                 />
                             </div>
@@ -239,7 +239,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     value={service.payment_mode}
                                     onValueChange={(value) => updateService(index, 'payment_mode', value)}
                                 >
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -257,7 +257,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                 <Input
                                     value={service.sap_vendor_code}
                                     onChange={(e) => updateService(index, 'sap_vendor_code', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="e.g. SAP987"
                                 />
                             </div>
@@ -267,7 +267,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                 <Input
                                     value={service.gl_code}
                                     onChange={(e) => updateService(index, 'gl_code', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="e.g. GL500"
                                 />
                             </div>
@@ -277,7 +277,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                 <Input
                                     value={service.cost_center}
                                     onChange={(e) => updateService(index, 'cost_center', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="e.g. CC100"
                                 />
                             </div>
@@ -298,7 +298,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     <Input
                                         value={service.automation_partner}
                                         onChange={(e) => updateService(index, 'automation_partner', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                         placeholder="e.g. XYZ"
                                     />
                                 </div>
@@ -309,7 +309,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                 <Input
                                     value={service.io_code}
                                     onChange={(e) => updateService(index, 'io_code', e.target.value)}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                     placeholder="e.g. IO200"
                                 />
                             </div>
@@ -325,7 +325,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     <Input
                                         value={service.company_contact_name}
                                         onChange={(e) => updateService(index, 'company_contact_name', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -333,7 +333,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     <Input
                                         value={service.company_contact_email}
                                         onChange={(e) => updateService(index, 'company_contact_email', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -341,7 +341,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     <Input
                                         value={service.company_contact_mobile}
                                         onChange={(e) => updateService(index, 'company_contact_mobile', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
                                     />
                                 </div>
                             </div>
@@ -354,7 +354,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     <Input
                                         value={service.landlord_contact_name}
                                         onChange={(e) => updateService(index, 'landlord_contact_name', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -362,7 +362,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     <Input
                                         value={service.landlord_contact_email}
                                         onChange={(e) => updateService(index, 'landlord_contact_email', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -370,7 +370,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                     <Input
                                         value={service.landlord_contact_mobile}
                                         onChange={(e) => updateService(index, 'landlord_contact_mobile', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 h-8"
                                     />
                                 </div>
                             </div>

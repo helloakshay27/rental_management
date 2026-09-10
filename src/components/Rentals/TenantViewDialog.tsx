@@ -59,7 +59,7 @@ const TenantViewDialog = ({ tenant, open, onOpenChange }: TenantViewDialogProps)
                 {getStatusBadge(tenant.status)}
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
                   <User className="h-4 w-4 text-gray-500" />
                   <div>
@@ -111,7 +111,7 @@ const TenantViewDialog = ({ tenant, open, onOpenChange }: TenantViewDialogProps)
             <CardContent className="p-4 space-y-4">
               <h3 className="text-lg font-medium text-[#1a1a1a]">Property & Lease Information</h3>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4 text-gray-500" />
                   <div>

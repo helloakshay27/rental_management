@@ -109,7 +109,7 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Cost Type *</Label>
                                     <Select
@@ -140,7 +140,7 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
                                     />
                                 </div>
 
-                                <div className="space-y-2 col-span-2">
+                                <div className="space-y-2 col-span-full">
                                     <Label className="text-gray-900 font-medium">Description *</Label>
                                     <Textarea
                                         value={cost.description}

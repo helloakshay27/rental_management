@@ -161,7 +161,7 @@ const AccessManagement = () => {
               <DialogTitle>Configure User Access</DialogTitle>
               <DialogDescription>Set specific permissions and restrictions for a user</DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="user-select">Select User</Label>
                 <Select>

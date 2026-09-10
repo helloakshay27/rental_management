@@ -23,7 +23,7 @@ export const PageContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     children,
     ...props
 }) => (
-    <div className={cn('p-6 space-y-5', className)} {...props}>
+    <div className={cn('p-4 space-y-5 sm:p-6', className)} {...props}>
         {children}
     </div>
 );

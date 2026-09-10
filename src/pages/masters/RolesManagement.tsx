@@ -353,7 +353,7 @@ const RolesManagement = () => {
               <DialogDescription className="text-gray-600">{editingRole ? 'Update the role details and permissions' : 'Define a new role with specific permissions'}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role-name" className="text-gray-900 font-medium">Role Name</Label>
                   <Input
@@ -361,10 +361,10 @@ const RolesManagement = () => {
                     placeholder="Enter role name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="bg-white border-2 border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                    className="bg-white border-2 border-[#C72030] focus:ring-[#C72030] text-gray-900"
                   />
                 </div>
-                <div className="space-y-2 col-span-2">
+                <div className="space-y-2 col-span-full">
                   <Label className="text-gray-900 font-medium">Status *</Label>
                   <div className="flex items-center space-x-6 pt-2">
                     <label className="flex items-center space-x-2 cursor-pointer">
@@ -396,12 +396,12 @@ const RolesManagement = () => {
                     placeholder="Enter role description"
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="bg-white border-gray-300 focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 min-h-[100px]"
+                    className="bg-white border-gray-300 focus:ring-[#C72030] text-gray-900 min-h-[100px]"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-gray-900 font-medium">Permissions</Label>
-                  <div className="grid grid-cols-3 gap-3 max-h-48 overflow-y-auto p-4 border-gray-300 rounded-md bg-white">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-4 border-gray-300 rounded-md bg-white">
                     {availablePermissions.map((permission) => (
                       <div key={permission} className="flex items-center space-x-2">
                         <Checkbox

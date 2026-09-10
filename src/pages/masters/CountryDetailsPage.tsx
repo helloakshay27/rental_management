@@ -1,16 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { DetailHeader, DetailSection } from '@/components/ui/detail-section';
+import { DetailHeader, DetailSection, DetailGrid, DetailField } from '@/components/ui/detail-section';
 import { PageLoader } from '@/components/ui/loader';
 import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
-import { Globe, ArrowLeft, Landmark, Coins, Hash, Flag } from 'lucide-react';
 import { toast } from 'sonner';
-import { Heading, Text } from '@/components/ui/typography';
 
 const CountryDetailsPage = () => {
     const { id } = useParams();
@@ -77,58 +74,24 @@ const CountryDetailsPage = () => {
             />
 
             <DetailSection title="Country Information">
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-                        <div className="space-y-5 p-6">
-                            <div className="flex items-center gap-4">
-                                <div className="rounded-md bg-brand-light p-2 text-brand">
-                                    <Hash className="h-5 w-5 text-gray-500" />
-                                </div>
-                                <div>
-                                    <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">ISO Numeric Code</p>
-                                    <p className="text-lg font-bold text-gray-900">{country.iso_code || '---'}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="rounded-md bg-brand-light p-2 text-brand">
-                                    <Landmark className="h-5 w-5 text-gray-500" />
-                                </div>
-                                <div>
-                                    <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Phone Dial Code</p>
-                                    <p className="text-lg font-bold text-gray-900">{country.phone_code || '---'}</p>
-                                </div>
-                            </div>
-                        </div>
+                <DetailGrid className="lg:grid-cols-4">
+                    <DetailField label="ISO Numeric Code" value={country.iso_code || '-'} />
+                    <DetailField label="Phone Dial Code" value={country.phone_code || '-'} />
+                    <DetailField label="Primary Currency" value={country.currency_code || '-'} />
+                    <DetailField
+                        label="Geopolitical Status"
+                        value={
+                            <Badge className={country.is_active ? 'bg-green-100 text-green-700 border-none' : 'bg-red-100 text-red-700 border-none'}>
+                                {country.is_active ? 'Operational' : 'Restricted'}
+                            </Badge>
+                        }
+                    />
+                </DetailGrid>
 
-                        <div className="space-y-5 p-6">
-                            <div className="flex items-center gap-4">
-                                <div className="rounded-md bg-brand-light p-2 text-brand">
-                                    <Coins className="h-5 w-5 text-gray-500" />
-                                </div>
-                                <div>
-                                    <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Primary Currency</p>
-                                    <p className="text-lg font-bold text-gray-900">{country.currency_code || '---'}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="rounded-md bg-brand-light p-2 text-brand">
-                                    <Flag className="h-5 w-5 text-gray-500" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Geopolitical Status</p>
-                                    <Badge className={country.is_active ? 'bg-green-100 text-green-700 border-none' : 'bg-red-100 text-red-700 border-none'}>
-                                        {country.is_active ? 'Operational' : 'Restricted'}
-                                    </Badge>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-8 bg-gray-50/50 border-t border-gray-100">
-                        <div className="flex items-center justify-between text-xs text-gray-400 font-medium">
-                            <span>Last system audit: {new Date(country.updated_at).toLocaleDateString()}</span>
-                            <span>Recorded since: {new Date(country.created_at).toLocaleDateString()}</span>
-                        </div>
-                    </div>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3 text-[12px] text-brand-text-light">
+                    <span>Last system audit: {country.updated_at ? new Date(country.updated_at).toLocaleDateString() : '-'}</span>
+                    <span>Recorded since: {country.created_at ? new Date(country.created_at).toLocaleDateString() : '-'}</span>
+                </div>
             </DetailSection>
         </PageContainer>
     );

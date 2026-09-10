@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Spinner } from '@/components/ui/loader';
-import { Bell, Search, Mail, LogOut, MapPin, Building, ArrowLeft, Shield, ChevronRight, User, Users, UserRound } from 'lucide-react';
+import { Bell, Search, Mail, LogOut, MapPin, Building, ArrowLeft, Shield, ChevronRight, Menu, User, Users, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,13 +11,19 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, clearToken } from '@/lib/api';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge as UIBadge } from '@/components/ui/badge';
+import { GoPhygitalLogo } from '@/components/ui/gophygital-logo';
 
-const Header = () => {
+interface HeaderProps {
+  /** Opens the mobile navigation drawer; only rendered below lg. */
+  onMenuClick?: () => void;
+}
+
+const Header = ({ onMenuClick }: HeaderProps) => {
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedZone, setSelectedZone] = useState('');
   const [selectedProperty, setSelectedProperty] = useState('');
@@ -126,18 +132,39 @@ const Header = () => {
   ] : [];
 
   return (
-    <header className="h-16 shrink-0 bg-[#f6f4ee] px-6 flex items-center shadow-sm border-b border-gray-200">
-      <div className="flex items-center justify-between w-full">
+    <header className="relative h-16 shrink-0 bg-[#f6f4ee] px-4 sm:px-6 flex items-center shadow-sm border-b border-gray-200">
+      <div className="flex items-center justify-between w-full gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuClick}
+          aria-label="Open navigation"
+          className="h-9 w-9 shrink-0 lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        {/* The sidebar (and its wordmark) is off-canvas below lg, so the
+            header carries the brand, centred between the two icon clusters. */}
+        <Link
+          to="/dashboard"
+          aria-label="Home"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden"
+        >
+          <GoPhygitalLogo className="h-8 w-[150px]" />
+        </Link>
         {/* Navigation and Location Selectors removed */}
         <div className="flex-1"></div>
 
         {/* User Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Notifications Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-[#E06A47]">
-                <Bell className="h-5 w-5" strokeWidth={1.75} />
+              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full p-0 hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-[#E06A47]">
+                {/* Same 32px circle as the avatar next to it, so the two controls read as one pair. */}
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E06A47]/10">
+                  <Bell className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                </span>
                 {unreadCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#E06A47] px-1 text-[10px] font-semibold leading-none text-white">
                     {unreadCount}
@@ -145,22 +172,22 @@ const Header = () => {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-white border-gray-200 shadow-dropdown p-0">
+            <DropdownMenuContent align="end" className="w-[min(360px,calc(100vw-2rem))] bg-white border-gray-200 shadow-dropdown p-0">
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                <h3 className="font-semibold text-sm text-gray-900">Notifications</h3>
+                <h3 className="font-semibold text-base text-gray-900">Notifications</h3>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-[10px] h-6 px-2 text-[#C72030] hover:bg-red-50"
+                      className="text-xs h-7 px-2 text-[#C72030] hover:bg-red-50"
                       onClick={() => (window as any).headerMarkAllRead?.()}
                     >
                       Mark all read
                     </Button>
                   )}
                   {unreadCount > 0 && (
-                    <UIBadge variant="secondary" className="bg-red-50 text-[#C72030] text-[10px] border-none">
+                    <UIBadge variant="secondary" className="bg-red-50 text-[#C72030] text-xs border-none">
                       {unreadCount} New
                     </UIBadge>
                   )}
@@ -178,10 +205,10 @@ const Header = () => {
                       className="flex flex-col items-start px-4 py-3 border-b border-gray-50 focus:bg-gray-50 cursor-pointer"
                     >
                       <div className="flex justify-between w-full mb-1">
-                        <span className="font-medium text-xs text-gray-900">{notification.title || 'Notification'}</span>
-                        <span className="text-[10px] text-gray-400">{notification.time_ago || 'Just now'}</span>
+                        <span className="font-semibold text-sm text-gray-900">{notification.title || 'Notification'}</span>
+                        <span className="text-xs text-gray-500">{notification.time_ago || 'Just now'}</span>
                       </div>
-                      <p className="text-xs text-gray-600 line-clamp-2">{notification.message || notification.content}</p>
+                      <p className="text-sm text-gray-700 line-clamp-2">{notification.message || notification.content}</p>
                       {!notification.read && (
                         <div className="mt-2 h-1.5 w-1.5 rounded-full bg-[#C72030]"></div>
                       )}
@@ -192,13 +219,13 @@ const Header = () => {
                     <div className="p-3 bg-gray-50 rounded-full mb-3">
                       <Bell className="h-6 w-6 text-gray-300" />
                     </div>
-                    <p className="text-sm font-medium text-gray-900">No notifications</p>
-                    <p className="text-xs text-gray-500 mt-1">We'll notify you when something happens</p>
+                    <p className="text-base font-medium text-gray-900">No notifications</p>
+                    <p className="text-sm text-gray-500 mt-1">We'll notify you when something happens</p>
                   </div>
                 )}
               </ScrollArea>
               <div className="p-2 border-t border-gray-100 flex justify-center">
-                <Button variant="ghost" size="sm" className="text-xs text-[#C72030] hover:bg-red-50 hover:text-[#C72030] w-full">
+                <Button variant="ghost" size="sm" className="text-sm font-medium text-[#C72030] hover:bg-red-50 hover:text-[#C72030] w-full">
                   View All Notifications
                 </Button>
               </div>
@@ -209,7 +236,7 @@ const Header = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full p-0 h-8 w-8 hover:opacity-90 focus-visible:ring-0 [&_svg]:!text-white">
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E06A47]">
-                  <UserRound className="h-4 w-4 text-white" fill="none" strokeWidth={1.75} />
+                  <UserRound className="h-[18px] w-[18px] text-white" fill="none" strokeWidth={1.75} />
                 </span>
               </Button>
             </DropdownMenuTrigger>

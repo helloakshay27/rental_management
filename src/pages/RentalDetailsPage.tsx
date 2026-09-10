@@ -131,7 +131,7 @@ export default function RentalDetailsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Property & Landlord Information Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <MapPin className="h-5 w-5 text-gray-600" />
@@ -273,7 +273,7 @@ export default function RentalDetailsPage() {
         </Card>
 
         {/* Tenant Information Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <User className="h-5 w-5 text-gray-600" />
@@ -308,7 +308,7 @@ export default function RentalDetailsPage() {
                   </div>
                 </>
               ) : (
-                <div className="col-span-2 text-center py-4 text-gray-500">
+                <div className="col-span-full text-center py-4 text-gray-500">
                   No tenant information available
                 </div>
               )}
@@ -427,7 +427,7 @@ export default function RentalDetailsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Agreement Type</p>
                 <p className="text-[14px] font-medium text-brand-text">{renderValue(lease.terms_conditions || lease.lease_type)}</p>
@@ -448,7 +448,7 @@ export default function RentalDetailsPage() {
                   {lease.end_date ? new Date(lease.end_date).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-full">
                 <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Time Remaining</p>
                 <p className={`text-brand-body-1 font-bold ${calculateTimeRemaining() === 'Expired' ? 'text-red-600' : 'text-gray-900'
                   }`}>
@@ -517,7 +517,7 @@ export default function RentalDetailsPage() {
 
         {/* Agreement Services Card */}
         {lease.agreement_services && lease.agreement_services.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />
@@ -640,7 +640,7 @@ export default function RentalDetailsPage() {
 
         {/* Parking Details Card */}
         {lease.parkings && lease.parkings.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <Building2 className="h-5 w-5 text-gray-600" />
@@ -678,7 +678,7 @@ export default function RentalDetailsPage() {
 
         {/* Signing Authority Card */}
         {lease.signing_authorities && lease.signing_authorities.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <User className="h-5 w-5 text-gray-600" />
@@ -736,7 +736,7 @@ export default function RentalDetailsPage() {
 
         {/* Notice Terms Card */}
         {lease.notice_terms && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />
@@ -753,19 +753,19 @@ export default function RentalDetailsPage() {
                   <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">From VIL (Days)</p>
                   <p className="text-[14px] font-medium text-brand-text">{renderValue(lease.notice_terms.from_vil_days)}</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-full">
                   <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Termination Rights with LESSEE</p>
                   <p className="text-[14px] font-medium text-brand-text">{renderValue(lease.notice_terms.termination_rights_lessee)}</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-full">
                   <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Termination Rights with LESSOR</p>
                   <p className="text-[14px] font-medium text-brand-text">{renderValue(lease.notice_terms.termination_rights_lessor)}</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-full">
                   <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Handover Condition</p>
                   <p className="text-[14px] font-medium text-brand-text">{renderValue(lease.notice_terms.handover_condition)}</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-full">
                   <p className="mb-1 text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Additional Notes</p>
                   <p className="text-[14px] font-medium text-brand-text">{renderValue(lease.notice_terms.additional_notes)}</p>
                 </div>
@@ -779,7 +779,7 @@ export default function RentalDetailsPage() {
         )}
 
         {/* Financial Details (Detailed) */}
-        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <DollarSign className="h-5 w-5 text-gray-600" />
@@ -842,7 +842,7 @@ export default function RentalDetailsPage() {
 
         {/* Custom Fields Card */}
         {Object.keys(customFeilds).length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-2">
+          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />

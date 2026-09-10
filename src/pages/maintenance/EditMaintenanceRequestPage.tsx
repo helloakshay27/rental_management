@@ -210,7 +210,7 @@ const EditMaintenanceRequestPage = () => {
                                     <Input
                                         value={formData.title}
                                         onChange={(e) => handleChange('title', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                         placeholder="e.g. AC not cooling"
                                     />
                                 </div>
@@ -219,7 +219,7 @@ const EditMaintenanceRequestPage = () => {
                                     <Textarea
                                         value={formData.description}
                                         onChange={(e) => handleChange('description', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900 min-h-[100px]"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 min-h-[100px]"
                                         placeholder="Detailed description of the issue..."
                                     />
                                 </div>
@@ -229,7 +229,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Property (Site) *</Label>
                                     <Select value={formData.site_id} onValueChange={(val) => handleChange('site_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Property" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -243,7 +243,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Tenant</Label>
                                     <Select value={formData.tenant_id} onValueChange={(val) => handleChange('tenant_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Tenant" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -259,7 +259,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Unit</Label>
                                     <Select value={formData.unit_id} onValueChange={(val) => handleChange('unit_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Unit" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -274,7 +274,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Vendor</Label>
                                     <Select value={formData.vendor_id} onValueChange={(val) => handleChange('vendor_id', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Vendor" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -290,7 +290,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Issue Type *</Label>
                                     <Select value={formData.issue_type} onValueChange={(val) => handleChange('issue_type', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Type" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -307,7 +307,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Priority</Label>
                                     <Select value={formData.priority} onValueChange={(val) => handleChange('priority', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Priority" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -322,7 +322,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Status</Label>
                                     <Select value={formData.status} onValueChange={(val) => handleChange('status', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Status" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -337,7 +337,7 @@ const EditMaintenanceRequestPage = () => {
                                 <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Scope</Label>
                                     <Select value={formData.maintenance_scope} onValueChange={(val) => handleChange('maintenance_scope', val)}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                        <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900">
                                             <SelectValue placeholder="Select Scope" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -353,7 +353,7 @@ const EditMaintenanceRequestPage = () => {
                                         type="number"
                                         value={formData.estimated_cost}
                                         onChange={(e) => handleChange('estimated_cost', e.target.value)}
-                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900"
                                         placeholder="0.00"
                                     />
                                 </div>

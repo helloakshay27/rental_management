@@ -141,7 +141,7 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Invoice Rule
+                  Invoice Rule
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
@@ -149,8 +149,8 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
                   <DialogTitle>Create Invoice Rule</DialogTitle>
                   <DialogDescription>Set up recurring billing rules for property charges</DialogDescription>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-4 py-4">
-                  <div className="space-y-2 col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+                  <div className="space-y-2 col-span-full">
                     <Label htmlFor="rule-name">Rule Name</Label>
                     <Input id="rule-name" placeholder="e.g., Monthly Rent - Floor 1" />
                   </div>
@@ -197,7 +197,7 @@ const InvoiceRules = ({ propertyId }: { propertyId?: string }) => {
                     <Label htmlFor="end-date">End Date (Optional)</Label>
                     <Input id="end-date" type="date" />
                   </div>
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2 col-span-full">
                     <div className="flex items-center space-x-2">
                       <Switch id="auto-generate" />
                       <Label htmlFor="auto-generate">Auto-generate and send invoices</Label>

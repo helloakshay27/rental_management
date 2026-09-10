@@ -700,7 +700,7 @@ const PropertiesMaster = () => {
   const leftActions = (
               <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Property
+                  Property
               </Button>
           );
 
@@ -737,7 +737,7 @@ const PropertiesMaster = () => {
               </div>
 
               {/* Two Column Grid for Other Fields */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="property-name" className="text-gray-900 font-medium">Property Name *</Label>
                   <Input
@@ -1039,7 +1039,7 @@ const PropertiesMaster = () => {
               </div>
 
               {/* City and Postal Code */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="postal-code" className="text-gray-900 font-medium">Pin Code</Label>
                   <Input
@@ -1160,7 +1160,7 @@ const PropertiesMaster = () => {
               {/* <div className="space-y-2">
                 <Label className="text-gray-900 font-medium"> Common Amenities</Label>
                 <p className="text-xs text-gray-600">Select amenities available at this property</p>
-                <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
                   {['Gym', 'Gaming Zone', 'Creche', `common cafeteria`].map((amenity) => (
                     <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -1211,7 +1211,7 @@ const PropertiesMaster = () => {
 
                 {/* Document Previews */}
                 {selectedDocuments.length > 0 && (
-                  <div className="grid grid-cols-3 gap-4 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                     {selectedDocuments.map((doc, index) => (
                       <div key={index} className="relative group border border-gray-200 rounded-md p-2 bg-white flex flex-col items-center">
                         <button

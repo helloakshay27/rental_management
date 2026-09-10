@@ -71,8 +71,8 @@ const AddPropertyComplianceDialog = ({ isOpen, onClose, onSave, propertyId }: Ad
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid grid-cols-2 gap-4 py-4">
-          <div className="space-y-2 col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+          <div className="space-y-2 col-span-full">
             <Label htmlFor="compliance">Select Compliance</Label>
             <Select value={selectedCompliance} onValueChange={setSelectedCompliance}>
               <SelectTrigger className="bg-white">
@@ -128,7 +128,7 @@ const AddPropertyComplianceDialog = ({ isOpen, onClose, onSave, propertyId }: Ad
             </Popover>
           </div>
 
-          <div className="space-y-2 col-span-2">
+          <div className="space-y-2 col-span-full">
             <Label htmlFor="certificate-number">Certificate Number</Label>
             <Input
               id="certificate-number"

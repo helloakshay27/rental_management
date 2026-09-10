@@ -161,8 +161,8 @@ const MaintenanceRequestDetailsPage = () => {
 
                             <div className="space-y-4">
                                 {request.maintenance_costs && request.maintenance_costs.length > 0 ? (
-                                    <div className="border border-gray-200 rounded-xl overflow-hidden">
-                                        <table className="w-full text-left border-collapse">
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                                        <table className="w-full min-w-[520px] text-left border-collapse">
                                             <thead>
                                                 <tr className="bg-gray-50 border-b border-gray-200">
                                                     <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Type</th>

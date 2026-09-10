@@ -81,7 +81,7 @@ const AgreementDetailsDialog = ({ agreement, open, onOpenChange }: AgreementDeta
               <DollarSign className="h-5 w-5 mr-2 text-blue-600" />
               Financial Details
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">Monthly Rent</p>
                 <p className="text-xl font-bold text-green-600">₹{agreement.monthlyRent.toLocaleString()}</p>
@@ -99,7 +99,7 @@ const AgreementDetailsDialog = ({ agreement, open, onOpenChange }: AgreementDeta
               <Calendar className="h-5 w-5 mr-2 text-blue-600" />
               Lease Period
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">Start Date</p>
                 <p className="font-medium">{new Date(agreement.startDate).toLocaleDateString()}</p>

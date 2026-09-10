@@ -111,7 +111,7 @@ const BrandingDetailsPage = () => {
                 {/* Main Information */}
                 <DetailSection title="Corporate Configuration" className="xl:col-span-3">
                         <div className="grid grid-cols-1 md:grid-cols-2">
-                            <div className="p-8 space-y-8 border-b md:border-b-0 md:border-r border-gray-100">
+                            <div className="p-4 space-y-6 border-b sm:p-8 sm:space-y-8 md:border-b-0 md:border-r border-gray-100">
                                 <div className="space-y-1">
                                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider flex items-center gap-2">
                                         <Mail className="h-3 w-3" /> Billing Communications
@@ -126,7 +126,7 @@ const BrandingDetailsPage = () => {
                                 </div>
                             </div>
 
-                            <div className="p-8 space-y-8 bg-gray-50/50">
+                            <div className="p-4 space-y-6 bg-gray-50/50 sm:p-8 sm:space-y-8">
                                 <div>
                                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-4">Identity Assets</p>
                                     {logoDoc ? (

@@ -88,7 +88,7 @@ const EmailReportsTab = () => {
           <h4 className="font-medium text-brand-text">Scheduled Email Reports</h4>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Add New Report
+            New Report
           </Button>
         </div>
 
@@ -108,7 +108,7 @@ const EmailReportsTab = () => {
 
         <div className="border-t border-brand-border pt-6">
           <h4 className="font-medium text-brand-text mb-4">SMTP Configuration</h4>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="smtp-host">SMTP Host</Label>
               <Input id="smtp-host" placeholder="smtp.gmail.com" />

@@ -637,9 +637,9 @@ const EditRentalPage = () => {
                 {/* Left Column */}
                 <div className="space-y-5">
                     <div className="space-y-2 w-full">
-                        <Label className="text-gray-900 font-medium">Circle *</Label>
+                        <Label className="text-sm text-gray-900 font-medium">Circle *</Label>
                         <Select value={formData.circle} onValueChange={handleCircleSelect}>
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.circle ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.circle ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
                                 <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -653,9 +653,9 @@ const EditRentalPage = () => {
                     </div>
 
                     <div className="space-y-2 w-full">
-                        <Label className="text-gray-900 font-medium">Select Property *</Label>
+                        <Label className="text-sm text-gray-900 font-medium">Select Property *</Label>
                         <Select value={formData.property} onValueChange={handlePropertySelect}>
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.property ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
                                 <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -807,13 +807,13 @@ const EditRentalPage = () => {
                         </div>
                     )}
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Property Takeover Condition *</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Property Takeover Condition *</Label>
                         <Select
                             value={formData.property_takeover_condition_id}
                             onValueChange={(value) => { setFormData(prev => ({ ...prev, property_takeover_condition_id: value })); setFieldErrors(prev => ({ ...prev, property_takeover_condition_id: false })); }}
                         >
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.property_takeover_condition_id ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.property_takeover_condition_id ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
                                 <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -826,13 +826,13 @@ const EditRentalPage = () => {
                         </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Agreement Type *</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Agreement Type *</Label>
                         <Select
                             value={formData.aggreement_type}
                             onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
                         >
-                            <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.aggreement_type ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.aggreement_type ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
                                 <SelectValue placeholder={"Select agreement type"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -845,10 +845,10 @@ const EditRentalPage = () => {
                         </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Purpose of Agreement</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Purpose of Agreement</Label>
                         <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
-                            <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                            <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
                                 <SelectValue placeholder="Select purpose" />
                             </SelectTrigger>
                             <SelectContent>
@@ -862,47 +862,47 @@ const EditRentalPage = () => {
                         </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
                         <Input
                             type="text"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                             value={formData.stamp_duty_sharing}
                             onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Agreement Sign off Date</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Agreement Sign off Date</Label>
                         <div className="relative">
                             <Input
                                 type="date"
                                 placeholder="dd-mm-yyyy"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                                 value={formData.agreement_sign_off_date}
                                 onChange={(e) => setFormData(prev => ({ ...prev, agreement_sign_off_date: e.target.value }))}
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Lease Start Date *</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Lease Start Date *</Label>
                         <div className="relative">
                             <Input
                                 type="date"
-                                className={`bg-white border-2 ${fieldErrors.leaseStart ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
+                                className={`h-9 bg-white border-2 ${fieldErrors.leaseStart ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}
                                 value={formData.leaseStart}
                                 onChange={(e) => { setFormData(prev => ({ ...prev, leaseStart: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseStart: false })); }}
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Lease End Date *</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Lease End Date *</Label>
                         <div className="relative">
                             <Input
                                 type="date"
-                                className={`bg-white border-2 ${fieldErrors.leaseEnd ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}
+                                className={`h-9 bg-white border-2 ${fieldErrors.leaseEnd ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}
                                 value={formData.leaseEnd}
                                 onChange={(e) => { setFormData(prev => ({ ...prev, leaseEnd: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseEnd: false })); }}
                             />
@@ -915,12 +915,12 @@ const EditRentalPage = () => {
                         <h3 className="font-semibold text-lg mb-6 text-gray-900">Rent Breakdown</h3>
 
                         <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Rent Area (sq ft)</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Rent Area (sq ft)</Label>
                                 <Input
                                     type="number"
                                     min="0"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="e.g., 30000"
                                     value={formData.area || ''}
                                     onChange={(e) => {
@@ -939,15 +939,15 @@ const EditRentalPage = () => {
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Per Sq Ft Rate (₹)</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Per Sq Ft Rate (₹)</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-gray-500">₹</span>
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                     <Input
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         placeholder="0"
                                         value={formData.perSqFtRate || ''}
                                         onChange={(e) => {
@@ -977,13 +977,13 @@ const EditRentalPage = () => {
                             <div className="border border-gray-200 rounded-md p-4 space-y-4">
                                 <h4 className="font-medium text-gray-700">Amount Details</h4>
 
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Rent Amount (₹)</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Rent Amount (₹)</Label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
                                         <Input
                                             type="number"
-                                            className="pl-8 bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium"
+                                            className="h-9 pl-8 bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             placeholder="0"
                                             value={formData.basicRent || ''}
                                             readOnly
@@ -1005,22 +1005,22 @@ const EditRentalPage = () => {
                                                 }
                                             }}
                                         />
-                                        <Label htmlFor="gst" className="font-semibold text-gray-900">GST Applicable</Label>
+                                        <Label htmlFor="gst" className="text-sm font-semibold text-gray-900">GST Applicable</Label>
                                     </div>
 
                                     {formData.gstApplicable && (
                                         <div className="space-y-3 pt-2">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <Label className="text-gray-900 font-medium">CGST (%)</Label>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-sm text-gray-900 font-medium">CGST (%)</Label>
                                                     <div className="relative">
-                                                        <span className="absolute left-3 top-2.5 text-gray-500">%</span>
+                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
                                                         <Input
                                                             type="number"
                                                             min="0"
                                                             max="100"
                                                             step="0.01"
-                                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                             placeholder="0"
                                                             value={formData.cgst || ''}
                                                             disabled={formData.igst > 0}
@@ -1032,16 +1032,16 @@ const EditRentalPage = () => {
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <Label className="text-gray-900 font-medium">SGST (%)</Label>
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-sm text-gray-900 font-medium">SGST (%)</Label>
                                                     <div className="relative">
-                                                        <span className="absolute left-3 top-2.5 text-gray-500">%</span>
+                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
                                                         <Input
                                                             type="number"
                                                             min="0"
                                                             max="100"
                                                             step="0.01"
-                                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                             placeholder="0"
                                                             value={formData.sgst || ''}
                                                             disabled={formData.igst > 0}
@@ -1054,16 +1054,16 @@ const EditRentalPage = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-gray-900 font-medium">IGST (%)</Label>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-sm text-gray-900 font-medium">IGST (%)</Label>
                                                 <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-gray-500">%</span>
+                                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
                                                     <Input
                                                         type="number"
                                                         min="0"
                                                         max="100"
                                                         step="0.01"
-                                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                         placeholder="0"
                                                         value={formData.igst || ''}
                                                         disabled={formData.cgst > 0 || formData.sgst > 0}
@@ -1099,22 +1099,22 @@ const EditRentalPage = () => {
                                                 }
                                             }}
                                         />
-                                        <Label htmlFor="tds" className="font-semibold text-gray-900">TDS Applicable</Label>
+                                        <Label htmlFor="tds" className="text-sm font-semibold text-gray-900">TDS Applicable</Label>
                                     </div>
 
                                     {formData.tdsApplicable && (
                                         <div className="space-y-3 pt-2">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <Label className="text-gray-900 font-medium">TDS Percentage (%)</Label>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-sm text-gray-900 font-medium">TDS Percentage (%)</Label>
                                                     <div className="relative">
-                                                        <span className="absolute left-3 top-2.5 text-gray-500">%</span>
+                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
                                                         <Input
                                                             type="number"
                                                             min="0"
                                                             max="100"
                                                             step="0.01"
-                                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                             placeholder="10"
                                                             value={formData.tdsPercentage || ''}
                                                             onChange={(e) => {
@@ -1125,13 +1125,13 @@ const EditRentalPage = () => {
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <Label className="text-gray-900 font-medium">TDS Amount (₹)</Label>
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-sm text-gray-900 font-medium">TDS Amount (₹)</Label>
                                                     <div className="relative">
-                                                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
                                                         <Input
                                                             type="number"
-                                                            className="pl-8 bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium"
+                                                            className="h-9 pl-8 bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                             placeholder="0"
                                                             value={formData.tdsAmount.toFixed(2)}
                                                             readOnly
@@ -1139,15 +1139,15 @@ const EditRentalPage = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-gray-900 font-medium">Security Deposit (₹)</Label>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-sm text-gray-900 font-medium">Security Deposit (₹)</Label>
                                                 <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
                                                     <Input
                                                         type="number"
                                                         min="0"
                                                         step="0.01"
-                                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                         placeholder="0"
                                                         value={formData.securityDeposit || ''}
                                                         onChange={(e) => setFormData(prev => ({ ...prev, securityDeposit: parseFloat(e.target.value) || 0 }))}
@@ -1159,15 +1159,15 @@ const EditRentalPage = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Maintenance Charges (₹)</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Maintenance Charges (₹)</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
                                     <Input
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         placeholder="0"
                                         value={formData.maintenanceCharges || ''}
                                         onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
@@ -1176,13 +1176,13 @@ const EditRentalPage = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Total Monthly Rent (₹)</Label>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Total Monthly Rent (₹)</Label>
                             <div className="relative">
-                                <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
                                 <Input
                                     type="number"
-                                    className="pl-8 bg-green-50 border-2 border-green-200 text-green-700 font-medium"
+                                    className="h-9 pl-8 bg-green-50 border-2 border-green-200 text-green-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="0"
                                     value={(formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2)}
                                     readOnly
@@ -1194,12 +1194,12 @@ const EditRentalPage = () => {
 
                 {/* Right Column */}
                 <div className="space-y-5">
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-4">
 
-                        <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Lessee *</Label>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lessee *</Label>
                             <Select value={formData.tenant} onValueChange={handleTenantSelect}>
-                                <SelectTrigger className={`w-full bg-white border-2 ${fieldErrors.tenant ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900`}>
+                                <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.tenant ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
                                     <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1268,10 +1268,10 @@ const EditRentalPage = () => {
                             </div>
                         )}
 
-                        <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Status</Label>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Status</Label>
                             <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                                <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1281,11 +1281,11 @@ const EditRentalPage = () => {
                             </Select>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Additional Notes</Label>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Additional Notes</Label>
                             <Textarea
                                 placeholder="Any additional notes or comments"
-                                className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                                 value={formData.notes}
                                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                             />
@@ -1298,29 +1298,29 @@ const EditRentalPage = () => {
                             <h3 className="font-semibold text-lg text-gray-900">Rent Due Configuration</h3>
                         </div>
                         <div className="space-y-3">
-                            <Label className="text-gray-900 font-medium">Rent Payment Type</Label>
+                            <Label className="text-sm text-gray-900 font-medium">Rent Payment Type</Label>
                             <RadioGroup defaultValue="advance">
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="advance" id="advance" />
                                     <div className="grid gap-0.5">
-                                        <Label htmlFor="advance" className="text-gray-900 font-medium">Advance Payment</Label>
+                                        <Label htmlFor="advance" className="text-sm text-gray-900 font-medium">Advance Payment</Label>
                                         <span className="text-xs text-gray-500">Rent is paid before the month begins</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="post" id="post" />
                                     <div className="grid gap-0.5">
-                                        <Label htmlFor="post" className="text-gray-900 font-medium">Post Usage Payment</Label>
+                                        <Label htmlFor="post" className="text-sm text-gray-900 font-medium">Post Usage Payment</Label>
                                         <span className="text-xs text-gray-500">Rent is paid after the month ends</span>
                                     </div>
                                 </div>
                             </RadioGroup>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date of the Month</Label>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date of the Month</Label>
                             <Select value={formData.rentDueDate} onValueChange={val => setFormData(prev => ({ ...prev, rentDueDate: val }))}>
-                                <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
                                     <SelectValue placeholder="Select date" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1338,10 +1338,10 @@ const EditRentalPage = () => {
                         <h3 className="font-semibold text-lg mb-6 text-gray-900">Escalation & Penalty Settings</h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Escalation Frequency </Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Escalation Frequency </Label>
                                 <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))}>
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
                                         <SelectValue placeholder="Select Escalation Frequency " />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1352,12 +1352,12 @@ const EditRentalPage = () => {
                                 </Select>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Escalation Interval</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Escalation Interval</Label>
                                 <Input
                                     type="number"
                                     min="1"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="1"
                                     value={formData.escalation_interval || ''}
                                     onChange={(e) => setFormData(prev => ({ ...prev, escalation_interval: parseInt(e.target.value) || 1 }))}
@@ -1366,14 +1366,14 @@ const EditRentalPage = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Escalation Percentage (%)</Label>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Escalation Percentage (%)</Label>
                             <Input
                                 type="number"
                                 min="0"
                                 max="100"
                                 step="0.01"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 placeholder="0"
                                 value={formData.escalationPercentage || ''}
                                 onChange={(e) => setFormData(prev => ({ ...prev, escalationPercentage: parseFloat(e.target.value) || 0 }))}
@@ -1383,7 +1383,7 @@ const EditRentalPage = () => {
 
                         <div className="space-y-3">
                             <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-                                <Label className="text-gray-600 font-normal">Apply penalty on late payments</Label>
+                                <Label className="text-sm text-gray-600 font-normal">Apply penalty on late payments</Label>
                                 <Switch
                                     checked={formData.applyLatePenalty}
                                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLatePenalty: checked }))}
@@ -1391,16 +1391,16 @@ const EditRentalPage = () => {
                             </div>
 
                             {formData.applyLatePenalty && (
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Penalty Percentage (%)</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Penalty Percentage (%)</Label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-2.5 text-gray-500">%</span>
+                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
                                         <Input
                                             type="number"
                                             min="0"
                                             max="100"
                                             step="0.01"
-                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             placeholder="0"
                                             value={formData.penaltyPercentage || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, penaltyPercentage: parseFloat(e.target.value) || 0 }))}
@@ -1413,7 +1413,7 @@ const EditRentalPage = () => {
 
                         <div className="space-y-3">
                             <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-                                <Label className="text-gray-600 font-normal">Apply interest on late payments</Label>
+                                <Label className="text-sm text-gray-600 font-normal">Apply interest on late payments</Label>
                                 <Switch
                                     checked={formData.applyLateInterest}
                                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLateInterest: checked }))}
@@ -1421,16 +1421,16 @@ const EditRentalPage = () => {
                             </div>
 
                             {formData.applyLateInterest && (
-                                <div className="space-y-2">
-                                    <Label className="text-gray-900 font-medium">Interest Percentage per Month (%)</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Interest Percentage per Month (%)</Label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-2.5 text-gray-500">%</span>
+                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
                                         <Input
                                             type="number"
                                             min="0"
                                             max="100"
                                             step="0.01"
-                                            className="pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             placeholder="0"
                                             value={formData.interestPercentage || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, interestPercentage: parseFloat(e.target.value) || 0 }))}
@@ -1442,37 +1442,37 @@ const EditRentalPage = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Rent Commencement Date</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Rent Commencement Date</Label>
                         <div className="relative">
                             <Input
                                 type="date"
                                 placeholder="dd-mm-yyyy"
-                                className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                                 value={formData.rent_commencement_date}
                                 onChange={(e) => setFormData(prev => ({ ...prev, rent_commencement_date: e.target.value }))}
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Rent-free Period (Days)</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Rent-free Period (Days)</Label>
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="e.g., 30"
                             value={formData.rent_free_period_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, rent_free_period_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Lock in Period (Days)</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Lock in Period (Days)</Label>
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="e.g., 180"
                             value={formData.lock_in_period_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
@@ -1484,9 +1484,9 @@ const EditRentalPage = () => {
 
             {/* Common Amenities - Full Width */}
             <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                     <h3 className="font-semibold text-lg text-gray-900 mb-3"> Common Amenities</h3>
-                    <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
                         {amenities.map((amenity: any) => (
                             <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
                                 <input
@@ -1508,47 +1508,47 @@ const EditRentalPage = () => {
             <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
                 <h3 className="font-semibold text-lg mb-6 text-gray-900">Notice Period & Terms</h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">From Landlord (Days)</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">From Landlord (Days)</Label>
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="30"
                             value={formData.from_landlord_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, from_landlord_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">From VIL (Days)</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">From VIL (Days)</Label>
                         <Input
                             type="number"
                             min="0"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="60"
                             value={formData.from_vil_days || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, from_vil_days: parseInt(e.target.value) || 0 }))}
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Termination Rights with LESSEE</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSEE</Label>
                         <Textarea
                             placeholder="e.g., Lessee can terminate with 30 days notice"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                             rows={3}
                             value={formData.termination_rights_lessee}
                             onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessee: e.target.value }))}
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-gray-900 font-medium">Termination Rights with LESSOR</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSOR</Label>
                         <Textarea
                             placeholder="e.g., Lessor can terminate with 60 days notice"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                             rows={3}
                             value={formData.termination_rights_lessor}
                             onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessor: e.target.value }))}
@@ -1556,10 +1556,10 @@ const EditRentalPage = () => {
                     </div>
 
                     <div className="space-y-2 md:col-span-2">
-                        <Label className="text-gray-900 font-medium">Handover Condition</Label>
+                        <Label className="text-sm text-gray-900 font-medium">Handover Condition</Label>
                         <Textarea
                             placeholder="e.g., Property must be handed over clean and in good condition"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                             rows={3}
                             value={formData.handover_condition}
                             onChange={(e) => setFormData(prev => ({ ...prev, handover_condition: e.target.value }))}
@@ -1582,20 +1582,20 @@ const EditRentalPage = () => {
                         className="fm-button-fix fm-button-brand px-6 py-2"
                     >
                         <Plus className="h-4 w-4 mr-2" />
-                        Add Parking
+                        Parking
                     </Button>
                 </div>
 
                 <div className="space-y-4">
                     {parkings.map((parking, index) => (
                         <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-md">
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Vehicle Type</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Vehicle Type</Label>
                                 <Select
                                     value={parking.vehicle_type}
                                     onValueChange={(value) => updateParking(index, 'vehicle_type', value)}
                                 >
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1615,8 +1615,8 @@ const EditRentalPage = () => {
                                 </Select>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Parking Type</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Parking Type</Label>
                                 <Select
                                     value={parking.parking_type}
                                     onValueChange={(value) => {
@@ -1629,7 +1629,7 @@ const EditRentalPage = () => {
                                         setParkings(updated);
                                     }}
                                 >
-                                    <SelectTrigger className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900">
+                                    <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1639,25 +1639,25 @@ const EditRentalPage = () => {
                                 </Select>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Size</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Size</Label>
                                 <Input
                                     type="number"
                                     min="0"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="0"
                                     value={parking.count}
                                     onChange={(e) => updateParking(index, 'count', e.target.value)}
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-gray-900 font-medium">Parking Charges (₹)</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Parking Charges (₹)</Label>
                                 <Input
                                     type="number"
                                     min="0"
                                     step="0.01"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="0"
                                     value={parking.charge}
                                     disabled={parking.parking_type === 'free'}
@@ -1684,17 +1684,17 @@ const EditRentalPage = () => {
             <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
                 <h3 className="font-semibold text-lg mb-6 text-gray-900">Additional Details</h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Dynamic Custom Fields */}
                     {customFields.map((field) => (
                         <div key={field.id} className="space-y-2">
-                            <Label className="text-gray-900 font-medium">
+                            <Label className="text-sm text-gray-900 font-medium">
                                 {field.name} {field.required && <span className="text-red-500">*</span>}
                             </Label>
                             {field.field_type === 'text' || field.field_type === 'number' ? (
                                 <Input
                                     type={field.field_type}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                                     placeholder={`Enter ${field.name}`}
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
@@ -1702,7 +1702,7 @@ const EditRentalPage = () => {
                             ) : field.field_type === 'date' ? (
                                 <Input
                                     type="date"
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
                                 />
@@ -1717,7 +1717,7 @@ const EditRentalPage = () => {
                             ) : field.field_type === 'textarea' ? (
                                 <Textarea
                                     placeholder={`Enter ${field.name}`}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                                     value={customFieldValues[field.name] || ''}
                                     onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
                                 />
@@ -1728,8 +1728,8 @@ const EditRentalPage = () => {
             </div>
 
             <div className="mt-8 space-y-6">
-                <div className="space-y-2">
-                    <Label className="text-gray-900 font-medium">Agreement File</Label>
+                <div className="space-y-1.5">
+                    <Label className="text-sm text-gray-900 font-medium">Agreement File</Label>
 
                     {/* Show existing documents */}
                     {existingDocuments.length > 0 && (
@@ -1783,7 +1783,7 @@ const EditRentalPage = () => {
                     <Input
                         type="file"
                         accept=".pdf,.doc,.docx"
-                        className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:border-[#C72030] focus:ring-[#C72030] text-gray-900"
+                        className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
                         onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
                     />
                     {existingAgreementUrl && (

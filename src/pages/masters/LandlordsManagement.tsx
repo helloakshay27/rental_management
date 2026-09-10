@@ -332,7 +332,7 @@ const LandlordsManagement = () => {
     <div className="flex items-center gap-2">
         <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
-            Add Landlord
+            Landlord
         </Button>
 
         <TableFilterDialog
@@ -376,7 +376,7 @@ const LandlordsManagement = () => {
             </DialogHeader>
             <div className="space-y-4 py-4">
               {/* Basic Information */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2 ">
                   <Label htmlFor="company-name" className="text-gray-900 font-medium">Company Name *</Label>
                   <Input
@@ -421,7 +421,7 @@ const LandlordsManagement = () => {
               </div>
 
               {/* Tax & Identity Details */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="pan" className="text-gray-900 font-medium">PAN Number</Label>
                   <Input
@@ -443,7 +443,7 @@ const LandlordsManagement = () => {
                     className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
-                <div className="space-y-2 col-span-2">
+                <div className="space-y-2 col-span-full">
                   <Label htmlFor="aadhar" className="text-gray-900 font-medium">Aadhar Number</Label>
                   <Input
                     id="aadhar"
@@ -459,7 +459,7 @@ const LandlordsManagement = () => {
               {/* Bank Details */}
               <div className="border-t pt-4 mt-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Bank Details</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="account-number" className="text-gray-900 font-medium">Account Number</Label>
                     <Input
@@ -496,7 +496,7 @@ const LandlordsManagement = () => {
                       id="account-type"
                       value={formData.bank_account_type}
                       onChange={(e) => setFormData(prev => ({ ...prev, bank_account_type: e.target.value }))}
-                      className="w-full p-2 border-gray-300 hover:border-[#C72030] rounded-md bg-white text-gray-900 focus:border-[#C72030] focus:ring-[#C72030] focus:outline-none"
+                      className="w-full p-2 border-gray-300 hover:border-[#C72030] rounded-md bg-white text-gray-900 focus:ring-[#C72030] focus:outline-none"
                     >
                       <option value="">Select account type</option>
                       <option value="Savings">Savings</option>
@@ -505,7 +505,7 @@ const LandlordsManagement = () => {
                       <option value="Overdraft">Overdraft</option>
                     </select>
                   </div>
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2 col-span-full">
                     <Label htmlFor="bank-branch" className="text-gray-900 font-medium">Bank Branch</Label>
                     <Input
                       id="bank-branch"

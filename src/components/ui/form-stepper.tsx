@@ -37,7 +37,14 @@ export const FormStepper: React.FC<FormStepperProps> = ({
     onStepChange,
     className,
 }) => (
-    <div className={cn('flex w-full items-center justify-center overflow-x-auto pb-1', className)}>
+    // Below sm the chips shrink to share the available width instead of
+    // scrolling: the whole stepper has to be visible at a glance on a phone.
+    <div
+        className={cn(
+            'flex w-full items-center justify-center gap-0 pb-1 sm:overflow-x-auto',
+            className
+        )}
+    >
         {steps.map((label, index) => {
             const isActive = index === current;
             const isDone = completed.includes(index);
@@ -46,7 +53,7 @@ export const FormStepper: React.FC<FormStepperProps> = ({
             return (
                 <React.Fragment key={label}>
                     {/* outer shadowed frame */}
-                    <div className="flex h-[50px] w-[213px] shrink-0 items-center justify-center rounded p-[5px] shadow-[0px_4px_14.2px_0px_rgba(0,0,0,0.1)] bg-white">
+                    <div className="flex h-[50px] w-[213px] shrink-0 items-center justify-center rounded p-[5px] shadow-[0px_4px_14.2px_0px_rgba(0,0,0,0.1)] bg-white max-sm:h-auto max-sm:w-auto max-sm:min-w-0 max-sm:flex-1 max-sm:shrink max-sm:p-[3px]">
                         <button
                             type="button"
                             disabled={isLocked}
@@ -54,6 +61,7 @@ export const FormStepper: React.FC<FormStepperProps> = ({
                             aria-current={isActive ? 'step' : undefined}
                             className={cn(
                                 'relative flex h-10 w-[187px] items-center justify-center rounded px-5 text-[13px] font-medium transition-all duration-200',
+                                'max-sm:h-auto max-sm:min-h-[34px] max-sm:w-full max-sm:min-w-0 max-sm:px-1 max-sm:py-1 max-sm:text-center max-sm:text-[10px] max-sm:leading-[1.15]',
                                 isActive || isDone
                                     ? 'border-2 border-brand bg-brand text-white'
                                     : isLocked
@@ -74,7 +82,7 @@ export const FormStepper: React.FC<FormStepperProps> = ({
                     {index < steps.length - 1 && (
                         <span
                             aria-hidden="true"
-                            className="h-0 w-[60px] shrink-0 border-t border-dashed border-[rgba(196,184,157,1)] max-[1200px]:w-10 max-[900px]:w-[30px] max-[600px]:w-5"
+                            className="h-0 w-[60px] shrink-0 border-t border-dashed border-[rgba(196,184,157,1)] max-[1200px]:w-10 max-[900px]:w-[30px] max-sm:w-2"
                         />
                     )}
                 </React.Fragment>

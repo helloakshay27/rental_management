@@ -132,10 +132,12 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
         isCollapsed ? 'w-14' : 'w-60'
       )}
     >
-      {/* Brand header — same height as the top Header so both bottom borders line up */}
+      {/* Brand header — same height as the top Header so both bottom borders line up.
+          Hidden below lg: there the sidebar is a drawer and the top Header already
+          carries the wordmark, so repeating it wastes a row. */}
       <div
         className={cn(
-          'shrink-0 h-16 flex items-center overflow-hidden border-b border-brand-sidebar-border/70',
+          'shrink-0 h-16 hidden lg:flex items-center overflow-hidden border-b border-brand-sidebar-border/70',
           isCollapsed ? 'justify-center px-2' : 'justify-center px-2'
         )}
       >
@@ -233,7 +235,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                     <button
                       onClick={() => toggleExpanded(item.label)}
                       className={cn(
-                        'relative flex items-center justify-between w-full gap-3 px-3 py-1.5 rounded-md text-[16px] font-semibold transition-colors text-brand-text hover:bg-brand-sidebar-hover',
+                        'relative flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-md text-[14px] font-semibold transition-colors text-brand-text hover:bg-brand-sidebar-hover',
                         active && 'bg-brand-sidebar-active'
                       )}
                     >
@@ -261,7 +263,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                               key={subItem.path}
                               to={subItem.path}
                               className={cn(
-                                'relative flex items-center w-full px-3 py-1.5 rounded-lg text-[15px] transition-colors hover:bg-brand-sidebar-hover',
+                                'relative flex items-center w-full px-3 py-2.5 rounded-lg text-[14px] transition-colors hover:bg-brand-sidebar-hover',
                                 subActive
                                   ? 'text-brand font-medium bg-brand-sidebar-active'
                                   : 'text-brand-text'
@@ -286,7 +288,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    'relative flex items-center gap-3 w-full px-3 py-1.5 rounded-md text-[16px] font-medium transition-colors text-brand-text hover:bg-brand-sidebar-hover',
+                    'relative flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-[14px] font-medium transition-colors text-brand-text hover:bg-brand-sidebar-hover',
                     active && 'bg-brand-sidebar-active'
                   )}
                 >

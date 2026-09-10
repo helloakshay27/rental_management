@@ -172,7 +172,7 @@ const RentalAgreements = () => {
     <>
       <Button onClick={() => navigate('/rental/new')} className="fm-button-fix fm-button-brand px-6 py-2">
         <Plus className="w-4 h-4 mr-2" />
-        Add Rental Agreement
+        Rental Agreement
       </Button>
 
       <TableFilterDialog

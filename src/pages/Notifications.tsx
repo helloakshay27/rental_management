@@ -78,21 +78,21 @@ const Notifications = () => {
   const renderRow = (notification: any) => (
     <div
       key={notification.id}
-      className={`group flex items-start gap-3 px-5 py-4 transition-colors hover:bg-gray-50 ${
+      className={`group flex items-start gap-3 px-4 py-3 transition-colors hover:bg-gray-50 sm:px-5 sm:py-4 ${
         !notification.read ? 'border-l-[3px] border-l-[#C72030] bg-[#f6f4ee]/60' : 'border-l-[3px] border-l-transparent'
       }`}
     >
       <span className="mt-1 shrink-0">{getTypeIcon(notification.type)}</span>
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className={`truncate text-brand-body-3 ${!notification.read ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
+        <div className="flex items-center gap-2 max-sm:flex-wrap max-sm:gap-y-1">
+          <span className={`truncate text-brand-body-3 max-sm:min-w-0 max-sm:flex-1 ${!notification.read ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
             {notification.title || 'Notification'}
           </span>
           {getTypeBadge(notification.type || 'info')}
           {!notification.read && <span className="h-2 w-2 shrink-0 rounded-full bg-[#C72030]" />}
         </div>
-        <p className="mt-1 truncate text-sm text-gray-600">
+        <p className="mt-1 line-clamp-2 text-sm text-gray-600 sm:truncate">
           {notification.message || notification.content}
         </p>
         <p className="mt-1 text-xs text-gray-400">
@@ -128,19 +128,19 @@ const Notifications = () => {
 
   return (
     <PageContainer>
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <Heading level="h1">Notifications</Heading>
           <Text size="sm" variant="muted">Stay updated with important property management alerts</Text>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex shrink-0 items-center gap-3">
           <Button
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 text-[#C72030] border-[#C72030] hover:bg-red-50"
+            className="flex items-center gap-1.5 h-8 px-3 text-[13px] text-[#C72030] border-[#C72030] hover:bg-red-50"
             onClick={handleMarkAllRead}
           >
-            <Check className="h-4 w-4" />
+            <Check className="h-3.5 w-3.5" />
             Mark all as read
           </Button>
         </div>
@@ -160,10 +160,10 @@ const Notifications = () => {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex items-center justify-end space-x-3">
+          <div className="flex items-center justify-start gap-3 sm:justify-end">
             <Filter className="h-4 w-4 text-gray-500" />
             <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-              <SelectTrigger className="w-48 bg-white border-gray-200">
+              <SelectTrigger className="h-8 w-full text-[13px] bg-white border-gray-200 sm:w-44">
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent className="bg-white">

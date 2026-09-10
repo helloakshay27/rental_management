@@ -198,10 +198,10 @@ const EditUtilityPage = () => {
                             <div className="space-y-2">
                                 <Label className="text-gray-900 font-medium">Estimated Monthly Cost</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                     <Input
                                         type="number"
-                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-11"
+                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-11 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         placeholder="0.00"
                                         value={formData.monthly_cost}
                                         onChange={(e) => handleChange('monthly_cost', e.target.value)}

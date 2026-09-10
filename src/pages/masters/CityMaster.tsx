@@ -277,7 +277,7 @@ const CityMaster = () => {
         <div className="flex items-center gap-2">
             <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
-                Add City
+                City
             </Button>
 
             <TableFilterDialog

@@ -181,7 +181,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                         {initialData ? 'Edit Compliance' : 'Add Compliance'}
                     </DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-6 py-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-4">
                     {/* Compliance Requirement Selection First */}
                     <div className="space-y-2">
                         <Label htmlFor="complianceRequirement" className="text-gray-900 font-medium">Compliance Requirement *</Label>
@@ -281,7 +281,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                         </Select>
                     </div>
 
-                    <div className="space-y-2 col-span-2">
+                    <div className="space-y-2 col-span-full">
                         <Label htmlFor="remarks" className="text-gray-900 font-medium">Remarks</Label>
                         <Textarea
                             id="remarks"
@@ -292,7 +292,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                         />
                     </div>
 
-                    <div className="space-y-2 col-span-2">
+                    <div className="space-y-2 col-span-full">
                         <Label htmlFor="file" className="text-gray-900 font-medium">
                             {initialData ? 'Replace Document (optional)' : 'Upload Compliance Document *'}
                         </Label>

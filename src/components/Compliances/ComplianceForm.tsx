@@ -148,7 +148,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4 py-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
       <div className="space-y-2">
         <Label htmlFor="compliance-name" className="text-gray-900 font-medium">Compliance Title *</Label>
         <Input
@@ -178,7 +178,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-2 col-span-2">
+      <div className="space-y-2 col-span-full">
         <Label htmlFor="description" className="text-gray-900 font-medium">Description</Label>
         <Input
           id="description"
@@ -247,9 +247,9 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-2 col-span-2">
+      <div className="space-y-2 col-span-full">
         <Label className="text-gray-900 font-medium">Applicable Property Types</Label>
-        <div className="grid grid-cols-3 gap-3 p-4 border-2 border-gray-300 rounded-md bg-white">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 border-2 border-gray-300 rounded-md bg-white">
           {propertyTypes.map((propertyType) => (
             <div key={propertyType.id} className="flex items-center space-x-2">
               <Checkbox
@@ -265,7 +265,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
           ))}
         </div>
       </div>
-      <div className="space-y-2 col-span-2">
+      <div className="space-y-2 col-span-full">
         <Label className="text-gray-900 font-medium">Status *</Label>
         <div className="flex items-center space-x-6 pt-2">
           <label className="flex items-center space-x-2 cursor-pointer">
@@ -310,7 +310,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
           </label>
         </div>
       </div>
-      <div className="flex justify-end space-x-2 col-span-2 pt-4">
+      <div className="flex justify-end space-x-2 col-span-full pt-4">
         <Button
           variant="outline"
           className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"

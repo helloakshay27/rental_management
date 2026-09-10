@@ -40,6 +40,9 @@ const TabsTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       "flex flex-1 min-w-0 items-center justify-center gap-2 whitespace-nowrap border-0 px-6 py-2 text-brand-body-4 font-semibold transition-colors",
+      // Narrow screens: a row of icon+label segments runs out of width, so the
+      // segment stacks — icon on the first line, label wrapped underneath.
+      "max-sm:flex-col max-sm:gap-1 max-sm:whitespace-normal max-sm:break-words max-sm:px-2 max-sm:py-2 max-sm:text-center max-sm:text-[11px] max-sm:leading-tight max-sm:[&_svg]:mr-0 max-sm:[&_svg]:ml-0",
       "hover:bg-brand-selected",
       // Both states are declared as data-state variants rather than an
       // unmodified base plus an override. Two reasons: tailwind-merge keeps

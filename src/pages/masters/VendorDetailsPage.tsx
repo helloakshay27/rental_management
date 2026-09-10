@@ -162,7 +162,7 @@ const VendorDetailsPage = () => {
                                             <p className="text-sm font-mono font-bold text-gray-900 tracking-tight">{vendor.bank_detail.account_number}</p>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">IFSC</p>
                                             <p className="text-xs font-bold text-gray-900">{vendor.bank_detail.ifsc_code}</p>

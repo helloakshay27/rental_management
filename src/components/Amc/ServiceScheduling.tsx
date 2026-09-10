@@ -206,10 +206,10 @@ const ServiceScheduling = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500">
                 <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
               </div>
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-1">
                 {Array.from({ length: 35 }, (_, i) => {
                   const day = i - 6; // Adjust for month start
                   const hasService = [25, 27, 30].includes(day);

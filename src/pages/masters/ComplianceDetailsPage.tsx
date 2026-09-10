@@ -1,16 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { DetailSection } from '@/components/ui/detail-section';
+import { DetailHeader, DetailSection, DetailGrid, DetailField } from '@/components/ui/detail-section';
 import { PageLoader } from '@/components/ui/loader';
 import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
-import { ShieldCheck, ArrowLeft, Calendar, Building2, User, Clock, FileText, IndianRupee } from 'lucide-react';
 import { toast } from 'sonner';
-import { Heading } from '@/components/ui/typography';
 
 const ComplianceDetailsPage = () => {
     const { id } = useParams();
@@ -73,132 +70,73 @@ const ComplianceDetailsPage = () => {
                     </Badge>
                 }
             />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Core Details */}
-                <Card className="lg:col-span-2 bg-white border border-gray-200 shadow-xl overflow-hidden">
-                    <div className="bg-[#C72030] h-2 w-full" />
-                    <CardHeader className="border-b border-gray-100 bg-gray-50/50 p-8">
-                        <div className="flex items-start justify-between gap-6">
-                            <div className="space-y-2">
-                                <Badge variant="outline" className="text-[#C72030] border-[#C72030] font-semibold">{compliance.requirement_type}</Badge>
-                                <CardTitle className="text-brand-body-1 font-bold text-gray-900 leading-tight">
-                                    {compliance.title}
-                                </CardTitle>
-                                <p className="text-gray-500 font-medium">{compliance.description || 'No detailed description provided.'}</p>
-                            </div>
-                            <div className="p-4 bg-white rounded-2xl shadow-md border border-gray-100 text-[#C72030]">
-                                <ShieldCheck className="h-10 w-10" />
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div className="space-y-5">
-                                <div className="flex items-start gap-4">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
-                                        <Building2 className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Regulatory Body</p>
-                                        <p className="text-lg font-medium text-gray-900">{compliance.regulatory_body || 'N/A'}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
-                                        <User className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Responsible Party</p>
-                                        <p className="text-lg font-medium text-gray-900">{compliance.responsible_party || 'Unassigned'}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
-                                        <Clock className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Notification Period</p>
-                                        <p className="text-lg font-medium text-gray-900">{compliance.reminder_days || 0} Days Prior</p>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div className="space-y-5">
-                                <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Applicability Scope</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {compliance.property_types && compliance.property_types.length > 0 ? (
-                                        compliance.property_types.map((type: any) => (
-                                            <Badge key={type.id} className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none px-4 py-1.5 rounded-lg text-sm font-semibold">
+            <DetailHeader
+                id={compliance.requirement_type}
+                title={compliance.title}
+                meta={<span>{compliance.description || 'No detailed description provided.'}</span>}
+            />
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 items-start">
+                <DetailSection title="Requirement Details" className="mb-0 lg:col-span-2">
+                    <DetailGrid className="lg:grid-cols-3">
+                        <DetailField label="Regulatory Body" value={compliance.regulatory_body || '-'} />
+                        <DetailField label="Responsible Party" value={compliance.responsible_party || 'Unassigned'} />
+                        <DetailField label="Notification Period" value={`${compliance.reminder_days || 0} Days Prior`} />
+                        <DetailField label="Recurring" value={compliance.is_recurring ? 'Yes, recurring requirement' : 'No'} />
+                        <DetailField
+                            className="sm:col-span-2 lg:col-span-3"
+                            label="Applicability Scope"
+                            value={
+                                compliance.property_types?.length ? (
+                                    <span className="flex flex-wrap gap-2">
+                                        {compliance.property_types.map((type: any) => (
+                                            <Badge key={type.id} variant="secondary" className="text-xs font-medium">
                                                 {type.name}
                                             </Badge>
-                                        ))
-                                    ) : (
-                                        <p className="text-sm text-gray-400 italic">Universal Applicability</p>
-                                    )}
-                                </div>
-                                {compliance.is_recurring && (
-                                    <div className="mt-8 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-blue-600" />
-                                        <span className="text-sm font-semibold text-blue-700 uppercase tracking-wider">Recurring Requirement Policy</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                                        ))}
+                                    </span>
+                                ) : (
+                                    'Universal Applicability'
+                                )
+                            }
+                        />
+                    </DetailGrid>
+                </DetailSection>
 
-                {/* Logistics Card */}
-                <div className="space-y-5">
-                    <DetailSection title="Validity & Economics">
-                            <div className="flex justify-between items-baseline">
-                                <div>
-                                    <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-wider">Validity Term</p>
-                                    <p className="text-brand-h2 font-bold">{compliance.validity_months || 0}<span className="text-lg text-[#C72030] ml-1 font-semibold">MOS</span></p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-wider">Approx Cost</p>
-                                    <div className="flex items-center text-brand-body-1 font-bold gap-1">
-                                        <IndianRupee className="h-5 w-5" />
-                                        {compliance.approx_cost || '0'}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="pt-8 border-t border-white/10 space-y-4">
-                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl backdrop-blur-md">
-                                    <span className="text-xs font-semibold text-gray-400 flex items-center gap-2 uppercase tracking-wider"><Calendar className="h-3 w-3" /> Targeted Due Date</span>
-                                    <span className="text-sm font-bold">{compliance.due_date ? new Date(compliance.due_date).toLocaleDateString() : 'N/A'}</span>
-                                </div>
-                                {compliance.completion_date && (
-                                    <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl backdrop-blur-md">
-                                        <span className="text-xs font-semibold text-gray-400 flex items-center gap-2 uppercase tracking-wider"><ShieldCheck className="h-3 w-3" /> Execution Proof Date</span>
-                                        <span className="text-sm font-bold text-green-400">{new Date(compliance.completion_date).toLocaleDateString()}</span>
-                                    </div>
-                                )}
-                            </div>
+                <div className="space-y-4">
+                    <DetailSection title="Validity & Economics" className="mb-0">
+                        <DetailGrid className="grid-cols-2 lg:grid-cols-2">
+                            <DetailField label="Validity Term" value={`${compliance.validity_months || 0} Months`} />
+                            <DetailField label="Approx Cost" value={`₹ ${compliance.approx_cost || '0'}`} />
+                            <DetailField
+                                label="Targeted Due Date"
+                                value={compliance.due_date ? new Date(compliance.due_date).toLocaleDateString() : '-'}
+                            />
+                            {compliance.completion_date && (
+                                <DetailField
+                                    label="Execution Proof Date"
+                                    value={new Date(compliance.completion_date).toLocaleDateString()}
+                                />
+                            )}
+                        </DetailGrid>
                     </DetailSection>
 
-                    <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="p-4 bg-gray-50 flex items-center justify-between border-b border-gray-100">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Document Registry</span>
-                            <Badge variant="outline" className="rounded-full">{compliance.documents?.length || 0} Files</Badge>
-                        </div>
-                        <CardContent className="p-6">
-                            {compliance.documents && compliance.documents.length > 0 ? (
-                                <div className="space-y-3">
-                                    {/* Map through docs if they exist (need structure) */}
-                                    <p className="text-xs text-center text-gray-400">Document handling system active</p>
-                                </div>
-                            ) : (
-                                <div className="text-center py-10 space-y-4">
-                                    <div className="bg-gray-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-gray-300">
-                                        <FileText className="h-6 w-6" />
-                                    </div>
-                                    <p className="text-xs font-medium text-gray-400 italic">No supporting documents uploaded to this master record.</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <DetailSection
+                        title="Document Registry"
+                        className="mb-0"
+                        action={
+                            <Badge variant="outline" className="rounded-full text-xs">
+                                {compliance.documents?.length || 0} Files
+                            </Badge>
+                        }
+                    >
+                        {compliance.documents?.length ? (
+                            <p className="text-[13px] text-brand-text">Document handling system active</p>
+                        ) : (
+                            <p className="text-[13px] text-brand-text-light">No supporting documents uploaded to this master record.</p>
+                        )}
+                    </DetailSection>
                 </div>
             </div>
         </PageContainer>

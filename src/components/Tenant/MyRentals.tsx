@@ -280,7 +280,7 @@ const MyRentals = () => {
     <div className="flex items-center gap-2">
       <Button onClick={() => navigate('/rental/new')} className="fm-button-fix fm-button-brand px-6 py-2">
         <Plus className="w-4 h-4 mr-2" />
-        Add Rental Agreement
+        Rental Agreement
       </Button>
 
       <TableFilterDialog
@@ -413,7 +413,7 @@ const MyRentals = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="payment_date" className="text-gray-900 font-medium">
                   Payment Date

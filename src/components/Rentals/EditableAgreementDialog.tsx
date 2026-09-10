@@ -97,7 +97,7 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
                 <MapPin className="h-5 w-5 mr-2 text-[#E74C3C]" />
                 Property Information
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="property">Property</Label>
                   <Select value={formData.propertyName} onValueChange={(value) => setFormData({...formData, propertyName: value})}>
@@ -138,10 +138,10 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
                 </div>
                 <Button variant="outline" size="sm" onClick={handleAddLandlord}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add New Landlord
+                  New Landlord
                 </Button>
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="landlordName">Landlord Name</Label>
                   <Input 
@@ -174,10 +174,10 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
                 </div>
                 <Button variant="outline" size="sm" onClick={handleAddTenant}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add New Tenant
+                  New Tenant
                 </Button>
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="tenantName">Tenant Name</Label>
                   <Input 
@@ -196,7 +196,7 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
                     placeholder="Enter contact number"
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-full">
                   <Label htmlFor="tenantEmail">Email Address</Label>
                   <Input 
                     id="tenantEmail"
@@ -217,7 +217,7 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
                 <DollarSign className="h-5 w-5 mr-2 text-[#E74C3C]" />
                 Financial Details
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="monthlyRent">Monthly Rent (₹)</Label>
                   <Input 
@@ -249,7 +249,7 @@ const EditableAgreementDialog = ({ agreement, open, onOpenChange }: EditableAgre
                 <Calendar className="h-5 w-5 mr-2 text-[#E74C3C]" />
                 Lease Period
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="startDate">Start Date</Label>
                   <Input 
