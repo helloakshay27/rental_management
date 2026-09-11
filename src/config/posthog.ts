@@ -12,7 +12,7 @@
  */
 
 /** Shared Lockated project; this app is separated from the others by the `client` property. */
-const DEFAULT_POSTHOG_TOKEN = '__POSTHOG_TOKEN__';
+const DEFAULT_POSTHOG_TOKEN = 'phc_w2uzUQxAoHkUHLe769fG5e7dQyHN9uM8jMnXrxstP2Za';
 const DEFAULT_POSTHOG_HOST = 'https://posthog.lockated.com';
 
 export const POSTHOG_TOKEN =
