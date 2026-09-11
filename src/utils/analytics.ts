@@ -1,5 +1,6 @@
 import { capturePostHogEvent } from './posthogHelpers';
 import { normalizeRoute, resolveModule } from './posthogContext';
+import { PH_ENTITY_SUFFIXES, PH_EVENTS } from './posthogEvents';
 
 /**
  * The app-facing analytics API.
@@ -23,17 +24,24 @@ export const trackEvent = (event: string, props: Props = {}) =>
 
 /* ------------------------------------------------------------------ records */
 
+/*
+ * Two naming styles exist on purpose. The past-tense verbs below (`trackCreated`) are what
+ * the ~170 existing call sites use; the `trackCreate(entity, id, props)` wrappers further
+ * down match the shared implementation guide and are what new code and the declarative
+ * auto-capture use. Both funnel into the same capture, so the event stream is identical.
+ */
+
 export const trackCreated = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} Created`, { action: 'create', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.CREATED}`, { action: 'create', entity, ...props });
 
 export const trackUpdated = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} Updated`, { action: 'update', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.UPDATED}`, { action: 'update', entity, ...props });
 
 export const trackDeleted = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} Deleted`, { action: 'delete', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.DELETED}`, { action: 'delete', entity, ...props });
 
 export const trackViewed = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} Viewed`, { action: 'view', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.VIEWED}`, { action: 'view', entity, ...props });
 
 /** A create/update that the API rejected — the denominator for form success rate. */
 export const trackFailed = (entity: string, action: string, props: Props = {}) =>
@@ -47,21 +55,21 @@ export const trackFailed = (entity: string, action: string, props: Props = {}) =
 /* -------------------------------------------------------------------- lists */
 
 export const trackListSearched = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} List Searched`, { action: 'search', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.LIST_SEARCHED}`, { action: 'search', entity, ...props });
 
 export const trackListFiltered = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} List Filtered`, { action: 'filter', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.LIST_FILTERED}`, { action: 'filter', entity, ...props });
 
 export const trackListExported = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} List Exported`, { action: 'export', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.LIST_EXPORTED}`, { action: 'export', entity, ...props });
 
 export const trackListPaged = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} List Paged`, { action: 'paginate', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.LIST_PAGED}`, { action: 'paginate', entity, ...props });
 
 /* -------------------------------------------------------------------- forms */
 
 export const trackFormOpened = (entity: string, props: Props = {}) =>
-  capturePostHogEvent(`${entity} Form Opened`, { action: 'form_open', entity, ...props });
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.FORM_OPENED}`, { action: 'form_open', entity, ...props });
 
 export const trackFormStepChanged = (entity: string, props: Props = {}) =>
   capturePostHogEvent(`${entity} Form Step Changed`, { action: 'form_step', entity, ...props });
@@ -74,13 +82,38 @@ export const trackNavigation = (props: Props = {}) =>
 /* ---------------------------------------------------------------------- auth */
 
 export const trackLoginSucceeded = (props: Props = {}) =>
-  capturePostHogEvent('Login Succeeded', { action: 'login', succeeded: true, ...props });
+  capturePostHogEvent(PH_EVENTS.LOGIN_SUCCEEDED, { action: 'login', succeeded: true, ...props });
 
 export const trackLoginFailed = (props: Props = {}) =>
-  capturePostHogEvent('Login Failed', { action: 'login', succeeded: false, ...props });
+  capturePostHogEvent(PH_EVENTS.LOGIN_FAILED, { action: 'login', succeeded: false, ...props });
 
 export const trackLoggedOut = (props: Props = {}) =>
-  capturePostHogEvent('Logged Out', { action: 'logout', ...props });
+  capturePostHogEvent(PH_EVENTS.LOGGED_OUT, { action: 'logout', ...props });
+
+/* ------------------------------------------------- guide-shaped wrappers */
+
+/** `trackCreate('Rental', id, { … })` → `Rental Created`. */
+export const trackCreate = (entity: string, entityId?: string | number, props: Props = {}) =>
+  trackCreated(entity, { record_id: entityId, ...props });
+
+export const trackUpdate = (entity: string, entityId?: string | number, props: Props = {}) =>
+  trackUpdated(entity, { record_id: entityId, ...props });
+
+export const trackDelete = (entity: string, entityId?: string | number, props: Props = {}) =>
+  trackDeleted(entity, { record_id: entityId, ...props });
+
+/** A business status transition — send the new state, and the old one when it is known. */
+export const trackStatusChange = (entity: string, props: Props = {}) =>
+  capturePostHogEvent(`${entity} ${PH_ENTITY_SUFFIXES.STATUS_CHANGED}`, { action: 'status_change', entity, ...props });
+
+/** An important button that is not itself a create/update/delete. */
+export const trackButtonClick = (label: string, props: Props = {}) =>
+  capturePostHogEvent(PH_EVENTS.BUTTON_CLICKED, { action: 'click', label, ...props });
+
+/** Aliases matching the guide's helper names; same events as the list helpers above. */
+export const trackSearch = trackListSearched;
+export const trackFilter = trackListFiltered;
+export const trackExport = trackListExported;
 
 /* ----------------------------------------------------------------- api layer */
 
@@ -101,7 +134,7 @@ export const trackApiWrite = (props: {
   duration_ms?: number;
   error_message?: string;
 }) =>
-  capturePostHogEvent(props.succeeded ? 'API Write Succeeded' : 'API Write Failed', {
+  capturePostHogEvent(props.succeeded ? PH_EVENTS.API_WRITE_SUCCEEDED : PH_EVENTS.API_WRITE_FAILED, {
     action: 'api_write',
     module: resolveModule(),
     screen: normalizeRoute(),

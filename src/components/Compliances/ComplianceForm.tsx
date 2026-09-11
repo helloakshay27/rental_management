@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { getAuth, postAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackCreated, trackUpdated } from '@/utils/analytics';
 
 interface PropertyType {
   id: number;
@@ -111,9 +112,11 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
 
       if (isEdit && compliance) {
         await patchAuth(`/compliance_requirements/${compliance.id}`, payload);
+        trackUpdated('Compliance Requirement', { record_id: compliance.id, source: 'form' });
         toast.success('Compliance requirement updated successfully');
       } else {
         await postAuth('/compliance_requirements', payload);
+        trackCreated('Compliance Requirement', { source: 'form' });
         toast.success('Compliance requirement created successfully');
       }
 

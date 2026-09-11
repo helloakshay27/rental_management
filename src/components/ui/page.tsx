@@ -17,18 +17,13 @@ import { Heading, Text } from '@/components/ui/typography';
  *   </PageContainer>
  */
 
-/**
- * Outer wrapper: page padding + the vertical rhythm between page sections.
- *
- * The extra bottom padding below sm keeps the last control (a Save row, the last field)
- * clear of the phone's home indicator / browser chrome, which otherwise sits right on it.
- */
+/** Outer wrapper: page padding + the vertical rhythm between page sections. */
 export const PageContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     className,
     children,
     ...props
 }) => (
-    <div className={cn('p-4 pb-16 space-y-5 sm:p-6 sm:pb-6', className)} {...props}>
+    <div className={cn('p-4 space-y-5 sm:p-6', className)} {...props}>
         {children}
     </div>
 );

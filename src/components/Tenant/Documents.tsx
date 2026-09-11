@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import DocumentSummaryCards from './DocumentSummaryCards';
 import DocumentTable from './DocumentTable';
 import DocumentUploadDialog from './DocumentUploadDialog';
+import { trackCreated } from '@/utils/analytics';
 
 interface DocumentsProps {
   mode?: 'default' | 'compliance';
@@ -126,6 +127,7 @@ const Documents = ({ mode = 'default' }: DocumentsProps) => {
       if (mode === 'compliance' && data) {
         // data can be null if it was an edit that handled its own refresh
         await postAuth('/property_compliances', data);
+        trackCreated('Compliance', { source: 'tenant_documents' });
         toast.success('Compliance document submitted successfully');
         fetchComplianceDocuments(); // Refresh the list
       } else if (mode === 'compliance' && !data) {

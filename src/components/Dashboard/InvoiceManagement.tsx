@@ -18,6 +18,7 @@ import { Plus, FileText, Calendar, Send, Eye, DollarSign, AlertCircle, CheckCirc
 import { postAuth, getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import PaymentHistory from '@/components/Tenant/PaymentHistory';
+import { trackCreated } from '@/utils/analytics';
 
 const columns: ColumnConfig[] = [
   { key: 'invoice_number', label: 'Invoice ID', sortable: true, draggable: true },
@@ -191,6 +192,7 @@ const InvoiceManagement = () => {
       };
 
       await postAuth('/payments', payload);
+      trackCreated('Payment', { source: 'invoice_management' });
       toast.success("Payment recorded successfully!");
       setIsPaymentModalOpen(false);
       fetchInvoices(); // Refresh after payment

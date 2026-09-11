@@ -50,7 +50,9 @@ const Layout = () => {
           scrolling inside its own container. */}
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
         <Header onMenuClick={() => setMobileNavOpen(true)} />
-        <main className="flex-1 overflow-y-auto bg-white p-0 m-0">
+        {/* pb below sm: the scroll container, not the pages, owns the bottom gap — several
+            screens render their own wrapper instead of PageContainer and would miss it. */}
+        <main className="flex-1 overflow-y-auto bg-white p-0 m-0 pb-16 sm:pb-0">
           <Outlet />
         </main>
       </div>

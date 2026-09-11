@@ -13,12 +13,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, clearToken } from '@/lib/api';
-import { trackLoggedOut } from '@/utils/analytics';
+import { trackEvent, trackLoggedOut } from '@/utils/analytics';
 import { resetPostHogUser } from '@/utils/posthogHelpers';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge as UIBadge } from '@/components/ui/badge';
 import { GoPhygitalLogo } from '@/components/ui/gophygital-logo';
+import { PH_EVENTS } from '@/utils/posthogEvents';
 
 interface HeaderProps {
   /** Opens the mobile navigation drawer; only rendered below lg. */
@@ -80,6 +81,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const handleMarkAllRead = async () => {
       try {
         await postAuth('/user_notifications/mark_all_read.json', {});
+        trackEvent(PH_EVENTS.NOTIFICATIONS_MARKED_ALL_READ, { source: 'header' });
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
         setUnreadCount(0);
         toast.success('All notifications marked as read');

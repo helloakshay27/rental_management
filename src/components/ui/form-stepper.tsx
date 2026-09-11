@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { trackEvent } from '@/utils/analytics';
+import { PH_EVENTS } from '@/utils/posthogEvents';
 
 /**
  * Horizontal step chips for long Add/Edit forms.
@@ -61,7 +62,7 @@ export const FormStepper: React.FC<FormStepperProps> = ({
                             onClick={() => {
                                 if (isLocked) return;
                                 // The screen super-property already says which form this is.
-                                trackEvent('Form Step Changed', {
+                                trackEvent(PH_EVENTS.FORM_STEP_CHANGED, {
                                     from_step: current + 1,
                                     from_step_label: steps[current],
                                     to_step: index + 1,

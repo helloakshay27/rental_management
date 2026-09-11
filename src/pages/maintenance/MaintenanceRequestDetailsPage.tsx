@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Edit, Calendar, FileText, Receipt, Plus } from 'lucide-react';
 import AddMaintenanceCostModal from '@/components/maintenance/AddMaintenanceCostModal';
 import { Heading, Text } from '@/components/ui/typography';
-import { trackViewed } from '@/utils/analytics';
+import { trackUpdated, trackViewed } from '@/utils/analytics';
 
 const MaintenanceRequestDetailsPage = () => {
     const { id } = useParams();
@@ -50,6 +50,7 @@ const MaintenanceRequestDetailsPage = () => {
                 }
             };
             await patchAuth(`/maintenance_requests/${id}.json`, payload);
+            trackUpdated('Maintenance Request', { record_id: id, field: 'status', status: newStatus, source: 'detail_page' });
             toast.success('Status updated successfully');
             fetchRequest(); // Refresh data
         } catch (error: any) {

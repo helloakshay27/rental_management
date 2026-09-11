@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Edit, Trash2, Eye, Plus } from 'lucide-react';
 import { getAuth, getToken, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackDeleted } from '@/utils/analytics';
 
 const columns: ColumnConfig[] = [
   { key: 'id', label: 'Expense ID', sortable: true, draggable: true },
@@ -74,6 +75,7 @@ const ExpenseTracking = () => {
     try {
       const token = getToken();
       await deleteAuth(`/expenses/${id}.json${token ? `?token=${token}` : ''}`);
+      trackDeleted('Expense', { record_id: id, source: 'expense_tracking' });
       toast.success('Expense deleted successfully');
       fetchExpenses(pagination.current_page);
     } catch (error) {

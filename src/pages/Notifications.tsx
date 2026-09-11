@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Heading, Text } from '@/components/ui/typography';
 import { trackEvent, trackListFiltered } from '@/utils/analytics';
+import { PH_EVENTS } from '@/utils/posthogEvents';
 
 const Notifications = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -40,7 +41,7 @@ const Notifications = () => {
     try {
       await postAuth('/user_notifications/mark_all_read.json', {});
       setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
-      trackEvent('Notifications Marked All Read', { count: notificationsList.length });
+      trackEvent(PH_EVENTS.NOTIFICATIONS_MARKED_ALL_READ, { count: notificationsList.length });
       toast.success('All notifications marked as read');
     } catch (error) {
       console.error('Failed to mark notifications as read:', error);
@@ -151,7 +152,7 @@ const Notifications = () => {
       <Tabs
         defaultValue="all"
         className="space-y-6"
-        onValueChange={(value) => trackEvent('Notifications Tab Changed', { tab: value })}
+        onValueChange={(value) => trackEvent(PH_EVENTS.NOTIFICATIONS_TAB_CHANGED, { tab: value })}
       >
         {/* Tab bar is full-width, so the category filter sits on its own row below it. */}
         <div className="space-y-4">

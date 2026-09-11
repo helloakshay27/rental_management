@@ -1,5 +1,10 @@
 import posthog from 'posthog-js';
-import { getStoredUser, normalizeRoute, resolveModule } from './posthogContext';
+import {
+  getPostHogSuperProperties,
+  getStoredUser,
+  normalizeRoute,
+  resolveModule,
+} from './posthogContext';
 
 /**
  * The one place an event is actually captured.
@@ -13,8 +18,8 @@ import { getStoredUser, normalizeRoute, resolveModule } from './posthogContext';
 const RELEASE_VERSION = (import.meta.env.VITE_APP_VERSION as string) ?? 'dev';
 
 /** Identifies this product inside the shared PostHog project. */
-export const PROJECT_ID = 'P-RENT';
-export const PROJECT_CODE = 'RENT-01';
+export const PROJECT_ID = 'P-274';
+export const PROJECT_CODE = 'LMV-01';
 
 function numeric(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return undefined;
@@ -28,6 +33,15 @@ export const capturePostHogEvent = (
 ) => {
   // Analytics must never be able to break a user action.
   try {
+    // Refresh the global context immediately before sending. Super-properties are registered
+    // at init and on navigation, but a sign-in or a company switch happens between those —
+    // without this, the first events after it would carry the previous user's context.
+    posthog.register({
+      ...getPostHogSuperProperties(),
+      screen: normalizeRoute(),
+      module: resolveModule(),
+    });
+
     const user = getStoredUser();
 
     posthog.capture(event, {

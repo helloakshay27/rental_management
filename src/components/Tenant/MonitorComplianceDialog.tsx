@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { getAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackUpdated } from '@/utils/analytics';
 
 interface MonitorComplianceDialogProps {
     isOpen: boolean;
@@ -159,6 +160,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
 
             if (isEdit) {
                 await patchAuth(`/property_compliances/${initialData.id}.json`, payload);
+                trackUpdated('Compliance', { record_id: initialData.id, source: 'dialog' });
                 toast.success('Compliance document updated successfully');
                 onUpload(null); // Just to trigger refresh
             } else {

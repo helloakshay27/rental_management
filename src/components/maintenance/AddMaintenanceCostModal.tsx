@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { postAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Plus, Trash2 } from 'lucide-react';
+import { trackCreated } from '@/utils/analytics';
 
 interface MaintenanceCostEntry {
     cost_type: string;
@@ -70,6 +71,7 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
 
             await Promise.all(promises);
 
+            trackCreated('Maintenance Cost', { count: promises.length, source: 'modal' });
             toast.success('Maintenance costs added successfully');
             onSuccess();
             onClose();

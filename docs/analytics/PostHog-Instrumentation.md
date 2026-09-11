@@ -4,6 +4,51 @@ Ported from `fm-matrix-revamp` (`src/utils/posthogContext.ts`, `posthogDebug.ts`
 `posthogHelpers.ts`, `downloadTracking.ts`, `components/PostHogPageView.tsx`, `main.tsx`).
 Same shape, adapted to this app's auth storage, routes and modules.
 
+
+## Architecture (implementation guide alignment)
+
+| Layer | File |
+| --- | --- |
+| Initialization | `src/lib/posthog.ts` — client + init options, called once from `main.tsx` |
+| Connection settings | `src/config/posthog.ts` — token/host, env-overridable |
+| Super properties | `src/utils/posthogContext.ts` |
+| Page views | `src/components/PostHogPageView.tsx` + `src/utils/pageTitles.ts` |
+| Event catalogue | `src/utils/posthogEvents.ts` — `PH_MODULES`, `PH_EVENTS`, `PH_ENTITY_SUFFIXES` |
+| Helpers | `src/utils/analytics.ts` (app-facing verbs) → `src/utils/posthogHelpers.ts` (root capture) |
+| Auto-capture | `installDeclarativeAutoCapture()` in `posthogEvents.ts` — `data-ph-*` attributes |
+| Debugger | `src/utils/posthogDebug.ts` — per-event line + missing-context warning |
+
+Init options: `autocapture: false`, `capture_pageview: false`, `disable_session_recording: true`,
+`advanced_disable_decide: true`, `disable_toolbar: true`.
+
+The root capture re-registers the super-properties immediately before each send, so events
+fired right after a sign-in or a company switch never carry the previous context.
+
+### Declarative auto-capture
+
+```tsx
+<button
+  data-ph-btn="Approve Invoice"
+  data-ph-module={PH_MODULES.INVOICING}
+  data-ph-action="update"      // create | update | delete | view | export | status | click
+  data-ph-entity="Invoice"
+  data-ph-id={invoice.id}
+  onClick={approve}
+>
+  Approve
+</button>
+```
+
+One document-level listener maps the action to the right event. It reports the *click*, not
+the API result — flows that need the confirmed outcome keep their explicit helper call after
+the request succeeds.
+
+### Deviation from the guide
+
+The guide captures `$pageview`; this app sends only the named `<Page> Page Viewed` event,
+because both together showed every navigation twice in the activity feed. See
+`PostHogPageView.tsx` for how to restore it.
+
 ## Setup
 
 ```
@@ -12,13 +57,14 @@ VITE_POSTHOG_HOST=https://posthog.lockated.com
 VITE_APP_VERSION=<git tag or short sha> # stamped on every event as release_version
 ```
 
-`main.tsx` initialises PostHog **before** React renders, so a `capture()` inside a mount
+`main.tsx` calls `initPostHog()` (src/lib/posthog.ts) **before** React renders, so a `capture()` inside a mount
 effect is never made against an uninitialised client. `autocapture` and posthog-js's own
 pageview tracking are off: pageviews come from `PostHogPageView`, everything else is
 explicit.
 
-If the token is missing, `main.tsx` logs a loud `console.error` rather than silently
-dropping events.
+If no token is configured, `initPostHog()` logs a loud `console.error` and skips init rather
+than silently dropping events. Token/host live in `src/config/posthog.ts`; the env vars above
+override them.
 
 ## What is sent on every event (super-properties)
 
@@ -55,6 +101,20 @@ singleton, so a capture works from an event handler, a `.then()`, or a plain mod
 | `trackLoginSucceeded/Failed`, `trackLoggedOut` | `Login Succeeded` … |
 | `trackApiWrite()` | `API Write Succeeded` / `API Write Failed` |
 | `trackEvent(name, props)` | escape hatch for a one-off name |
+
+Guide-shaped wrappers over the same events, for new code and auto-capture:
+
+| Helper | Event name |
+| --- | --- |
+| `trackCreate(entity, id, props)` | `<Entity> Created` |
+| `trackUpdate(entity, id, props)` | `<Entity> Updated` |
+| `trackDelete(entity, id, props)` | `<Entity> Deleted` |
+| `trackStatusChange(entity, props)` | `<Entity> Status Changed` |
+| `trackButtonClick(label, props)` | `Button Clicked` |
+| `trackSearch` / `trackFilter` / `trackExport` | aliases of the list helpers |
+
+Fixed event names live in `PH_EVENTS` and entity suffixes in `PH_ENTITY_SUFFIXES`
+(`src/utils/posthogEvents.ts`) — add a row there before wiring a new event into the UI.
 
 ## Where it is wired
 

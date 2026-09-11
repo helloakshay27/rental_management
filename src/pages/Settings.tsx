@@ -7,6 +7,7 @@ import ProfileTab from '@/components/Settings/ProfileTab';
 import SecurityTab from '@/components/Settings/SecurityTab';
 import { Heading, Text } from '@/components/ui/typography';
 import { trackEvent } from '@/utils/analytics';
+import { PH_EVENTS } from '@/utils/posthogEvents';
 
 const Settings = () => {
   return (
@@ -16,7 +17,7 @@ const Settings = () => {
       <Tabs
         defaultValue="profile"
         className="space-y-6"
-        onValueChange={(value) => trackEvent('Settings Tab Changed', { tab: value })}
+        onValueChange={(value) => trackEvent(PH_EVENTS.SETTINGS_TAB_CHANGED, { tab: value })}
       >
         <TabsList>
           <TabsTrigger value="profile">

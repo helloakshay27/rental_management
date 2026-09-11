@@ -16,6 +16,7 @@ import { getAuth, postAuth, getToken } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
+import { trackCreated } from '@/utils/analytics';
 
 const columns: ColumnConfig[] = [
   { key: 'srNo', label: 'Sr. No', sortable: false, draggable: true, width: 80 },
@@ -141,6 +142,7 @@ const MyRentals = () => {
       };
 
       await postAuth('/payments', payload);
+      trackCreated('Payment', { source: 'my_rentals' });
 
       toast.success("Payment recorded successfully!");
       setIsPaymentModalOpen(false);
