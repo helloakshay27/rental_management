@@ -48,12 +48,10 @@ export function PostHogPageView() {
       email: user?.email ?? undefined,
     };
 
-    // ONE event per navigation, named after the screen ("Utilities Page Viewed").
-    //
-    // posthog-js's own pageview capture is off (see main.tsx) and no `$pageview` is sent by
-    // hand either — it would show every navigation twice in the activity feed. The trade-off
-    // is that PostHog's built-in Web Analytics product, which counts `$pageview`, stays
-    // empty; add `posthog.capture('$pageview', common)` back here if that product is needed.
+    // The named twin of the SDK's `$pageview`: "Utilities Page Viewed" is its own row in the
+    // event list, so a screen can be charted or funnelled without a URL filter every time.
+    // `$pageview` and `$pageleave` themselves come from the SDK
+    // (`capture_pageview: 'history_change'`, see lib/posthog.ts) and are not sent here.
     posthog.capture(getPageViewEventName(location.pathname), {
       ...common,
       action: 'page_view',

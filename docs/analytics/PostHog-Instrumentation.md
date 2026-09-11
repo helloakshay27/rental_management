@@ -18,8 +18,14 @@ Same shape, adapted to this app's auth storage, routes and modules.
 | Auto-capture | `installDeclarativeAutoCapture()` in `posthogEvents.ts` — `data-ph-*` attributes |
 | Debugger | `src/utils/posthogDebug.ts` — per-event line + missing-context warning |
 
-Init options: `autocapture: false`, `capture_pageview: false`, `disable_session_recording: true`,
-`advanced_disable_decide: true`, `disable_toolbar: true`.
+Init options: `autocapture: true`, `capture_pageview: 'history_change'`, `capture_pageleave: true`,
+`disable_session_recording: false`, `advanced_disable_decide: false` (the /decide response configures
+recording), `disable_toolbar: true`.
+
+So PostHog's own `$pageview`, `$pageleave`, `$autocapture` and session recording are ON, and the
+app's named events run alongside them. A navigation therefore appears twice in the activity
+feed — once as `$pageview`, once as `<Page> Page Viewed` — which is the price of having the
+built-in Web Analytics and replay products work.
 
 The root capture re-registers the super-properties immediately before each send, so events
 fired right after a sign-in or a company switch never carry the previous context.
@@ -43,12 +49,6 @@ One document-level listener maps the action to the right event. It reports the *
 the API result — flows that need the confirmed outcome keep their explicit helper call after
 the request succeeds.
 
-### Deviation from the guide
-
-The guide captures `$pageview`; this app sends only the named `<Page> Page Viewed` event,
-because both together showed every navigation twice in the activity feed. See
-`PostHogPageView.tsx` for how to restore it.
-
 ## Setup
 
 ```
@@ -58,9 +58,8 @@ VITE_APP_VERSION=<git tag or short sha> # stamped on every event as release_vers
 ```
 
 `main.tsx` calls `initPostHog()` (src/lib/posthog.ts) **before** React renders, so a `capture()` inside a mount
-effect is never made against an uninitialised client. `autocapture` and posthog-js's own
-pageview tracking are off: pageviews come from `PostHogPageView`, everything else is
-explicit.
+effect is never made against an uninitialised client. posthog-js captures `$pageview`/`$pageleave`/`$autocapture` itself; `PostHogPageView` adds the
+named `<Page> Page Viewed` twin, and every other event is explicit.
 
 If no token is configured, `initPostHog()` logs a loud `console.error` and skips init rather
 than silently dropping events. Token/host live in `src/config/posthog.ts`; the env vars above
@@ -131,17 +130,16 @@ for downloads:
   anchor-click fallback does not double-count.
 - **`src/utils/downloadTracking.ts`** — patches `HTMLAnchorElement.click` so any
   `<a download>` (including SheetJS/jsPDF saves) reports `<Module> Download: <Label>`.
-- **`src/components/PostHogPageView.tsx`** — exactly ONE event per route change, named after
-  the screen: `Utilities Page Viewed`, `Rental Details Page Viewed`, `Country Master Page
+- **`src/components/PostHogPageView.tsx`** — one named event per route change, after the
+  screen: `Utilities Page Viewed`, `Rental Details Page Viewed`, `Country Master Page
   Viewed`. Names come from `src/utils/pageTitles.ts` (74 routes mapped; anything unmapped
   falls back to a title built from the path). `page_name` also rides along as a
   super-property, so every other event says which screen it came from.
 
-  No `$pageview` is sent — posthog-js's own capture is off and none is sent by hand, because
-  it showed every navigation twice in the activity feed. The cost is that PostHog's built-in
-  Web Analytics product (which counts `$pageview`) stays empty; re-add the capture in that
-  file if that product is ever needed. Sidebar clicks are not tracked either, for the same
-  reason: the destination already reports itself.
+  The SDK sends `$pageview` and `$pageleave` for the same navigation, so both appear in the
+  activity feed: `$pageview` powers Web Analytics, the named event is what dashboards and
+  funnels here are built on. Sidebar clicks are not tracked separately — the destination
+  already reports itself (and `$autocapture` covers the click).
 - **`src/components/ui/form-stepper.tsx`** — `Form Step Changed` on multi-step forms.
 
 Domain events on the main flows (so reporting reads in business terms, not just API writes):

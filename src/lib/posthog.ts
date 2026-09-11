@@ -15,17 +15,29 @@ import { installDeclarativeAutoCapture } from '@/utils/posthogEvents';
  * the first render, and those early events are silently dropped).
  */
 
-/** Every automatic behaviour is off: what this app reports, it reports deliberately. */
+/**
+ * PostHog's automatic events are ON alongside this app's own instrumentation.
+ *
+ *   $pageview / $pageleave  — SDK-captured on every history change, so PostHog's built-in
+ *                             Web Analytics (sessions, paths, bounce, time on page) works.
+ *   $autocapture            — every click/input, for exploratory questions nobody wired an
+ *                             event for.
+ *   session recording       — replays.
+ *
+ * The deliberate events (`Utilities Page Viewed`, `Rental Created`, …) still come from this
+ * app's helpers, so a navigation now shows BOTH `$pageview` and the named event in the
+ * activity feed — that is the cost of having the built-in products working.
+ */
 const INIT_OPTIONS = {
   api_host: POSTHOG_HOST,
-  // Untyped click/input noise would bury the ~170 deliberate events.
-  autocapture: false,
-  // SPA route changes are reported by components/PostHogPageView.tsx instead.
-  capture_pageview: false,
-  disable_session_recording: true,
-  // No /decide call: this app uses neither feature flags nor surveys, so the request is
-  // latency on every page load for nothing.
-  advanced_disable_decide: true,
+  autocapture: true,
+  // 'history_change' is the SPA-correct value: a plain `true` only reports the first load.
+  capture_pageview: 'history_change',
+  capture_pageleave: true,
+  disable_session_recording: false,
+  // Session recording, flags and surveys are all configured by the /decide response, so it
+  // must stay enabled.
+  advanced_disable_decide: false,
   disable_toolbar: true,
 } as const;
 
