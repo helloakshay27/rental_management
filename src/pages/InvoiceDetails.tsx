@@ -11,6 +11,7 @@ import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { ArrowLeft, Printer, Send, CreditCard, Building, User, Calendar, Receipt, FileText } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackViewed } from '@/utils/analytics';
 
 /** One row of the invoice summary breakdown. `tone` drives the amount colour. */
 interface InvoiceLine {
@@ -30,6 +31,11 @@ const columns: ColumnConfig[] = [
 
 const InvoiceDetails = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Invoice', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [invoice, setInvoice] = useState<any>(null);
     const [loading, setLoading] = useState(true);

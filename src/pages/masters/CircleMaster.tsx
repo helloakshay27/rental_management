@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface City {
     id: number;
@@ -166,9 +167,11 @@ const CircleMaster = () => {
             // Make API call
             if (editingCircle) {
                 await patchAuth(`/pms/circles/${editingCircle.id}`, payload);
+                trackUpdated('Circle', { record_id: editingCircle.id, source: 'masters' });
                 toast.success('Circle updated successfully');
             } else {
                 await postAuth('/pms/circles', payload);
+                trackCreated('Circle', { source: 'masters' });
                 toast.success('Circle created successfully');
             }
 
@@ -198,6 +201,7 @@ const CircleMaster = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/pms/circles/${circleId}`);
+                trackDeleted('Circle', { record_id: circleId, source: 'masters' });
                 toast.success('Circle deleted successfully');
                 fetchCircles();
             } catch (error: any) {
@@ -214,6 +218,7 @@ const CircleMaster = () => {
             await patchAuth(`/pms/circles/${circleId}`, {
                 pms_circle: { status: newStatus }
             });
+            trackUpdated('Circle', { record_id: circleId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchCircles();
         } catch (error: any) {
@@ -274,7 +279,7 @@ const CircleMaster = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Circle', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Circle
             </Button>

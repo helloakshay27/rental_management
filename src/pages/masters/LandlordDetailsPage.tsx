@@ -8,9 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackViewed } from '@/utils/analytics';
 
 const LandlordDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Landlord', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [landlord, setLandlord] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

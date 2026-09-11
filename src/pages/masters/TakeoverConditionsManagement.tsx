@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface TakeoverCondition {
     id: number;
@@ -106,9 +107,11 @@ const TakeoverConditionsManagement = () => {
 
             if (editingCondition) {
                 await patchAuth(`/property_takeover_conditions/${editingCondition.id}`, payload);
+                trackUpdated('Takeover Condition', { record_id: editingCondition.id, source: 'masters' });
                 toast.success("Condition updated successfully");
             } else {
                 await postAuth('/property_takeover_conditions', payload);
+                trackCreated('Takeover Condition', { source: 'masters' });
                 toast.success("Condition created successfully");
             }
 
@@ -132,6 +135,7 @@ const TakeoverConditionsManagement = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/property_takeover_conditions/${id}`);
+                trackDeleted('Takeover Condition', { record_id: id, source: 'masters' });
                 toast.success('Condition deleted successfully');
                 fetchConditions();
             } catch (error: any) {
@@ -148,6 +152,7 @@ const TakeoverConditionsManagement = () => {
             await patchAuth(`/property_takeover_conditions/${id}`, {
                 property_takeover_condition: { status: newStatus }
             });
+            trackUpdated('Takeover Condition', { record_id: id, source: 'masters' });
             toast.success('Status updated successfully');
             fetchConditions();
         } catch (error: any) {
@@ -211,7 +216,7 @@ const TakeoverConditionsManagement = () => {
     );
 
     const leftActions = (
-                        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                        <Button onClick={() => { trackFormOpened('Takeover Condition', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                             <Plus className="w-4 h-4 mr-2" />
                             Condition
                         </Button>

@@ -16,6 +16,7 @@ import { getAuth, postAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface UserRole {
   id: number;
@@ -172,9 +173,11 @@ const UsersManagement = () => {
 
       if (editingUser) {
         await patchAuth(`/users/${editingUser.id}`, payload);
+        trackUpdated('User', { record_id: editingUser.id, source: 'masters' });
         toast.success("User updated successfully");
       } else {
         await postAuth('/users', payload);
+        trackCreated('User', { source: 'masters' });
         toast.success("User created successfully");
       }
 
@@ -200,6 +203,7 @@ const UsersManagement = () => {
       try {
         setIsLoading(true);
         await deleteAuth(`/users/${userId}`);
+        trackDeleted('User', { record_id: userId, source: 'masters' });
         toast.success('User deleted successfully');
         fetchUsers();
       } catch (error: any) {
@@ -216,6 +220,7 @@ const UsersManagement = () => {
       await patchAuth(`/users/${userId}`, {
         user: { status: newStatus }
       });
+      trackUpdated('User', { record_id: userId, source: 'masters' });
       toast.success('Status updated successfully');
       fetchUsers();
     } catch (error: any) {
@@ -320,7 +325,7 @@ const UsersManagement = () => {
 
   const leftActions = (
     <div className="flex items-center gap-2">
-        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Button onClick={() => { trackFormOpened('User', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
             User
         </Button>

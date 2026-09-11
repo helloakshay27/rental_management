@@ -8,9 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackViewed } from '@/utils/analytics';
 
 const ComplianceDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Compliance Requirement', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [compliance, setCompliance] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

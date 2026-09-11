@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface Country {
     id: number;
@@ -158,9 +159,11 @@ const CountryMaster = () => {
             // Make API call
             if (editingCountry) {
                 await patchAuth(`/pms/countries/${editingCountry.id}`, payload);
+                trackUpdated('Country', { record_id: editingCountry.id, source: 'masters' });
                 toast.success('Country updated successfully');
             } else {
                 await postAuth('/pms/countries', payload);
+                trackCreated('Country', { source: 'masters' });
                 toast.success('Country created successfully');
             }
 
@@ -190,6 +193,7 @@ const CountryMaster = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/pms/countries/${countryId}`);
+                trackDeleted('Country', { record_id: countryId, source: 'masters' });
                 toast.success('Country deleted successfully');
                 fetchCountries();
             } catch (error: any) {
@@ -206,6 +210,7 @@ const CountryMaster = () => {
             await patchAuth(`/pms/countries/${countryId}`, {
                 pms_country: { status: newStatus }
             });
+            trackUpdated('Country', { record_id: countryId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchCountries();
         } catch (error: any) {
@@ -280,7 +285,7 @@ const CountryMaster = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Country', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Country
             </Button>

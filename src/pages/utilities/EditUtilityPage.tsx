@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Save, Zap } from 'lucide-react';
 import { getAuth, patchAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackUpdated, trackFailed } from '@/utils/analytics';
 
 const EditUtilityPage = () => {
     const navigate = useNavigate();
@@ -89,9 +90,11 @@ const EditUtilityPage = () => {
             };
 
             await patchAuth(`/utilities/${id}.json`, payload);
+            trackUpdated('Utility', { record_id: id, source: 'form' });
             toast.success('Utility updated successfully');
             navigate('/utilities');
         } catch (error: any) {
+            trackFailed('Utility', 'Update', { error_message: error?.message ?? 'unknown' });
             console.error('Failed to update utility:', error);
             toast.error(error.message || 'Failed to update utility');
         } finally {

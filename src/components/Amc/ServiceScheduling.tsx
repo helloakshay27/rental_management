@@ -206,17 +206,18 @@ const ServiceScheduling = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500">
+              {/* A week is seven columns at every width — the cells shrink, they never stack. */}
+              <div className="grid grid-cols-7 gap-0.5 text-center text-[11px] font-medium text-gray-500 sm:gap-1 sm:text-xs">
                 <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
                 {Array.from({ length: 35 }, (_, i) => {
                   const day = i - 6; // Adjust for month start
                   const hasService = [25, 27, 30].includes(day);
                   return (
                     <div
                       key={i}
-                      className={`h-8 flex items-center justify-center text-xs rounded ${day > 0 && day <= 31
+                      className={`flex h-8 items-center justify-center rounded text-[11px] sm:text-xs ${day > 0 && day <= 31
                         ? hasService
                           ? 'bg-[#C72030] text-white font-medium'
                           : 'text-gray-700 hover:bg-gray-100'

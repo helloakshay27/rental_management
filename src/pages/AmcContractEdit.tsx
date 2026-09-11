@@ -13,6 +13,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { getAuth, putAuth, getToken } from '@/lib/api'; // Changed postAuth to putAuth for update
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackUpdated, trackFailed } from '@/utils/analytics';
 
 const AmcContractEdit = () => {
     const { id } = useParams();
@@ -138,9 +139,11 @@ const AmcContractEdit = () => {
             };
 
             await putAuth(`/amc_contracts/${id}`, payload);
+            trackUpdated('AMC Contract', { record_id: id, source: 'form' });
             toast.success('AMC Contract updated successfully');
             navigate('/amc');
         } catch (error) {
+            trackFailed('AMC Contract', 'Update', { error_message: error?.message ?? 'unknown' });
             console.error('Failed to update AMC:', error);
             toast.error('Failed to update AMC Contract');
         } finally {

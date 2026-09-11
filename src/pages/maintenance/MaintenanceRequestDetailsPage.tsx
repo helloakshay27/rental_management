@@ -11,9 +11,15 @@ import { toast } from 'sonner';
 import { ArrowLeft, Edit, Calendar, FileText, Receipt, Plus } from 'lucide-react';
 import AddMaintenanceCostModal from '@/components/maintenance/AddMaintenanceCostModal';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const MaintenanceRequestDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Maintenance Request', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [request, setRequest] = useState<any>(null);
     const [loading, setLoading] = useState(true);

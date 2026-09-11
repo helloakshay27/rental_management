@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface City {
     id: number;
@@ -167,9 +168,11 @@ const CityMaster = () => {
             // Make API call
             if (editingCity) {
                 await patchAuth(`/pms/cities/${editingCity.id}`, payload);
+                trackUpdated('City', { record_id: editingCity.id, source: 'masters' });
                 toast.success('City updated successfully');
             } else {
                 await postAuth('/pms/cities', payload);
+                trackCreated('City', { source: 'masters' });
                 toast.success('City created successfully');
             }
 
@@ -199,6 +202,7 @@ const CityMaster = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/pms/cities/${cityId}`);
+                trackDeleted('City', { record_id: cityId, source: 'masters' });
                 toast.success('City deleted successfully');
                 fetchCities();
             } catch (error: any) {
@@ -215,6 +219,7 @@ const CityMaster = () => {
             await patchAuth(`/pms/cities/${cityId}`, {
                 pms_city: { status: newStatus }
             });
+            trackUpdated('City', { record_id: cityId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchCities();
         } catch (error: any) {
@@ -275,7 +280,7 @@ const CityMaster = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('City', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 City
             </Button>

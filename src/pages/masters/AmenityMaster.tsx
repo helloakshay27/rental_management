@@ -13,6 +13,7 @@ import { FileText, Edit, Save, Plus, Trash } from 'lucide-react';
 import { getAuth, postAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 type Amenity = {
     id: number | string;
@@ -82,11 +83,13 @@ const AmenityMaster = () => {
                 await patchAuth(`/pms/amenities/${editingId}.json`, {
                     pms_amenity: { name: formData.name.trim(), active: formData.active },
                 });
+                trackUpdated('Amenity', { record_id: editingId, source: 'masters' });
                 toast.success('Amenity updated');
             } else {
                 await postAuth('/pms/amenities.json', {
                     pms_amenity: { name: formData.name.trim(), active: formData.active },
                 });
+                trackCreated('Amenity', { source: 'masters' });
                 toast.success('Amenity created');
             }
             setFormData({ name: '', active: true });
@@ -117,6 +120,7 @@ const AmenityMaster = () => {
         }
         try {
             await deleteAuth(`/pms/amenities/${amenity.id}.json`);
+            trackDeleted('Amenity', { record_id: amenity.id, source: 'masters' });
             toast.success('Amenity deleted');
             fetchAmenities();
         } catch (error) {

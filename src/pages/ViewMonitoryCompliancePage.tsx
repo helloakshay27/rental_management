@@ -8,10 +8,16 @@ import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const ViewMonitoryCompliancePage = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Compliance', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const [data, setData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 

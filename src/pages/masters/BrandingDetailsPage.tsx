@@ -11,9 +11,15 @@ import { getAuth } from '@/lib/api';
 import { Palette, ArrowLeft, Building2, Mail, MapPin, Download, FileText, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Heading } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const BrandingDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Branding Profile', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [profile, setProfile] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

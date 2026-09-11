@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Cell, LineChart, Line, Pie } from 'recharts';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackListFiltered } from '@/utils/analytics';
 
 const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
@@ -81,7 +82,13 @@ const Reports = () => {
           <Text size="sm" variant="muted">Comprehensive insights into your property portfolio performance</Text>
         </div>
         <div className="flex items-center space-x-3">
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+          <Select
+            value={selectedPeriod}
+            onValueChange={(value) => {
+              trackListFiltered('Reports', { period: value });
+              setSelectedPeriod(value);
+            }}
+          >
             <SelectTrigger className="w-40 bg-white border-gray-200">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>

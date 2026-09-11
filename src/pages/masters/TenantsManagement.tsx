@@ -19,6 +19,7 @@ import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 const columns: ColumnConfig[] = [
   { key: 'name', label: 'Lessee Details', sortable: true, draggable: true },
@@ -155,9 +156,11 @@ const TenantsManagement = () => {
       // Make API call
       if (editingTenant) {
         await patchAuth(`/tenants/${editingTenant.id}`, payload);
+        trackUpdated('Lessee', { record_id: editingTenant.id, source: 'masters' });
         toast.success('Lessee updated successfully');
       } else {
         await postAuth('/tenants', payload);
+        trackCreated('Lessee', { source: 'masters' });
         toast.success('Lessee created successfully');
       }
 
@@ -187,6 +190,7 @@ const TenantsManagement = () => {
       try {
         setIsLoading(true);
         await deleteAuth(`/tenants/${tenantId}`);
+        trackDeleted('Lessee', { record_id: tenantId, source: 'masters' });
         toast.success('Lessee deleted successfully');
         fetchTenants();
       } catch (error: any) {
@@ -206,6 +210,7 @@ const TenantsManagement = () => {
           is_active: newStatus === 'Active'
         }
       });
+      trackUpdated('Lessee', { record_id: tenantId, source: 'masters' });
       toast.success('Status updated successfully');
       fetchTenants();
     } catch (error: any) {
@@ -285,7 +290,7 @@ const TenantsManagement = () => {
 
   const leftActions = (
     <div className="flex items-center gap-2">
-        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Button onClick={() => { trackFormOpened('Lessee', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
             Lessee
         </Button>

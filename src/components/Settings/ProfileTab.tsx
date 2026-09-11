@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getAuth, putAuth, API_BASE_URL } from '@/lib/api';
+import { getAuth, putAuth, getBaseUrl } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackUpdated } from '@/utils/analytics';
 
 const ProfileTab = () => {
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,7 @@ const ProfileTab = () => {
         if (storedUser.id) {
           const data = await getAuth(`/users/${storedUser.id}.json`);
           const avatarUrl = data.profile_image?.url
-            ? (data.profile_image.url.startsWith('http') ? data.profile_image.url : `${API_BASE_URL}${data.profile_image.url}`)
+            ? (data.profile_image.url.startsWith('http') ? data.profile_image.url : `${getBaseUrl()}${data.profile_image.url}`)
             : '';
 
           setUserData({
@@ -100,11 +101,12 @@ const ProfileTab = () => {
       };
 
       const data = await putAuth(`/users/${storedUser.id}`, payload);
+      trackUpdated('Profile', { source: 'settings' });
       toast.success('Profile updated successfully');
 
       // Refresh avatar_url from the response if available, or fetch again
       const updatedAvatarUrl = data.profile_image?.url
-        ? (data.profile_image.url.startsWith('http') ? data.profile_image.url : `${API_BASE_URL}${data.profile_image.url}`)
+        ? (data.profile_image.url.startsWith('http') ? data.profile_image.url : `${getBaseUrl()}${data.profile_image.url}`)
         : userData.avatar_url;
 
       // Update local storage name/email/avatar if they changed

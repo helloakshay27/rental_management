@@ -7,10 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Edit, Zap, Building, Hash, Calendar, DollarSign, Activity, CheckCircle, XCircle } from 'lucide-react';
 import { getAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackViewed } from '@/utils/analytics';
 
 const UtilityDetailsPage = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Utility', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const [utility, setUtility] = useState<any>(null);
     const [propertyName, setPropertyName] = useState('');
     const [isLoading, setIsLoading] = useState(true);

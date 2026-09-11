@@ -10,10 +10,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User, FileText, Download, ExternalLink } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAuth, patchAuth, getToken, API_BASE_URL } from '@/lib/api';
+import { getAuth, patchAuth, getToken, getBaseUrl } from '@/lib/api';
 import { toast } from 'sonner';
 import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackUpdated, trackFailed } from '@/utils/analytics';
 
 const EditRentalPage = () => {
     const navigate = useNavigate();
@@ -615,10 +616,12 @@ const EditRentalPage = () => {
             };
 
             const response = await patchAuth(`/leases/${id}`, payload);
+            trackUpdated('Rental', { record_id: id, source: 'form' });
             console.log('Lease updated:', response);
             toast.success('Rental updated successfully!');
             navigate(-1);
         } catch (error: any) {
+            trackFailed('Rental', 'Update', { error_message: error?.message ?? 'unknown' });
             console.error('Error updating lease:', error);
             toast.error(error.message || 'Failed to update rental');
         } finally {
@@ -1736,7 +1739,7 @@ const EditRentalPage = () => {
                         <div className="space-y-2 mb-3">
                             <p className="text-sm text-gray-600 font-medium">Existing Documents:</p>
                             {existingDocuments.map((doc) => {
-                                const fileUrl = doc.url?.startsWith('http') ? doc.url : `${API_BASE_URL}${doc.url}`;
+                                const fileUrl = doc.url?.startsWith('http') ? doc.url : `${getBaseUrl()}${doc.url}`;
                                 const fileSizeKB = doc.file_size ? (doc.file_size / 1024).toFixed(1) : null;
                                 const fileSizeMB = doc.file_size && doc.file_size > 1048576 ? (doc.file_size / 1048576).toFixed(2) : null;
                                 return (

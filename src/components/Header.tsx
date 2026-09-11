@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, clearToken } from '@/lib/api';
+import { trackLoggedOut } from '@/utils/analytics';
+import { resetPostHogUser } from '@/utils/posthogHelpers';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge as UIBadge } from '@/components/ui/badge';
@@ -96,6 +98,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   }, []);
 
   const handleLogout = () => {
+    trackLoggedOut();
+    resetPostHogUser();
     clearToken();
     try {
       window.dispatchEvent(new Event('auth-changed'));

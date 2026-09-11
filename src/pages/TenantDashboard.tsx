@@ -9,6 +9,7 @@ import MyRentals from '@/components/Tenant/MyRentals';
 import PaymentHistory from '@/components/Tenant/PaymentHistory';
 import Documents from '@/components/Tenant/Documents';
 import { Heading } from '@/components/ui/typography';
+import { trackFormOpened } from '@/utils/analytics';
 
 const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -20,7 +21,10 @@ const TenantDashboard = ({ initialTab = "rentals" }: { initialTab?: string }) =>
           <Heading level="h1">Tenant Dashboard</Heading>
           <p className="text-[#1a1a1a]/70 mt-2">Manage your rental properties and landlord relationships</p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Button onClick={() => {
+            trackFormOpened('Rental', { mode: 'create', source: 'tenant_dashboard' });
+            setIsAddDialogOpen(true);
+          }} className="fm-button-fix fm-button-brand px-6 py-2">
           <Plus className="h-4 w-4 mr-2" />
           New Rental
         </Button>

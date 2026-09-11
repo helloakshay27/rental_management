@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { getAuth, postAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { trackCreated, trackFailed, trackUpdated } from '@/utils/analytics';
 
 interface MonitorComplianceFormProps {
     initialData?: any;
@@ -155,13 +156,16 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
 
             if (isEdit && recordId) {
                 await patchAuth(`/property_compliances/${recordId}.json`, payload);
+                trackUpdated('Compliance', { record_id: recordId, source: 'form' });
                 toast.success('Compliance document updated successfully');
             } else {
                 await postAuth('/property_compliances', payload);
+                trackCreated('Compliance', { source: 'form' });
                 toast.success('Compliance document submitted successfully');
             }
             navigate('/compliance');
         } catch (error: any) {
+            trackFailed('Compliance', isEdit ? 'Update' : 'Create', { error_message: error?.message ?? 'unknown' });
             console.error('Error submitting compliance', error);
             toast.error(error.message || 'Failed to submit compliance');
         } finally {

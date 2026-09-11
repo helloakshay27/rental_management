@@ -12,6 +12,7 @@ import { ArrowLeft, Save, Upload, X, FileText } from 'lucide-react';
 import { getAuth, putAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackUpdated, trackFailed } from '@/utils/analytics';
 
 const EditMaintenanceRequestPage = () => {
     const navigate = useNavigate();
@@ -168,9 +169,11 @@ const EditMaintenanceRequestPage = () => {
             };
 
             await putAuth(`/maintenance_requests/${id}.json`, payload);
+            trackUpdated('Maintenance Request', { record_id: id, source: 'form' });
             toast.success('Maintenance request updated successfully');
             navigate(-1);
         } catch (error: any) {
+            trackFailed('Maintenance Request', 'Update', { error_message: error?.message ?? 'unknown' });
             console.error('Failed to update request:', error);
             toast.error(error.message || 'Failed to update maintenance request');
         } finally {

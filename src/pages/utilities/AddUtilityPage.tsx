@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Save, Zap } from 'lucide-react';
 import { getAuth, postAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackCreated, trackFailed } from '@/utils/analytics';
 
 const AddUtilityPage = () => {
     const navigate = useNavigate();
@@ -73,9 +74,11 @@ const AddUtilityPage = () => {
             };
 
             await postAuth('/utilities.json', payload);
+            trackCreated('Utility', { source: 'form' });
             toast.success('Utility added successfully');
             navigate('/utilities');
         } catch (error: any) {
+            trackFailed('Utility', 'Create', { error_message: error?.message ?? 'unknown' });
             console.error('Failed to add utility:', error);
             toast.error(error.message || 'Failed to add utility');
         } finally {

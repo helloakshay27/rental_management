@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface Budget {
     id: number;
@@ -162,6 +163,7 @@ const BudgetMaster = () => {
                 }
             };
             await postAuth('/budgets.json', payload);
+            trackCreated('Budget', { source: 'masters' });
             toast.success('Budget created successfully');
             setIsAddModalOpen(false);
             handleResetForm();
@@ -205,6 +207,7 @@ const BudgetMaster = () => {
                 }
             };
             await patchAuth(`/budgets/${editingBudget.id}.json`, payload);
+            trackUpdated('Budget', { record_id: editingBudget.id, source: 'masters' });
             toast.success('Budget updated successfully');
             setIsEditModalOpen(false);
             handleResetForm();
@@ -221,6 +224,7 @@ const BudgetMaster = () => {
         if (!window.confirm('Are you sure you want to delete this budget?')) return;
         try {
             await deleteAuth(`/budgets/${id}.json`);
+            trackDeleted('Budget', { record_id: id, source: 'masters' });
             toast.success('Budget deleted successfully');
             fetchBudgets(pagination.current_page);
         } catch (error: any) {
@@ -278,7 +282,7 @@ const BudgetMaster = () => {
     );
 
     const leftActions = (
-                        <Button onClick={() => setIsAddModalOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                        <Button onClick={() => { trackFormOpened('Budget', { mode: 'create', source: 'masters' }); setIsAddModalOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                             <Plus className="w-4 h-4 mr-2" />
                             Budget
                         </Button>

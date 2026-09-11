@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface Region {
     id: number;
@@ -176,9 +177,11 @@ const RegionMaster = () => {
             // Make API call
             if (editingRegion) {
                 await patchAuth(`/pms/regions/${editingRegion.id}`, payload);
+                trackUpdated('Region', { record_id: editingRegion.id, source: 'masters' });
                 toast.success('Region updated successfully');
             } else {
                 await postAuth('/pms/regions', payload);
+                trackCreated('Region', { source: 'masters' });
                 toast.success('Region created successfully');
             }
 
@@ -208,6 +211,7 @@ const RegionMaster = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/pms/regions/${regionId}`);
+                trackDeleted('Region', { record_id: regionId, source: 'masters' });
                 toast.success('Region deleted successfully');
                 fetchRegions();
             } catch (error: any) {
@@ -224,6 +228,7 @@ const RegionMaster = () => {
             await patchAuth(`/pms/regions/${regionId}`, {
                 region: { is_active: newIsActive }
             });
+            trackUpdated('Region', { record_id: regionId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchRegions();
         } catch (error: any) {
@@ -296,7 +301,7 @@ const RegionMaster = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Region', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Region
             </Button>

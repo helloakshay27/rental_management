@@ -14,6 +14,7 @@ import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Edit, Trash2, Key, Lock, Unlock, Shield, Calendar } from 'lucide-react';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackEvent } from '@/utils/analytics';
 
 const columns: ColumnConfig[] = [
   { key: 'user', label: 'User & Role', sortable: true, draggable: true },
@@ -233,7 +234,12 @@ const AccessManagement = () => {
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" className="fm-button-fix px-6 py-2">Cancel</Button>
-              <Button className="fm-button-fix fm-button-brand px-6 py-2">Save Access Configuration</Button>
+              <Button
+                onClick={() => trackEvent('Access Configuration Save Clicked', { source: 'masters' })}
+                className="fm-button-fix fm-button-brand px-6 py-2"
+              >
+                Save Access Configuration
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

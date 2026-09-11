@@ -56,6 +56,14 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { markDownloadReported } from "@/utils/downloadTracking";
+import {
+  trackListExported,
+  trackListFiltered,
+  trackListPaged,
+  trackListSearched,
+  trackViewed,
+} from "@/utils/analytics";
 import { isMobileUiSite } from "@/utils/mobileUiSites";
 import {
   calculateColumnLeftOffset,
@@ -271,9 +279,15 @@ export function EnhancedTable<T extends Record<string, any>>({
   // hai (mobile par horizontally scroll hone wala table).
   const mobileView = isMobileUiSite();
 
-  // Analytics shim: the reference app reports download events to PostHog.
-  // This project has no analytics wired up, so downloads are a no-op here.
-  const moduleDownloadEvents = { onModuleDownloaded: (_payload: Record<string, any>) => {} };
+  // Every list export in the app funnels through here, so one capture covers ~30 pages.
+  // markDownloadReported() stops the anchor-click fallback in utils/downloadTracking.ts
+  // from reporting the same file a second time.
+  const moduleDownloadEvents = {
+    onModuleDownloaded: (payload: Record<string, any>) => {
+      markDownloadReported();
+      trackListExported(exportLabel, payload);
+    },
+  };
   // Names the export in the event ("Maintenance Download: Assets"). storageKey is the
   // per-table id every page already sets, so it is a stable, low-cardinality label.
   const exportLabel = (exportFileName && exportFileName !== "table-export"
@@ -733,6 +747,9 @@ export function EnhancedTable<T extends Record<string, any>>({
     if (target.closest("[data-checkbox]") || target.closest("[data-actions]")) {
       return;
     }
+    if (onRowClick) {
+      trackViewed(exportLabel, { record_id: getItemId(item), source: "list_row" });
+    }
     onRowClick?.(item);
   };
 
@@ -768,6 +785,24 @@ export function EnhancedTable<T extends Record<string, any>>({
       onGlobalSearch("");
     }
   };
+
+  // One event per completed search rather than per keystroke: the term settles for
+  // 800ms before it is reported, so "invoice" is one event, not seven.
+  useEffect(() => {
+    const term = searchInput.trim();
+    if (!term) return;
+    const timer = setTimeout(() => {
+      trackListSearched(exportLabel, {
+        query: term,
+        query_length: term.length,
+        result_count: filteredData.length,
+      });
+    }, 800);
+    return () => clearTimeout(timer);
+    // filteredData is intentionally excluded: it changes as results arrive and would
+    // restart the timer, so the event would never fire on a slow list.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput, exportLabel]);
 
   // Toggle expand/collapse for collapsible rows
   const handleToggleExpand = (itemId: string, event: React.MouseEvent) => {
@@ -1004,6 +1039,7 @@ export function EnhancedTable<T extends Record<string, any>>({
 
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
+    trackListPaged(exportLabel, { from_page: currentPage, to_page: page, total_pages: totalPages });
     if (externalOnPageChange) {
       externalOnPageChange(page);
     } else {
@@ -1482,7 +1518,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                 variant="outline"
                 size="icon"
                 className="!rounded-lg h-8 w-8 border border-brand text-brand"
-                onClick={onFilterClick}
+                onClick={() => { trackListFiltered(exportLabel, { source: "filter_button" }); onFilterClick(); }}
                 title="Filter"
               >
                 <Filter className="w-4 h-4" />
@@ -1525,7 +1561,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                 variant="outline"
                 size="icon"
                 className="!rounded-lg border border-brand text-brand"
-                onClick={onFilterClick}
+                onClick={() => { trackListFiltered(exportLabel, { source: "filter_button" }); onFilterClick(); }}
                 title="Filter"
               >
                 <Filter className="w-4 h-4" />

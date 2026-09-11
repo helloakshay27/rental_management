@@ -6,13 +6,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getAuth, API_BASE_URL } from '@/lib/api';
+import { getAuth, getBaseUrl } from '@/lib/api';
 import { Building2, ArrowLeft, MapPin, Home, Calendar, Layers, Maximize2, Info, CheckCircle2, User, Globe, Map, Hash, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { Heading } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const PropertyMasterDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Property', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [property, setProperty] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +67,7 @@ const PropertyMasterDetailsPage = () => {
 
     // Identify site image
     const siteImage = property.documents?.find((doc: any) => doc.document_type === 'site_image');
-    const imageUrl = siteImage ? (siteImage.url?.startsWith('http') ? siteImage.url : `${API_BASE_URL}${siteImage.url}`) : null;
+    const imageUrl = siteImage ? (siteImage.url?.startsWith('http') ? siteImage.url : `${getBaseUrl()}${siteImage.url}`) : null;
 
     return (
         <PageContainer>

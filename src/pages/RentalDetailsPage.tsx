@@ -7,9 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { getAuth } from '@/lib/api';
 import { MapPin, Building2, Calendar, DollarSign, FileText, AlertTriangle, ArrowLeft, Edit, User } from 'lucide-react';
 import { Heading } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 export default function RentalDetailsPage() {
   const { id } = useParams();
+
+  // Detail screens are the app's read funnel: report the view once per record.
+  useEffect(() => {
+      trackViewed('Rental', { record_id: id, source: 'detail_page' });
+  }, [id]);
   const navigate = useNavigate();
   const [lease, setLease] = useState<any>(null);
   const [loading, setLoading] = useState(true);

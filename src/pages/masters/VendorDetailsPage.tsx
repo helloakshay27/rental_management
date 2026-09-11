@@ -11,9 +11,15 @@ import { getAuth } from '@/lib/api';
 import { Building, ArrowLeft, User, Mail, Phone, MapPin, Receipt, Star, Landmark, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const VendorDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Vendor', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [vendor, setVendor] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

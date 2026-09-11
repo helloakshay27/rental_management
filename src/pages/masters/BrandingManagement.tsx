@@ -17,6 +17,7 @@ import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 const columns: ColumnConfig[] = [
   { key: 'profile_name', label: 'Profile Details', sortable: true, draggable: true },
@@ -194,9 +195,11 @@ const BrandingManagement = () => {
       // Make API call - PATCH for editing, POST for creating
       if (editingProfile) {
         await patchAuth(`/branding_profiles/${editingProfile.id}`, payload);
+        trackUpdated('Branding Profile', { record_id: editingProfile.id, source: 'masters' });
         toast.success('Branding profile updated successfully');
       } else {
         await postAuth('/branding_profiles', payload);
+        trackCreated('Branding Profile', { source: 'masters' });
         toast.success('Branding profile created successfully');
       }
 
@@ -227,6 +230,7 @@ const BrandingManagement = () => {
       await patchAuth(`/branding_profiles/${profileId}`, {
         branding_profile: { status: newStatus }
       });
+      trackUpdated('Branding Profile', { record_id: profileId, source: 'masters' });
       toast.success('Status updated successfully');
       fetchBrandingProfiles();
     } catch (error: any) {
@@ -241,6 +245,7 @@ const BrandingManagement = () => {
       try {
         setIsLoading(true);
         await deleteAuth(`/branding_profiles/${profileId}`);
+        trackDeleted('Branding Profile', { record_id: profileId, source: 'masters' });
         toast.success('Branding profile deleted successfully');
         fetchBrandingProfiles();
       } catch (error: any) {
@@ -336,7 +341,7 @@ const BrandingManagement = () => {
 
   const leftActions = (
     <div className="flex items-center gap-2">
-        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Button onClick={() => { trackFormOpened('Branding Profile', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
             Branding Profile
         </Button>

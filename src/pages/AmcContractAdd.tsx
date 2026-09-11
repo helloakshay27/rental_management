@@ -15,6 +15,7 @@ import { ArrowLeft, Save, Calendar } from 'lucide-react';
 import { getAuth, postAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackCreated, trackFailed } from '@/utils/analytics';
 
 const AmcContractAdd = () => {
     const navigate = useNavigate();
@@ -116,9 +117,11 @@ const AmcContractAdd = () => {
             };
 
             await postAuth('/amc_contracts', payload);
+            trackCreated('AMC Contract', { source: 'form' });
             toast.success('AMC Contract created successfully');
             navigate('/amc'); // Navigate back to list
         } catch (error) {
+            trackFailed('AMC Contract', 'Create', { error_message: error?.message ?? 'unknown' });
             console.error('Failed to create AMC:', error);
             toast.error('Failed to create AMC Contract');
         } finally {

@@ -11,9 +11,15 @@ import { getAuth } from '@/lib/api';
 import { Shield, ArrowLeft, Users, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const RoleDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Role', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [role, setRole] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

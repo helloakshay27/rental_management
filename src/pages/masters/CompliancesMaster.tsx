@@ -13,6 +13,7 @@ import ComplianceTable from '@/components/Compliances/ComplianceTable';
 import { getAuth, deleteAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface PropertyType {
   id: number;
@@ -110,6 +111,7 @@ const CompliancesMaster = () => {
       try {
         setIsLoading(true);
         await deleteAuth(`/compliance_requirements/${compliance.id}`);
+        trackDeleted('Compliance Requirement', { record_id: compliance.id, source: 'masters' });
         toast.success('Compliance requirement deleted successfully');
         fetchCompliances();
       } catch (error: any) {
@@ -133,6 +135,7 @@ const CompliancesMaster = () => {
       await patchAuth(`/compliance_requirements/${complianceId}`, {
         compliance_requirement: { status: newStatus }
       });
+      trackUpdated('Compliance Requirement', { record_id: complianceId, source: 'masters' });
       toast.success('Status updated successfully');
       fetchCompliances();
     } catch (error: any) {
@@ -176,7 +179,7 @@ const CompliancesMaster = () => {
           <ComplianceTable
         leftActions={
           <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Compliance Requirement', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
               <Plus className="w-4 h-4 mr-2" />
               Compliance
             </Button>

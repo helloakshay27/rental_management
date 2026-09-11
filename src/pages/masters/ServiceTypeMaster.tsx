@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface ServiceType {
     id: number;
@@ -105,6 +106,7 @@ const ServiceTypeMaster = () => {
             setSubmitting(true);
             const payload = { service_type: formData };
             await postAuth('/service_types.json', payload);
+            trackCreated('Service Type', { source: 'masters' });
             toast.success('Service type created successfully');
             setIsAddModalOpen(false);
             handleResetForm();
@@ -140,6 +142,7 @@ const ServiceTypeMaster = () => {
             setSubmitting(true);
             const payload = { service_type: formData };
             await patchAuth(`/service_types/${editingService.id}.json`, payload);
+            trackUpdated('Service Type', { record_id: editingService.id, source: 'masters' });
             toast.success('Service type updated successfully');
             setIsEditModalOpen(false);
             handleResetForm();
@@ -156,6 +159,7 @@ const ServiceTypeMaster = () => {
         if (!window.confirm('Are you sure you want to delete this service type?')) return;
         try {
             await deleteAuth(`/service_types/${id}.json`);
+            trackDeleted('Service Type', { record_id: id, source: 'masters' });
             toast.success('Service type deleted successfully');
             fetchServiceTypes(pagination.current_page);
         } catch (error: any) {
@@ -214,7 +218,7 @@ const ServiceTypeMaster = () => {
 
 
     const leftActions = (
-            <Button onClick={() => setIsAddModalOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Service Type', { mode: 'create', source: 'masters' }); setIsAddModalOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Service Type
             </Button>

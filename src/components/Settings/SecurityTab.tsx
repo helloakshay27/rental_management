@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { putAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackFailed, trackUpdated } from '@/utils/analytics';
 
 const SecurityTab = () => {
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,7 @@ const SecurityTab = () => {
 
       await putAuth(`/users/${currentUser.id}/change_password.json`, payload);
 
+      trackUpdated('Password', { source: 'settings' });
       toast.success('Password updated successfully');
       setPasswords({
         currentPassword: '',
@@ -65,6 +67,7 @@ const SecurityTab = () => {
       });
       setIsDialogOpen(false);
     } catch (error: any) {
+      trackFailed('Password', 'Update', { error_message: error?.message ?? 'unknown' });
       console.error('Password change error:', error);
       let errorMessage = 'Failed to update password';
       if (error.response && error.response.errors) {

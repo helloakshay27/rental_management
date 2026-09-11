@@ -17,6 +17,7 @@ import { getAuth, postAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackCreated, trackFailed } from '@/utils/analytics';
 
 const STEPS = ['Property & Lease', 'Terms & Charges', 'Additional Details'];
 
@@ -432,10 +433,12 @@ const AddRentalPage = () => {
             };
 
             const response = await postAuth('/leases', payload);
+            trackCreated('Rental', { source: 'form' });
             console.log('Lease created:', response);
             toast.success('Rental added successfully!');
             navigate(-1);
         } catch (error: any) {
+            trackFailed('Rental', 'Create', { error_message: error?.message ?? 'unknown' });
             console.error('Error creating lease:', error);
             toast.error(error.message || 'Failed to create rental');
         } finally {

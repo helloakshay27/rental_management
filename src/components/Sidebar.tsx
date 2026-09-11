@@ -200,6 +200,8 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
               return (
                 <button
                   key={item.path}
+                  // The destination reports itself as "<Page> Page Viewed"; a click event
+                  // here would just duplicate every navigation.
                   onClick={() => navigate(target)}
                   title={item.label}
                   aria-label={item.label}

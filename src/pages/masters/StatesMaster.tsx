@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface State {
     id: number;
@@ -171,9 +172,11 @@ const StatesMaster = () => {
             // Make API call
             if (editingState) {
                 await patchAuth(`/pms/states/${editingState.id}`, payload);
+                trackUpdated('State', { record_id: editingState.id, source: 'masters' });
                 toast.success('State updated successfully');
             } else {
                 await postAuth('/pms/states', payload);
+                trackCreated('State', { source: 'masters' });
                 toast.success('State created successfully');
             }
 
@@ -202,6 +205,7 @@ const StatesMaster = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/pms/states/${stateId}`);
+                trackDeleted('State', { record_id: stateId, source: 'masters' });
                 toast.success('State deleted successfully');
                 fetchStates();
             } catch (error: any) {
@@ -218,6 +222,7 @@ const StatesMaster = () => {
             await patchAuth(`/pms/states/${stateId}`, {
                 pms_state: { status: newStatus }
             });
+            trackUpdated('State', { record_id: stateId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchStates();
         } catch (error: any) {
@@ -290,7 +295,7 @@ const StatesMaster = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('State', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 State
             </Button>

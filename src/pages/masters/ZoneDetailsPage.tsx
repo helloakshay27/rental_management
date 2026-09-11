@@ -10,9 +10,15 @@ import { getAuth } from '@/lib/api';
 import { MapPinned, ArrowLeft, Map, Hash, Info, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const ZoneDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Zone', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [zone, setZone] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

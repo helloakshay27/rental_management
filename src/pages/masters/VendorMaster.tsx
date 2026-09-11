@@ -14,6 +14,7 @@ import { getAuth, deleteAuth, patchAuth } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface BankDetail {
     account_number: string;
@@ -122,6 +123,7 @@ const VendorMaster = () => {
         if (window.confirm('Are you sure you want to delete this vendor?')) {
             try {
                 await deleteAuth(`/vendors/${vendorId}`);
+                trackDeleted('Vendor', { record_id: vendorId, source: 'masters' });
                 toast.success('Vendor deleted successfully');
                 fetchVendors();
             } catch (error: any) {
@@ -135,6 +137,7 @@ const VendorMaster = () => {
             await patchAuth(`/vendors/${vendorId}`, {
                 vendor: { status: newStatus }
             });
+            trackUpdated('Vendor', { record_id: vendorId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchVendors();
         } catch (error: any) {
@@ -238,7 +241,7 @@ const VendorMaster = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={handleAddVendor} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Vendor', { mode: 'create', source: 'masters' }); handleAddVendor(); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Vendor
             </Button>

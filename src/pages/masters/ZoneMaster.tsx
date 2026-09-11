@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface Zone {
     id: number;
@@ -176,9 +177,11 @@ const ZoneMaster = () => {
             // Make API call
             if (editingZone) {
                 await patchAuth(`/pms/zones/${editingZone.id}`, payload);
+                trackUpdated('Zone', { record_id: editingZone.id, source: 'masters' });
                 toast.success('Zone updated successfully');
             } else {
                 await postAuth('/pms/zones', payload);
+                trackCreated('Zone', { source: 'masters' });
                 toast.success('Zone created successfully');
             }
 
@@ -208,6 +211,7 @@ const ZoneMaster = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/pms/zones/${zoneId}`);
+                trackDeleted('Zone', { record_id: zoneId, source: 'masters' });
                 toast.success('Zone deleted successfully');
                 fetchZones();
             } catch (error: any) {
@@ -224,6 +228,7 @@ const ZoneMaster = () => {
             await patchAuth(`/pms/zones/${zoneId}`, {
                 pms_zone: { is_active: newIsActive }
             });
+            trackUpdated('Zone', { record_id: zoneId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchZones();
         } catch (error: any) {
@@ -296,7 +301,7 @@ const ZoneMaster = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Zone', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Zone
             </Button>

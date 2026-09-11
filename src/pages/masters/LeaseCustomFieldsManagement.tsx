@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface LeaseCustomField {
     id: number;
@@ -144,9 +145,11 @@ const LeaseCustomFieldsManagement = () => {
             // Make API call
             if (editingField) {
                 await patchAuth(`/lease_custom_fields/${editingField.id}`, payload);
+                trackUpdated('Lease Custom Field', { record_id: editingField.id, source: 'masters' });
                 toast.success('Custom field updated successfully');
             } else {
                 await postAuth('/lease_custom_fields', payload);
+                trackCreated('Lease Custom Field', { source: 'masters' });
                 toast.success('Custom field created successfully');
             }
 
@@ -174,6 +177,7 @@ const LeaseCustomFieldsManagement = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/lease_custom_fields/${fieldId}`);
+                trackDeleted('Lease Custom Field', { record_id: fieldId, source: 'masters' });
                 toast.success('Custom field deleted successfully');
                 fetchCustomFields();
             } catch (error: any) {
@@ -190,6 +194,7 @@ const LeaseCustomFieldsManagement = () => {
             await patchAuth(`/lease_custom_fields/${fieldId}`, {
                 lease_custom_field: { status: newStatus }
             });
+            trackUpdated('Lease Custom Field', { record_id: fieldId, source: 'masters' });
             toast.success('Status updated successfully');
             fetchCustomFields();
         } catch (error: any) {
@@ -265,7 +270,7 @@ const LeaseCustomFieldsManagement = () => {
 
     const leftActions = (
         <div className="flex items-center gap-2">
-            <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Lease Custom Field', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Field
             </Button>

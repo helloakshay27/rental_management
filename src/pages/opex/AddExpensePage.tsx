@@ -15,6 +15,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { getAuth, postAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackCreated, trackFailed } from '@/utils/analytics';
 
 const AddExpensePage = () => {
     const navigate = useNavigate();
@@ -96,9 +97,11 @@ const AddExpensePage = () => {
             };
 
             await postAuth(`/expenses.json${token ? `?token=${token}` : ''}`, payload);
+            trackCreated('Expense', { source: 'form' });
             toast.success('Expense created successfully');
             navigate('/opex'); // Navigate back to OPEX management
         } catch (error: any) {
+            trackFailed('Expense', 'Create', { error_message: error?.message ?? 'unknown' });
             console.error('Failed to create expense:', error);
             toast.error(error.message || 'Failed to create expense');
         } finally {

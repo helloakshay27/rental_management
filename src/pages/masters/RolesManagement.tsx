@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface Role {
   id: number;
@@ -176,9 +177,11 @@ const RolesManagement = () => {
       // Make API call
       if (editingRole) {
         await putAuth(`/roles/${editingRole.id}`, payload);
+        trackUpdated('Role', { record_id: editingRole.id, source: 'masters' });
         toast.success("Role updated successfully");
       } else {
         await postAuth('/roles', payload);
+        trackCreated('Role', { source: 'masters' });
         toast.success("Role created successfully");
       }
 
@@ -210,6 +213,7 @@ const RolesManagement = () => {
       try {
         setIsLoading(true);
         await deleteAuth(`/roles/${roleId}`);
+        trackDeleted('Role', { record_id: roleId, source: 'masters' });
         toast.success('Role deleted successfully');
         fetchRoles();
       } catch (error: any) {
@@ -226,6 +230,7 @@ const RolesManagement = () => {
       await patchAuth(`/roles/${roleId}`, {
         role: { status: newStatus }
       });
+      trackUpdated('Role', { record_id: roleId, source: 'masters' });
       toast.success('Status updated successfully');
       fetchRoles();
     } catch (error: any) {
@@ -312,7 +317,7 @@ const RolesManagement = () => {
 
   const leftActions = (
     <div className="flex items-center gap-2">
-        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Button onClick={() => { trackFormOpened('Role', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
             Create Role
         </Button>

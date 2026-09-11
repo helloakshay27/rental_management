@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface ExpenseCategory {
     id: number;
@@ -102,6 +103,7 @@ const ExpenseCategoryMaster = () => {
             setSubmitting(true);
             const payload = { expense_category: formData };
             await postAuth('/expense_categories.json', payload);
+            trackCreated('Expense Category', { source: 'masters' });
             toast.success('Expense category created successfully');
             setIsAddModalOpen(false);
             handleResetForm();
@@ -136,6 +138,7 @@ const ExpenseCategoryMaster = () => {
             setSubmitting(true);
             const payload = { expense_category: formData };
             await patchAuth(`/expense_categories/${editingCategory.id}.json`, payload);
+            trackUpdated('Expense Category', { record_id: editingCategory.id, source: 'masters' });
             toast.success('Expense category updated successfully');
             setIsEditModalOpen(false);
             handleResetForm();
@@ -152,6 +155,7 @@ const ExpenseCategoryMaster = () => {
         if (!window.confirm('Are you sure you want to delete this category?')) return;
         try {
             await deleteAuth(`/expense_categories/${id}.json`);
+            trackDeleted('Expense Category', { record_id: id, source: 'masters' });
             toast.success('Category deleted successfully');
             fetchCategories(pagination.current_page);
         } catch (error: any) {
@@ -204,7 +208,7 @@ const ExpenseCategoryMaster = () => {
 
 
     const leftActions = (
-            <Button onClick={() => setIsAddModalOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => { trackFormOpened('Expense Category', { mode: 'create', source: 'masters' }); setIsAddModalOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                 <Plus className="w-4 h-4 mr-2" />
                 Category
             </Button>

@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface FacilityType {
     id: number;
@@ -106,9 +107,11 @@ const FacilityTypesManagement = () => {
 
             if (editingFacility) {
                 await patchAuth(`/facility_types/${editingFacility.id}`, payload);
+                trackUpdated('Facility Type', { record_id: editingFacility.id, source: 'masters' });
                 toast.success("Facility type updated successfully");
             } else {
                 await postAuth('/facility_types', payload);
+                trackCreated('Facility Type', { source: 'masters' });
                 toast.success("Facility type created successfully");
             }
 
@@ -132,6 +135,7 @@ const FacilityTypesManagement = () => {
             try {
                 setIsLoading(true);
                 await deleteAuth(`/facility_types/${id}`);
+                trackDeleted('Facility Type', { record_id: id, source: 'masters' });
                 toast.success('Facility type deleted successfully');
                 fetchFacilityTypes();
             } catch (error: any) {
@@ -148,6 +152,7 @@ const FacilityTypesManagement = () => {
             await patchAuth(`/facility_types/${id}`, {
                 facility_type: { status: newStatus }
             });
+            trackUpdated('Facility Type', { record_id: id, source: 'masters' });
             toast.success('Status updated successfully');
             fetchFacilityTypes();
         } catch (error: any) {
@@ -211,7 +216,7 @@ const FacilityTypesManagement = () => {
     );
 
     const leftActions = (
-                        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+                        <Button onClick={() => { trackFormOpened('Facility Type', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                             <Plus className="w-4 h-4 mr-2" />
                             Facility Type
                         </Button>

@@ -11,6 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { postAuth, getAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackCreated, trackUpdated } from '@/utils/analytics';
 
 interface BankDetail {
     account_number: string;
@@ -166,9 +167,11 @@ const AddEditVendor = () => {
             // Make API call
             if (isEditMode) {
                 await patchAuth(`/vendors/${id}`, payload);
+                trackUpdated('Vendor', { record_id: id, source: 'masters' });
                 toast.success('Vendor updated successfully');
             } else {
                 await postAuth('/vendors', payload);
+                trackCreated('Vendor', { source: 'masters' });
                 toast.success('Vendor created successfully');
             }
 

@@ -14,6 +14,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { getAuth, patchAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackUpdated } from '@/utils/analytics';
 
 const EditExpensePage = () => {
     const { id } = useParams();
@@ -114,6 +115,7 @@ const EditExpensePage = () => {
             };
 
             await patchAuth(`/expenses/${id}.json${token ? `?token=${token}` : ''}`, payload);
+            trackUpdated('Expense', { record_id: id, source: 'form' });
             toast.success('Expense updated successfully');
             navigate(`/opex/${id}`); // Navigate to details page
         } catch (error: any) {

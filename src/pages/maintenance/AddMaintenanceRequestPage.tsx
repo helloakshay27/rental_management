@@ -13,6 +13,7 @@ import { ArrowLeft, Save, Upload, X, FileText } from 'lucide-react';
 import { getAuth, postAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackCreated, trackFailed } from '@/utils/analytics';
 
 const AddMaintenanceRequestPage = () => {
     const navigate = useNavigate();
@@ -160,9 +161,11 @@ const AddMaintenanceRequestPage = () => {
             };
 
             await postAuth('/maintenance_requests.json', payload);
+            trackCreated('Maintenance Request', { source: 'form' });
             toast.success('Maintenance request created successfully');
             navigate(-1); // Go back
         } catch (error: any) {
+            trackFailed('Maintenance Request', 'Create', { error_message: error?.message ?? 'unknown' });
             console.error('Failed to create request:', error);
             toast.error(error.message || 'Failed to create maintenance request');
         } finally {

@@ -16,6 +16,7 @@ import { postAuth, getAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface Landlord {
   id: number;
@@ -198,9 +199,11 @@ const LandlordsManagement = () => {
       // Make API call - PATCH for editing, POST for creating
       if (editingLandlord) {
         await patchAuth(`/landlords/${editingLandlord.id}`, payload);
+        trackUpdated('Landlord', { record_id: editingLandlord.id, source: 'masters' });
         toast.success('Landlord updated successfully');
       } else {
         await postAuth('/landlords', payload);
+        trackCreated('Landlord', { source: 'masters' });
         toast.success('Landlord created successfully');
       }
 
@@ -230,6 +233,7 @@ const LandlordsManagement = () => {
       try {
         setIsLoading(true);
         await deleteAuth(`/landlords/${landlordId}`);
+        trackDeleted('Landlord', { record_id: landlordId, source: 'masters' });
         toast.success('Landlord deleted successfully');
         fetchLandlords();
       } catch (error: any) {
@@ -246,6 +250,7 @@ const LandlordsManagement = () => {
       await patchAuth(`/landlords/${landlordId}`, {
         landlord: { status: newStatus }
       });
+      trackUpdated('Landlord', { record_id: landlordId, source: 'masters' });
       toast.success('Status updated successfully');
       fetchLandlords();
     } catch (error: any) {
@@ -330,7 +335,7 @@ const LandlordsManagement = () => {
 
   const leftActions = (
     <div className="flex items-center gap-2">
-        <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+        <Button onClick={() => { trackFormOpened('Landlord', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
             <Plus className="w-4 h-4 mr-2" />
             Landlord
         </Button>

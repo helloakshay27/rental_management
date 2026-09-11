@@ -8,9 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Calendar, FileText, User, Building, IndianRupee, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { trackViewed } from '@/utils/analytics';
 
 const AmcContractDetail = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('AMC Contract', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [contract, setContract] = useState<any>(null);
     const [loading, setLoading] = useState(true);

@@ -9,9 +9,15 @@ import { ArrowLeft, Edit, Calendar, Building2, User, Wallet, Info, IndianRupee, 
 import { getAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 const ExpenseDetailsPage = () => {
     const { id } = useParams();
+
+    // Detail screens are the app's read funnel: report the view once per record.
+    useEffect(() => {
+        trackViewed('Expense', { record_id: id, source: 'detail_page' });
+    }, [id]);
     const navigate = useNavigate();
     const [expense, setExpense] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

@@ -6,13 +6,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileTab from '@/components/Settings/ProfileTab';
 import SecurityTab from '@/components/Settings/SecurityTab';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackEvent } from '@/utils/analytics';
 
 const Settings = () => {
   return (
     <PageContainer>
       <PageHeader title="Settings" description="Manage your account and application preferences" />
 
-      <Tabs defaultValue="profile" className="space-y-6">
+      <Tabs
+        defaultValue="profile"
+        className="space-y-6"
+        onValueChange={(value) => trackEvent('Settings Tab Changed', { tab: value })}
+      >
         <TabsList>
           <TabsTrigger value="profile">
             <User className="h-4 w-4 mr-2" />

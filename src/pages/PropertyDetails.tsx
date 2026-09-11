@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageContainer } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Calendar, ArrowLeft, Edit, Trash2, FileText, Users, DollarSign, FileCheck, AlertTriangle, CheckCircle, LayoutDashboard, Wrench, Files } from 'lucide-react';
@@ -10,6 +10,7 @@ import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import AddPropertyComplianceDialog from '@/components/Properties/AddPropertyComplianceDialog';
 import { Heading } from '@/components/ui/typography';
+import { trackViewed } from '@/utils/analytics';
 
 // Mock data - in real app this would come from API
 const properties = [
@@ -139,6 +140,11 @@ const complianceColumns: ColumnConfig[] = [
 
 const PropertyDetails = () => {
   const { id } = useParams();
+
+  // Detail screens are the app's read funnel: report the view once per record.
+  useEffect(() => {
+      trackViewed('Property', { record_id: id, source: 'detail_page' });
+  }, [id]);
   const navigate = useNavigate();
   const [showAddComplianceDialog, setShowAddComplianceDialog] = useState(false);
   const [compliances, setCompliances] = useState(propertyCompliances[parseInt(id || '0')] || []);

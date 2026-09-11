@@ -15,9 +15,10 @@ import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Plus, Edit, Trash2, Eye, MapPin, Home, Calendar, Upload, FileText, X, Building, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { postAuth, getAuth, patchAuth, deleteAuth, API_BASE_URL } from '@/lib/api';
+import { postAuth, getAuth, patchAuth, deleteAuth, getBaseUrl } from '@/lib/api';
 import { toast } from 'sonner';
 import { Heading, Text } from '@/components/ui/typography';
+import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
 
 interface Property {
   id: number;
@@ -367,7 +368,7 @@ const PropertiesMaster = () => {
       // Match Country/State IDs from names
       if (siteData.documents && Array.isArray(siteData.documents)) {
         const mappedDocs = await Promise.all(siteData.documents.map(async (doc: any) => {
-          const preview = doc.url?.startsWith('http') ? doc.url : `${API_BASE_URL}${doc.url}`;
+          const preview = doc.url?.startsWith('http') ? doc.url : `${getBaseUrl()}${doc.url}`;
           let base64 = '';
           try {
             const resp = await fetch(preview);
@@ -466,6 +467,7 @@ const PropertiesMaster = () => {
       try {
         setIsLoading(true);
         await deleteAuth(`/pms/sites/${property.id}`);
+        trackDeleted('Property', { record_id: property.id, source: 'masters' });
         toast.success('Property deleted successfully');
         fetchProperties();
       } catch (error: any) {
@@ -550,9 +552,11 @@ const PropertiesMaster = () => {
 
       if (editingProperty) {
         await patchAuth(`/pms/sites/${editingProperty.id}`, payload);
+        trackUpdated('Property', { record_id: editingProperty.id, source: 'masters' });
         toast.success('Property updated successfully');
       } else {
         await postAuth('/pms/sites', payload);
+        trackCreated('Property', { source: 'masters' });
         toast.success('Property created successfully');
       }
 
@@ -698,7 +702,7 @@ const PropertiesMaster = () => {
   );
 
   const leftActions = (
-              <Button onClick={() => setIsDialogOpen(true)} className="fm-button-fix fm-button-brand px-6 py-2">
+              <Button onClick={() => { trackFormOpened('Property', { mode: 'create', source: 'masters' }); setIsDialogOpen(true); }} className="fm-button-fix fm-button-brand px-6 py-2">
                   <Plus className="w-4 h-4 mr-2" />
                   Property
               </Button>

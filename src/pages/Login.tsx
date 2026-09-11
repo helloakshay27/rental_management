@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { post, saveToken, isAuthenticated } from "@/lib/api";
+import { getBaseUrl, post, saveBaseUrl, saveToken, isAuthenticated } from "@/lib/api";
+import { trackLoginFailed, trackLoginSucceeded } from "@/utils/analytics";
+import { identifyPostHogUser } from "@/utils/posthogHelpers";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -104,8 +106,14 @@ export const LoginPage = ({ setToken }) => {
 
       // Save token and user info
       saveToken(token);
+      // Keep the host next to the token: everything after login reads it from there, so a
+      // host picker on this screen only has to call saveBaseUrl().
+      saveBaseUrl(data?.base_url || data?.domain || getBaseUrl());
       try {
         if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+        // Identify before the success event so the event lands on the right person.
+        identifyPostHogUser(data.user);
+        trackLoginSucceeded({ user_id: data.user?.id, email: data.user?.email });
         // notify other components in same window that auth changed
         try { window.dispatchEvent(new Event('auth-changed')); } catch (e) {}
       } catch (e) {}
@@ -122,6 +130,7 @@ export const LoginPage = ({ setToken }) => {
       navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Login error:", error);
+      trackLoginFailed({ error_message: error?.message ?? "unknown" });
       const resp = error?.response;
       let message = "An error occurred during login. Please try again.";
 

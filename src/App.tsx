@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { PostHogPageView } from "./components/PostHogPageView";
 import Layout from "./components/Layout";
 import RequireAuth from "./components/RequireAuth";
 import Dashboard from "./pages/Dashboard";
@@ -86,6 +87,8 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        {/* One $pageview per route change — must live inside the Router. */}
+        <PostHogPageView />
         <TooltipProvider>
           <div className="h-screen overflow-hidden bg-gray-50">
             <Toaster />

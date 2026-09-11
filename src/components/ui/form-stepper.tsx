@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { trackEvent } from '@/utils/analytics';
 
 /**
  * Horizontal step chips for long Add/Edit forms.
@@ -57,7 +58,18 @@ export const FormStepper: React.FC<FormStepperProps> = ({
                         <button
                             type="button"
                             disabled={isLocked}
-                            onClick={() => !isLocked && onStepChange?.(index)}
+                            onClick={() => {
+                                if (isLocked) return;
+                                // The screen super-property already says which form this is.
+                                trackEvent('Form Step Changed', {
+                                    from_step: current + 1,
+                                    from_step_label: steps[current],
+                                    to_step: index + 1,
+                                    to_step_label: label,
+                                    total_steps: steps.length,
+                                });
+                                onStepChange?.(index);
+                            }}
                             aria-current={isActive ? 'step' : undefined}
                             className={cn(
                                 'relative flex h-10 w-[187px] items-center justify-center rounded px-5 text-[13px] font-medium transition-all duration-200',
