@@ -20,6 +20,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/tenant-dashboard': 'Tenant Dashboard',
   '/notifications': 'Notifications',
   '/reports': 'Reports',
+  '/analytics': 'Analytics Dashboard',
   '/settings': 'Settings',
 
   '/properties': 'Properties',

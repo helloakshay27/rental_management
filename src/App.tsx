@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PostHogPageView } from "./components/PostHogPageView";
 import Layout from "./components/Layout";
 import RequireAuth from "./components/RequireAuth";
+import LeaseAnalyticsDashboard from "./pages/analytics/LeaseAnalyticsDashboard";
 import Dashboard from "./pages/Dashboard";
 import Properties from "./pages/Properties";
 import PropertyDetails from "./pages/PropertyDetails";
@@ -170,6 +171,10 @@ const App = () => {
                   <Route path="masters/circles" element={<CircleMaster />} />
                   <Route path="masters/amenities" element={<AmenityMaster />} />
                 </Route>
+
+                {/* Outside <Layout>: the analytics dashboard brings its own chrome and fills
+                    the window, exactly as it does standalone. */}
+                <Route path="analytics" element={<LeaseAnalyticsDashboard />} />
               </Route>
               <Route path="login" element={<LoginPage setToken={() => { }} />} />
               <Route path="*" element={<NotFound />} />
