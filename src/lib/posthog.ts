@@ -22,7 +22,9 @@ import { installDeclarativeAutoCapture } from '@/utils/posthogEvents';
  *                             Web Analytics (sessions, paths, bounce, time on page) works.
  *   $autocapture            — every click/input, for exploratory questions nobody wired an
  *                             event for.
- *   session recording       — replays.
+ *
+ * Session recording, surveys and feature flags are OFF: all three are armed by the
+ * remote-config response (`/array/<token>/config`), and that request is disabled.
  *
  * The deliberate events (`Utilities Page Viewed`, `Rental Created`, …) still come from this
  * app's helpers, so a navigation now shows BOTH `$pageview` and the named event in the
@@ -34,10 +36,12 @@ const INIT_OPTIONS = {
   // 'history_change' is the SPA-correct value: a plain `true` only reports the first load.
   capture_pageview: 'history_change',
   capture_pageleave: true,
-  disable_session_recording: false,
-  // Session recording, flags and surveys are all configured by the /decide response, so it
-  // must stay enabled.
-  advanced_disable_decide: false,
+  // No remote config: the SDK never requests `/array/<token>/config` (nor `/flags`).
+  // Session recording and surveys are switched off with it — both are gated on that
+  // response and would never arm themselves anyway.
+  advanced_disable_flags: true,
+  disable_session_recording: true,
+  disable_surveys: true,
   disable_toolbar: true,
 } as const;
 

@@ -19,13 +19,14 @@ Same shape, adapted to this app's auth storage, routes and modules.
 | Debugger | `src/utils/posthogDebug.ts` — per-event line + missing-context warning |
 
 Init options: `autocapture: true`, `capture_pageview: 'history_change'`, `capture_pageleave: true`,
-`disable_session_recording: false`, `advanced_disable_decide: false` (the /decide response configures
-recording), `disable_toolbar: true`.
+`advanced_disable_flags: true` (no `/array/<token>/config` and no `/flags` request), and with it
+`disable_session_recording: true`, `disable_surveys: true`, `disable_toolbar: true`.
 
-So PostHog's own `$pageview`, `$pageleave`, `$autocapture` and session recording are ON, and the
-app's named events run alongside them. A navigation therefore appears twice in the activity
+So PostHog's own `$pageview`, `$pageleave` and `$autocapture` are ON and the app's named events
+run alongside them; session recording, surveys and feature flags are OFF, because the remote
+config that arms them is never fetched. A navigation therefore appears twice in the activity
 feed — once as `$pageview`, once as `<Page> Page Viewed` — which is the price of having the
-built-in Web Analytics and replay products work.
+built-in Web Analytics product work.
 
 The root capture re-registers the super-properties immediately before each send, so events
 fired right after a sign-in or a company switch never carry the previous context.
