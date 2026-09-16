@@ -167,6 +167,7 @@ export function TrafficSection({
               <LineChart
                 cur={series.cur} prev={series.prev} showPrev={showPrev} labels={usage?.labels}
                 color={style.color} fill={style.fill} palette={palette}
+                seriesName={style.label}
               />
               <Legend items={[{ label: style.label, color: style.color }, { label: 'Previous period', dash: true }]} />
             </div>

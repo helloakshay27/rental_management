@@ -8,6 +8,23 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/analytics-api": {
+        target: "https://posthog-api.lockated.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/analytics-api/, ""),
+        headers: {
+          Origin: "https://rental-uat.lockated.com",
+        },
+        configure: (proxy) => {
+          proxy.on("proxyRes", (proxyRes) => {
+            if (proxyRes.headers["access-control-allow-origin"]) {
+              proxyRes.headers["access-control-allow-origin"] = "*";
+            }
+          });
+        },
+      },
+    },
   },
   plugins: [
     react(),

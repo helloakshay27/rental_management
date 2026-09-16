@@ -129,6 +129,7 @@ export function AdoptionSection({
             <LineChart
               cur={trend.series} prev={trend.prev.length ? trend.prev : null} showPrev={showPrev}
               labels={trend.labels} color={palette.blue} fill={palette.fill} palette={palette}
+              seriesName="Weekly active Admins"
             />
             <Legend items={[{ label: 'Weekly active Admins', color: palette.blue }]} />
           </>

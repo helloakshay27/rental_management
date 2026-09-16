@@ -171,15 +171,23 @@ export function KeyValue({ k, v, u, valueStyle }: {
 export function HBars({ rows }: { rows: [label: React.ReactNode, share: number, color: string][] }) {
   return (
     <div className="hbars">
-      {rows.map(([label, share, color], i) => (
-        <div className="role" key={i}>
-          <div className="rn">{label}</div>
-          <div className="rbar">
-            <i style={{ width: Math.round(share * 100) + '%', background: color }} />
+      {rows.map(([label, share, color], i) => {
+        const pct = (share * 100).toFixed(1);
+        const textLabel = typeof label === 'string' ? label : '';
+        return (
+          <div
+            className="role"
+            key={i}
+            title={`${textLabel ? textLabel + ' · ' : ''}${pct}% share`}
+          >
+            <div className="rn">{label}</div>
+            <div className="rbar">
+              <i style={{ width: Math.round(share * 100) + '%', background: color }} />
+            </div>
+            <div className="rv">{Math.round(share * 100)}%</div>
           </div>
-          <div className="rv">{Math.round(share * 100)}%</div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

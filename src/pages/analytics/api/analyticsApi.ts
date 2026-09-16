@@ -20,13 +20,13 @@ import { getBaseUrlDomain } from '@/lib/api';
 /**
  * Where the analytics service lives.
  *
- * Always the absolute PostHog Adoption Analytics origin — in development too, so the URLs
- * in the network tab are exactly the ones the deployed build sends. No `/analytics-api`
- * dev-proxy prefix, no localhost in the request URL.
+ * In development, routed through Vite's `/analytics-api` proxy so local dev requests don't
+ * trigger CORS issues with the server's duplicate Access-Control-Allow-Origin headers.
+ * In production builds (or when overridden via env), the direct origin is used.
  */
 const BASE_URL = (
   (import.meta.env.VITE_LM_ANALYTICS_API_URL as string | undefined)?.trim() ||
-  'https://posthog-api.lockated.com'
+  (import.meta.env.DEV ? '/analytics-api' : 'https://posthog-api.lockated.com')
 ).replace(/\/+$/, '');
 
 /**
@@ -81,7 +81,7 @@ export const ANALYTICS_BASE_URL = BASE_URL;
 
 /** What the badge shows as the current scope. */
 export function analyticsScopeLabel(): string {
-  return `${ANALYTICS_PROJECT_CODE} · ${analyticsTenantUrl()}`;
+  return ANALYTICS_PROJECT_CODE;
 }
 
 /** Requests are multi-second ClickHouse scans; give them room but never hang the page. */
@@ -98,15 +98,11 @@ export interface WeeklyFilters {
 }
 
 /**
- * Both identifiers go on every request: `project_code` (stamped on every event this app
- * sends) and `url` (the session's host, the way FM Matrix scopes its dashboard). The service
- * ANDs them, so the result is this product on this deployment.
+ * Identifier scoped to `project_code` (stamped on every event this app sends).
+ * `url` is omitted from the payload to avoid restrictive host filtering.
  */
 function baseParams(): Record<string, string> {
-  const params: Record<string, string> = { project_code: ANALYTICS_PROJECT_CODE };
-  const host = analyticsTenantUrl();
-  if (host) params.url = host;
-  return params;
+  return { project_code: ANALYTICS_PROJECT_CODE };
 }
 
 const rangeParams = (f: RangeFilters) => ({ ...baseParams(), from: f.from, to: f.to });
