@@ -129,7 +129,21 @@ function resolveClientCompany(): string | undefined {
   );
 }
 
+/**
+ * Identifies this product inside the shared PostHog project.
+ *
+ * Defined here rather than in `posthogHelpers.ts` (which re-exports them) because they have
+ * to be super-properties: the analytics API scopes EVERY query to `project_code=LMV-01`, so
+ * an event without it is invisible. Attaching them per-capture only covered this app's named
+ * events and left the SDK's own `$pageview` / `$pageleave` / `$autocapture` unscoped — which
+ * is why `screen_views` came back 0 and `bounce_rate` 100%.
+ */
+export const PROJECT_ID = 'P-274';
+export const PROJECT_CODE = 'LMV-01';
+
 export interface PostHogSuperProperties {
+  project_id: string;
+  project_code: string;
   client: string;
   is_test: boolean;
   platform: 'web';
@@ -140,6 +154,8 @@ export interface PostHogSuperProperties {
 
 export function getPostHogSuperProperties(): PostHogSuperProperties {
   return {
+    project_id: PROJECT_ID,
+    project_code: PROJECT_CODE,
     client: resolveClient(),
     is_test: resolveIsTest(),
     platform: 'web',

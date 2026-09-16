@@ -3,6 +3,8 @@ import {
   getPostHogSuperProperties,
   getStoredUser,
   normalizeRoute,
+  PROJECT_CODE,
+  PROJECT_ID,
   resolveModule,
 } from './posthogContext';
 
@@ -17,9 +19,11 @@ import {
 
 const RELEASE_VERSION = (import.meta.env.VITE_APP_VERSION as string) ?? 'dev';
 
-/** Identifies this product inside the shared PostHog project. */
-export const PROJECT_ID = 'P-274';
-export const PROJECT_CODE = 'LMV-01';
+/**
+ * Identifies this product inside the shared PostHog project. Now super-properties, so they
+ * also reach the SDK's automatic events; re-exported here for the existing import sites.
+ */
+export { PROJECT_ID, PROJECT_CODE };
 
 function numeric(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return undefined;

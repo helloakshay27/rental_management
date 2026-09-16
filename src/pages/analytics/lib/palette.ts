@@ -23,6 +23,9 @@ export interface Palette {
   violetTint: string;
   green: string;
   greenTint: string;
+  /** Delta colours — `--pos`/`--neg`, themed alongside the rest. */
+  pos: string;
+  neg: string;
   /** "r,g,b" triple used to build the cohort heat colours. */
   heatRgb: string;
   onHeat: string;
@@ -34,7 +37,8 @@ const FALLBACK: Palette = {
   ink: '#141413', faint: '#9b9990', grid: '#e6e4de', line: '#d9d6ce',
   blue: '#2c7be5', fill: '#d3e3f9', mint: '#3daf7d', amber: '#c98a12',
   red: '#b3402c', violet: '#7c6fd6', violetTint: '#e7e4f8', green: '#0f8a3d',
-  greenTint: '#e2efe6', heatRgb: '44,123,229', onHeat: '#ffffff', heatA0: 0.09, heatA1: 0.78,
+  greenTint: '#e2efe6', pos: '#17803d', neg: '#b3402c',
+  heatRgb: '44,123,229', onHeat: '#ffffff', heatA0: 0.09, heatA1: 0.78,
 };
 
 function readPalette(el: HTMLElement | null): Palette {
@@ -55,6 +59,8 @@ function readPalette(el: HTMLElement | null): Palette {
     violetTint: g('--chart-violet-tint', FALLBACK.violetTint),
     green: g('--green', FALLBACK.green),
     greenTint: g('--green-tint', FALLBACK.greenTint),
+    pos: g('--pos', FALLBACK.pos),
+    neg: g('--neg', FALLBACK.neg),
     heatRgb: g('--heat-rgb', FALLBACK.heatRgb),
     onHeat: g('--on-heat', FALLBACK.onHeat),
     heatA0: parseFloat(g('--heat-a0', String(FALLBACK.heatA0))),

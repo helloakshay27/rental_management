@@ -81,8 +81,10 @@ const LeaseAnalyticsDashboard = () => {
   const [rangeLabel, setRangeLabel] = useState('Last 30 days');
   const [rangeOpen, setRangeOpen] = useState(false);
   const [customApplied, setCustomApplied] = useState(false);
-  const [dateFrom, setDateFrom] = useState('2026-06-15');
-  const [dateTo, setDateTo] = useState('2026-09-11');
+  // Derived from today rather than fixed, so the custom-range inputs never open pre-filled
+  // with a window that has drifted into the past.
+  const [dateFrom, setDateFrom] = useState(() => dateRangeFor(30).from);
+  const [dateTo, setDateTo] = useState(() => dateRangeFor(30).to);
   const [showPrev, setShowPrev] = useState(true);
   const [bucket, setBucket] = useState<string>('Rental Lifecycle');
   const [wfKey, setWfKey] = useState<string>('rentalCreate');
@@ -135,9 +137,6 @@ const LeaseAnalyticsDashboard = () => {
 
   const queries = [trafficQ, usageQ, adoptionQ, trendQ, growthQ, retentionQ, modulesQ, workflowQ];
   const isFetching = queries.some((q) => q.isFetching);
-  // 'live' the moment any query has answered; cards whose own query is still in flight show
-  // their loading state rather than a stand-in value.
-  const isLive = queries.some((q) => q.data != null);
   const failed = queries.filter((q) => q.isError).length;
 
   useEffect(() => {
@@ -300,9 +299,12 @@ const LeaseAnalyticsDashboard = () => {
             <path d="M10 1.8v1.7M10 16.5v1.7M18.2 10h-1.7M3.5 10H1.8M15.8 4.2l-1.2 1.2M5.4 14.6l-1.2 1.2M15.8 15.8l-1.2-1.2M5.4 5.4 4.2 4.2" />
           </svg>
         </button>
-        <span className="badge-sample" title={failed ? 'One or more analytics queries failed — affected cards show the error' : 'Every figure is queried live from the analytics API, scoped to ' + analyticsScopeLabel()}>
-          {failed ? 'Analytics unavailable' : isLive ? 'Live · ' + analyticsScopeLabel() : 'Loading…'}
-        </span>
+        {/* Only the failure state is surfaced here; the healthy "Live · <scope>" badge was noise. */}
+        {failed > 0 && (
+          <span className="badge-sample" title="One or more analytics queries failed — affected cards show the error">
+            Analytics unavailable
+          </span>
+        )}
         <button
           className="iconbtn"
           onClick={() => setRequestId((n) => n + 1)}
