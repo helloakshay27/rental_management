@@ -4,14 +4,14 @@ import { trackViewed } from '@/utils/analytics';
 import { usePalette } from './lib/palette';
 import { BM_DEFAULTS } from './lib/kpi-info';
 import { useTargets } from './components/primitives';
-import { BUCKET_ORDER, LICENSED_SEATS, MASTERS_BUCKET, workflows } from './lib/catalogue';
+import { LICENSED_SEATS } from './lib/catalogue';
 import {
   dateRangeFor, useAdoptionEngagement, useAdoptionTrend, useGrowth, useModules, useRetention,
-  useSubModules, useTrafficSession, useUsageAndDistribution, useWorkflowUsage, type QueryFilters,
+  useTrafficSession, useUsageAndDistribution, useWorkflowUsage, type QueryFilters,
 } from './api/queries';
 import {
   buildAdoption, buildGrowth, buildModules, buildRetention, buildTraffic, buildTrend,
-  buildUsage, buildWorkflow, MASTERS_MODULE_PATH, workflowPath,
+  buildUsage, buildWorkflow,
 } from './data/metrics';
 import { analyticsScopeLabel } from './api/analyticsApi';
 import { TrafficSection } from './sections/TrafficSection';
@@ -23,8 +23,8 @@ import { WorkflowSection } from './sections/WorkflowSection';
  *
  * A React port of the standalone wireframe: the design system, SVG chart engine and every
  * figure are carried over, with the imperative innerHTML builders replaced by components and
- * the page's global state (theme, nav rail, date range, previous-period toggle, workflow
- * bucket) held in React.
+ * the page's global state (theme, nav rail, date range, previous-period toggle, selected
+ * module) held in React.
  *
  * The stylesheet is scoped under `.lm-root` rather than shipped as the document's own — this
  * route renders inside an app whose globals restyle bare `button`/`input` with `!important`,
@@ -86,8 +86,9 @@ const LeaseAnalyticsDashboard = () => {
   const [dateFrom, setDateFrom] = useState(() => dateRangeFor(30).from);
   const [dateTo, setDateTo] = useState(() => dateRangeFor(30).to);
   const [showPrev, setShowPrev] = useState(true);
-  const [bucket, setBucket] = useState<string>('Rental Lifecycle');
-  const [wfKey, setWfKey] = useState<string>('rentalCreate');
+  // Which module the Workflow Usage page is scoped to. Null until the module tree answers —
+  // the chips are built from the live tree, so there is nothing to preselect before then.
+  const [selectedModule, setSelectedModule] = useState<string | null>(null);
 
   const [requestId, setRequestId] = useState(0);
 
@@ -102,16 +103,15 @@ const LeaseAnalyticsDashboard = () => {
     ? { from: dateFrom, to: dateTo }
     : dateRangeFor(range);
 
-  const { module: wfModule, subModule: wfSubModule } = workflowPath(wfKey);
-
+  // Unscoped by module: everything except the workflow-page query below.
   const filters: QueryFilters = {
     enabled: true,
     from: queryWindow.from,
     to: queryWindow.to,
     // Billing data, not events: supplied only when a deployment configures it.
     licensedSeats: LICENSED_SEATS,
-    module: bucket === MASTERS_BUCKET ? MASTERS_MODULE_PATH : wfModule,
-    subModule: bucket === MASTERS_BUCKET ? null : wfSubModule,
+    module: null,
+    subModule: null,
     requestId,
   };
 
@@ -122,8 +122,17 @@ const LeaseAnalyticsDashboard = () => {
   const growthQ = useGrowth(filters);
   const retentionQ = useRetention(filters);
   const modulesQ = useModules(filters);
-  const mastersQ = useSubModules(filters, bucket === MASTERS_BUCKET ? MASTERS_MODULE_PATH : null);
-  const workflowQ = useWorkflowUsage(filters);
+
+  // The Workflow Usage chips are the API's own module tree, so the scope has to be resolved
+  // from it: hold the selection only while it still exists in the current range, otherwise
+  // fall back to the busiest module. A stale name would query a module with no events.
+  const moduleTree = buildModules(modulesQ.data);
+  const moduleNames = (moduleTree ?? []).map((m) => m.name);
+  const activeModule =
+    selectedModule && moduleNames.includes(selectedModule) ? selectedModule : moduleNames[0] ?? null;
+
+  const workflowFilters: QueryFilters = { ...filters, module: activeModule };
+  const workflowQ = useWorkflowUsage(workflowFilters);
 
   const traffic = buildTraffic(trafficQ.data);
   const usage = buildUsage(usageQ.data);
@@ -131,8 +140,7 @@ const LeaseAnalyticsDashboard = () => {
   const trend = buildTrend(trendQ.data);
   const growth = buildGrowth(growthQ.data);
   const cohorts = buildRetention(retentionQ.data);
-  const modules = buildModules(modulesQ.data);
-  const mastersModules = buildModules(mastersQ.data);
+  const modules = moduleTree;
   const workflow = buildWorkflow(workflowQ.data);
 
   const queries = [trafficQ, usageQ, adoptionQ, trendQ, growthQ, retentionQ, modulesQ, workflowQ];
@@ -216,14 +224,6 @@ const LeaseAnalyticsDashboard = () => {
   const goto = (id: PageId) => {
     setPage(id);
     rootRef.current?.scrollTo?.({ top: 0, behavior: 'smooth' });
-  };
-
-  const onBucketChange = (b: string) => {
-    setBucket(b);
-    if (b !== MASTERS_BUCKET) {
-      const first = workflows.find((w) => w.bucket === b);
-      if (first) setWfKey(first.key);
-    }
   };
 
   const navItems: { id: PageId; label: string; icon: React.ReactNode }[] = [
@@ -432,12 +432,12 @@ const LeaseAnalyticsDashboard = () => {
             error={adoptionQ.error ?? trendQ.error ?? growthQ.error ?? retentionQ.error ?? modulesQ.error}
           />
           <WorkflowSection
-            active={page === 'pgFlows'} palette={palette} bucket={bucket} wfKey={wfKey}
-            onBucketChange={onBucketChange} onWorkflowChange={setWfKey}
+            active={page === 'pgFlows'} palette={palette}
+            modules={modules} activeModule={activeModule} onModuleChange={setSelectedModule}
             targets={targets} setTarget={setTarget}
-            workflow={workflow} mastersModules={mastersModules}
-            loading={workflowQ.isLoading || mastersQ.isLoading}
-            error={workflowQ.error ?? mastersQ.error}
+            workflow={workflow}
+            loading={modulesQ.isLoading || workflowQ.isLoading}
+            error={workflowQ.error}
           />
 
           <div className="footer">

@@ -1,55 +1,31 @@
 import React from 'react';
 import {
-  ChartCard, EmptyState, metricText, Note, StatusPill, Tile, TrendArrow,
+  ChartCard, EmptyState, metricText, Note, Tile,
 } from '../components/primitives';
-import {
-  BUCKET_ORDER, MASTERS_BUCKET, MASTERS_SUBMODULES, workflows,
-} from '../lib/catalogue';
 import type { Palette } from '../lib/palette';
 import { deltaDir, formatDelta, type ModuleRow, type WorkflowModel } from '../data/metrics';
 
 interface SectionProps {
   active: boolean;
   palette: Palette;
-  bucket: string;
-  wfKey: string;
-  onBucketChange: (bucket: string) => void;
-  onWorkflowChange: (key: string) => void;
+  /** The API's live module tree — the chips are built from it. */
+  modules: ModuleRow[] | null;
+  /** The chip currently selected; null while the tree is still loading. */
+  activeModule: string | null;
+  onModuleChange: (module: string) => void;
   targets: Record<string, number | null>;
   setTarget: (id: string, value: number | null) => void;
-  /** Live data for the selected workflow; null until the query answers. */
+  /** Live data for the selected module; null until the query answers. */
   workflow: WorkflowModel | null;
-  /** Masters sub-module tree, for the league table in that bucket. */
-  mastersModules: ModuleRow[] | null;
   loading: boolean;
   error: unknown;
 }
 
-/**
- * The disclosure notes carry inline <code>/<b> markup straight from the catalogue write-up.
- * They are authored content, not user input, and rendering them as markup is what keeps the
- * event names monospaced the way the rest of the page shows them.
- */
-function NoteMarkup({ html }: { html: string }) {
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
-}
-
-function statusFor(share: number): ['st-drop' | 'st-watch' | 'st-healthy', string] {
-  if (share < 0.25) return ['st-drop', 'Watch'];
-  if (share < 0.6) return ['st-watch', 'Steady'];
-  return ['st-healthy', 'Healthy'];
-}
-
 export function WorkflowSection({
-  active, palette, bucket, wfKey, onBucketChange, onWorkflowChange, targets, setTarget,
-  workflow, mastersModules, loading, error,
+  active, palette, modules, activeModule, onModuleChange, targets, setTarget,
+  workflow, loading, error,
 }: SectionProps) {
-  const isMasters = bucket === MASTERS_BUCKET;
-  const wf = workflows.find((w) => w.key === wfKey) ?? workflows[0];
-  const bucketCount = (b: string) =>
-    b === MASTERS_BUCKET ? MASTERS_SUBMODULES.length : workflows.filter((w) => w.bucket === b).length;
-
-  /* The catalogue defines the step sequence; the API measures each step's reach. */
+  /* The API derives and measures the step sequence; nothing here is catalogued. */
   const funnelRows = (workflow?.funnel ?? []).map((f, i) => ({
     step: f.step,
     remaining: Math.round(f.reach),
@@ -58,138 +34,33 @@ export function WorkflowSection({
     opacity: 1 - i * 0.1,
   }));
 
-  const mastersRows = (mastersModules ?? []).slice().sort((a, b) => b.users - a.users);
-  const mastersTotals = mastersModules?.length
-    ? {
-      tracked: mastersModules.length,
-      actions: mastersModules.reduce((a, m) => a + m.events, 0),
-      admins: Math.max(...mastersModules.map((m) => m.users)),
-    }
-    : null;
-
   return (
     <section className={`page${active ? ' on' : ''}`} id="pgFlows">
       <div className="section-head">
         <h2>Workflow Usage</h2>
         <span className="sd">
-          Admin completion of key lease-management workflows per bucket, all-workflows comparison, and where the biggest
-          step drop-offs occur.
+          Admin completion per module — pick a module below to scope the funnel, its step-level events and its
+          submodule league table. The chips are the analytics API's own module tree for the selected range.
         </span>
       </div>
 
-      <div className="mnav" title="Choose a workflow — this filter applies to the per-workflow cards only">
+      <div className="mnav" title="Choose a module — every card below is scoped to it">
         <div className="mnav-buckets">
-          {BUCKET_ORDER.map((b) => (
-            <button key={b} type="button" className={b === bucket ? 'on' : undefined} onClick={() => onBucketChange(b)}>
-              {b}
-              <span className="mcount">{bucketCount(b)}</span>
+          {(modules ?? []).map((m) => (
+            <button
+              key={m.name}
+              type="button"
+              className={m.name === activeModule ? 'on' : undefined}
+              onClick={() => onModuleChange(m.name)}
+              title={`${m.users} admin(s) · ${m.events} events · ${m.sessions} sessions`}
+            >
+              {m.name}
+              <span className="mcount">{m.users}</span>
             </button>
           ))}
         </div>
-        {isMasters ? null : (
-          <div className="mnav-mods">
-            <div className="segbar">
-              {workflows
-                .filter((w) => w.bucket === bucket)
-                .map((w) => (
-                  <button
-                    key={w.key}
-                    type="button"
-                    className={w.key === wf.key ? 'on' : undefined}
-                    onClick={() => onWorkflowChange(w.key)}
-                  >
-                    {w.name}
-                  </button>
-                ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {isMasters ? (
-        <>
-          <div className="tiles" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
-            <Tile
-              label="Submodules with activity"
-              val={mastersTotals ? `${mastersTotals.tracked} / ${MASTERS_SUBMODULES.length}` : '—'}
-              dir="flat" sub="of the catalogued reference-data entities" noTarget
-            />
-            <Tile
-              label="Total CRUD Actions" val={metricText(mastersTotals?.actions)}
-              dir="up" delta="this period" sub="events across all Masters submodules" noTarget
-            />
-            <Tile
-              label="Active Admins (Masters)" val={metricText(mastersTotals?.admins)}
-              dir="up" delta="vs prev. period" sub="confirmed user_id touching Masters" noTarget
-            />
-            <Tile
-              label="Named Events (Masters)" val="96 / 143" dir="flat"
-              sub="catalogue share of all named custom events" noTarget
-            />
-          </div>
-
-          <div>
-            <Note tone="crash">
-              <b>Scope note — this is a league table, not a funnel.</b> Master Data Admin spans 21
-              reference/configuration-data submodules, each firing a near-identical
-              Created/Updated/Deleted/Form Opened/Viewed event set plus a matching List-prefix entry. These are
-              single-step reference-data CRUD actions, not multi-step user workflows — a funnel visualization would
-              imply a linear process with meaningful step-to-step drop-off that does not exist here, so this bucket is
-              presented as a ranking table of submodules by measured activity.
-            </Note>
-            <Note tone="good">
-              <b>Confirmed identity applies here too.</b> Every row below uses the same confirmed user_id join key as
-              the rest of this dashboard.
-            </Note>
-          </div>
-
-          <ChartCard
-            style={{ margin: '16px 0' }}
-            eyebrow="League table · Masters submodules"
-            title="Master Data Admin — submodule league table"
-            purpose="Measured CRUD activity, distinct Admins and events per session for each Masters submodule the API reports, ranked highest-activity first."
-          >
-            {mastersRows.length ? (
-              <table className="league">
-                <thead>
-                  <tr>
-                    <th>Submodule</th>
-                    <th className="num">Active Admins</th>
-                    <th className="num">Events</th>
-                    <th className="num">Events / session</th>
-                    <th>Trend</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mastersRows.map((row) => {
-                    const [kind, label] = statusFor(row.share);
-                    const dir: 'up' | 'dn' | 'flat' =
-                      row.share > 0.6 ? 'up' : row.share > 0.25 ? 'flat' : 'dn';
-                    return (
-                      <tr key={row.name}>
-                        <td className="strong">{row.name}</td>
-                        <td className="num">{row.users.toLocaleString()}</td>
-                        <td className="num">{row.events.toLocaleString()}</td>
-                        <td className="num">{row.sessions ? (row.events / row.sessions).toFixed(1) : '—'}</td>
-                        <td><TrendArrow dir={dir} /></td>
-                        <td><StatusPill kind={kind}>{label}</StatusPill></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            ) : (
-              <EmptyState
-                loading={loading}
-                error={error}
-                empty="No Masters submodule activity in this period."
-              />
-            )}
-          </ChartCard>
-        </>
-      ) : (
-        <>
           <div className="tiles" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
             <Tile
               id="wfAdoption" label="Workflow Adoption"
@@ -218,13 +89,8 @@ export function WorkflowSection({
           </div>
 
           <div>
-            {wf.incompleteNote ? (
-              <Note tone="crash">
-                <b>Scope note.</b> <NoteMarkup html={wf.incompleteNote} />
-              </Note>
-            ) : null}
             <Note tone="good">
-              <b>Confirmed identity, applies to every workflow here.</b> A real user_id property exists on every event
+              <b>Confirmed identity, applies to every module here.</b> A real user_id property exists on every event
               in this catalogue — Workflow Adoption, Completion Rate and Usage Volume above are all built on that
               confirmed join key, not a proposed distinct_id workaround.
             </Note>
@@ -233,8 +99,8 @@ export function WorkflowSection({
           <ChartCard
             style={{ margin: '16px 0' }}
             eyebrow="Workflow funnel (measured event sequence)"
-            title={`${wf.name} — completion funnel`}
-            purpose="Step-by-step completion and drop-off for the selected workflow, measured by the analytics API over the selected range."
+            title={activeModule ? `${activeModule} — completion funnel` : 'Completion funnel'}
+            purpose="Step-by-step completion and drop-off for the selected module, measured by the analytics API over the selected range."
           >
             {funnelRows.length ? (
               <div className="funnel">
@@ -253,20 +119,19 @@ export function WorkflowSection({
                 ))}
               </div>
             ) : (
-              <EmptyState loading={loading} error={error}>
-                <>
-                  No funnel for this workflow in the selected period. Its catalogued sequence is{' '}
-                  <b>{wf.steps.join(' → ')}</b>; the API returns steps once those events have been recorded.
-                </>
-              </EmptyState>
+              <EmptyState
+                loading={loading}
+                error={error}
+                empty="No funnel for this module in the selected period. The API derives its steps from the custom events fired in scope, and returns none until enough have been recorded."
+              />
             )}
           </ChartCard>
 
           <ChartCard
             style={{ marginTop: 12 }}
-            eyebrow="All steps in this workflow"
-            title="All steps in this workflow"
-            purpose={`Every event in ${wf.name}, with distinct Admins (confirmed user_id), event counts, sessions and completion rate for each — the workflow-scoped equivalent of the funnel above, at the individual-event level.`}
+            eyebrow="All steps in this module"
+            title="All steps in this module"
+            purpose={`Every event in ${activeModule ?? 'the selected module'}, with distinct Admins (confirmed user_id), event counts, sessions and completion rate for each — the module-scoped equivalent of the funnel above, at the individual-event level.`}
           >
             {workflow?.flows.length ? (
               <table className="pathtbl">
@@ -327,8 +192,6 @@ export function WorkflowSection({
               <EmptyState loading={loading} error={error} empty="No entry screens recorded in this period." />
             )}
           </ChartCard>
-        </>
-      )}
     </section>
   );
 }

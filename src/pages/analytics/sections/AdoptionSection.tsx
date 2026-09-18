@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ChartCard, EmptyState, HBars, KeyValue, Legend, metricText, Note, StatusPill, Tile, TrendArrow,
+  ChartCard, EmptyState, HBars, KeyValue, Legend, metricText, Note, Tile,
 } from '../components/primitives';
 import { LineChart } from '../charts/LineChart';
 import { StackedBarChart } from '../charts/StackedBarChart';
@@ -27,13 +27,6 @@ interface SectionProps {
   error: unknown;
 }
 
-/** Status band for a league row, from its share of the busiest module (§7.2 A12). */
-function statusFor(share: number): ['st-drop' | 'st-watch' | 'st-healthy', string] {
-  if (share < 0.12) return ['st-drop', 'Watch'];
-  if (share < 0.2) return ['st-watch', 'Steady'];
-  return ['st-healthy', 'Healthy'];
-}
-
 export function AdoptionSection({
   active, showPrev, palette, targets, setTarget, adoption, trend, growth, cohorts, modules,
   loading, error,
@@ -46,7 +39,6 @@ export function AdoptionSection({
     .slice(0, 10)
     .map((m) => [m.name, m.share, palette.blue]);
 
-  const leagueRows = (modules ?? []).slice().sort((a, b) => a.users - b.users);
   const cohortCols = cohorts?.[0]?.cells.length ?? 6;
 
   /**
@@ -265,46 +257,6 @@ export function AdoptionSection({
         </Note>
       </ChartCard>
 
-      <ChartCard
-        style={{ marginTop: 12 }}
-        eyebrow="League table"
-        title="Module-wise breakdown"
-        purpose="Active Admins, total events and share per module, worst-reach first — from the API's module tree."
-      >
-        {leagueRows.length ? (
-          <table className="league">
-            <thead>
-              <tr>
-                <th>Module</th>
-                <th className="num">Active Admins</th>
-                <th className="num">Events</th>
-                <th className="num">Events / session</th>
-                <th>Trend</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leagueRows.map((row) => {
-                const [kind, label] = statusFor(row.share);
-                const dir: 'up' | 'dn' | 'flat' =
-                  row.share > 0.5 ? 'up' : row.share > 0.2 ? 'flat' : 'dn';
-                return (
-                  <tr key={row.name}>
-                    <td className="strong">{row.name}</td>
-                    <td className="num">{row.users.toLocaleString()}</td>
-                    <td className="num">{row.events.toLocaleString()}</td>
-                    <td className="num">{row.sessions ? (row.events / row.sessions).toFixed(1) : '—'}</td>
-                    <td><TrendArrow dir={dir} /></td>
-                    <td><StatusPill kind={kind}>{label}</StatusPill></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        ) : (
-          <EmptyState loading={loading} error={error} empty="No modules have recorded events in this period." />
-        )}
-      </ChartCard>
     </section>
   );
 }
