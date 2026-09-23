@@ -1,0 +1,11 @@
+name: Post-merge Summary
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  summary:
+    uses: prasadnayak-sudo/ci_workflows/.github/workflows/post-merge-summary.yml@v1
+    secrets: inherit

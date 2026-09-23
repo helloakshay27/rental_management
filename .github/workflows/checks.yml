@@ -1,0 +1,11 @@
+name: Checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    uses: prasadnayak-sudo/ci_workflows/.github/workflows/checks.yml@v1
