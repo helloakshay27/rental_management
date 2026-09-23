@@ -7,5 +7,5 @@ on:
 
 jobs:
   summary:
-    uses: helloakshay27/ci-workflows/.github/workflows/post-merge-summary.yml@v1
+    uses: prasadnayak-sudo/ci-workflows/.github/workflows/post-merge-summary.yml@v1
     secrets: inherit
