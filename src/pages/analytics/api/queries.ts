@@ -8,6 +8,9 @@ import {
   fetchTrafficSession,
   fetchUsageAndDistribution,
   fetchWorkflowUsage,
+  fetchRecentActiveUsers,
+  RecentActivityApiFilters,
+  ANALYTICS_PROJECT_CODE,
 } from './analyticsApi';
 
 /**
@@ -153,3 +156,39 @@ export function useWorkflowUsage(f: QueryFilters) {
     ...CACHE,
   });
 }
+
+export function useRecentActiveUsers(
+  filters: RecentActivityApiFilters = {},
+  enabled: boolean = true,
+  limit: number = 10,
+) {
+  const project =
+    filters.project_code ?? filters.project ?? filters.tenant ?? ANALYTICS_PROJECT_CODE;
+  const sites = filters.site_ids ?? filters.siteIds ?? '-';
+  const sitesKey = Array.isArray(sites) ? sites.join(',') : String(sites);
+  const device =
+    filters.devPlatform ??
+    filters.device ??
+    (Array.isArray(filters.devices) ? filters.devices.join(',') : undefined) ??
+    filters.platform ??
+    '-';
+
+  return useQuery({
+    queryKey: [
+      'lm-analytics',
+      'recent_active_users',
+      project,
+      sitesKey,
+      device,
+      filters.from ?? '-',
+      filters.to ?? '-',
+      filters.requestId ?? 0,
+      filters.baseUrl ?? '-',
+      limit,
+    ],
+    queryFn: () => fetchRecentActiveUsers(filters, limit),
+    enabled,
+    ...CACHE,
+  });
+}
+

@@ -97,7 +97,7 @@ export function TrafficSection({
         </ul>
       </div>
 
-      <Note tone="good" style={{ marginTop: 0 }}>
+      <Note tone="good" style={{ marginTop: 14, marginBottom: 16 }}>
         <b>Identity is confirmed for this product.</b> Lease Management's Global Properties include a real{' '}
         <code>user_id</code> (number) and <code>email</code>, and a genuine <code>$identify</code>/<code>$set</code>{' '}
         automatic event fires at login carrying person properties (email, name, role, company, is_internal). "Active
@@ -105,44 +105,42 @@ export function TrafficSection({
         distinct_id/browser-fingerprint workaround — no undercount/overcount caveat is needed here.
       </Note>
 
-      <div className="tiles" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
+      <div className="tiles tiles-3col">
         <Tile
           id="activeAdmins" label="Active Admins" val={metricText(traffic?.activeAdmins)}
           dir={deltaDir(traffic?.delta?.active_users)}
           delta={formatDelta(traffic?.delta?.active_users)}
-          sub="confirmed user_id this period" raw={traffic?.activeAdmins}
-          target={targets.activeAdmins} onTargetChange={setTarget}
+          sub="confirmed user_id this period"
         />
         <Tile
           id="screenViews" label="Screen Views" val={metricText(traffic?.screenViews, fmtC)}
           dir={deltaDir(traffic?.delta?.screen_views)}
           delta={formatDelta(traffic?.delta?.screen_views)}
-          sub="total across modules" noTarget
+          sub="total across modules"
         />
         <Tile
           id="totalSessions" label="Sessions" val={metricText(traffic?.sessions)}
           dir={deltaDir(traffic?.delta?.sessions)}
           delta={formatDelta(traffic?.delta?.sessions)}
-          sub="browser sessions, by user_id" noTarget
+          sub="browser sessions, by user_id"
         />
         <Tile
           id="avgSessionDur" label="Session Duration"
           val={traffic ? formatDuration(traffic.avgSessionSeconds) : '—'}
           dir={deltaDir(traffic?.delta?.avg_session_seconds)}
           delta={formatDelta(traffic?.delta?.avg_session_seconds)}
-          sub="per session" noTarget
+          sub="per session"
         />
         <Tile
           id="bounceRate" label="Bounce Rate"
           val={metricText(traffic?.bounceRate, (n) => `${Math.round(n)}%`)}
           dir={deltaDir(traffic?.delta?.bounce_rate, false)}
           delta={formatDelta(traffic?.delta?.bounce_rate)}
-          sub="lower is better" raw={traffic?.bounceRate} unit="%" goodUp={false}
-          target={targets.bounceRate} onTargetChange={setTarget}
+          sub="lower is better"
         />
         <Tile
           id="recentlyActive" label="Recently Active" val={metricText(traffic?.recentlyActive)}
-          dir="flat" sub="active in last 30 min" noTarget
+          dir="flat" sub="active in last 30 min"
         />
       </div>
 

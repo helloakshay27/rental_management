@@ -364,3 +364,142 @@ export const fetchWorkflowUsage = (f: RangeFilters & { module?: string; subModul
     ...(f.module ? { module: f.module } : {}),
     ...(f.subModule ? { sub_module: f.subModule } : {}),
   });
+
+/* ------------------------------------------- Recent Active Users & Export */
+
+export interface RecentActiveUser {
+  user_id: string;
+  display_name: string;
+  path: string | null;
+  last_event: string | null;
+  minutes_ago: number | null;
+  site_name: string | null;
+}
+
+export interface RecentActiveUsersResponse {
+  users: RecentActiveUser[];
+}
+
+export interface RecentActivityApiFilters {
+  project_code?: string;
+  project?: string;
+  tenant?: string;
+  site_ids?: (string | number)[] | string;
+  siteIds?: (string | number)[];
+  devPlatform?: string;
+  device?: string;
+  devices?: string[];
+  platform?: string;
+  baseUrl?: string;
+  authToken?: string;
+  from?: string;
+  to?: string;
+  limit?: number;
+  requestId?: number;
+  enabled?: boolean;
+  [key: string]: unknown;
+}
+
+export function buildRecentActivityParams(
+  filters: RecentActivityApiFilters = {},
+  limit?: number,
+): Record<string, string> {
+  const params: Record<string, string> = {};
+
+  const projectCode =
+    filters.project_code || filters.project || filters.tenant || ANALYTICS_PROJECT_CODE;
+  if (projectCode) params.project_code = String(projectCode);
+
+  if (limit != null) {
+    params.limit = String(limit);
+  }
+
+  const rawSites = filters.site_ids ?? filters.siteIds;
+  if (rawSites != null) {
+    const s = Array.isArray(rawSites) ? rawSites.filter(Boolean).join(',') : String(rawSites);
+    if (s.trim()) params.site_ids = s.trim();
+  }
+
+  const dev =
+    filters.devPlatform ||
+    filters.device ||
+    (Array.isArray(filters.devices) && filters.devices.length ? filters.devices.join(',') : undefined) ||
+    filters.platform;
+  if (dev) params.device = String(dev);
+
+  if (filters.from) params.from = String(filters.from);
+  if (filters.to) params.to = String(filters.to);
+
+  return params;
+}
+
+export async function fetchRecentActiveUsers(
+  filters: RecentActivityApiFilters = {},
+  limit: number = 10,
+): Promise<RecentActiveUsersResponse> {
+  const params = buildRecentActivityParams(filters, limit);
+  const baseUrl = (filters.baseUrl || BASE_URL).replace(/\/+$/, '');
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (filters.authToken) {
+    headers.Authorization = `Bearer ${filters.authToken}`;
+  }
+
+  const qs = new URLSearchParams(params).toString();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(`${baseUrl}/fm/adoption/recent_active_users?${qs}`, {
+      signal: controller.signal,
+      headers,
+    });
+    if (!res.ok) throw new Error(`recent_active_users failed: ${res.status} ${res.statusText}`);
+    return (await res.json()) as RecentActiveUsersResponse;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function downloadActiveUsersExport(
+  filters: RecentActivityApiFilters = {},
+): Promise<void> {
+  const params = buildRecentActivityParams(filters);
+  const baseUrl = (filters.baseUrl || BASE_URL).replace(/\/+$/, '');
+  const headers: Record<string, string> = {
+    Accept:
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, */*',
+  };
+  if (filters.authToken) {
+    headers.Authorization = `Bearer ${filters.authToken}`;
+  }
+
+  const qs = new URLSearchParams(params).toString();
+  const url = `${baseUrl}/fm/adoption/active_users_export${qs ? `?${qs}` : ''}`;
+
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    throw new Error(`active_users_export failed: ${res.status} ${res.statusText}`);
+  }
+
+  const blob = await res.blob();
+
+  let filename = 'active_users.xlsx';
+  const disposition = res.headers.get('content-disposition');
+  if (disposition) {
+    const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i);
+    if (match && match[1]) {
+      filename = decodeURIComponent(match[1].trim());
+    }
+  } else if (filters.from && filters.to) {
+    filename = `active_users_${filters.from}_to_${filters.to}.xlsx`;
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(blobUrl);
+}
+

@@ -53,49 +53,23 @@ export interface TileProps {
 const ARROW = { up: '▲', dn: '▼', flat: '—' } as const;
 
 export function Tile({
-  id, label, val, dir = 'flat', delta, sub, raw, unit, goodUp = true, noTarget,
-  target, onTargetChange,
+  id, label, val, dir = 'flat', delta, sub,
 }: TileProps) {
-  const showTarget = !noTarget && !!id;
-  const hasTarget = target != null && !Number.isNaN(target);
-  const met = hasTarget && raw != null ? (goodUp ? raw >= (target as number) : raw <= (target as number)) : false;
-
   return (
-    <div className="tile">
+    <div className="tile" id={id ? `tile-${id}` : undefined}>
       <div className="tophead">
         <div className="lbl">{label}</div>
         <KpiInfoPop label={label} />
       </div>
       <div className="val">{val}</div>
-      {delta != null ? (
-        <div className={`delta ${dir}`}>
-          {ARROW[dir]} {delta}
-        </div>
-      ) : null}
-      {sub ? <div className="sub2">{sub}</div> : null}
-      {showTarget ? (
-        <div className="bm">
-          <span className="bl">Target</span>
-          <input
-            className="bmin"
-            type="text"
-            inputMode="decimal"
-            value={hasTarget ? String(target) : ''}
-            placeholder="—"
-            title="Set your own target for this KPI"
-            onChange={(e) => {
-              const v = e.target.value.trim();
-              onTargetChange?.(id as string, v === '' ? null : parseFloat(v));
-            }}
-          />
-          {unit ? <span className="bu">{unit}</span> : null}
-          {hasTarget ? (
-            <span className={`bb ${met ? 'met' : 'miss'}`}>{met ? '✓ on target' : '✕ off target'}</span>
-          ) : (
-            <span className="bb unset">set a target</span>
-          )}
-        </div>
-      ) : null}
+      <div className="tile-foot">
+        {delta != null ? (
+          <div className={`delta ${dir}`}>
+            {ARROW[dir]} {delta}
+          </div>
+        ) : null}
+        {sub ? <div className="sub2">{sub}</div> : null}
+      </div>
     </div>
   );
 }

@@ -61,35 +61,33 @@ export function WorkflowSection({
         </div>
       </div>
 
-          <div className="tiles" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
+          <div className="tiles tiles-4col">
             <Tile
               id="wfAdoption" label="Workflow Adoption"
               val={metricText(workflow?.adoption, (n) => `${Math.round(n)}%`)}
               dir={deltaDir(workflow?.deltas.adoption)} delta={formatDelta(workflow?.deltas.adoption)}
-              raw={workflow?.adoption ?? undefined} unit="%"
-              target={targets.wfAdoption} onTargetChange={setTarget}
+              sub="entrants ÷ active Admins"
             />
             <Tile
               id="wfCompletion" label="Completion Rate"
               val={metricText(workflow?.completion, (n) => `${Math.round(n)}%`)}
               dir={deltaDir(workflow?.deltas.completion)} delta={formatDelta(workflow?.deltas.completion)}
-              raw={workflow?.completion ?? undefined} unit="%"
-              target={targets.wfCompletion} onTargetChange={setTarget}
+              sub="reached final step"
             />
             <Tile
-              label="Biggest Step Drop"
+              id="biggestStepDrop" label="Biggest Step Drop"
               val={metricText(workflow?.biggestStepDropPct, (n) => `${Math.round(n)}%`)}
               dir="dn" delta={workflow?.biggestStepLabel ?? undefined}
-              sub={workflow?.biggestStepLabel ? `at ${workflow.biggestStepLabel}` : undefined} noTarget
+              sub={workflow?.biggestStepLabel ? `at ${workflow.biggestStepLabel}` : undefined}
             />
             <Tile
-              label="Usage Volume" val={metricText(workflow?.volume)}
-              dir="up" delta="this period" sub="completions" noTarget
+              id="usageVolume" label="Usage Volume" val={metricText(workflow?.volume)}
+              dir="up" delta="this period" sub="completions"
             />
           </div>
 
           <div>
-            <Note tone="good">
+            <Note tone="good" style={{ marginTop: 18, marginBottom: 16 }}>
               <b>Confirmed identity, applies to every module here.</b> A real user_id property exists on every event
               in this catalogue — Workflow Adoption, Completion Rate and Usage Volume above are all built on that
               confirmed join key, not a proposed distinct_id workaround.

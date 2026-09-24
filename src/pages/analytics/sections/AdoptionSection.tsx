@@ -67,37 +67,32 @@ export function AdoptionSection({
         </ul>
       </div>
 
-      <div className="tiles" style={{ gridTemplateColumns: 'repeat(3,1fr)', marginTop: 16 }}>
+      <div className="tiles tiles-3col">
         <Tile
           id="seatUtil"
           label="Seat Utilisation"
           val={seatIsPct ? `${seatValue.toFixed(1)}%` : metricText(adoption?.usedSeats)}
           dir={deltaDir(adoption?.deltas.seatUtil)}
           delta={formatDelta(adoption?.deltas.seatUtil)}
-          sub={seatIsPct ? 'active ÷ licensed Admin seats' : 'active seats — set VITE_LM_LICENSED_SEATS for a %'}
-          raw={seatIsPct ? seatValue : undefined}
-          unit={seatIsPct ? '%' : ''}
-          target={targets.seatUtil} onTargetChange={setTarget}
+          sub={seatIsPct ? 'active ÷ licensed Admin seats' : 'active seats'}
         />
         <Tile
           id="stickiness" label="Stickiness"
           val={metricText(adoption?.stickiness, (n) => `${n.toFixed(1)}%`)}
           dir={deltaDir(adoption?.deltas.stickiness)} delta={formatDelta(adoption?.deltas.stickiness)}
-          sub="avg DAU/MAU" raw={adoption?.stickiness} unit="%"
-          target={targets.stickiness} onTargetChange={setTarget}
+          sub="avg DAU/MAU"
         />
         <Tile
           id="adoptionTrend" label="Adoption Trend"
           val={metricText(adoption?.adoptionTrend, (n) => `${n > 0 ? '+' : ''}${n.toFixed(1)}%`)}
           dir={adoption?.adoptionTrend == null ? 'flat' : adoption.adoptionTrend >= 0 ? 'up' : 'dn'}
-          delta="vs prior weeks" sub="weekly active Admins" noTarget
+          delta="vs prior weeks" sub="weekly active Admins"
         />
         <Tile
           id="activation14" label="14-Day Activation"
           val={metricText(adoption?.activation, (n) => `${Math.round(n)}%`)}
           dir={deltaDir(adoption?.deltas.activation)} delta={formatDelta(adoption?.deltas.activation)}
-          sub="of newly created Admin accounts" raw={adoption?.activation} unit="%"
-          target={targets.activation14} onTargetChange={setTarget}
+          sub="of newly created Admin accounts"
         />
         <Tile
           id="moduleBreadth2" label="Module Breadth"
@@ -106,7 +101,12 @@ export function AdoptionSection({
               ? `${adoption.moduleBreadthInUse} / ${adoption.moduleBreadthTotal || TOTAL_MODULES}`
               : '—'
           }
-          dir="flat" sub="modules used this period" noTarget
+          dir="flat" sub="modules used this period"
+        />
+        <Tile
+          id="dormantAdmins" label="Dormant Admins"
+          val={metricText(adoption?.dormant)}
+          dir="flat" sub="no activity in 14+ days"
         />
       </div>
 
@@ -206,32 +206,18 @@ export function AdoptionSection({
         </ChartCard>
       </div>
 
-      <div className="grid2">
-        <ChartCard
-          eyebrow="Module breadth"
-          title="Which modules are Admins actually using?"
-          purpose="Share of active Admins who touched each module at least once this period, from the API's module tree."
-        >
-          {breadthRows.length ? (
-            <HBars rows={breadthRows} />
-          ) : (
-            <EmptyState loading={loading} error={error} empty="No module-level activity in this period." />
-          )}
-        </ChartCard>
-
-        <ChartCard
-          eyebrow="Dormant Admins"
-          title="Dormant Admins"
-          purpose="Registered Admin accounts (by confirmed user_id) with no activity in the last 14 days — out of scope for the 14-Day Activation tile above."
-        >
-          <KeyValue
-            k="Dormant Admins"
-            v={metricText(adoption?.dormant)}
-            u="no activity 14+ days"
-            valueStyle={{ fontSize: 22 }}
-          />
-        </ChartCard>
-      </div>
+      <ChartCard
+        style={{ marginTop: 12 }}
+        eyebrow="Module breadth"
+        title="Which modules are Admins actually using?"
+        purpose="Share of active Admins who touched each module at least once this period, from the API's module tree."
+      >
+        {breadthRows.length ? (
+          <HBars rows={breadthRows} />
+        ) : (
+          <EmptyState loading={loading} error={error} empty="No module-level activity in this period." />
+        )}
+      </ChartCard>
 
       <ChartCard
         style={{ marginTop: 12 }}
