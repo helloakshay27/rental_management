@@ -21,9 +21,9 @@ const IncomeExpenseChart = () => {
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="month" stroke="#6b7280" />
-            <YAxis stroke="#6b7280" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,26,24,0.08)" />
+            <XAxis dataKey="month" stroke="rgba(26,26,24,0.48)" />
+            <YAxis stroke="rgba(26,26,24,0.48)" />
             <Tooltip 
               formatter={(value) => [`₹${value.toLocaleString()}`, '']} 
               contentStyle={{ 
@@ -34,8 +34,8 @@ const IncomeExpenseChart = () => {
               }}
             />
             <Legend />
-            <Bar dataKey="income" fill="#DA7756" name="Income" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="expense" fill="#ef4444" name="Expense" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="income" fill="#5A4BE0" name="Income" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="expense" fill="#E5484D" name="Expense" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

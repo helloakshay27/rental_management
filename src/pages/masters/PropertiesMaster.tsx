@@ -1196,12 +1196,12 @@ const PropertiesMaster = () => {
                   <div className="space-y-2">
                     <Label className="text-gray-700 font-medium">Property Image</Label>
                     <div
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-6 transition-colors hover:border-[#C72030] bg-gray-50 cursor-pointer text-center"
+                      className="border border-dashed border-gray-300 rounded-xl py-10 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative"
                       onClick={() => document.getElementById('property_image_input')?.click()}
                     >
-                      <Upload className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600 font-medium font-outfit">Click to upload Property Image</p>
-                      <p className="text-xs text-gray-400 mt-1">Supports PNG, JPG (Max 5MB)</p>
+                      <Upload className="h-5 w-5 text-gray-700 mb-2" />
+                      <p className="text-[14px] font-medium text-gray-900">Drop a file or choose one</p>
+                      <p className="text-[13px] text-gray-400 mt-1">No file chosen</p>
                       <input
                         id="property_image_input"
                         type="file"
@@ -1242,7 +1242,7 @@ const PropertiesMaster = () => {
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                className=""
                 onClick={() => setIsDialogOpen(false)}
                 disabled={isLoading}
               >

@@ -16,19 +16,19 @@ const rentRollData = [
 const chartConfig = {
   collections: {
     label: 'Collection Rate (%)',
-    color: '#DA7756'
+    color: '#5A4BE0'
   },
   escalations: {
     label: 'Escalations',
-    color: '#76CDC1'
+    color: '#2F6FE0'
   },
   newLeases: {
     label: 'New Leases',
-    color: '#798C5E'
+    color: '#12A150'
   },
   renewals: {
     label: 'Renewals',
-    color: '#EDC488'
+    color: '#BFBFBD'
   }
 };
 

@@ -170,7 +170,7 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700 font-medium"
+                        className=""
                     >
                         Cancel
                     </Button>

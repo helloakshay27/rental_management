@@ -81,7 +81,7 @@ export const FormActions: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     children,
     ...props
 }) => (
-    <div className={cn('flex flex-wrap justify-center gap-4', className)} {...props}>
+    <div className={cn('flex flex-wrap justify-end gap-3 mt-8 pt-6 border-t border-gray-100', className)} {...props}>
         {children}
     </div>
 );

@@ -16,15 +16,15 @@ const vacancyData = [
 const chartConfig = {
   vacancyRate: {
     label: 'Our Vacancy Rate',
-    color: '#E7848E'
+    color: '#E5484D'
   },
   averageMarket: {
     label: 'Market Average',
-    color: '#EDC488'
+    color: '#2F6FE0'
   },
   targetRate: {
     label: 'Target Rate',
-    color: '#798C5E'
+    color: '#12A150'
   }
 };
 

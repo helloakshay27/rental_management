@@ -194,7 +194,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                             <SelectTrigger className="bg-white border-2 border-gray-200">
                                 <SelectValue placeholder="Select requirement" />
                             </SelectTrigger>
-                            <SelectContent className='bg-white'>
+                            <SelectContent className="bg-white">
                                 {complianceRequirements.map((req) => (
                                     <SelectItem key={req.id} value={req.id.toString()}>
                                         {req.title}
@@ -215,7 +215,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                             <SelectTrigger className={`bg-white border-2 border-gray-200 ${!formData.compliance_requirement_id ? 'opacity-50' : ''}`}>
                                 <SelectValue placeholder={formData.compliance_requirement_id ? "Select property type" : "Select requirement first"} />
                             </SelectTrigger>
-                            <SelectContent className='bg-white'>
+                            <SelectContent className="bg-white">
                                 {filteredPropertyTypes.map((type) => (
                                     <SelectItem key={type.id} value={type.id.toString()}>
                                         {type.name}
@@ -245,7 +245,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                             <SelectTrigger className="bg-white border-2 border-gray-200">
                                 <SelectValue placeholder="Select user" />
                             </SelectTrigger>
-                            <SelectContent className='bg-white'>
+                            <SelectContent className="bg-white">
                                 {users.map((user) => (
                                     <SelectItem key={user.id} value={user.id.toString()}>
                                         {user.full_name}
@@ -274,7 +274,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                             <SelectTrigger className="bg-white border-2 border-gray-200">
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
-                            <SelectContent className='bg-white'>
+                            <SelectContent className="bg-white">
                                 <SelectItem value="pending">Pending</SelectItem>
                                 <SelectItem value="submitted">Submitted</SelectItem>
                                 <SelectItem value="approved">Approved</SelectItem>
@@ -313,7 +313,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className=""
                     >
                         Cancel
                     </Button>

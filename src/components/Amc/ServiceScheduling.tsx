@@ -97,12 +97,12 @@ const ServiceScheduling = () => {
   const renderSchedule = (schedule: any, overdue = false) => (
     <div
       key={schedule.id}
-      className={`flex items-center justify-between gap-3 rounded-md border border-brand-border px-4 py-3 transition-colors hover:bg-brand-selected ${overdue ? 'border-l-[3px] border-l-brand-error' : ''
+      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50 mb-3 ${overdue ? 'border-l-[3px] border-l-[#C72030]' : ''
         }`}
     >
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-light">
-          <Calendar className="h-4 w-4 text-brand" />
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gray-100">
+          <Calendar className="h-4 w-4 text-[#C72030]" />
         </span>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ const ServiceScheduling = () => {
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex w-full sm:w-auto shrink-0 items-center justify-between sm:justify-end gap-2 mt-2 sm:mt-0">
         <span
           className={`rounded-full px-2.5 py-0.5 text-brand-caption font-medium capitalize ${getStatusStyle(schedule.status)}`}
         >

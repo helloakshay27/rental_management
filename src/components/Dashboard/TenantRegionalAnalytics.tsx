@@ -17,7 +17,7 @@ const regionalData = [
 
 // Distinct series colours from the brand palette (two source hexes previously
 // collapsed onto the same mint, making two regions indistinguishable).
-const COLORS = ['#DA7756', '#E7848E', '#9EC8BA', '#76CDC1', '#8E7BE0', '#EDC488', '#D3D1C7'];
+const COLORS = ['#5A4BE0', '#2F6FE0', '#12A150', '#BFBFBD', '#E5484D', '#5A4BE0', '#2F6FE0'];
 
 const TenantRegionalAnalytics = ({ data, loading }: { data: any, loading: boolean }) => {
   // Transform API data structure to Recharts format

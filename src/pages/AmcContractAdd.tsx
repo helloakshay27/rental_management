@@ -316,17 +316,16 @@ const AmcContractAdd = () => {
                                 />
                             </div>
 
+                            <FormActions>
+                                <Button type="button" variant="outline" onClick={() => navigate('/amc')} className="fm-button-fix h-9 px-5 text-[13px]">
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]">
+                                    {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                                    Create Contract
+                                </Button>
+                            </FormActions>
                     </FormSection>
-
-            <FormActions>
-                            <Button type="button" variant="outline" onClick={() => navigate('/amc')} className="fm-button-fix h-9 px-5 text-[13px]">
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]">
-                                {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                                Create Contract
-                            </Button>
-            </FormActions>
                 </form>
         </PageContainer>
     );

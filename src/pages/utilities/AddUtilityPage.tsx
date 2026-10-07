@@ -201,30 +201,30 @@ const AddUtilityPage = () => {
                                 </div>
                             </div>
                         </div>
-                </FormSection>
 
-                <FormActions className="mt-6">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => navigate(-1)}
-                        className="fm-button-fix h-9 px-5 text-[13px]"
-                        disabled={isLoading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        className="fm-button-fix fm-button-brand px-6 py-2"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <><Spinner className="mr-2" />Please wait...</>
-                        ) : (
-                            <><Save className="w-4 h-4 mr-2" />Submit</>
-                        )}
-                    </Button>
-                </FormActions>
+                        <FormActions>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => navigate(-1)}
+                                className="fm-button-fix h-9 px-5 text-[13px]"
+                                disabled={isLoading}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                className="fm-button-fix fm-button-brand px-6 py-2"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <><Spinner className="mr-2" />Please wait...</>
+                                ) : (
+                                    <><Save className="w-4 h-4 mr-2" />Submit</>
+                                )}
+                            </Button>
+                        </FormActions>
+                </FormSection>
             </form>
         </div>
     );

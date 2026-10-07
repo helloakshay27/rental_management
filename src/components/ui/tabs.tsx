@@ -24,7 +24,7 @@ const TabsList = React.forwardRef<
       // The strip is outlined on all four sides with no divider between
       // segments — the active fill is what separates them — and the segments sit
       // inside a small gutter.
-      "flex w-full flex-wrap justify-stretch h-auto overflow-hidden rounded-none border border-brand-border bg-brand-card px-1.5 py-1.5 gap-0 text-brand-body-4",
+      "inline-flex flex-wrap items-center justify-center rounded-[10px] bg-[#f3f4f6] p-1 text-gray-500 w-full",
       className
     )}
     {...props}
@@ -39,19 +39,11 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex flex-1 min-w-0 items-center justify-center gap-2 whitespace-nowrap border-0 px-6 py-2 text-brand-body-4 font-semibold transition-colors",
-      // Narrow screens: a row of icon+label segments runs out of width, so the
-      // segment stacks — icon on the first line, label wrapped underneath.
+      "inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
       "max-sm:flex-col max-sm:gap-1 max-sm:whitespace-normal max-sm:break-words max-sm:px-2 max-sm:py-2 max-sm:text-center max-sm:text-[11px] max-sm:leading-tight max-sm:[&_svg]:mr-0 max-sm:[&_svg]:ml-0",
-      "hover:bg-brand-selected",
-      // Both states are declared as data-state variants rather than an
-      // unmodified base plus an override. Two reasons: tailwind-merge keeps
-      // `text-brand-body-4` (the size) only when no unmodified `text-*` colour
-      // competes with it, and equal-specificity variants make the active fill
-      // immune to utility-vs-variant cascade order.
-      "data-[state=inactive]:bg-brand-card data-[state=inactive]:text-brand-text",
-      "data-[state=active]:bg-brand-tab-active data-[state=active]:text-brand",
-      "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-brand",
+      "data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700 data-[state=inactive]:bg-transparent data-[state=inactive]:[&_svg]:text-gray-500",
+      "data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm data-[state=active]:[&_svg]:text-gray-900",
+      "[&_svg]:size-4 [&_svg]:shrink-0",
       "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
       "disabled:pointer-events-none disabled:opacity-50",
       className

@@ -82,7 +82,7 @@ const LandlordRegionalAnalytics = () => {
             <div key={region.region} className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <MapPin size={20} className="text-[#C72030]" />
+                  <MapPin size={20} className="text-brand-text" />
                   <h3 className="font-bold text-lg text-[#1a1a1a]">{region.region}</h3>
                 </div>
                 <Badge className={`${region.trend === 'up' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

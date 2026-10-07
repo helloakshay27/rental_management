@@ -28,8 +28,8 @@ const LandlordAnalyticalDashboard = () => {
           change="+12.5% YoY"
           changeType="positive"
           icon={Building2}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Monthly Revenue"
@@ -37,8 +37,8 @@ const LandlordAnalyticalDashboard = () => {
           change="+8.2% from last month"
           changeType="positive"
           icon={DollarSign}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Occupancy Rate"
@@ -46,8 +46,8 @@ const LandlordAnalyticalDashboard = () => {
           change="2.1% below target"
           changeType="warning"
           icon={Users}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Active Issues"
@@ -55,8 +55,8 @@ const LandlordAnalyticalDashboard = () => {
           change="5 critical items"
           changeType="negative"
           icon={AlertTriangle}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
       </StatsGrid>
 
@@ -68,8 +68,8 @@ const LandlordAnalyticalDashboard = () => {
           change="+15.2% YoY"
           changeType="positive"
           icon={TrendingUp}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Properties Across"
@@ -77,8 +77,8 @@ const LandlordAnalyticalDashboard = () => {
           change="2 new cities added"
           changeType="positive"
           icon={MapPin}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Lease Renewals Due"
@@ -86,8 +86,8 @@ const LandlordAnalyticalDashboard = () => {
           change="Next 90 days"
           changeType="warning"
           icon={Calendar}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Compliance Score"
@@ -95,8 +95,8 @@ const LandlordAnalyticalDashboard = () => {
           change="3% improvement"
           changeType="positive"
           icon={FileText}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
       </StatsGrid>
 

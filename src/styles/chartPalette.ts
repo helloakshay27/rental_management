@@ -8,14 +8,14 @@
 // Order is preserved so a given series index maps to the same colour in every
 // chart across the app.
 export const ANALYTICS_PALETTE = [
-  '#DA7756', // [0] Brand orange
-  '#798C5E', // [1] Olive green
-  '#9EC8BA', // [2] Teal / mint
-  '#8E7BE0', // [3] Purple
-  '#EDC488', // [4] Warm yellow
-  '#CECBF6', // [5] Lavender
-  '#E7848E', // [6] Soft red
-  '#76CDC1', // [7] Teal
+  '#5A4BE0', // [0] Violet
+  '#2F6FE0', // [1] Blue
+  '#12A150', // [2] Green
+  '#BFBFBD', // [3] Inactive grey
+  '#E5484D', // [4] Red / needs attention
+  '#5A4BE0', // [5] Violet repeat
+  '#2F6FE0', // [6] Blue repeat
+  '#12A150', // [7] Green repeat
 ] as const;
 
 export type AnalyticsPaletteColor = (typeof ANALYTICS_PALETTE)[number];
@@ -26,28 +26,28 @@ export const getPaletteColor = (index: number): AnalyticsPaletteColor =>
 // Pie / donut specific ordering — starts on a cooler tone so adjacent slices
 // stay distinguishable.
 export const PIE_CHART_COLORS = [
-  '#76CDC1',
-  '#E39090',
-  '#CDCAF5',
-  '#9EC8BA',
-  '#EDC488',
-  '#8E7BE0',
-  '#DA7756',
-  '#798C5E',
+  '#5A4BE0',
+  '#2F6FE0',
+  '#12A150',
+  '#BFBFBD',
+  '#E5484D',
+  '#5A4BE0',
+  '#2F6FE0',
+  '#12A150',
 ];
 
 export const CHART_COLORS = {
-  primary: '#DA7756',
-  secondary: '#798C5E',
-  tertiary: '#9EC8BA',
-  accent: '#8E7BE0',
-  neutral: '#EDC488',
-  warning: '#CECBF6',
-  error: '#E7848E',
-  info: '#76CDC1',
-  success: '#798C5E',
-  background: '#F6F4EE',
-  text: '#2C2C2C',
+  primary: '#5A4BE0',
+  secondary: '#2F6FE0',
+  tertiary: '#12A150',
+  accent: '#5A4BE0',
+  neutral: '#BFBFBD',
+  warning: '#2F6FE0',
+  error: '#E5484D',
+  info: '#2F6FE0',
+  success: '#12A150',
+  background: '#F5F4F0',
+  text: '#1A1A18',
 };
 
 /**
@@ -55,13 +55,13 @@ export const CHART_COLORS = {
  * urgent to most comfortable.
  */
 export const DURATION_BUCKET_COLORS = [
-  '#E7848E', // 0-3 months  - urgent
-  '#EDC488', // 3-6 months  - warm
-  '#9EC8BA', // 6-12 months - settling
-  '#798C5E', // 12+ months  - stable
+  '#E5484D', // 0-3 months  - urgent
+  '#2F6FE0', // 3-6 months  - attention
+  '#5A4BE0', // 6-12 months - settling
+  '#12A150', // 12+ months  - stable
 ];
 
 export const BAR_GRADIENT = {
-  start: '#DA7756',
-  end: 'rgba(218, 119, 86, 0.3)',
+  start: '#5A4BE0',
+  end: 'rgba(90, 75, 224, 0.3)',
 };

@@ -25,7 +25,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #f6f4ee;
+  background-color: var(--color-card-bg);
 }
 
 /**
@@ -34,13 +34,13 @@
  */
 .frozen-header-cell,
 .frozen-body-cell {
-  background-color: #f6f4ee; /* Prevent transparency overlap */
+  background-color: var(--color-card-bg); /* Prevent transparency overlap */
   position: sticky; /* This is also set inline, but CSS provides fallback */
 }
 
 /* Frozen body cells with specific styling */
 .frozen-body-cell {
-  background-color: white;
+  background-color: var(--color-card-white);
   z-index: 9; /* Below frozen headers */
 }
 
@@ -59,7 +59,7 @@
  * Ensures headers appear above body content when scrolling
  */
 .sticky-header .frozen-header-cell {
-  background-color: #f6f4ee;
+  background-color: var(--color-card-bg);
   z-index: 20; /* Higher than frozen body cells */
 }
 

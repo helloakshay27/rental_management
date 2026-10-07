@@ -10,13 +10,13 @@ const buttonVariants = cva(
   // a descendant selector, which outranks an icon's own `h-5 w-5`/`h-6 w-6`
   // class and silently shrank every button icon in the app to 16px. Call sites
   // size their own icons (verified: none rely on a default).
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-center font-medium tracking-[0.5px] border-0 rounded-none ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-center font-medium tracking-[0.5px] border-0 rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default: "bg-brand hover:bg-brand-hover !text-white [&_svg]:!text-white",
         destructive: "bg-brand-error-bg text-brand-error hover:bg-brand-error-light [&_svg]:text-brand-error",
-        outline: "bg-brand-card text-brand border border-brand hover:bg-brand-selected [&_svg]:text-brand",
+        outline: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 [&_svg]:text-gray-700",
         secondary: "bg-brand-card-bg text-brand border-none hover:bg-brand-selected [&_svg]:text-brand",
         primary: "bg-brand-card-bg text-brand hover:bg-brand-selected [&_svg]:text-brand",
         ghost: "bg-transparent text-brand-text hover:bg-brand-selected [&_svg]:text-brand-text",

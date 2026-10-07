@@ -37,7 +37,7 @@ const ConsumptionTracking = () => {
             {label}
           </span>
           <span
-            className={`flex items-center gap-1 text-brand-body-4 font-semibold ${up ? 'text-brand-error' : 'text-brand-success'
+            className={`flex items-center gap-1 text-brand-body-4 font-semibold ${up ? 'text-brand-success' : 'text-brand-error'
               }`}
           >
             {up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}

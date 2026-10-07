@@ -595,7 +595,7 @@ export default function RentalDetailsPage() {
         {/* Documents Card */}
 
         {lease.documents && lease.documents.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm ">
+          <Card className="bg-white border border-gray-200 shadow-sm">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />

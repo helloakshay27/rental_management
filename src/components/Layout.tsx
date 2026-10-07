@@ -18,7 +18,7 @@ const Layout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-brand-bg">
       {/* Desktop rail — unchanged from lg upwards. */}
       <div className="hidden shrink-0 lg:flex">
         <Sidebar
@@ -37,7 +37,7 @@ const Layout = () => {
       )}
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 shadow-xl transition-transform duration-300 ease-in-out motion-reduce:transition-none lg:hidden',
+          'fixed inset-y-0 left-0 z-50 shadow-sm transition-transform duration-300 ease-in-out motion-reduce:transition-none lg:hidden',
           mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -52,7 +52,7 @@ const Layout = () => {
         <Header onMenuClick={() => setMobileNavOpen(true)} />
         {/* pb below sm: the scroll container, not the pages, owns the bottom gap — several
             screens render their own wrapper instead of PageContainer and would miss it. */}
-        <main className="flex-1 overflow-y-auto bg-white p-0 m-0 pb-16 sm:pb-0">
+        <main className="app-scrollbar flex-1 overflow-y-auto bg-brand-bg p-0 m-0 pb-16 sm:pb-0">
           <Outlet />
         </main>
       </div>

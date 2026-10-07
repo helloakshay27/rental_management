@@ -16,15 +16,15 @@ const maintenanceData = [
 const chartConfig = {
   preventive: {
     label: 'Preventive',
-    color: '#798C5E'
+    color: '#12A150'
   },
   reactive: {
     label: 'Reactive',
-    color: '#EDC488'
+    color: '#2F6FE0'
   },
   emergency: {
     label: 'Emergency',
-    color: '#E7848E'
+    color: '#E5484D'
   }
 };
 

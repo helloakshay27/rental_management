@@ -172,8 +172,8 @@ const TenantDashboard = () => {
           change={dashboardData?.summary?.total_properties_change}
           changeType="positive"
           icon={Building}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Active Leases"
@@ -181,8 +181,8 @@ const TenantDashboard = () => {
           change={dashboardData?.summary?.active_leases_change}
           changeType="warning"
           icon={FileText}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Monthly Rent Expense"
@@ -190,8 +190,8 @@ const TenantDashboard = () => {
           change={dashboardData?.summary?.monthly_rent_expense_change}
           changeType="neutral"
           icon={DollarSign}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
         <StatCard
           title="Pending Actions"
@@ -199,8 +199,8 @@ const TenantDashboard = () => {
           change={dashboardData?.summary?.pending_actions_change}
           changeType="negative"
           icon={AlertTriangle}
-          color="bg-[#C72030]"
-          backgroundColor="bg-[#f6f4ee]"
+          color="bg-brand"
+          backgroundColor="bg-brand-card-bg"
         />
       </StatsGrid>
 

@@ -166,12 +166,10 @@ const AddPropertyDialog = ({ onPropertyAdded }: AddPropertyDialogProps) => {
 
           <div className="space-y-2">
             <Label>Property Images</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-2 text-sm text-gray-600">
-                Click to upload or drag and drop property images
-              </p>
-              <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+            <div className="border border-dashed border-gray-300 rounded-xl py-10 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative">
+              <Upload className="h-5 w-5 text-gray-700 mb-2" />
+              <p className="text-[14px] font-medium text-gray-900">Drop a file or choose one</p>
+              <p className="text-[13px] text-gray-400 mt-1">No file chosen</p>
             </div>
           </div>
 

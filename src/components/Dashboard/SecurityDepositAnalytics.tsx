@@ -17,20 +17,20 @@ const securityDepositData = [
 ];
 
 const depositByDuration = [
-  { duration: '2 months', amount: 2250000, count: 1, color: '#E7848E' },
-  { duration: '3 months', amount: 6450000, count: 2, color: '#EDC488' },
-  { duration: '4 months', amount: 2100000, count: 1, color: '#CECBF6' },
-  { duration: '6 months', amount: 3600000, count: 1, color: '#798C5E' }
+  { duration: '2 months', amount: 2250000, count: 1, color: '#E5484D' },
+  { duration: '3 months', amount: 6450000, count: 2, color: '#2F6FE0' },
+  { duration: '4 months', amount: 2100000, count: 1, color: '#5A4BE0' },
+  { duration: '6 months', amount: 3600000, count: 1, color: '#12A150' }
 ];
 
 const chartConfig = {
   deposit: {
     label: 'Security Deposit (₹)',
-    color: '#DA7756'
+    color: '#5A4BE0'
   },
   duration: {
     label: 'Duration (months)',
-    color: '#798C5E'
+    color: '#2F6FE0'
   }
 };
 
@@ -116,8 +116,8 @@ const SecurityDepositAnalytics = ({ data, loading }: { data: any, loading: boole
               <YAxis yAxisId="right" orientation="right" />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Legend />
-              <Bar yAxisId="left" dataKey="deposit" fill="#DA7756" name="Deposit Amount (₹)" />
-              <Bar yAxisId="right" dataKey="duration" fill="#798C5E" name="Duration (months)" />
+              <Bar yAxisId="left" dataKey="deposit" fill="#5A4BE0" name="Deposit Amount (₹)" />
+              <Bar yAxisId="right" dataKey="duration" fill="#2F6FE0" name="Duration (months)" />
             </BarChart>
           </ChartContainer>
         </Panel>
@@ -133,12 +133,12 @@ const SecurityDepositAnalytics = ({ data, loading }: { data: any, loading: boole
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                fill="#8E7BE0"
+                fill="#5A4BE0"
                 dataKey="count"
                 label={({ duration, count }) => `${duration} (${count})`}
               >
                 {depositByDuration.map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={['#E7848E', '#EDC488', '#CECBF6', '#798C5E', '#9EC8BA', '#76CDC1'][index % 6]} />
+                  <Cell key={`cell-${index}`} fill={['#E5484D', '#2F6FE0', '#5A4BE0', '#12A150', '#BFBFBD'][index % 5]} />
                 ))}
               </Pie>
               <ChartTooltip

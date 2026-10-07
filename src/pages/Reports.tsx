@@ -186,7 +186,7 @@ const Reports = () => {
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="occupancy" stroke="#DA7756" strokeWidth={2} />
+                    <Line type="monotone" dataKey="occupancy" stroke={ANALYTICS_PALETTE[0]} strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -210,7 +210,7 @@ const Reports = () => {
                       cy="50%"
                       labelLine={false}
                       outerRadius={80}
-                      fill="#8E7BE0"
+                      fill={ANALYTICS_PALETTE[0]}
                       dataKey="value"
                       label={({ name, value }) => `${name}: ${value}%`}
                     >
@@ -258,7 +258,7 @@ const Reports = () => {
               <CardContent className="p-6">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Average Occupancy</h3>
-                  <p className="text-brand-h2 font-bold text-[#C72030]">94.2%</p>
+                  <p className="text-brand-h2 font-bold text-brand-text">94.2%</p>
                   <p className="text-sm text-gray-600 mt-1">Across all properties</p>
                 </div>
               </CardContent>
@@ -297,7 +297,7 @@ const Reports = () => {
                 {reports.map((report, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                     <div className="flex items-center space-x-4">
-                      <FileText className="h-8 w-8 text-[#C72030]" />
+                      <FileText className="h-8 w-8 text-brand-text" />
                       <div>
                         <h4 className="font-medium text-gray-900">{report.title}</h4>
                         <p className="text-sm text-gray-600">{report.description}</p>

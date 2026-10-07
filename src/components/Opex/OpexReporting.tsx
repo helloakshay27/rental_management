@@ -10,23 +10,23 @@ const OpexReporting = () => {
       <Card className="bg-white border border-gray-200">
         <CardHeader className="bg-gray-50 border-b border-gray-200">
           <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-            <FileText className="h-5 w-5 text-[#C72030]" />
+            <FileText className="h-5 w-5 text-brand-text" />
             Financial Reports
           </CardTitle>
           <CardDescription className="text-[#D5DbDB]">Generate comprehensive OPEX reports</CardDescription>
         </CardHeader>
         <CardContent className="bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center border-gray-200 bg-[#f6f4ee] hover:bg-gray-50">
-              <BarChart3 className="h-6 w-6 mb-2 text-[#C72030]" />
+            <Button variant="outline" className="h-20 flex flex-col items-center justify-center border-brand-border bg-brand-card-bg hover:bg-brand-selected">
+              <BarChart3 className="h-6 w-6 mb-2 text-brand-text" />
               <span className="text-sm text-[#1a1a1a]">Monthly Report</span>
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center border-gray-200 bg-[#f6f4ee] hover:bg-gray-50">
-              <PieChart className="h-6 w-6 mb-2 text-[#C72030]" />
+            <Button variant="outline" className="h-20 flex flex-col items-center justify-center border-brand-border bg-brand-card-bg hover:bg-brand-selected">
+              <PieChart className="h-6 w-6 mb-2 text-brand-text" />
               <span className="text-sm text-[#1a1a1a]">Category Breakdown</span>
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center border-gray-200 bg-[#f6f4ee] hover:bg-gray-50">
-              <TrendingUp className="h-6 w-6 mb-2 text-[#C72030]" />
+            <Button variant="outline" className="h-20 flex flex-col items-center justify-center border-brand-border bg-brand-card-bg hover:bg-brand-selected">
+              <TrendingUp className="h-6 w-6 mb-2 text-brand-text" />
               <span className="text-sm text-[#1a1a1a]">Trend Analysis</span>
             </Button>
           </div>
@@ -37,7 +37,7 @@ const OpexReporting = () => {
         <Card className="bg-white border border-gray-200">
           <CardHeader className="bg-gray-50 border-b border-gray-200">
             <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <Download className="h-5 w-5 text-[#C72030]" />
+              <Download className="h-5 w-5 text-brand-text" />
               Quick Reports
             </CardTitle>
             <CardDescription className="text-[#D5DbDB]">Pre-configured report templates</CardDescription>
@@ -53,7 +53,7 @@ const OpexReporting = () => {
               ].map((report, index) => (
                 <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 bg-white">
                   <span className="text-sm text-[#1a1a1a]">{report}</span>
-                  <Button variant="ghost" size="sm" className="text-[#C72030] hover:text-[#A01825] hover:bg-white">
+                  <Button variant="ghost" size="sm" className="text-brand-text hover:text-brand-text hover:bg-brand-selected">
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>
@@ -65,7 +65,7 @@ const OpexReporting = () => {
         <Card className="bg-white border border-gray-200">
           <CardHeader className="bg-gray-50 border-b border-gray-200">
             <CardTitle className="text-[#1a1a1a] flex items-center gap-2">
-              <Settings className="h-5 w-5 text-[#C72030]" />
+              <Settings className="h-5 w-5 text-brand-text" />
               Custom Reports
             </CardTitle>
             <CardDescription className="text-[#D5DbDB]">Build reports with custom parameters</CardDescription>
@@ -74,7 +74,7 @@ const OpexReporting = () => {
             <div className="space-y-4">
               <div className="p-4 border border-gray-200 rounded-lg bg-white">
                 <h4 className="text-sm font-medium text-[#1a1a1a] mb-2 flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-[#C72030]" />
+                  <BarChart3 className="h-4 w-4 text-brand-text" />
                   Report Builder
                 </h4>
                 <p className="text-xs text-[#D5DbDB] mb-3">Create custom reports with specific date ranges, properties, and categories</p>
@@ -82,7 +82,7 @@ const OpexReporting = () => {
               </div>
               <div className="p-4 border border-gray-200 rounded-lg bg-white">
                 <h4 className="text-sm font-medium text-[#1a1a1a] mb-2 flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-[#C72030]" />
+                  <Calendar className="h-4 w-4 text-brand-text" />
                   Scheduled Reports
                 </h4>
                 <p className="text-xs text-[#D5DbDB] mb-3">Set up automated report delivery to stakeholders</p>

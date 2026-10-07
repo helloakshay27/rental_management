@@ -17,20 +17,20 @@ const fitoutData = [
 ];
 
 const lockinStatusData = [
-  { status: 'High Risk (< 6 months)', count: 12, percentage: 15, color: '#E7848E' },
-  { status: 'Medium Risk (6-12 months)', count: 18, percentage: 22, color: '#EDC488' },
-  { status: 'Safe (12-24 months)', count: 28, percentage: 35, color: '#CECBF6' },
-  { status: 'Very Safe (24+ months)', count: 22, percentage: 28, color: '#798C5E' }
+  { status: 'High Risk (< 6 months)', count: 12, percentage: 15, color: '#E5484D' },
+  { status: 'Medium Risk (6-12 months)', count: 18, percentage: 22, color: '#2F6FE0' },
+  { status: 'Safe (12-24 months)', count: 28, percentage: 35, color: '#5A4BE0' },
+  { status: 'Very Safe (24+ months)', count: 22, percentage: 28, color: '#12A150' }
 ];
 
 const chartConfig = {
   fitoutCost: {
     label: 'Fitout Cost (₹)',
-    color: '#DA7756'
+    color: '#5A4BE0'
   },
   monthsRemaining: {
     label: 'Months Remaining',
-    color: '#798C5E'
+    color: '#2F6FE0'
   }
 };
 
@@ -88,8 +88,8 @@ const FitoutAnalytics = () => {
                 <YAxis yAxisId="right" orientation="right" />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Legend />
-                <Bar yAxisId="left" dataKey="fitoutCost" fill="#DA7756" name="Fitout Cost (₹)" />
-                <Bar yAxisId="right" dataKey="monthsRemaining" fill="#798C5E" name="Months Remaining" />
+                <Bar yAxisId="left" dataKey="fitoutCost" fill="#5A4BE0" name="Fitout Cost (₹)" />
+                <Bar yAxisId="right" dataKey="monthsRemaining" fill="#2F6FE0" name="Months Remaining" />
               </BarChart>
             </ChartContainer>
           </CardContent>
@@ -109,7 +109,7 @@ const FitoutAnalytics = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  fill="#8E7BE0"
+                  fill="#5A4BE0"
                   dataKey="count"
                   label={({ percentage }) => `${percentage}%`}
                 >
@@ -154,7 +154,7 @@ const FitoutAnalytics = () => {
                     {getUrgencyBadge(property.monthsRemaining)}
                     <div className="w-32 bg-gray-200 rounded-full h-2">
                       <div 
-                        className="bg-[#C72030] h-2 rounded-full" 
+                        className="bg-brand h-2 rounded-full" 
                         style={{ width: `${(property.monthsRemaining / property.lockinMonths) * 100}%` }}
                       ></div>
                     </div>

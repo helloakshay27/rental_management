@@ -127,9 +127,9 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   return (
     <div
       className={cn(
-        'relative bg-brand-bg flex flex-col h-screen shrink-0 overflow-hidden',
+        'relative bg-brand-bg flex flex-col h-screen shrink-0 overflow-hidden border-r border-brand-sidebar-border',
         'transition-[width] duration-300 ease-in-out motion-reduce:transition-none',
-        isCollapsed ? 'w-14' : 'w-60'
+        isCollapsed ? 'w-16' : 'w-64'
       )}
     >
       {/* Brand header — same height as the top Header so both bottom borders line up.
@@ -154,7 +154,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
       {/* Collapse toggle — sits between the logo and the first nav item */}
       <div
         className={cn(
-          'shrink-0 flex items-center px-2 pt-2 transition-all duration-300 ease-in-out motion-reduce:transition-none',
+          'shrink-0 flex items-center px-2 py-0.5 transition-all duration-300 ease-in-out motion-reduce:transition-none',
           isCollapsed ? 'justify-center' : 'justify-end'
         )}
       >
@@ -164,11 +164,11 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-expanded={!isCollapsed}
           className={cn(
-            'flex items-center justify-center rounded-lg text-brand-text/60 hover:text-brand hover:bg-brand-sidebar-hover',
+            'flex items-center justify-center rounded-lg text-brand-text/60 hover:text-brand-text hover:bg-brand-sidebar-hover',
             'transition-all duration-300 ease-in-out active:scale-90 motion-reduce:transition-none',
             isCollapsed
-              ? 'w-9 h-9 border border-brand-sidebar-border'
-              : 'w-8 h-8 border border-transparent'
+              ? 'w-7 h-7 border border-brand-sidebar-border'
+              : 'w-7 h-7 border border-transparent'
           )}
         >
           {/* A single chevron that spins 180°, so the direction change is animated
@@ -184,13 +184,12 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
       <nav
         className={cn(
-          'flex-1 overflow-y-auto overflow-x-hidden',
-          isCollapsed ? 'px-2 pb-4' : 'px-2 pb-4'
+          'app-scrollbar flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2 space-y-2'
         )}
       >
         {isCollapsed ? (
           // ---------------- Collapsed: icon rail with tooltips ----------------
-          <div className="flex flex-col items-center space-y-3 pt-2 animate-in fade-in duration-300 motion-reduce:animate-none">
+          <div className="flex flex-col items-center space-y-2 pt-1 animate-in fade-in duration-300 motion-reduce:animate-none">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const active = isInSection(item);
@@ -206,25 +205,20 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                   title={item.label}
                   aria-label={item.label}
                   className={cn(
-                    'relative flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200',
+                    'relative flex items-center justify-center w-10 h-10 rounded-[10px] transition-colors duration-150',
                     active
-                      ? 'bg-brand-sidebar-active shadow-inner'
-                      : 'hover:bg-brand-sidebar-hover'
+                      ? 'bg-brand-stat'
+                      : 'hover:bg-gray-50'
                   )}
                 >
-                  {active && (
-                    <span className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l bg-brand" />
-                  )}
-                  <Icon
-                    className={cn('w-4 h-4', active ? 'text-brand' : 'text-brand-text')}
-                  />
+                  <Icon className="w-4 h-4 text-black" />
                 </button>
               );
             })}
           </div>
         ) : (
           // ---------------- Expanded: labelled nav with nested groups ----------------
-          <div className="space-y-1 pt-1 animate-in fade-in slide-in-from-left-2 duration-300 motion-reduce:animate-none">
+          <div className="space-y-2 pt-1 animate-in fade-in slide-in-from-left-2 duration-300 motion-reduce:animate-none">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const hasSubItems = !!item.subItems?.length;
@@ -237,15 +231,12 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                     <button
                       onClick={() => toggleExpanded(item.label)}
                       className={cn(
-                        'relative flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-md text-[14px] font-semibold transition-colors text-brand-text hover:bg-brand-sidebar-hover',
-                        active && 'bg-brand-sidebar-active'
+                        'relative flex items-center justify-between w-full gap-3 px-3 py-[9px] rounded-[10px] text-[13.5px] font-medium transition-colors duration-150',
+                        active ? 'bg-brand-stat text-black' : 'text-black hover:bg-gray-50'
                       )}
                     >
-                      {active && (
-                        <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l bg-brand" />
-                      )}
                       <span className="flex items-center gap-3">
-                        <Icon className={cn('w-4 h-4', active && 'text-brand')} />
+                        <Icon className="w-4 h-4 text-black" />
                         {item.label}
                       </span>
                       {isExpanded ? (
@@ -256,7 +247,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                     </button>
 
                     {isExpanded && (
-                      <div className="ml-8 mt-1 space-y-1">
+                      <div className="ml-8 mt-1 space-y-1.5">
                         {item.subItems!.map((subItem) => {
                           const SubIcon = subItem.icon;
                           const subActive = isActiveRoute(subItem.path);
@@ -265,16 +256,13 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                               key={subItem.path}
                               to={subItem.path}
                               className={cn(
-                                'relative flex items-center w-full px-3 py-2.5 rounded-lg text-[14px] transition-colors hover:bg-brand-sidebar-hover',
+                                'relative flex items-center w-full px-3 py-[9px] rounded-[10px] text-[13.5px] transition-colors duration-150',
                                 subActive
-                                  ? 'text-brand font-medium bg-brand-sidebar-active'
-                                  : 'text-brand-text'
+                                  ? 'bg-brand-stat text-black font-medium'
+                                  : 'text-black hover:bg-gray-50'
                               )}
                             >
-                              {subActive && (
-                                <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l bg-brand" />
-                              )}
-                              <SubIcon className={cn('mr-2 h-4 w-4 shrink-0', subActive && 'text-brand')} />
+                              <SubIcon className="mr-2 h-4 w-4 shrink-0 text-black" />
                               {subItem.label}
                             </Link>
                           );
@@ -290,14 +278,11 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    'relative flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-[14px] font-medium transition-colors text-brand-text hover:bg-brand-sidebar-hover',
-                    active && 'bg-brand-sidebar-active'
+                    'relative flex items-center gap-3 w-full px-3 py-[9px] rounded-[10px] text-[13.5px] font-medium transition-colors duration-150',
+                    active ? 'bg-brand-stat text-black' : 'text-black hover:bg-gray-50'
                   )}
                 >
-                  {active && (
-                    <span className="absolute left-0 top-0 bottom-0 w-1 rounded-l bg-brand" />
-                  )}
-                  <Icon className={cn('w-4 h-4', active && 'text-brand')} />
+                  <Icon className="w-4 h-4 text-black" />
                   {item.label}
                 </Link>
               );

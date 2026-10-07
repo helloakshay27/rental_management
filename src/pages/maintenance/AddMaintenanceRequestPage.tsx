@@ -344,17 +344,18 @@ const AddMaintenanceRequestPage = () => {
                             {/* Documents */}
                             <div className="space-y-4 pt-4 border-t border-gray-100">
                                 <Label className="text-sm font-medium text-gray-900">Attachments</Label>
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
+                                <div className="border border-dashed border-gray-300 rounded-xl py-10 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative">
+
                                     <Input
                                         type="file"
                                         multiple
                                         className="absolute inset-0 opacity-0 cursor-pointer"
                                         onChange={handleFileChange}
                                     />
-                                    <Upload className="h-6 w-6 text-gray-400 mb-1.5" />
-                                    <p className="text-[13px] text-gray-600">Click to upload or drag and drop</p>
-                                    <p className="text-xs text-gray-400 mt-1">Images, PDF (Max 10MB)</p>
-                                </div>
+                                    <Upload className="h-5 w-5 text-gray-700 mb-2" />
+<p className="text-[14px] font-medium text-gray-900">Drop a file or choose one</p>
+<p className="text-[13px] text-gray-400 mt-1">No file chosen</p>
+</div>
 
                                 {/* File List */}
                                 {formData.documents.length > 0 && (
@@ -380,17 +381,16 @@ const AddMaintenanceRequestPage = () => {
                                 )}
                             </div>
 
+                            <FormActions>
+                                <Button type="button" variant="outline" onClick={() => navigate(-1)} className="fm-button-fix h-9 px-5 text-[13px]">
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]">
+                                    {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                                    Submit Request
+                                </Button>
+                            </FormActions>
                     </FormSection>
-
-            <FormActions>
-                            <Button type="button" variant="outline" onClick={() => navigate(-1)} className="fm-button-fix h-9 px-5 text-[13px]">
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]">
-                                {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                                Submit Request
-                            </Button>
-            </FormActions>
                 </form>
         </PageContainer>
     );

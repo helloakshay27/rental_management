@@ -16,11 +16,11 @@ const revenueData = [
 const chartConfig = {
   actualRevenue: {
     label: 'Actual Revenue',
-    color: '#DA7756'
+    color: '#5A4BE0'
   },
   projectedRevenue: {
     label: 'Projected Revenue',
-    color: '#76CDC1'
+    color: '#2F6FE0'
   },
   previousYear: {
     label: 'Previous Year',

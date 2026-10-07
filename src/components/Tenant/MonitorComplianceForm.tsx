@@ -187,7 +187,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                                 <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
                                     <SelectValue placeholder="Select requirement" />
                                 </SelectTrigger>
-                                <SelectContent className='bg-white'>
+                                <SelectContent className="bg-white">
                                     {complianceRequirements.map((req) => (
                                         <SelectItem key={req.id} value={req.id.toString()}>
                                             {req.title}
@@ -206,7 +206,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                                 <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
                                     <SelectValue placeholder="Select Property" />
                                 </SelectTrigger>
-                                <SelectContent className='bg-white'>
+                                <SelectContent className="bg-white">
                                     {sites.map((site) => (
                                         <SelectItem key={site.id} value={site.id.toString()}>
                                             {site.name}
@@ -258,7 +258,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                                 <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
                                     <SelectValue placeholder="Select user" />
                                 </SelectTrigger>
-                                <SelectContent className='bg-white'>
+                                <SelectContent className="bg-white">
                                     {users.map((user) => (
                                         <SelectItem key={user.id} value={user.id.toString()}>
                                             {user.full_name}
@@ -287,7 +287,7 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                                 <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
-                                <SelectContent className='bg-white'>
+                                <SelectContent className="bg-white">
                                     <SelectItem value="pending">Pending</SelectItem>
                                     <SelectItem value="submitted">Submitted</SelectItem>
                                     <SelectItem value="approved">Approved</SelectItem>

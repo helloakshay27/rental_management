@@ -17,45 +17,45 @@
   color-scheme:light;
 
   /* --- surfaces & ink --- */
-  --bg:#faf9f7;
+  --bg:#FDFDFB;
   --surface:#ffffff;
-  --surface-2:#f5f4f1;
-  --surface-3:#edebe6;
-  --border:#e6e4de;
-  --border-2:#d9d6ce;
-  --ink:#141413;
-  --ink-2:#3f3e3a;
-  --muted:#6f6e68;
-  --faint:#9b9990;
+  --surface-2:#F5F4F0;
+  --surface-3:#EBE9E2;
+  --border:rgba(26,26,24,.08);
+  --border-2:rgba(26,26,24,.16);
+  --ink:#1A1A18;
+  --ink-2:rgba(26,26,24,.78);
+  --muted:rgba(26,26,24,.68);
+  --faint:rgba(26,26,24,.48);
   --on-ink:#ffffff;
 
   /* --- data palette (sparse, signal only) --- */
-  --blue:#2c7be5;
-  --blue-tint:#e7effc;
-  --blue-fill:#cfe1f8;
-  --green:#0f8a3d;
-  --green-tint:#e2efe6;
-  --mint:#3daf7d;
-  --mint-tint:#e0f1e9;
-  --amber:#c98a12;
-  --amber-ink:#8a6210;
-  --amber-tint:#f7ecd2;
-  --red:#b3402c;
-  --red-tint:#f6e2dd;
-  --pos:#17803d;
-  --neg:#b3402c;
+  --blue:#2F6FE0;
+  --blue-tint:rgba(47,111,224,.12);
+  --blue-fill:rgba(47,111,224,.18);
+  --green:#12A150;
+  --green-tint:rgba(18,161,80,.12);
+  --mint:#12A150;
+  --mint-tint:rgba(18,161,80,.12);
+  --amber:#2F6FE0;
+  --amber-ink:#2F6FE0;
+  --amber-tint:rgba(47,111,224,.12);
+  --red:#E5484D;
+  --red-tint:rgba(229,72,77,.12);
+  --pos:#12A150;
+  --neg:#E5484D;
 
   /* --- chart palette (read into JS at render time) --- */
-  --chart-grid:#e6e4de;
-  --chart-line:#d9d6ce;
-  --chart-blue:#2c7be5;
-  --chart-fill:#d3e3f9;
-  --chart-mint:#3daf7d;
-  --chart-amber:#c98a12;
-  --chart-red:#b3402c;
-  --chart-violet:#7c6fd6;
-  --chart-violet-tint:#e7e4f8;
-  --heat-rgb:44,123,229;
+  --chart-grid:rgba(26,26,24,.08);
+  --chart-line:rgba(26,26,24,.16);
+  --chart-blue:#2F6FE0;
+  --chart-fill:rgba(47,111,224,.18);
+  --chart-mint:#12A150;
+  --chart-amber:#2F6FE0;
+  --chart-red:#E5484D;
+  --chart-violet:#5A4BE0;
+  --chart-violet-tint:rgba(90,75,224,.12);
+  --heat-rgb:47,111,224;
   --heat-a0:0.09;
   --heat-a1:0.78;
   --on-heat:#ffffff;

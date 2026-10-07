@@ -445,7 +445,7 @@ const UsersManagement = () => {
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleCloseDialog}>Cancel</Button>
+              <Button variant="outline" className="" onClick={handleCloseDialog}>Cancel</Button>
               <Button className="fm-button-fix fm-button-brand px-6 py-2" onClick={handleSubmit} disabled={isLoading}>
                 {isLoading ? (editingUser ? 'Updating...' : 'Creating...') : (editingUser ? 'Update User' : 'Create User')}
               </Button>

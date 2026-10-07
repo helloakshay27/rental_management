@@ -57,7 +57,7 @@ const DocumentUploadDialog = ({ isOpen, onClose, onUpload }: DocumentUploadDialo
                             <SelectTrigger className="bg-white border-2 border-gray-200">
                                 <SelectValue placeholder="Select type" />
                             </SelectTrigger>
-                            <SelectContent className='bg-white'>
+                            <SelectContent className="bg-white">
                                 <SelectItem value="contract">Contract</SelectItem>
                                 <SelectItem value="receipt">Receipt</SelectItem>
                                 <SelectItem value="inspection">Inspection</SelectItem>
@@ -79,7 +79,7 @@ const DocumentUploadDialog = ({ isOpen, onClose, onUpload }: DocumentUploadDialo
                             <SelectTrigger className="bg-white border-2 border-gray-200">
                                 <SelectValue placeholder="Select property" />
                             </SelectTrigger>
-                            <SelectContent className='bg-white'>
+                            <SelectContent className="bg-white">
                                 <SelectItem value="Sunset Apartments">Sunset Apartments</SelectItem>
                                 <SelectItem value="Green Valley Villa">Green Valley Villa</SelectItem>
                                 <SelectItem value="City Center Office">City Center Office</SelectItem>
@@ -101,7 +101,7 @@ const DocumentUploadDialog = ({ isOpen, onClose, onUpload }: DocumentUploadDialo
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className=""
                     >
                         Cancel
                     </Button>

@@ -237,17 +237,16 @@ const AddExpensePage = () => {
                                 />
                             </div>
 
+                            <FormActions>
+                                <Button type="button" variant="outline" onClick={() => navigate('/opex')} className="border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium">
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]">
+                                    {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                                    Save Expense
+                                </Button>
+                            </FormActions>
                     </FormSection>
-
-            <FormActions>
-                            <Button type="button" variant="outline" onClick={() => navigate('/opex')} className="border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium">
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]">
-                                {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                                Save Expense
-                            </Button>
-            </FormActions>
                 </form>
         </PageContainer>
     );

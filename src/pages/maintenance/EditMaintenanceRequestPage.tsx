@@ -364,16 +364,16 @@ const EditMaintenanceRequestPage = () => {
 
                             <div className="space-y-4 pt-4 border-t border-gray-100">
                                 <Label className="text-gray-900 font-medium">Attachments</Label>
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
+                                <div className="border border-dashed border-gray-300 rounded-xl py-10 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative">
                                     <Input
                                         type="file"
                                         multiple
                                         className="absolute inset-0 opacity-0 cursor-pointer"
                                         onChange={handleFileChange}
                                     />
-                                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                                    <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
-                                    <p className="text-xs text-gray-400 mt-1">Images, PDF (Max 10MB)</p>
+                                    <Upload className="h-5 w-5 text-gray-700 mb-2" />
+                                    <p className="text-[14px] font-medium text-gray-900">Drop a file or choose one</p>
+                                    <p className="text-[13px] text-gray-400 mt-1">No file chosen</p>
                                 </div>
 
                                 {formData.documents.length > 0 && (

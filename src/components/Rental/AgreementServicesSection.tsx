@@ -121,7 +121,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
                                 variant="outline"
                                 size="sm"
                                 onClick={() => removeService(index)}
-                                className="border-red-600 text-red-600 hover:bg-red-50"
+                                className=""
                             >
                                 <Trash2 className="h-4 w-4" />
                             </Button>

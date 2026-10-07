@@ -679,7 +679,7 @@ export function EnhancedTable<T extends Record<string, any>>({
           }
         }}
         className={cn(
-          "bg-[#f6f4ee] text-left text-black min-w-32 sticky top-0",
+          "bg-brand-card-bg text-left text-brand-text min-w-32 sticky top-0",
           frozenConfig?.isFrozen && "frozen-header-cell",
           frozenConfig?.isLastFrozen && "frozen-last-cell"
         )}
@@ -1121,12 +1121,12 @@ export function EnhancedTable<T extends Record<string, any>>({
           const value = cellFor(column.key);
           return (
             <div key={column.key} className="min-w-0 px-3 py-2">
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-brand-text-light">
                 {column.label}
               </dt>
-              <dd className="mt-0.5 min-w-0 max-w-full overflow-x-auto text-[13px] leading-snug text-gray-800 [overflow-wrap:anywhere] [&_*]:max-w-full [&_img]:h-auto">
+              <dd className="mt-0.5 min-w-0 max-w-full overflow-x-auto text-[13px] leading-snug text-brand-text [overflow-wrap:anywhere] [&_*]:max-w-full [&_img]:h-auto">
                 {isEmptyCellValue(value) ? (
-                  <span className="text-gray-400">-</span>
+                  <span className="text-brand-text-light">-</span>
                 ) : (
                   value
                 )}
@@ -1141,8 +1141,8 @@ export function EnhancedTable<T extends Record<string, any>>({
       <div
         key={String(itemId ?? index)}
         className={cn(
-          "enhanced-mobile-card overflow-hidden rounded-lg border border-[#D5DbDB] bg-white",
-          onRowClick && !rowDisabled && "cursor-pointer active:bg-gray-50",
+          "enhanced-mobile-card overflow-hidden rounded-lg border border-brand-border bg-brand-card",
+          onRowClick && !rowDisabled && "cursor-pointer active:bg-brand-selected",
           !rowDisabled && isSelected && "border-brand bg-brand-selected",
           rowDisabled && "opacity-60",
           rowClassName?.(item)
@@ -1171,10 +1171,10 @@ export function EnhancedTable<T extends Record<string, any>>({
           <div className="min-w-0 flex-1">
             {primaryColumn && (
               <>
-                <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-brand-text-light">
                   {primaryColumn.label}
                 </div>
-                <div className="mt-0.5 text-[15px] font-semibold leading-snug text-gray-900 [overflow-wrap:anywhere]">
+                <div className="mt-0.5 text-[15px] font-semibold leading-snug text-brand-text [overflow-wrap:anywhere]">
                   {isEmptyCellValue(primaryValue) ? "-" : primaryValue}
                 </div>
               </>
@@ -1211,13 +1211,13 @@ export function EnhancedTable<T extends Record<string, any>>({
         </div>
 
         {summaryColumns.length > 0 && (
-          <div className="border-t border-[#eee9df]">
+          <div className="border-t border-brand-border">
             {renderFieldGrid(summaryColumns)}
           </div>
         )}
 
         {extraColumns.length > 0 && detailsOpen && (
-          <div className="border-t border-[#f0ece3] bg-[#fbfaf7]">
+          <div className="border-t border-brand-border bg-brand-card-bg">
             {renderFieldGrid(extraColumns)}
           </div>
         )}
@@ -1225,7 +1225,7 @@ export function EnhancedTable<T extends Record<string, any>>({
         {extraColumns.length > 0 && (
           <button
             type="button"
-className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e8] py-1.5 text-[11px] font-medium text-gray-500"
+className="flex w-full items-center justify-center gap-1 border-t border-brand-border py-1.5 text-[11px] font-medium text-brand-text-light"
             onClick={(e) => toggleMobileDetails(itemId, e)}
             aria-expanded={detailsOpen}
           >
@@ -1245,7 +1245,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
 
         {/* Child rows TableRow return karte hain, isliye ek chhote table me wrap kiya hai. */}
         {collapsible && hasChildren && isExpanded && renderChildrenRows && (
-          <div className="border-t border-[#eee9df] px-1.5 pb-2">
+          <div className="border-t border-brand-border px-1.5 pb-2">
             <Table className="w-full min-w-max text-xs">
               <TableBody>{renderChildrenRows(children, itemId)}</TableBody>
             </Table>
@@ -1259,11 +1259,11 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
     <div className="sm:hidden">
       {mobileSortableColumns.length > 0 && !loading && sortedData.length > 0 && (
         <div className="mb-2 flex w-full min-w-0 max-w-full items-center gap-2">
-          <span className="shrink-0 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+          <span className="shrink-0 text-[10px] font-medium uppercase tracking-wide text-brand-text-light">
             Sort by
           </span>
           <select
-            className="h-8 min-w-0 flex-1 rounded-md border border-[#D5DbDB] bg-white px-2 text-xs text-gray-800"
+            className="h-8 min-w-0 flex-1 rounded-md border border-brand-border bg-brand-card px-2 text-xs text-brand-text"
             value={sortState.direction ? sortState.column ?? "" : ""}
             onChange={(e) => {
               const key = e.target.value;
@@ -1281,7 +1281,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 shrink-0 !rounded-md border border-[#D5DbDB]"
+            className="h-8 w-8 shrink-0 !rounded-md border border-brand-border"
             disabled={!sortState.column}
             onClick={() => sortState.column && triggerSort(sortState.column)}
             title={
@@ -1305,8 +1305,8 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
       )}
 
       {selectable && hasSelectableRows && !loading && (
-        <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-[#D5DbDB] bg-[#f6f4ee] px-3 py-2">
-          <label className="flex items-center gap-2 text-xs font-medium text-gray-700">
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-brand-border bg-brand-card-bg px-3 py-2">
+          <label className="flex items-center gap-2 text-xs font-medium text-brand-text">
             <Checkbox
               checked={isAllSelected}
               onCheckedChange={handleSelectAllChange}
@@ -1316,7 +1316,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
             {selectAllLabel}
           </label>
           {selectedItems.length > 0 && (
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-brand-text-light">
               {selectedItems.length} selected
             </span>
           )}
@@ -1338,7 +1338,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                   : null;
                 return (
                   <div key={column.key}>
-                    <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                    <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-brand-text-light">
                       {column.label}
                     </div>
                     {customCell !== null
@@ -1368,14 +1368,14 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
       )}
 
       {loading && (
-        <div className="flex items-center justify-center rounded-lg border border-[#D5DbDB] bg-white py-10">
+        <div className="flex items-center justify-center rounded-lg border border-brand-border bg-brand-card py-10">
           <Loader2 className="h-8 w-8 animate-spin text-brand" />
           <span className="ml-2 text-brand-body-5 text-brand-text-light">{loadingMessage}</span>
         </div>
       )}
 
       {!loading && sortedData.length === 0 && (
-        <div className="rounded-lg border border-[#D5DbDB] bg-white px-4 py-10 text-center text-sm text-gray-500">
+        <div className="rounded-lg border border-brand-border bg-brand-card px-4 py-10 text-center text-sm text-brand-text-light">
           <div>{emptyMessage}</div>
           {canAddRow && !isAddingRow && (
             <Button
@@ -1402,7 +1402,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
       {canAddRow && !isAddingRow && !loading && sortedData.length > 0 && (
         <button
           type="button"
-          className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 bg-white py-3 text-xs font-medium text-gray-500"
+          className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-brand-border bg-brand-card py-3 text-xs font-medium text-brand-text-light"
           onClick={handleAddRowClick}
         >
           <Plus className="h-4 w-4" /> {newRowPlaceholder}
@@ -1603,7 +1603,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
 
       <div
         className={cn(
-          "bg-white rounded-lg border border-[#D5DbDB] overflow-hidden",
+          "bg-brand-card rounded-lg border border-brand-border overflow-hidden",
           mobileView && "hidden sm:block"
         )}
       >
@@ -1622,7 +1622,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                   <TableRow>
                     {collapsible && (
                       <TableHead
-                        className="bg-[#f6f4ee] text-center w-12 min-w-12 sticky top-0"
+                        className="bg-brand-card-bg text-center w-12 min-w-12 sticky top-0"
                         rowSpan={headerSegments ? 2 : undefined}
                         data-collapse
                       >
@@ -1633,7 +1633,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                     )}
                     {selectable && (
                       <TableHead
-                        className="bg-[#f6f4ee] w-12 min-w-12 text-center sticky top-0"
+                        className="bg-brand-card-bg w-12 min-w-12 text-center sticky top-0"
                         rowSpan={headerSegments ? 2 : undefined}
                         data-checkbox
                       >
@@ -1652,7 +1652,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                     )}
                     {renderActions && (
                       <TableHead
-                        className="bg-[#f6f4ee] text-center w-16 min-w-16 sticky top-0"
+                        className="bg-brand-card-bg text-center w-16 min-w-16 sticky top-0"
                         rowSpan={headerSegments ? 2 : undefined}
                         data-actions
                       >
@@ -1678,7 +1678,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                                 // generated stylesheet orders utilities alphabetically rather than
                                 // by className string order, a plain `text-center` here loses to
                                 // that base `text-left` — `!text-center` forces the override.
-                                "bg-[#f6f4ee] !text-center text-black sticky top-0",
+                                "bg-brand-card-bg !text-center text-brand-text sticky top-0",
                                 segment.group.className
                               )}
                             >
@@ -1750,7 +1750,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                             size="sm"
                             variant="ghost"
                             onClick={handleCancelAddRow}
-                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-6 w-6 p-0 text-brand-error hover:text-brand-error hover:bg-brand-error-bg"
                             title="Cancel"
                           >
                             <X className="w-4 h-4" />
@@ -1850,7 +1850,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                         (renderActions ? 1 : 0) +
                         (selectable ? 1 : 0)
                       }
-                      className="text-center py-8 text-gray-500"
+                      className="text-center py-8 text-brand-text-light"
                     >
                       {canAddRow ? (
                         <div className="space-y-2">
@@ -1892,7 +1892,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                         <TableRow
                           className={cn(
                             onRowClick && "cursor-pointer",
-                            "hover:bg-gray-50",
+                            "hover:bg-brand-selected",
                             !rowDisabled && isSelected && "bg-blue-50",
                             rowClassName?.(item)
                           )}
@@ -2026,7 +2026,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                   !loading &&
                   sortedData.length > 0 && (
                     <TableRow
-                      className="cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-200"
+                      className="cursor-pointer hover:bg-brand-selected border-2 border-dashed border-brand-border"
                       onClick={handleAddRowClick}
                     >
                       <TableCell
@@ -2036,7 +2036,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
                           (renderActions ? 1 : 0) +
                           (selectable ? 1 : 0)
                         }
-                        className="text-center py-4 text-gray-500 hover:text-gray-700"
+                        className="text-center py-4 text-brand-text-light hover:text-brand-text"
                       >
                         <div className="flex items-center justify-start">
                           <Button
@@ -2075,7 +2075,7 @@ className="flex w-full items-center justify-center gap-1 border-t border-[#f4f0e
           >
             Previous
           </Button>
-          <span className="text-xs font-medium text-gray-600">
+          <span className="text-xs font-medium text-brand-text-light">
             Page {currentPage} of {totalPages}
           </span>
           <Button

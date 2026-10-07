@@ -14,42 +14,42 @@ const Masters = () => {
       description: 'Manage countries with codes and currency information',
       icon: Globe2,
       path: '/masters/countries',
-      color: 'bg-cyan-50 text-cyan-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'States Master',
       description: 'Manage states and their association with countries',
       icon: MapPin,
       path: '/masters/states',
-      color: 'bg-teal-50 text-teal-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Region Master',
       description: 'Manage regions and their association with states',
       icon: MapPin,
       path: '/masters/regions',
-      color: 'bg-blue-50 text-blue-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Zone Master',
       description: 'Manage zones and their association with regions',
       icon: MapPinned,
       path: '/masters/zones',
-      color: 'bg-indigo-50 text-indigo-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'City Master',
       description: 'Manage cities and their association with zones',
       icon: MapPinned,
       path: '/masters/cities',
-      color: 'bg-indigo-50 text-indigo-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Circle Master',
       description: 'Manage circles and their association with cities',
       icon: MapPinned,
       path: '/masters/circles',
-      color: 'bg-indigo-50 text-indigo-600'
+      color: 'bg-gray-100 text-black'
     },
     // 2. Business Entities
     {
@@ -57,49 +57,49 @@ const Masters = () => {
       description: 'Manage landlord profiles, properties, and contact details',
       icon: UserCheck,
       path: '/masters/landlords',
-      color: 'bg-green-50 text-green-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Lessee Management',
       description: 'Manage lessee information, documents, and profiles',
       icon: Users,
       path: '/masters/tenants',
-      color: 'bg-blue-50 text-blue-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Vendor Master',
       description: 'Manage vendors, suppliers, and contractor details',
       icon: Truck,
       path: '/masters/vendors',
-      color: 'bg-amber-50 text-amber-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Amenity Master',
       description: 'Central Amenities',
       icon: Building2,
       path: '/masters/amenities',
-      color: 'bg-purple-50 text-purple-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Properties Master',
       description: 'Central property database with all property details',
       icon: Building2,
       path: '/masters/properties',
-      color: 'bg-purple-50 text-purple-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: ' Property Takeover Conditions',
       description: 'Conditions under which properties are taken over',
       icon: Layout,
       path: '/masters/takeover-conditions',
-      color: 'bg-indigo-50 text-indigo-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Facility Types',
       description: 'Categories for property facilities and amenities',
       icon: Building,
       path: '/masters/facility-types',
-      color: 'bg-rose-50 text-rose-600'
+      color: 'bg-gray-100 text-black'
     },
     // 4. Operations & Financials
     {
@@ -107,7 +107,7 @@ const Masters = () => {
       description: 'Manage service types for agreements (e.g., CAM)',
       icon: FileText,
       path: '/masters/service-types',
-      color: 'bg-cyan-50 text-cyan-600',
+      color: 'bg-gray-100 text-black',
       cta: 'Manage Service Types'
     },
     {
@@ -115,21 +115,21 @@ const Masters = () => {
       description: 'Manage property compliances, regulations, and renewals',
       icon: FileCheck,
       path: '/masters/compliances',
-      color: 'bg-emerald-50 text-emerald-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Expense Categories',
       description: 'Manage categories for property expenses and tracking',
       icon: Wallet,
       path: '/masters/expense-categories',
-      color: 'bg-lime-50 text-lime-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Budget Master',
       description: 'Define and track annual budgets for properties',
       icon: PieChart,
       path: '/masters/budgets',
-      color: 'bg-indigo-50 text-indigo-600'
+      color: 'bg-gray-100 text-black'
     },
     // 5. System Configuration
     {
@@ -137,21 +137,21 @@ const Masters = () => {
       description: 'Manage system users and their basic information',
       icon: User,
       path: '/masters/users',
-      color: 'bg-orange-50 text-orange-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Roles Management',
       description: 'Define and manage user roles and responsibilities',
       icon: Shield,
       path: '/masters/roles',
-      color: 'bg-red-50 text-red-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Access Control',
       description: 'Configure module permissions for each role',
       icon: Key,
       path: '/masters/access',
-      color: 'bg-slate-50 text-slate-600',
+      color: 'bg-gray-100 text-black',
       cta: 'Manage Access'
     },
     {
@@ -159,14 +159,14 @@ const Masters = () => {
       description: 'Manage invoice branding and company profiles',
       icon: Palette,
       path: '/masters/branding',
-      color: 'bg-pink-50 text-pink-600'
+      color: 'bg-gray-100 text-black'
     },
     {
       title: 'Lease Custom Fields',
       description: 'Manage custom fields for lease agreements',
       icon: Settings2,
       path: '/masters/lease-custom-fields',
-      color: 'bg-violet-50 text-violet-600'
+      color: 'bg-gray-100 text-black'
     }
   ];
 

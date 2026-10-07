@@ -169,7 +169,7 @@ const ProfileTab = () => {
             <Button
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
-              className="h-8 px-3 text-[13px] font-semibold border-red-600 text-red-600 hover:bg-red-50"
+              className="h-8 px-3 text-[13px] font-semibold"
             >
               Change Photo
             </Button>
@@ -267,7 +267,7 @@ const ProfileTab = () => {
           </div>
         </div>
 
-        <div className="pt-2 flex justify-start">
+        <div className="pt-2 flex justify-end">
           <Button
             onClick={handleSave}
             disabled={loading}

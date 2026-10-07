@@ -436,15 +436,18 @@ const BrandingManagement = () => {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full border-gray-300 hover:border-[#C72030] text-gray-900"
+                <div
+                  className="border border-dashed border-gray-300 rounded-xl py-10 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative mt-2"
                   onClick={() => document.getElementById('logo')?.click()}
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {logoFile ? logoFile.name : (editingProfile?.currentLogoDoc ? 'Change Logo' : 'Upload Logo')}
-                </Button>
+                  <Upload className="h-5 w-5 text-gray-700 mb-2" />
+                  <p className="text-[14px] font-medium text-gray-900">
+                    {logoFile ? logoFile.name : (editingProfile?.currentLogoDoc ? 'Change Logo' : 'Drop a file or choose one')}
+                  </p>
+                  <p className="text-[13px] text-gray-400 mt-1">
+                    {logoFile ? 'Click to change' : 'No file chosen'}
+                  </p>
+                </div>
                 {logoPreview && (
                   <div className="mt-2 p-3 border rounded bg-gray-50">
                     <div className="flex items-start justify-between gap-3">
@@ -511,7 +514,7 @@ const BrandingManagement = () => {
                 variant="outline"
                 onClick={handleCloseDialog}
                 disabled={isLoading}
-                className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                className=""
               >
                 Cancel
               </Button>

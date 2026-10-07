@@ -382,7 +382,7 @@ const LandlordsManagement = () => {
             <div className="space-y-4 py-4">
               {/* Basic Information */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2 ">
+                <div className="space-y-2">
                   <Label htmlFor="company-name" className="text-gray-900 font-medium">Company Name *</Label>
                   <Input
                     id="company-name"
@@ -392,7 +392,7 @@ const LandlordsManagement = () => {
                     className="bg-white border-2 border-[#C72030] text-gray-900"
                   />
                 </div>
-                <div className="space-y-2 ">
+                <div className="space-y-2">
                   <Label htmlFor="contact-person" className="text-gray-900 font-medium">Landlord / Contact Person Name (LESSOR) *</Label>
                   <Input
                     id="contact-person"
@@ -555,7 +555,7 @@ const LandlordsManagement = () => {
                 variant="outline"
                 onClick={handleCloseDialog}
                 disabled={isLoading}
-                className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                className=""
               >
                 Cancel
               </Button>

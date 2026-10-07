@@ -415,7 +415,7 @@ const CountryMaster = () => {
                         <div className="flex justify-end space-x-2">
                             <Button
                                 variant="outline"
-                                className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                className=""
                                 onClick={handleCloseDialog}
                                 disabled={isLoading}
                             >

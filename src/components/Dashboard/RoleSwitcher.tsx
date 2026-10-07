@@ -17,7 +17,7 @@ const RoleSwitcher = ({ currentRole, onRoleChange }: RoleSwitcherProps) => {
         onClick={() => onRoleChange('landlord')}
         className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
           currentRole === 'landlord'
-            ? 'bg-[#C72030] text-white shadow-sm'
+            ? 'bg-brand text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-white'
         }`}
       >
@@ -30,7 +30,7 @@ const RoleSwitcher = ({ currentRole, onRoleChange }: RoleSwitcherProps) => {
         onClick={() => onRoleChange('tenant')}
         className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
           currentRole === 'tenant'
-            ? 'bg-[#C72030] text-white shadow-sm'
+            ? 'bg-brand text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-white'
         }`}
       >

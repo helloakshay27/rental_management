@@ -316,7 +316,7 @@ const ComplianceForm = ({ isEdit = false, compliance, onSave, onCancel }: Compli
       <div className="flex justify-end space-x-2 col-span-full pt-4">
         <Button
           variant="outline"
-          className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+          className=""
           onClick={onCancel}
           disabled={isLoading}
         >

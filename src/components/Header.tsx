@@ -138,7 +138,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   ] : [];
 
   return (
-    <header className="relative h-16 shrink-0 bg-[#f6f4ee] px-4 sm:px-6 flex items-center shadow-sm border-b border-gray-200">
+    <header className="relative h-16 shrink-0 bg-brand-bg px-4 sm:px-6 flex items-center shadow-sm border-b border-brand-border">
       <div className="flex items-center justify-between w-full gap-2">
         <Button
           variant="ghost"
@@ -166,34 +166,34 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           {/* Notifications Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full p-0 hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-[#E06A47]">
+              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full p-0 hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-brand-text">
                 {/* Same 32px circle as the avatar next to it, so the two controls read as one pair. */}
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E06A47]/10">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-selected">
                   <Bell className="h-[18px] w-[18px]" strokeWidth={1.75} />
                 </span>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#E06A47] px-1 text-[10px] font-semibold leading-none text-white">
+                  <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold leading-none text-white">
                     {unreadCount}
                   </span>
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[min(360px,calc(100vw-2rem))] bg-white border-gray-200 shadow-dropdown p-0">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                <h3 className="font-semibold text-base text-gray-900">Notifications</h3>
+            <DropdownMenuContent align="end" className="w-[min(360px,calc(100vw-2rem))] bg-brand-card border-brand-border shadow-dropdown p-0">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-brand-border">
+                <h3 className="font-semibold text-base text-brand-text">Notifications</h3>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-xs h-7 px-2 text-[#C72030] hover:bg-red-50"
+                      className="text-xs h-7 px-2 text-brand-text hover:bg-brand-selected"
                       onClick={() => (window as any).headerMarkAllRead?.()}
                     >
                       Mark all read
                     </Button>
                   )}
                   {unreadCount > 0 && (
-                    <UIBadge variant="secondary" className="bg-red-50 text-[#C72030] text-xs border-none">
+                    <UIBadge variant="secondary" className="bg-brand-selected text-brand-text text-xs border-none">
                       {unreadCount} New
                     </UIBadge>
                   )}
@@ -208,30 +208,30 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                   notifications.map((notification: any) => (
                     <DropdownMenuItem
                       key={notification.id}
-                      className="flex flex-col items-start px-4 py-3 border-b border-gray-50 focus:bg-gray-50 cursor-pointer"
+                      className="flex flex-col items-start px-4 py-3 border-b border-brand-border focus:bg-brand-selected cursor-pointer"
                     >
                       <div className="flex justify-between w-full mb-1">
-                        <span className="font-semibold text-sm text-gray-900">{notification.title || 'Notification'}</span>
-                        <span className="text-xs text-gray-500">{notification.time_ago || 'Just now'}</span>
+                        <span className="font-semibold text-sm text-brand-text">{notification.title || 'Notification'}</span>
+                        <span className="text-xs text-brand-text-light">{notification.time_ago || 'Just now'}</span>
                       </div>
-                      <p className="text-sm text-gray-700 line-clamp-2">{notification.message || notification.content}</p>
+                      <p className="text-sm text-brand-text/80 line-clamp-2">{notification.message || notification.content}</p>
                       {!notification.read && (
-                        <div className="mt-2 h-1.5 w-1.5 rounded-full bg-[#C72030]"></div>
+                        <div className="mt-2 h-1.5 w-1.5 rounded-full bg-brand"></div>
                       )}
                     </DropdownMenuItem>
                   ))
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-                    <div className="p-3 bg-gray-50 rounded-full mb-3">
-                      <Bell className="h-6 w-6 text-gray-300" />
+                    <div className="p-3 bg-brand-selected rounded-full mb-3">
+                      <Bell className="h-6 w-6 text-brand-text-light" />
                     </div>
-                    <p className="text-base font-medium text-gray-900">No notifications</p>
-                    <p className="text-sm text-gray-500 mt-1">We'll notify you when something happens</p>
+                    <p className="text-base font-medium text-brand-text">No notifications</p>
+                    <p className="text-sm text-brand-text-light mt-1">We'll notify you when something happens</p>
                   </div>
                 )}
               </ScrollArea>
-              <div className="p-2 border-t border-gray-100 flex justify-center">
-                <Button variant="ghost" size="sm" className="text-sm font-medium text-[#C72030] hover:bg-red-50 hover:text-[#C72030] w-full">
+              <div className="p-2 border-t border-brand-border flex justify-center">
+                <Button variant="ghost" size="sm" className="text-sm font-medium text-brand-text hover:bg-brand-selected hover:text-brand-text w-full">
                   View All Notifications
                 </Button>
               </div>
@@ -241,18 +241,18 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full p-0 h-8 w-8 hover:opacity-90 focus-visible:ring-0 [&_svg]:!text-white">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E06A47]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand">
                   <UserRound className="h-[18px] w-[18px] text-white" fill="none" strokeWidth={1.75} />
                 </span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 bg-white border-gray-200 shadow-dropdown p-0 rounded-md overflow-hidden">
+            <DropdownMenuContent align="end" className="w-64 bg-brand-card border-brand-border shadow-dropdown p-0 rounded-md overflow-hidden">
               {/* Identity */}
               <div className="px-4 pt-4 pb-3">
-                <p className="font-semibold text-sm text-[#1a1a1a] leading-tight">
+                <p className="font-semibold text-sm text-brand-text leading-tight">
                   {currentUser?.full_name || 'Guest User'}
                 </p>
-                <p className="text-sm text-[#2563eb] mt-1 break-all">{currentUser?.email || ''}</p>
+                <p className="text-sm text-brand-info mt-1 break-all">{currentUser?.email || ''}</p>
                 <div className="mt-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-[11px] font-medium text-green-700">
                     <Shield className="h-3 w-3" />
@@ -261,12 +261,12 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                 </div>
               </div>
 
-              <DropdownMenuSeparator className="my-0 bg-gray-200" />
+              <DropdownMenuSeparator className="my-0 bg-brand-border" />
 
               <div className="py-1">
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-500 focus:bg-gray-50 focus:text-gray-700 cursor-pointer rounded-none"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-brand-text-light focus:bg-brand-selected focus:text-brand-text cursor-pointer rounded-none"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Logout</span>

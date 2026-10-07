@@ -91,7 +91,7 @@ const OpexOverview = () => {
         <Card className="bg-white border border-gray-200 shadow-sm">
           <CardHeader className="bg-gray-50/50 border-b border-gray-100">
             <CardTitle className="text-gray-900 flex items-center gap-2 text-lg font-bold">
-              <PieChart className="h-5 w-5 text-[#C72030]" />
+              <PieChart className="h-5 w-5 text-brand-text" />
               Expense Categories
             </CardTitle>
             <CardDescription className="text-gray-500">Breakdown by category this month</CardDescription>
@@ -102,7 +102,7 @@ const OpexOverview = () => {
                 <div key={index} className="space-y-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-2.5 h-2.5 bg-[#C72030] rounded-full" style={{ backgroundColor: `hsl(${index * 45}, 70%, 50%)` }}></div>
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ['#5A4BE0', '#2F6FE0', '#12A150', '#BFBFBD', '#E5484D'][index % 5] }}></div>
                       <span className="text-sm font-bold text-gray-700">{category.name}</span>
                     </div>
                     <div className="text-right">
@@ -111,7 +111,7 @@ const OpexOverview = () => {
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-1.5">
                     <div
-                      className="bg-[#C72030] h-1.5 rounded-full"
+                      className="bg-brand h-1.5 rounded-full"
                       style={{ width: `${category.percentage}%`, backgroundColor: `hsl(${index * 45}, 70%, 50%)` }}
                     ></div>
                   </div>
@@ -127,7 +127,7 @@ const OpexOverview = () => {
         <Card className="bg-white border border-gray-200 shadow-sm">
           <CardHeader className="bg-gray-50/50 border-b border-gray-100">
             <CardTitle className="text-gray-900 flex items-center gap-2 text-lg font-bold">
-              <Calendar className="h-5 w-5 text-[#C72030]" />
+              <Calendar className="h-5 w-5 text-brand-text" />
               Recent Transactions
             </CardTitle>
             <CardDescription className="text-gray-500">Latest expense entries</CardDescription>

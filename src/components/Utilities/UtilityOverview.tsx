@@ -38,9 +38,9 @@ const UtilityOverview = () => {
                   <p
                     className={`mt-0.5 flex items-center text-brand-caption ${
                       utility.trend === 'up'
-                        ? 'text-brand-error'
-                        : utility.trend === 'down'
                         ? 'text-brand-success'
+                        : utility.trend === 'down'
+                        ? 'text-brand-error'
                         : 'text-brand-text-light'
                     }`}
                   >

@@ -53,7 +53,7 @@ const Notifications = () => {
     switch (type) {
       case 'urgent': return <AlertCircle className="h-4 w-4 text-red-500" />;
       case 'warning': return <Clock className="h-4 w-4 text-orange-500" />;
-      default: return <CheckCircle className="h-4 w-4 text-blue-400" />;
+      default: return <CheckCircle className="h-4 w-4 text-[#C72030]" />;
     }
   };
 
@@ -61,7 +61,7 @@ const Notifications = () => {
     switch (type) {
       case 'urgent': return <Badge variant="destructive" className="shrink-0 px-2 py-0.5 text-[11px]">Urgent</Badge>;
       case 'warning': return <Badge className="shrink-0 bg-orange-100 px-2 py-0.5 text-[11px] text-orange-800">Warning</Badge>;
-      default: return <Badge variant="secondary" className="shrink-0 px-2 py-0.5 text-[11px]">Info</Badge>;
+      default: return <Badge variant="brand" className="shrink-0 px-2 py-0.5 text-[11px]">Info</Badge>;
     }
   };
 

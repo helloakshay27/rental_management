@@ -12,89 +12,93 @@
   /* =====================
      PRIMARY COLORS
      ===================== */
-  --color-primary: #da7756;
-  --color-primary-rgb: 218, 119, 86;
-  --color-primary-hover: rgba(218, 119, 86, 0.85);
-  --color-primary-light: rgba(218, 119, 86, 0.15);
-  --color-primary-selected: rgba(218, 119, 86, 0.08);
+  --color-primary: #1A1A18;
+  --color-primary-rgb: 26, 26, 24;
+  --color-primary-hover: #12100E;
+  --color-primary-light: rgba(26, 26, 24, 0.07);
+  --color-primary-selected: rgba(26, 26, 24, 0.07);
+  --color-accent: #D97757;
+  --color-accent-hover: rgba(217, 119, 87, 0.85);
+  --color-accent-light: rgba(217, 119, 87, 0.10);
+  --color-accent-selected: rgba(217, 119, 87, 0.15);
 
   /* Background & Text */
-  --color-bg: #f6f4ee;
-  --color-bg-rgb: 246, 244, 238;
-  --color-text: #2c2c2c;
-  --color-text-rgb: 44, 44, 44;
-  --color-text-light: #888780;
+  --color-bg: #FDFDFB;
+  --color-bg-rgb: 253, 253, 251;
+  --color-text: #1A1A18;
+  --color-text-rgb: 26, 26, 24;
+  --color-text-light: rgba(26, 26, 24, 0.48);
 
   /* =====================
      SECONDARY COLORS
      ===================== */
-  --color-secondary-green: #798c5e;
-  --color-secondary-green-rgb: 121, 140, 94;
-  --color-secondary-green-light: rgba(121, 140, 94, 0.15);
-  --color-secondary-green-bg: rgba(121, 140, 94, 0.3);
+  --color-secondary-green: #12A150;
+  --color-secondary-green-rgb: 18, 161, 80;
+  --color-secondary-green-light: rgba(18, 161, 80, 0.12);
+  --color-secondary-green-bg: rgba(18, 161, 80, 0.22);
 
-  --color-secondary-purple: #cecbf6;
-  --color-secondary-purple-rgb: 206, 203, 246;
-  --color-secondary-purple-light: rgba(206, 203, 246, 0.3);
-  --color-secondary-purple-bg: rgba(206, 203, 246, 0.3);
+  --color-secondary-purple: #5A4BE0;
+  --color-secondary-purple-rgb: 90, 75, 224;
+  --color-secondary-purple-light: rgba(90, 75, 224, 0.10);
+  --color-secondary-purple-bg: rgba(90, 75, 224, 0.18);
 
-  --color-secondary-teal: #9ec8ba;
-  --color-secondary-teal-rgb: 158, 200, 186;
-  --color-secondary-teal-light: rgba(158, 200, 186, 0.3);
-  --color-secondary-teal-bg: rgba(158, 200, 186, 0.3);
+  --color-secondary-teal: #2F6FE0;
+  --color-secondary-teal-rgb: 47, 111, 224;
+  --color-secondary-teal-light: rgba(47, 111, 224, 0.12);
+  --color-secondary-teal-bg: rgba(47, 111, 224, 0.18);
 
   /* =====================
      TERTIARY / SEMANTIC COLORS
      ===================== */
-  --color-info: #6b9bcc;
-  --color-info-rgb: 107, 155, 204;
-  --color-disabled: #d3d1c7;
-  --color-muted: #d3d1c7;
-  --color-tags: #cecbf6;
-  --color-danger: #e49191;
-  --color-danger-light: #f8dada;
-  --color-warning: #edc488;
-  --color-warning-light: #f8e4c7;
-  --color-growth: rgba(16, 140, 114, 0.3);
-  --color-growth-solid: #108c72;
+  --color-info: #2F6FE0;
+  --color-info-rgb: 47, 111, 224;
+  --color-disabled: rgba(26, 26, 24, 0.30);
+  --color-muted: #EBE9E2;
+  --color-tags: #EEEBFF;
+  --color-danger: #E5484D;
+  --color-danger-light: #FBDCDC;
+  --color-warning: #F2A312;
+  --color-warning-light: #FFF2D6;
+  --color-growth: rgba(18, 161, 80, 0.30);
+  --color-growth-solid: #12A150;
 
   /* =====================
      STATUS COLORS
      ===================== */
-  --color-success: #89f7e7;
-  --color-success-solid: #798c5e;
-  --color-success-bg: rgba(121, 140, 94, 0.15);
-  --color-error: #e7848e;
-  --color-error-bg: rgba(231, 132, 142, 0.15);
+  --color-success: #E0F7EA;
+  --color-success-solid: #0E7F3F;
+  --color-success-bg: rgba(18, 161, 80, 0.12);
+  --color-error: #A32126;
+  --color-error-bg: rgba(229, 72, 77, 0.12);
   --color-exception: #aab9c5;
 
   /* =====================
      SURFACE & BORDER COLORS
      ===================== */
-  --color-card-border: #c4b89d;
-  --color-card-bg: #f6f4ee;
+  --color-card-border: rgba(26, 26, 24, 0.08);
+  --color-card-bg: #F5F4F0;
   --color-card-white: #ffffff;
-  --color-border-subtle: #d5dbdb;
-  --color-divider: #e5e5e5;
+  --color-border-subtle: rgba(26, 26, 24, 0.08);
+  --color-divider: #EBE9E2;
 
   /* Tabs & stat cards */
-  --color-tab-active-bg: #edeae3;
-  --color-stat-card-bg: #f6f4ee;
-  --color-stat-card-selected-bg: #e6e2da;
-  --color-stat-icon-bg: rgba(196, 184, 157, 0.33);
+  --color-tab-active-bg: rgba(26, 26, 24, 0.07);
+  --color-stat-card-bg: #F5F4F0;
+  --color-stat-card-selected-bg: rgba(26, 26, 24, 0.07);
+  --color-stat-icon-bg: #FFFFFF;
 
   /* Sidebar */
-  --color-sidebar: #c4b89d;
-  --color-sidebar-hover: #dbc2a9;
-  --color-sidebar-active-bg: #f0e8dc;
-  --color-sidebar-border: #e5e1d8;
+  --color-sidebar: #FDFDFB;
+  --color-sidebar-hover: #F7F6F2;
+  --color-sidebar-active-bg: rgba(26, 26, 24, 0.07);
+  --color-sidebar-border: rgba(26, 26, 24, 0.08);
 
   /* =====================
      GRADIENT TOKENS
      ===================== */
-  --gradient-highlight: radial-gradient(circle, #f6f4ee 0%, #2c2c2c 100%);
-  --gradient-primary: linear-gradient(135deg, #da7756 0%, #c4b89d 100%);
-  --gradient-card: linear-gradient(180deg, #ffffff 0%, #f6f4ee 100%);
+  --gradient-highlight: radial-gradient(circle, #FDFDFB 0%, #1A1A18 100%);
+  --gradient-primary: linear-gradient(135deg, #1A1A18 0%, #34332F 100%);
+  --gradient-card: linear-gradient(180deg, #ffffff 0%, #F5F4F0 100%);
 
   /* =====================
      SHADOW TOKENS
@@ -336,7 +340,7 @@ select:focus {
 
 /* ===========================================
    OVERRIDE LEGACY RED COLORS (#C72030)
-   Replace old brand red with new primary #DA7756
+   Replace old brand red with the new ink primary
    =========================================== */
 
 /* Text colors */
@@ -419,7 +423,7 @@ select:focus {
 /* Tan stat-card icon chips */
 .bg-\[\#C4B89D54\],
 [class*="bg-[#C4B89D54]"] {
-  background-color: rgba(196, 184, 157, 0.33) !important;
+  background-color: var(--color-stat-icon-bg) !important;
   border-radius: var(--radius-md) !important;
 }
 
@@ -831,26 +835,26 @@ svg.text-red-500.fill-red-500 {
    =========================================== */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-card-border);
+  background: rgba(0, 0, 0, 0.12);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-light);
+  background: rgba(0, 0, 0, 0.22);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-card-border) var(--color-bg);
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
 }
 
 /* ===========================================

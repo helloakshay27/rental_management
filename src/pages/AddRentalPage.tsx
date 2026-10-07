@@ -1523,7 +1523,7 @@ const AddRentalPage = () => {
                                     variant="outline"
                                     onClick={() => removeParking(index)}
                                     disabled={parkings.length === 1}
-                                    className="border-red-600 text-red-600 hover:bg-red-50 w-full"
+                                    className="w-full"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>

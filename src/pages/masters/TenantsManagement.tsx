@@ -475,7 +475,7 @@ const TenantsManagement = () => {
                 variant="outline"
                 onClick={handleCloseDialog}
                 disabled={isLoading}
-                className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+                className=""
               >
                 Cancel
               </Button>
