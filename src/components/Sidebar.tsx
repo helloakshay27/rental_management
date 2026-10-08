@@ -127,7 +127,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   return (
     <div
       className={cn(
-        'relative bg-brand-bg flex flex-col h-screen shrink-0 overflow-hidden border-r border-brand-sidebar-border',
+        'relative bg-brand-sidebar flex flex-col h-screen shrink-0 overflow-hidden border-r border-brand-sidebar-border',
         'transition-[width] duration-300 ease-in-out motion-reduce:transition-none',
         isCollapsed ? 'w-16' : 'w-64'
       )}
@@ -164,7 +164,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-expanded={!isCollapsed}
           className={cn(
-            'flex items-center justify-center rounded-lg text-brand-text/60 hover:text-brand-text hover:bg-brand-sidebar-hover',
+            'flex items-center justify-center rounded-lg text-[rgba(26,26,24,0.48)] hover:text-[#1A1A18] hover:bg-brand-sidebar-hover',
             'transition-all duration-300 ease-in-out active:scale-90 motion-reduce:transition-none',
             isCollapsed
               ? 'w-7 h-7 border border-brand-sidebar-border'
@@ -205,13 +205,18 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                   title={item.label}
                   aria-label={item.label}
                   className={cn(
-                    'relative flex items-center justify-center w-10 h-10 rounded-[10px] transition-colors duration-150',
+                    'group relative flex items-center justify-center w-10 h-10 rounded-[10px] transition-all duration-150',
                     active
-                      ? 'bg-brand-stat'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-brand-sidebar-active'
+                      : 'hover:bg-brand-sidebar-hover'
                   )}
                 >
-                  <Icon className="w-4 h-4 text-black" />
+                  <Icon
+                    className={cn(
+                      'w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5',
+                      active ? 'text-[#1A1A18]' : 'text-[rgba(26,26,24,0.62)]'
+                    )}
+                  />
                 </button>
               );
             })}
@@ -231,12 +236,14 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                     <button
                       onClick={() => toggleExpanded(item.label)}
                       className={cn(
-                        'relative flex items-center justify-between w-full gap-3 px-3 py-[9px] rounded-[10px] text-[13.5px] font-medium transition-colors duration-150',
-                        active ? 'bg-brand-stat text-black' : 'text-black hover:bg-gray-50'
+                        'group relative flex items-center justify-between w-full gap-3 px-3 py-[9px] rounded-[10px] text-[13.5px] font-medium transition-colors duration-150',
+                        active
+                          ? 'bg-brand-sidebar-active text-[#1A1A18]'
+                          : 'text-[rgba(26,26,24,0.62)] hover:bg-brand-sidebar-hover hover:text-[#1A1A18]'
                       )}
                     >
                       <span className="flex items-center gap-3">
-                        <Icon className="w-4 h-4 text-black" />
+                        <Icon className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
                         {item.label}
                       </span>
                       {isExpanded ? (
@@ -256,13 +263,13 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                               key={subItem.path}
                               to={subItem.path}
                               className={cn(
-                                'relative flex items-center w-full px-3 py-[9px] rounded-[10px] text-[13.5px] transition-colors duration-150',
+                                'group relative flex items-center w-full px-3 py-[9px] rounded-[10px] text-[13.5px] transition-colors duration-150',
                                 subActive
-                                  ? 'bg-brand-stat text-black font-medium'
-                                  : 'text-black hover:bg-gray-50'
+                                  ? 'bg-brand-sidebar-active text-[#1A1A18] font-medium'
+                                  : 'text-[rgba(26,26,24,0.62)] hover:bg-brand-sidebar-hover hover:text-[#1A1A18]'
                               )}
                             >
-                              <SubIcon className="mr-2 h-4 w-4 shrink-0 text-black" />
+                              <SubIcon className="mr-2 h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5" />
                               {subItem.label}
                             </Link>
                           );
@@ -278,11 +285,13 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    'relative flex items-center gap-3 w-full px-3 py-[9px] rounded-[10px] text-[13.5px] font-medium transition-colors duration-150',
-                    active ? 'bg-brand-stat text-black' : 'text-black hover:bg-gray-50'
+                    'group relative flex items-center gap-3 w-full px-3 py-[9px] rounded-[10px] text-[13.5px] font-medium transition-colors duration-150',
+                    active
+                      ? 'bg-brand-sidebar-active text-[#1A1A18]'
+                      : 'text-[rgba(26,26,24,0.62)] hover:bg-brand-sidebar-hover hover:text-[#1A1A18]'
                   )}
                 >
-                  <Icon className="w-4 h-4 text-black" />
+                  <Icon className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
                   {item.label}
                 </Link>
               );

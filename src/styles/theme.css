@@ -92,6 +92,8 @@
   --color-sidebar-hover: #F7F6F2;
   --color-sidebar-active-bg: rgba(26, 26, 24, 0.07);
   --color-sidebar-border: rgba(26, 26, 24, 0.08);
+  --color-sidebar-text: rgba(26, 26, 24, 0.62);
+  --color-sidebar-text-active: #1A1A18;
 
   /* =====================
      GRADIENT TOKENS

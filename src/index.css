@@ -86,6 +86,13 @@
     @apply border-border;
   }
 
+  @keyframes tab-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
   html {
     height: 100%;
     overflow: hidden;
@@ -217,6 +224,51 @@
     @apply w-full px-4 py-3 border border-brand-border rounded-md bg-brand-card text-brand-text focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand;
   }
 
+  .dropzone,
+  label:has(input[type="file"]),
+  div:has(> input[type="file"].absolute.inset-0.opacity-0) {
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .dropzone:hover,
+  label:has(input[type="file"]):hover,
+  div:has(> input[type="file"].absolute.inset-0.opacity-0):hover {
+    border-color: rgba(26, 26, 24, 0.28) !important;
+    background-color: var(--color-sidebar-hover) !important;
+    box-shadow: 0 0 0 4px rgba(26, 26, 24, 0.04);
+  }
+
+  .dropzone svg,
+  label:has(input[type="file"]) svg,
+  div:has(> input[type="file"].absolute.inset-0.opacity-0) svg {
+    transition:
+      color var(--transition-fast),
+      transform 0.34s cubic-bezier(0.34, 1.4, 0.5, 1);
+  }
+
+  .dropzone:hover svg,
+  label:has(input[type="file"]):hover svg,
+  div:has(> input[type="file"].absolute.inset-0.opacity-0):hover svg {
+    color: var(--color-text) !important;
+    transform: translateY(-1px);
+  }
+
+  input[type="file"] {
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  input[type="file"]:hover {
+    border-color: rgba(26, 26, 24, 0.28);
+    background-color: var(--color-sidebar-hover);
+  }
+
   /* ---------------------------------------------
      TABLES
      --------------------------------------------- */
@@ -232,12 +284,37 @@
      SIDEBAR
      --------------------------------------------- */
   .sidebar-item {
-    @apply flex items-center px-4 py-3 text-brand-text hover:bg-brand-selected rounded-md font-medium;
+    @apply flex items-center px-4 py-3 hover:bg-brand-sidebar-hover rounded-md font-medium;
+    color: var(--color-sidebar-text);
     transition: all var(--transition-normal);
   }
 
   .sidebar-item-active {
-    @apply flex items-center px-4 py-3 bg-brand-selected text-brand-text rounded-md font-medium;
+    @apply flex items-center px-4 py-3 bg-brand-sidebar-active rounded-md font-medium;
+    color: var(--color-sidebar-text-active);
+  }
+
+  [data-sidebar="sidebar"],
+  [data-sidebar="content"],
+  [data-sidebar="menu"],
+  [data-sidebar="group"] {
+    color: var(--color-sidebar-text);
+  }
+
+  [data-sidebar="menu-button"],
+  [data-sidebar="menu-sub-button"],
+  [data-sidebar="group-label"],
+  [data-sidebar="menu-action"],
+  [data-sidebar="menu-badge"] {
+    color: var(--color-sidebar-text);
+  }
+
+  [data-sidebar="menu-button"]:hover,
+  [data-sidebar="menu-sub-button"]:hover,
+  [data-sidebar="menu-action"]:hover,
+  [data-sidebar="menu-button"][data-active="true"],
+  [data-sidebar="menu-sub-button"][data-active="true"] {
+    color: var(--color-sidebar-text-active);
   }
 }
 
