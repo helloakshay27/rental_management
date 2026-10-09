@@ -14,21 +14,21 @@ interface AddUtilityDialogProps {
 const AddUtilityDialog: React.FC<AddUtilityDialogProps> = ({ open, onOpenChange }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add Utility Service</DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogTitle className="text-sm font-semibold">Add Utility Service</DialogTitle>
+          <DialogDescription>
             Register a new utility service for a property
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="utility-type" className="text-gray-700">Utility Type</Label>
+            <Label htmlFor="utility-type">Utility Type</Label>
             <Select>
-              <SelectTrigger className="bg-white border-gray-200">
+              <SelectTrigger>
                 <SelectValue placeholder="Select utility type" />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent>
                 <SelectItem value="electricity">Electricity</SelectItem>
                 <SelectItem value="water">Water</SelectItem>
                 <SelectItem value="gas">Gas</SelectItem>
@@ -37,18 +37,18 @@ const AddUtilityDialog: React.FC<AddUtilityDialogProps> = ({ open, onOpenChange 
             </Select>
           </div>
           <div>
-            <Label htmlFor="provider" className="text-gray-700">Service Provider</Label>
-            <Input id="provider" placeholder="Enter provider name" className="bg-white border-gray-200" />
+            <Label htmlFor="provider">Service Provider</Label>
+            <Input id="provider" placeholder="Enter provider name" />
           </div>
           <div>
-            <Label htmlFor="account-number" className="text-gray-700">Account Number</Label>
-            <Input id="account-number" placeholder="Enter account number" className="bg-white border-gray-200" />
+            <Label htmlFor="account-number">Account Number</Label>
+            <Input id="account-number" placeholder="Enter account number" />
           </div>
           <div className="flex space-x-3 pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 border-gray-200">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={() => onOpenChange(false)} className="flex-1 fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => onOpenChange(false)} className="flex-1">
               Add Utility
             </Button>
           </div>

@@ -1,0 +1,259 @@
+/* Matches fm-matrix-revamp's asset maintenance controls: styles/theme.css
+   (table structure, field radius/focus) and styles/enhanced-select.css
+   (outlined form field heights and labels). Keep after the base theme. */
+:root {
+  --radius-input: 12px;
+  --color-input-focus-border: var(--color-primary);
+  --color-input-focus-ring: transparent;
+}
+
+html body input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]),
+html body textarea,
+html body select,
+html body button[role="combobox"] {
+  border-radius: var(--radius-input) !important;
+  border: 1px solid rgba(26, 26, 24, .12) !important;
+  background-color: #fff !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--color-text) !important;
+  min-height: 44px !important;
+  height: auto !important;
+}
+
+/* Restore error-state border */
+html body input.border-red-500,
+html body textarea.border-red-500,
+html body button[role="combobox"].border-red-500,
+html body input.border-brand-error,
+html body textarea.border-brand-error,
+html body button[role="combobox"].border-brand-error {
+  border-color: #e5484d !important;
+}
+
+html body input:not([type="checkbox"]):not([type="radio"]):focus,
+html body input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+html body textarea:focus,
+html body textarea:focus-visible,
+html body select:focus,
+html body button[role="combobox"]:focus,
+html body button[role="combobox"][data-state="open"] {
+  border-color: var(--color-input-focus-border) !important;
+  box-shadow: 0 0 0 4px var(--color-input-focus-ring) !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-width: 0px !important;
+  outline: none !important;
+}
+
+html body input:disabled:not([type="checkbox"]):not([type="radio"]),
+html body textarea:disabled,
+html body button[role="combobox"]:disabled {
+  background-color: #f5f4f0 !important;
+  -webkit-text-fill-color: rgba(26, 26, 24, 0.48) !important;
+}
+
+/* Existing label/control pairs receive the same notched outline as the
+   reference's MUI fields, without changing their values or event handlers. */
+.asset-form-section div:not(.field-group):has(> label):has(> :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, button[role="combobox"])) {
+  position: relative;
+  padding-top: 0;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+html body .asset-form-section div:not(.field-group):has(> :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, button[role="combobox"])) > label {
+  position: absolute;
+  top: -9px;
+  left: 14px;
+  z-index: 1;
+  max-width: calc(100% - 28px);
+  padding: 0 6px;
+  background: #fff;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, button[role="combobox"]) {
+  margin-top: 0 !important;
+  background-color: #fff;
+  border: 1px solid #ccc !important;
+  padding: 8px 12px;
+  font-size: 16px;
+}
+
+html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), button[role="combobox"]) {
+  height: 36px;
+}
+
+html body .asset-form-section label ~ :is(input, textarea, button[role="combobox"]):focus,
+html body .asset-form-section label ~ button[role="combobox"][data-state="open"] {
+  border-color: var(--color-input-focus-border) !important;
+}
+
+@media (min-width: 640px) {
+  html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), button[role="combobox"]) {
+    height: 40px;
+    padding: 10px 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), button[role="combobox"]) {
+    height: 45px;
+    padding: 12px 14px;
+  }
+}
+
+/* Table reference: Downloads/asset-management.html (.tw, .tr, .gbtn). */
+html body div.rounded-lg:has(> .table-container) {
+  background-color: #fff !important;
+  box-shadow: none !important;
+  border: 1px solid rgba(26, 26, 24, 0.09) !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+html body table thead th:not(.analytics-header),
+html body table th:not(.analytics-header) {
+  height: auto !important;
+  padding: 13px 14px !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+  line-height: 1.4 !important;
+  color: rgba(26, 26, 24, 0.48) !important;
+  background-color: #f5f4f0 !important;
+  border-bottom: none !important;
+}
+
+html body table thead th:not(.analytics-header) > *,
+html body table thead th:not(.analytics-header) span,
+html body table thead th:not(.analytics-header) div {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+  text-transform: inherit !important;
+  color: inherit !important;
+}
+
+html body table tbody td {
+  padding: 13px 6px !important;
+  font-size: 12.5px !important;
+  line-height: 1.4;
+  color: rgba(26, 26, 24, 0.68) !important;
+  border-bottom: 1px solid rgba(26, 26, 24, 0.08) !important;
+}
+
+html body table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+html body table tbody tr:hover,
+html body table tbody tr:hover > .frozen-body-cell {
+  background-color: #f7f6f2 !important;
+}
+
+html body table tbody tr.bg-blue-50,
+html body table tbody tr.bg-blue-50 > td {
+  background-color: rgba(26, 26, 24, 0.04) !important;
+}
+
+html body .table-container table th,
+html body .table-container table td,
+html body table.enhancedTable th,
+html body table.enhancedTable td {
+  border-left-width: 0 !important;
+  border-right-width: 0 !important;
+}
+
+/* The reference uses a 12px grid gap and 20px at each row's outer edge. */
+html body table tr > :first-child {
+  padding-left: 20px !important;
+}
+
+html body table tr > :last-child {
+  padding-right: 20px !important;
+}
+
+html body table :is(th, td) {
+  border-left-width: 0 !important;
+  border-right-width: 0 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shared across plain, enhanced, and frozen table headers. */
+html body table thead tr > :not(:last-child),
+html body table tr > th:not(:last-child) {
+  border-right: 1px solid #fff !important;
+}
+
+/* Square row actions: .gbtn is 32px, its eye/edit/delete icon is 16px.
+   Explicit square-button selectors avoid shrinking text actions and selects. */
+html body table tbody :is(button, a):is(
+  [data-size="icon"],
+  [class~="h-6"][class~="w-6"],
+  [class~="h-7"][class~="w-7"],
+  [class~="h-8"][class~="w-8"],
+  [class~="h-9"][class~="w-9"],
+  [class~="h-10"][class~="w-10"]
+):not([role="checkbox"]):not([role="combobox"]):not(.bg-brand) {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: rgba(26, 26, 24, 0.48) !important;
+  display: inline-grid;
+  place-items: center;
+  transition: background-color 160ms, color 160ms;
+}
+
+html body table tbody :is(button, a):is(
+  [data-size="icon"],
+  [class~="h-6"][class~="w-6"],
+  [class~="h-7"][class~="w-7"],
+  [class~="h-8"][class~="w-8"],
+  [class~="h-9"][class~="w-9"],
+  [class~="h-10"][class~="w-10"]
+):not([role="checkbox"]):not([role="combobox"]):not(.bg-brand):hover {
+  background: #f5f4f0 !important;
+  color: #1a1a18 !important;
+}
+
+html body table tbody :is(button, a):not([role="checkbox"]):not([role="combobox"]) > svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+  stroke-width: 1.8;
+  color: inherit !important;
+}
+
+html body table button[role="checkbox"] svg,
+html body table thead svg {
+  width: 12px !important;
+  height: 12px !important;
+  stroke-width: 1.8;
+}
+
+html body table button[role="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 5px !important;
+  border: 1.5px solid rgba(26, 26, 24, 0.22) !important;
+  background-color: transparent !important;
+  color: #fff !important;
+}
+
+html body table button[role="checkbox"][data-state="checked"],
+html body table button[role="checkbox"][data-state="indeterminate"] {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}

@@ -3,6 +3,8 @@ import { PostHogProvider } from 'posthog-js/react'
 import App from './App.tsx'
 import './index.css'
 import './styles/theme.css' // Lockated Brand Theme - edit this file for global color changes
+import './styles/asset-controls.css'
+import './styles/form-sections.css'
 import { initPostHog, posthog } from './lib/posthog.ts'
 
 // Analytics is configured and started before React renders — see lib/posthog.ts for why.

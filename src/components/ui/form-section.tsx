@@ -1,14 +1,12 @@
 import React from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Building2, CalendarDays, Car, ChevronDown, CircleDollarSign, ClipboardList, FileText, Paperclip, ShieldCheck, User, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
  * Section card for Add/Edit pages.
  *
- * Ported from fm-matrix-revamp's `AddAssetAuditPage`
- * (`/maintenance/audit/assets/add`): a white card with a clickable header
- * carrying a brand-filled numbered circle, an ALL-CAPS brand-coloured title and
- * a chevron that collapses the body.
+ * Shared screenshot-style section: white rounded shell, compact icon,
+ * uppercase title and an accessible collapse button.
  *
  *   <FormSection step={1} title="Basic details">
  *     <FormGrid>…fields…</FormGrid>
@@ -17,8 +15,9 @@ import { cn } from '@/lib/utils';
 
 interface FormSectionProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
     title: React.ReactNode;
-    /** Number shown in the circle. Omit for an un-numbered section. */
+    /** Legacy section order; step numbering belongs in the form's stepper. */
     step?: number;
+    icon?: LucideIcon;
     /** Set false to render a static header with no chevron. */
     collapsible?: boolean;
     defaultOpen?: boolean;
@@ -27,6 +26,7 @@ interface FormSectionProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 't
 export const FormSection: React.FC<FormSectionProps> = ({
     title,
     step,
+    icon,
     collapsible = true,
     defaultOpen = true,
     className,
@@ -34,29 +34,28 @@ export const FormSection: React.FC<FormSectionProps> = ({
     ...props
 }) => {
     const [expanded, setExpanded] = React.useState(defaultOpen);
+    const contentId = React.useId();
+    const titleId = React.useId();
+    const isOpen = !collapsible || expanded;
+    const label = typeof title === 'string' ? title.toLowerCase() : '';
+    const Icon = icon ?? (
+        /attachment|document|file/.test(label) ? Paperclip :
+        /parking|vehicle/.test(label) ? Car :
+        /date|period|schedule/.test(label) ? CalendarDays :
+        /rent|charge|payment|tax|cost|penalty/.test(label) ? CircleDollarSign :
+        /property|facility|amenit/.test(label) ? Building2 :
+        /tenant|lessee|landlord|signing|contact/.test(label) ? User :
+        /compliance|review/.test(label) ? ShieldCheck :
+        /agreement|term/.test(label) ? FileText : ClipboardList
+    );
+    const heading = <><span className="form-section-icon"><Icon aria-hidden="true" /></span><span className="form-section-title">{title}</span>{collapsible && <ChevronDown aria-hidden="true" className={cn('form-section-chevron', isOpen && 'is-open')} />}</>;
 
     return (
-        <div className={cn('rounded-lg border bg-white shadow-sm', className)} {...props}>
-            <div
-                className={cn(
-                    'flex items-center justify-between p-4',
-                    expanded && 'border-b',
-                    collapsible && 'cursor-pointer'
-                )}
-                onClick={collapsible ? () => setExpanded(!expanded) : undefined}
-            >
-                <div className="flex items-center gap-3">
-                    {step !== undefined && (
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand">
-                            <span className="text-sm text-white">{step}</span>
-                        </div>
-                    )}
-                    <h2 className="text-brand-body-3 font-semibold text-brand">{title}</h2>
-                </div>
-                {collapsible && (expanded ? <ChevronUp /> : <ChevronDown />)}
-            </div>
-
-            {expanded && <div className="p-4 sm:p-6">{children}</div>}
+        <div className={cn('asset-form-section form-section-shell', className)} {...props}>
+            <h2 id={titleId} className="form-section-heading">
+                {collapsible ? <button type="button" className="form-section-header" aria-expanded={isOpen} aria-controls={contentId} onClick={() => setExpanded(value => !value)}>{heading}</button> : <span className="form-section-header">{heading}</span>}
+            </h2>
+            <div id={contentId} aria-labelledby={titleId} hidden={!isOpen} className="form-section-content">{children}</div>
         </div>
     );
 };

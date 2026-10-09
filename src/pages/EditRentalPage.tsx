@@ -1,5 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import './add-rental.css';
+import { FormSection, FormGrid, FormActions } from '@/components/ui/form-section';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RentalPartyDetails } from '@/components/Rental/RentalPartyDetails';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,13 +13,23 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Calendar, Clock, Car, Bike, Plus, Trash2, MapPin, Building2, User, FileText, Download, ExternalLink } from 'lucide-react';
+import { Calendar, Car, Bike, Plus, Trash2, FileText, Download, ExternalLink } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth, patchAuth, getToken, getBaseUrl } from '@/lib/api';
 import { toast } from 'sonner';
 import AgreementServicesSection from '@/components/Rental/AgreementServicesSection';
 import { Heading, Text } from '@/components/ui/typography';
 import { trackUpdated, trackFailed } from '@/utils/analytics';
+
+const STEPS = ['Property & Lessee', 'Agreement & Dates', 'Rent & Taxes', 'Terms & Payments', 'Facilities', 'Documents & Review'];
+const STEP_HELP = [
+    'Choose the property and lessee for this rental.',
+    'Set the agreement details, lease dates and applicable periods.',
+    'Configure rent, taxes, deposit and maintenance charges.',
+    'Set payment dates, escalation, penalties and notice terms.',
+    'Add parking spaces and select the included amenities.',
+    'Complete additional fields, attach the agreement and review your rental.',
+];
 
 const EditRentalPage = () => {
     const navigate = useNavigate();
@@ -38,6 +53,10 @@ const EditRentalPage = () => {
     const [loadingAmenities, setLoadingAmenities] = useState(true)
     const [existingDocuments, setExistingDocuments] = useState<any[]>([]);
     const [deletedDocuments, setDeletedDocuments] = useState<any[]>([]);
+
+    const [step, setStep] = useState(0);
+    const stepHeadingRef = useRef<HTMLDivElement>(null);
+    const goToStep = (n: number) => { setStep(n); setTimeout(() => stepHeadingRef.current?.focus(), 50); };
 
     const renderValue = (val: any) => {
         if (val === null || val === undefined) return '';
@@ -630,19 +649,32 @@ const EditRentalPage = () => {
     };
 
     return (
-        <div className="p-6 space-y-5">
-            <div className="mb-8">
-                <Heading level="h1">Edit Rental</Heading>
-                <Text size="sm" variant="muted">Update rental agreement details</Text>
+        <PageContainer className="rental-wizard">
+            <PageHeader title="Edit Rental" subtitle="Update rental agreement details" />
+
+            <Tabs value={String(step)} onValueChange={(value) => goToStep(Number(value))} activationMode="manual">
+                <TabsList>
+                    {STEPS.map((label, index) => (
+                        <TabsTrigger key={index} value={String(index)} id={`rental-tab-${index}`} aria-controls={`rental-step-${index}`}>
+                            <span className="rental-step-number">{index + 1}</span>
+                            {label}
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
+
+            <div className="rental-step-heading" ref={stepHeadingRef} tabIndex={-1}>
+                <h2>{STEPS[step]}</h2>
+                <p>{STEP_HELP[step]}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                {/* Left Column */}
-                <div className="space-y-5">
+            {/* Step 0: Property & Lessee */}
+            <div role="tabpanel" id="rental-step-0" aria-labelledby="rental-tab-0" hidden={step !== 0} className="rental-step-panel">
+                <FormSection title="Property & Lessee">
                     <div className="space-y-2 w-full">
                         <Label className="text-sm text-gray-900 font-medium">Circle *</Label>
                         <Select value={formData.circle} onValueChange={handleCircleSelect}>
-                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.circle ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
+                            <SelectTrigger className={`h-9 w-full ${fieldErrors.circle ? 'border-red-500 ring-2 ring-red-200' : ''}`}>
                                 <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -658,7 +690,7 @@ const EditRentalPage = () => {
                     <div className="space-y-2 w-full">
                         <Label className="text-sm text-gray-900 font-medium">Select Property *</Label>
                         <Select value={formData.property} onValueChange={handlePropertySelect}>
-                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.property ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
+                            <SelectTrigger className={`h-9 w-full ${fieldErrors.property ? 'border-red-500 ring-2 ring-red-200' : ''}`}>
                                 <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -671,144 +703,7 @@ const EditRentalPage = () => {
                         </Select>
                     </div>
 
-                    {selectedPropertyDetails && (
-                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg w-full">
-                            <h4 className="font-semibold text-md mb-4 text-gray-900">Property & Landlord Details:</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-2">
-                                        <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Property:</p>
-                                            <p className="text-sm text-gray-900">
-                                                Property Name: {renderValue(selectedPropertyDetails.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Address: {renderValue(selectedPropertyDetails.address)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                City: {renderValue(selectedPropertyDetails?.pms_city?.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Zone: {renderValue(selectedPropertyDetails?.zone?.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                State: {renderValue(selectedPropertyDetails?.state)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Country: {renderValue(selectedPropertyDetails?.country)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Pin Code: {renderValue(selectedPropertyDetails?.postal_code)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Built Year: {renderValue(selectedPropertyDetails?.built_year)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                {renderValue(selectedPropertyDetails.property_type)}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-2">
-                                        <MapPin className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Facility type:</p>
-                                            <p className="text-sm text-gray-900">
-                                                {renderValue(selectedPropertyDetails?.pms_site_facility?.facility_type?.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-900">
-                                                Remarks: {renderValue(selectedPropertyDetails?.description)}
-                                            </p>
-                                            <p className="text-sm text-gray-900">
-                                                Owned/Leased: {renderValue(selectedPropertyDetails?.ownership_type)}
-                                            </p>
-                                            <p className="text-sm text-gray-900">
-                                                ITES Certification (Yes / No): {renderValue(selectedPropertyDetails?.ites_certified ? 'Yes' : 'No')}
-                                            </p>
-                                            {
-                                                selectedPropertyDetails?.ites_certified && (
-                                                    <p className="text-sm text-gray-900">
-                                                        ITES Certificate is Valid till what date: {renderValue(selectedPropertyDetails?.ites_certified_till)}
-                                                    </p>
-                                                )
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-2">
-                                        <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Area Details:</p>
-                                            <p className="text-sm text-gray-900">
-                                                Chargable Area: {renderValue(selectedPropertyDetails.leasable_area)} sq ft
-                                            </p>
-                                            {selectedPropertyDetails.carpet_area && (
-                                                <p className="text-sm text-gray-600">
-                                                    Carpet Area: {renderValue(selectedPropertyDetails.carpet_area)} sq ft
-                                                </p>
-                                            )}
-                                            {selectedPropertyDetails.area_efficiency && (
-                                                <p className="text-sm text-gray-600">
-                                                    Efficiency: {renderValue(selectedPropertyDetails.area_efficiency)}%
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {selectedPropertyDetails.landlord && (
-                                        <div className="flex items-start gap-2">
-                                            <User className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Landlord / Lessor Details:</p>
-                                                {selectedPropertyDetails.landlord.company_name && (
-                                                    <p className="text-sm text-gray-900">
-                                                        Company Name: {renderValue(selectedPropertyDetails.landlord.company_name)}
-                                                    </p>
-                                                )}
-                                                <p className="text-sm text-gray-900">
-                                                    Contact Person: <span className="capitalize">{renderValue(selectedPropertyDetails.landlord.contact_person)}</span>
-                                                </p>
-                                                <p className="text-sm text-gray-600">
-                                                    Email: {renderValue(selectedPropertyDetails.landlord.email)}
-                                                </p>
-                                                <p className="text-sm text-gray-600">
-                                                    Phone No: {renderValue(selectedPropertyDetails.landlord.phone)}
-                                                </p>
-                                                {selectedPropertyDetails.landlord.pan && (
-                                                    <p className="text-sm text-gray-600">
-                                                        PAN No: {renderValue(selectedPropertyDetails.landlord.pan)}
-                                                    </p>
-                                                )}
-                                                {selectedPropertyDetails.landlord.gst && (
-                                                    <p className="text-sm text-gray-600">
-                                                        GST: {renderValue(selectedPropertyDetails.landlord.gst)}
-                                                    </p>
-                                                )}
-                                                {selectedPropertyDetails.landlord.aadhaar_number && (
-                                                    <p className="text-sm text-gray-600">
-                                                        Aadhar No: {renderValue(selectedPropertyDetails.landlord.aadhaar_number)}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-start gap-2">
-                                        <User className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Compliences</p>
-                                            <p className="text-sm text-gray-900">
-                                                {selectedPropertyDetails?.property_compliances?.map((compliance) => compliance?.compliance_requirement?.title)?.join(', ')}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <RentalPartyDetails property={selectedPropertyDetails} tenant={null} />
 
                     <div className="space-y-1.5">
                         <Label className="text-sm text-gray-900 font-medium">Property Takeover Condition *</Label>
@@ -816,7 +711,7 @@ const EditRentalPage = () => {
                             value={formData.property_takeover_condition_id}
                             onValueChange={(value) => { setFormData(prev => ({ ...prev, property_takeover_condition_id: value })); setFieldErrors(prev => ({ ...prev, property_takeover_condition_id: false })); }}
                         >
-                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.property_takeover_condition_id ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
+                            <SelectTrigger className={`h-9 w-full ${fieldErrors.property_takeover_condition_id ? 'border-red-500 ring-2 ring-red-200' : ''}`}>
                                 <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
                             </SelectTrigger>
                             <SelectContent>
@@ -828,112 +723,208 @@ const EditRentalPage = () => {
                             </SelectContent>
                         </Select>
                     </div>
+                </FormSection>
 
+                <FormSection title="Lessee & Signing Authority">
                     <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Agreement Type *</Label>
-                        <Select
-                            value={formData.aggreement_type}
-                            onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
-                        >
-                            <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.aggreement_type ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
-                                <SelectValue placeholder={"Select agreement type"} />
+                        <Label className="text-sm text-gray-900 font-medium">Lessee *</Label>
+                        <Select value={formData.tenant} onValueChange={handleTenantSelect}>
+                            <SelectTrigger className={`h-9 w-full ${fieldErrors.tenant ? 'border-red-500 ring-2 ring-red-200' : ''}`}>
+                                <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {["Lease Agreement", "Leave & License Agreement", "Sale Deed", "Addendum", "Side Letter", "Annexure"].map((condition) => (
-                                    <SelectItem key={condition} value={condition}>
-                                        {condition}
+                                {tenants.map((tenant) => (
+                                    <SelectItem key={tenant.id} value={tenant.id.toString()}>
+                                        {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
 
+                    <RentalPartyDetails property={null} tenant={selectedTenantDetails} />
+
                     <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Purpose of Agreement</Label>
-                        <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
-                            <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
-                                <SelectValue placeholder="Select purpose" />
+                        <Label className="text-sm text-gray-900 font-medium">Status</Label>
+                        <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                            <SelectTrigger className="h-9">
+                                <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="New Office">New Office</SelectItem>
-                                <SelectItem value="Renewal">Renewal</SelectItem>
-                                <SelectItem value="Change of Location">Change of Location</SelectItem>
-                                <SelectItem value="Change of Area">Change of Area</SelectItem>
-                                <SelectItem value="Change of ownership">Change of ownership</SelectItem>
-                                <SelectItem value="Name Change">Name Change</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
+                </FormSection>
+            </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
-                        <Input
-                            type="text"
-                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                            value={formData.stamp_duty_sharing}
-                            onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
-                        />
-                    </div>
+            {/* Step 1: Agreement & Dates */}
+            <div role="tabpanel" id="rental-step-1" aria-labelledby="rental-tab-1" hidden={step !== 1} className="rental-step-panel">
+                <FormSection title="Agreement & Dates">
+                    <FormGrid>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Agreement Type *</Label>
+                            <Select
+                                value={formData.aggreement_type}
+                                onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
+                            >
+                                <SelectTrigger className={`h-9 w-full ${fieldErrors.aggreement_type ? 'border-red-500 ring-2 ring-red-200' : ''}`}>
+                                    <SelectValue placeholder={"Select agreement type"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {["Lease Agreement", "Leave & License Agreement", "Sale Deed", "Addendum", "Side Letter", "Annexure"].map((condition) => (
+                                        <SelectItem key={condition} value={condition}>
+                                            {condition}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Agreement Sign off Date</Label>
-                        <div className="relative">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Purpose of Agreement</Label>
+                            <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
+                                <SelectTrigger className="h-9">
+                                    <SelectValue placeholder="Select purpose" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="New Office">New Office</SelectItem>
+                                    <SelectItem value="Renewal">Renewal</SelectItem>
+                                    <SelectItem value="Change of Location">Change of Location</SelectItem>
+                                    <SelectItem value="Change of Area">Change of Area</SelectItem>
+                                    <SelectItem value="Change of ownership">Change of ownership</SelectItem>
+                                    <SelectItem value="Name Change">Name Change</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
+                            <Input
+                                type="text"
+                                className="h-9"
+                                value={formData.stamp_duty_sharing}
+                                onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Agreement Sign off Date</Label>
                             <Input
                                 type="date"
                                 placeholder="dd-mm-yyyy"
-                                className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
+                                className="h-9"
                                 value={formData.agreement_sign_off_date}
                                 onChange={(e) => setFormData(prev => ({ ...prev, agreement_sign_off_date: e.target.value }))}
                             />
                         </div>
-                    </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Lease Start Date *</Label>
-                        <div className="relative">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lease Start Date *</Label>
                             <Input
                                 type="date"
-                                className={`h-9 bg-white border-2 ${fieldErrors.leaseStart ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}
+                                className={`h-9 ${fieldErrors.leaseStart ? 'border-red-500 ring-2 ring-red-200' : ''}`}
                                 value={formData.leaseStart}
                                 onChange={(e) => { setFormData(prev => ({ ...prev, leaseStart: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseStart: false })); }}
                             />
                         </div>
-                    </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Lease End Date *</Label>
-                        <div className="relative">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lease End Date *</Label>
                             <Input
                                 type="date"
-                                className={`h-9 bg-white border-2 ${fieldErrors.leaseEnd ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}
+                                className={`h-9 ${fieldErrors.leaseEnd ? 'border-red-500 ring-2 ring-red-200' : ''}`}
                                 value={formData.leaseEnd}
                                 onChange={(e) => { setFormData(prev => ({ ...prev, leaseEnd: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseEnd: false })); }}
                             />
                         </div>
-                    </div>
 
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Rent Commencement Date</Label>
+                            <Input
+                                type="date"
+                                placeholder="dd-mm-yyyy"
+                                className="h-9"
+                                value={formData.rent_commencement_date}
+                                onChange={(e) => setFormData(prev => ({ ...prev, rent_commencement_date: e.target.value }))}
+                            />
+                        </div>
 
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Rent-free Period (Days)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 30"
+                                value={formData.rent_free_period_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, rent_free_period_days: parseInt(e.target.value) || 0 }))}
+                            />
+                        </div>
 
-                    <div>
-                        <h3 className="font-semibold text-lg mb-6 text-gray-900">Rent Breakdown</h3>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lock in Period (Days)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 180"
+                                value={formData.lock_in_period_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
+                            />
+                        </div>
+                    </FormGrid>
+                </FormSection>
+            </div>
 
-                        <div className="space-y-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Rent Area (sq ft)</Label>
+            {/* Step 2: Rent & Taxes */}
+            <div role="tabpanel" id="rental-step-2" aria-labelledby="rental-tab-2" hidden={step !== 2} className="rental-step-panel">
+                <FormSection title="Rent & Charges">
+                    <FormGrid>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Rent Area (sq ft)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 30000"
+                                value={formData.area || ''}
+                                onChange={(e) => {
+                                    const area = parseFloat(e.target.value) || 0;
+                                    const basicRent = area * formData.perSqFtRate;
+                                    const gstAmount = ((formData.cgst + formData.sgst + formData.igst) * basicRent / 100);
+                                    const tdsAmount = (formData.tdsPercentage * basicRent / 100);
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        area,
+                                        basicRent,
+                                        gstAmount,
+                                        tdsAmount
+                                    }));
+                                }}
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Per Sq Ft Rate (₹)</Label>
+                            <div className="relative">
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                 <Input
                                     type="number"
                                     min="0"
-                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="e.g., 30000"
-                                    value={formData.area || ''}
+                                    step="0.01"
+                                    className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="0"
+                                    value={formData.perSqFtRate || ''}
                                     onChange={(e) => {
-                                        const area = parseFloat(e.target.value) || 0;
-                                        const basicRent = area * formData.perSqFtRate;
+                                        const perSqFtRate = parseFloat(e.target.value) || 0;
+                                        const basicRent = perSqFtRate * formData.area;
                                         const gstAmount = ((formData.cgst + formData.sgst + formData.igst) * basicRent / 100);
                                         const tdsAmount = (formData.tdsPercentage * basicRent / 100);
                                         setFormData(prev => ({
                                             ...prev,
-                                            area,
+                                            perSqFtRate,
                                             basicRent,
                                             gstAmount,
                                             tdsAmount
@@ -941,432 +932,304 @@ const EditRentalPage = () => {
                                     }}
                                 />
                             </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Per Sq Ft Rate (₹)</Label>
-                                <div className="relative">
-                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        placeholder="0"
-                                        value={formData.perSqFtRate || ''}
-                                        onChange={(e) => {
-                                            const perSqFtRate = parseFloat(e.target.value) || 0;
-                                            const basicRent = perSqFtRate * formData.area;
-                                            const gstAmount = ((formData.cgst + formData.sgst + formData.igst) * basicRent / 100);
-                                            const tdsAmount = (formData.tdsPercentage * basicRent / 100);
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                perSqFtRate,
-                                                basicRent,
-                                                gstAmount,
-                                                tdsAmount
-                                            }));
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
-                            {formData.perSqFtRate > 0 && formData.area > 0 && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-md p-2">
-                                    <span className="text-blue-600">ℹ️</span>
-                                    <span>{formData.perSqFtRate} × {formData.area.toLocaleString()} sq ft = ₹{formData.basicRent.toLocaleString()}</span>
-                                </div>
-                            )}
-
-                            <div className="border border-gray-200 rounded-md p-4 space-y-4">
-                                <h4 className="font-medium text-gray-700">Amount Details</h4>
-
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm text-gray-900 font-medium">Rent Amount (₹)</Label>
-                                    <div className="relative">
-                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
-                                        <Input
-                                            type="number"
-                                            className="h-9 pl-8 bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            placeholder="0"
-                                            value={formData.basicRent || ''}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id="gst"
-                                            checked={formData.gstApplicable}
-                                            onCheckedChange={(checked) => {
-                                                if (!checked) {
-                                                    setFormData(prev => ({ ...prev, gstApplicable: false, gstAmount: 0 }));
-                                                } else {
-                                                    const gstAmount = ((formData.cgst + formData.sgst + formData.igst) * formData.basicRent / 100);
-                                                    setFormData(prev => ({ ...prev, gstApplicable: true, gstAmount }));
-                                                }
-                                            }}
-                                        />
-                                        <Label htmlFor="gst" className="text-sm font-semibold text-gray-900">GST Applicable</Label>
-                                    </div>
-
-                                    {formData.gstApplicable && (
-                                        <div className="space-y-3 pt-2">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-sm text-gray-900 font-medium">CGST (%)</Label>
-                                                    <div className="relative">
-                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                                        <Input
-                                                            type="number"
-                                                            min="0"
-                                                            max="100"
-                                                            step="0.01"
-                                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                            placeholder="0"
-                                                            value={formData.cgst || ''}
-                                                            disabled={formData.igst > 0}
-                                                            onChange={(e) => {
-                                                                const cgst = parseFloat(e.target.value) || 0;
-                                                                const gstAmount = ((cgst + formData.sgst) * formData.basicRent / 100);
-                                                                setFormData(prev => ({ ...prev, cgst, igst: 0, gstAmount }));
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-sm text-gray-900 font-medium">SGST (%)</Label>
-                                                    <div className="relative">
-                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                                        <Input
-                                                            type="number"
-                                                            min="0"
-                                                            max="100"
-                                                            step="0.01"
-                                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                            placeholder="0"
-                                                            value={formData.sgst || ''}
-                                                            disabled={formData.igst > 0}
-                                                            onChange={(e) => {
-                                                                const sgst = parseFloat(e.target.value) || 0;
-                                                                const gstAmount = ((formData.cgst + sgst) * formData.basicRent / 100);
-                                                                setFormData(prev => ({ ...prev, sgst, igst: 0, gstAmount }));
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <Label className="text-sm text-gray-900 font-medium">IGST (%)</Label>
-                                                <div className="relative">
-                                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                                    <Input
-                                                        type="number"
-                                                        min="0"
-                                                        max="100"
-                                                        step="0.01"
-                                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                        placeholder="0"
-                                                        value={formData.igst || ''}
-                                                        disabled={formData.cgst > 0 || formData.sgst > 0}
-                                                        onChange={(e) => {
-                                                            const igst = parseFloat(e.target.value) || 0;
-                                                            const gstAmount = (igst * formData.basicRent / 100);
-                                                            setFormData(prev => ({ ...prev, igst, cgst: 0, sgst: 0, gstAmount }));
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <p className="text-xs text-gray-500 italic">IGST is not applicable if CGST/SGST is added and vice versa</p>
-
-                                            <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                                                <span className="text-sm font-medium text-gray-700">GST Amount:</span>
-                                                <span className="text-sm font-semibold text-gray-900">₹{formData.gstAmount.toFixed(2)}</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id="tds"
-                                            checked={formData.tdsApplicable}
-                                            onCheckedChange={(checked) => {
-                                                if (!checked) {
-                                                    setFormData(prev => ({ ...prev, tdsApplicable: false, tdsAmount: 0 }));
-                                                } else {
-                                                    const tdsAmount = (formData.tdsPercentage * formData.basicRent / 100);
-                                                    setFormData(prev => ({ ...prev, tdsApplicable: true, tdsAmount }));
-                                                }
-                                            }}
-                                        />
-                                        <Label htmlFor="tds" className="text-sm font-semibold text-gray-900">TDS Applicable</Label>
-                                    </div>
-
-                                    {formData.tdsApplicable && (
-                                        <div className="space-y-3 pt-2">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-sm text-gray-900 font-medium">TDS Percentage (%)</Label>
-                                                    <div className="relative">
-                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                                        <Input
-                                                            type="number"
-                                                            min="0"
-                                                            max="100"
-                                                            step="0.01"
-                                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                            placeholder="10"
-                                                            value={formData.tdsPercentage || ''}
-                                                            onChange={(e) => {
-                                                                const tdsPercentage = parseFloat(e.target.value) || 0;
-                                                                const tdsAmount = (tdsPercentage * formData.basicRent / 100);
-                                                                setFormData(prev => ({ ...prev, tdsPercentage, tdsAmount }));
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-sm text-gray-900 font-medium">TDS Amount (₹)</Label>
-                                                    <div className="relative">
-                                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
-                                                        <Input
-                                                            type="number"
-                                                            className="h-9 pl-8 bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                            placeholder="0"
-                                                            value={formData.tdsAmount.toFixed(2)}
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <Label className="text-sm text-gray-900 font-medium">Security Deposit (₹)</Label>
-                                                <div className="relative">
-                                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
-                                                    <Input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                        placeholder="0"
-                                                        value={formData.securityDeposit || ''}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, securityDeposit: parseFloat(e.target.value) || 0 }))}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Maintenance Charges (₹)</Label>
-                                <div className="relative">
-                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        placeholder="0"
-                                        value={formData.maintenanceCharges || ''}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
-                                    />
-                                </div>
-                            </div>
                         </div>
+                    </FormGrid>
+
+                    {formData.perSqFtRate > 0 && formData.area > 0 && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-md p-2">
+                            <span className="text-blue-600">ℹ️</span>
+                            <span>{formData.perSqFtRate} × {formData.area.toLocaleString()} sq ft = ₹{formData.basicRent.toLocaleString()}</span>
+                        </div>
+                    )}
+
+                    <div className="border border-gray-200 rounded-md p-4 space-y-4">
+                        <h4 className="font-medium text-gray-700">Amount Details</h4>
 
                         <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Total Monthly Rent (₹)</Label>
+                            <Label className="text-sm text-gray-900 font-medium">Basic Rent (₹)</Label>
                             <div className="relative">
-                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">$</span>
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                 <Input
                                     type="number"
-                                    className="h-9 pl-8 bg-green-50 border-2 border-green-200 text-green-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="h-9 pl-8 bg-gray-50 text-gray-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="0"
-                                    value={(formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2)}
+                                    value={formData.basicRent || ''}
                                     readOnly
                                 />
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Right Column */}
-                <div className="space-y-5">
-                    <div className="grid grid-cols-1 gap-4">
+                        {/* GST Section */}
+                        <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="gst"
+                                    checked={formData.gstApplicable}
+                                    onCheckedChange={(checked) => {
+                                        if (!checked) {
+                                            setFormData(prev => ({ ...prev, gstApplicable: false, gstAmount: 0 }));
+                                        } else {
+                                            const gstAmount = ((formData.cgst + formData.sgst + formData.igst) * formData.basicRent / 100);
+                                            setFormData(prev => ({ ...prev, gstApplicable: true, gstAmount }));
+                                        }
+                                    }}
+                                />
+                                <Label htmlFor="gst" className="text-sm font-semibold text-gray-900">GST Applicable</Label>
+                            </div>
 
-                        <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Lessee *</Label>
-                            <Select value={formData.tenant} onValueChange={handleTenantSelect}>
-                                <SelectTrigger className={`h-9 w-full bg-white border-2 ${fieldErrors.tenant ? 'border-red-500 ring-2 ring-red-200' : 'border-[#C72030]'} hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]`}>
-                                    <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {tenants.map((tenant) => (
-                                        <SelectItem key={tenant.id} value={tenant.id.toString()}>
-                                            {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {selectedTenantDetails && (
-                            <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
-                                <h4 className="font-semibold text-md mb-4 text-gray-900">Signing Authority:</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-2">
-                                            <User className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Name:</p>
-                                                <p className="font-medium text-gray-900">
-                                                    {renderValue(selectedTenantDetails.full_name)}
-                                                </p>
+                            {formData.gstApplicable && (
+                                <div className="space-y-3 pt-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <Label className="text-sm text-gray-900 font-medium">CGST (%)</Label>
+                                            <div className="relative">
+                                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                                <Input
+                                                    type="number"
+                                                    min="0"
+                                                    max="100"
+                                                    step="0.01"
+                                                    className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="0"
+                                                    value={formData.cgst || ''}
+                                                    disabled={formData.igst > 0}
+                                                    onChange={(e) => {
+                                                        const cgst = parseFloat(e.target.value) || 0;
+                                                        const gstAmount = ((cgst + formData.sgst) * formData.basicRent / 100);
+                                                        setFormData(prev => ({ ...prev, cgst, igst: 0, gstAmount }));
+                                                    }}
+                                                />
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-2">
-                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                                <span className="text-gray-600 text-[10px] font-bold">@</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-500">Contact Details:</p>
-                                                <p className="text-sm text-gray-900">Email: {renderValue(selectedTenantDetails.email)}</p>
-                                                <p className="text-sm text-gray-900">Phone: {renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-sm text-gray-900 font-medium">SGST (%)</Label>
+                                            <div className="relative">
+                                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                                <Input
+                                                    type="number"
+                                                    min="0"
+                                                    max="100"
+                                                    step="0.01"
+                                                    className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="0"
+                                                    value={formData.sgst || ''}
+                                                    disabled={formData.igst > 0}
+                                                    onChange={(e) => {
+                                                        const sgst = parseFloat(e.target.value) || 0;
+                                                        const gstAmount = ((formData.cgst + sgst) * formData.basicRent / 100);
+                                                        setFormData(prev => ({ ...prev, sgst, igst: 0, gstAmount }));
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-2">
-                                            <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Designation:</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.designation)}</p>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-sm text-gray-900 font-medium">IGST (%)</Label>
+                                        <div className="relative">
+                                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                max="100"
+                                                step="0.01"
+                                                className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                placeholder="0"
+                                                value={formData.igst || ''}
+                                                disabled={formData.cgst > 0 || formData.sgst > 0}
+                                                onChange={(e) => {
+                                                    const igst = parseFloat(e.target.value) || 0;
+                                                    const gstAmount = (igst * formData.basicRent / 100);
+                                                    setFormData(prev => ({ ...prev, igst, cgst: 0, sgst: 0, gstAmount }));
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-500 italic">IGST is not applicable if CGST/SGST is added and vice versa</p>
+
+                                    <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                                        <span className="text-sm font-medium text-gray-700">GST Amount:</span>
+                                        <span className="text-sm font-semibold text-gray-900">₹{formData.gstAmount.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* TDS Section */}
+                        <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="tds"
+                                    checked={formData.tdsApplicable}
+                                    onCheckedChange={(checked) => {
+                                        if (!checked) {
+                                            setFormData(prev => ({ ...prev, tdsApplicable: false, tdsAmount: 0 }));
+                                        } else {
+                                            const tdsAmount = (formData.tdsPercentage * formData.basicRent / 100);
+                                            setFormData(prev => ({ ...prev, tdsApplicable: true, tdsAmount }));
+                                        }
+                                    }}
+                                />
+                                <Label htmlFor="tds" className="text-sm font-semibold text-gray-900">TDS Applicable</Label>
+                            </div>
+
+                            {formData.tdsApplicable && (
+                                <div className="space-y-3 pt-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <Label className="text-sm text-gray-900 font-medium">TDS Percentage (%)</Label>
+                                            <div className="relative">
+                                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                                <Input
+                                                    type="number"
+                                                    min="0"
+                                                    max="100"
+                                                    step="0.01"
+                                                    className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="10"
+                                                    value={formData.tdsPercentage || ''}
+                                                    onChange={(e) => {
+                                                        const tdsPercentage = parseFloat(e.target.value) || 0;
+                                                        const tdsAmount = (tdsPercentage * formData.basicRent / 100);
+                                                        setFormData(prev => ({ ...prev, tdsPercentage, tdsAmount }));
+                                                    }}
+                                                />
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-2">
-                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                                <span className="text-gray-600 text-[10px] font-bold">ID</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-500">Aadhar Number:</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.aadhar_number)}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                                <span className="text-gray-600 text-[10px] font-bold">PAN</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-500">PAN Number:</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.pan_number)}</p>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-sm text-gray-900 font-medium">TDS Amount (₹)</Label>
+                                            <div className="relative">
+                                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
+                                                <Input
+                                                    type="number"
+                                                    className="h-9 pl-8 bg-gray-50 text-gray-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="0"
+                                                    value={formData.tdsAmount.toFixed(2)}
+                                                    readOnly
+                                                />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
+                    </div>
 
+                    <FormGrid>
                         <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Status</Label>
-                            <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                                <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="active">Active</SelectItem>
-                                    <SelectItem value="inactive">Inactive</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Label className="text-sm text-gray-900 font-medium">Security Deposit (₹)</Label>
+                            <div className="relative">
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="0"
+                                    value={formData.securityDeposit || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, securityDeposit: parseFloat(e.target.value) || 0 }))}
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Additional Notes</Label>
-                            <Textarea
-                                placeholder="Any additional notes or comments"
-                                className="min-h-[80px] bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                                value={formData.notes}
-                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                            <Label className="text-sm text-gray-900 font-medium">Maintenance Charges (₹)</Label>
+                            <div className="relative">
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="0"
+                                    value={formData.maintenanceCharges || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, maintenanceCharges: parseFloat(e.target.value) || 0 }))}
+                                />
+                            </div>
+                        </div>
+                    </FormGrid>
+
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Total Monthly Rent (₹)</Label>
+                        <div className="relative">
+                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
+                            <Input
+                                type="number"
+                                className="h-9 pl-8 bg-green-50 border-green-200 text-green-700 font-medium text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="0"
+                                value={(formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2)}
+                                readOnly
                             />
                         </div>
                     </div>
+                </FormSection>
+            </div>
 
-                    <div className="space-y-4">
-                        <div className="flex justify-start items-center gap-2">
-                            <Clock className="h-5 w-5 text-gray-900" />
-                            <h3 className="font-semibold text-lg text-gray-900">Rent Due Configuration</h3>
-                        </div>
-                        <div className="space-y-3">
-                            <Label className="text-sm text-gray-900 font-medium">Rent Payment Type</Label>
-                            <RadioGroup defaultValue="advance">
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="advance" id="advance" />
-                                    <div className="grid gap-0.5">
-                                        <Label htmlFor="advance" className="text-sm text-gray-900 font-medium">Advance Payment</Label>
-                                        <span className="text-xs text-gray-500">Rent is paid before the month begins</span>
-                                    </div>
+            {/* Step 3: Terms & Payments */}
+            <div role="tabpanel" id="rental-step-3" aria-labelledby="rental-tab-3" hidden={step !== 3} className="rental-step-panel">
+                <FormSection title="Rent Due Configuration">
+                    <div className="space-y-3">
+                        <Label className="text-sm text-gray-900 font-medium">Rent Payment Type</Label>
+                        <RadioGroup defaultValue="advance">
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="advance" id="advance" />
+                                <div className="grid gap-0.5">
+                                    <Label htmlFor="advance" className="text-sm text-gray-900 font-medium">Advance Payment</Label>
+                                    <span className="text-xs text-gray-500">Rent is paid before the month begins</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="post" id="post" />
-                                    <div className="grid gap-0.5">
-                                        <Label htmlFor="post" className="text-sm text-gray-900 font-medium">Post Usage Payment</Label>
-                                        <span className="text-xs text-gray-500">Rent is paid after the month ends</span>
-                                    </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="post" id="post" />
+                                <div className="grid gap-0.5">
+                                    <Label htmlFor="post" className="text-sm text-gray-900 font-medium">Post Usage Payment</Label>
+                                    <span className="text-xs text-gray-500">Rent is paid after the month ends</span>
                                 </div>
-                            </RadioGroup>
+                            </div>
+                        </RadioGroup>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label className="text-sm flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date of the Month</Label>
+                        <Select value={formData.rentDueDate} onValueChange={val => setFormData(prev => ({ ...prev, rentDueDate: val }))}>
+                            <SelectTrigger className="h-9">
+                                <SelectValue placeholder="Select date" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Array.from({ length: 31 }, (_, i) => (
+                                    <SelectItem key={i + 1} value={`${i + 1}`}>{`${i + 1}${['st', 'nd', 'rd'][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ['st', 'nd', 'rd'][((i + 1) % 10) - 1] : 'th'} of every month`}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <p className="text-xs text-gray-500">Rent will be due on this date before each month begins</p>
+                    </div>
+                </FormSection>
+
+                <FormSection title="Escalation & Penalty">
+                    <FormGrid>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Escalation Frequency</Label>
+                            <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))}>
+                                <SelectTrigger className="h-9">
+                                    <SelectValue placeholder="Select Escalation Frequency" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                                    <SelectItem value="annual">In Years</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label className="text-sm flex items-center gap-2 text-gray-900 font-medium"><Calendar className="h-4 w-4" /> Rent Due Date of the Month</Label>
-                            <Select value={formData.rentDueDate} onValueChange={val => setFormData(prev => ({ ...prev, rentDueDate: val }))}>
-                                <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
-                                    <SelectValue placeholder="Select date" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {Array.from({ length: 31 }, (_, i) => (
-                                        <SelectItem key={i + 1} value={`${i + 1}`}>{`${i + 1}${['st', 'nd', 'rd'][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ['st', 'nd', 'rd'][((i + 1) % 10) - 1] : 'th'} of every month`}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <p className="text-xs text-gray-500">Rent will be due on this date before each month begins</p>
-                        </div>
-                    </div>
-
-
-                    <div className="p-6 bg-[#FAF9F6] rounded-lg border border-gray-100 space-y-6">
-                        <h3 className="font-semibold text-lg mb-6 text-gray-900">Escalation & Penalty Settings</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Escalation Frequency </Label>
-                                <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))}>
-                                    <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
-                                        <SelectValue placeholder="Select Escalation Frequency " />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="monthly">Monthly</SelectItem>
-                                        <SelectItem value="quarterly">Quarterly</SelectItem>
-                                        <SelectItem value="annual">In Years</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Escalation Interval</Label>
-                                <Input
-                                    type="number"
-                                    min="1"
-                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="1"
-                                    value={formData.escalation_interval || ''}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, escalation_interval: parseInt(e.target.value) || 1 }))}
-                                />
-                                <p className="text-xs text-gray-500">Rent increases every {formData.escalation_interval} {formData.escalation_type === 'monthly' ? 'month(s)' : formData.escalation_type === 'quarterly' ? 'quarter(s)' : 'year(s)'}</p>
-                            </div>
+                            <Label className="text-sm text-gray-900 font-medium">Escalation Interval</Label>
+                            <Input
+                                type="number"
+                                min="1"
+                                className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="1"
+                                value={formData.escalation_interval || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, escalation_interval: parseInt(e.target.value) || 1 }))}
+                            />
+                            <p className="text-xs text-gray-500">Rent increases every {formData.escalation_interval} {formData.escalation_type === 'monthly' ? 'month(s)' : formData.escalation_type === 'quarterly' ? 'quarter(s)' : 'year(s)'}</p>
                         </div>
 
                         <div className="space-y-1.5">
@@ -1376,119 +1239,151 @@ const EditRentalPage = () => {
                                 min="0"
                                 max="100"
                                 step="0.01"
-                                className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 placeholder="0"
                                 value={formData.escalationPercentage || ''}
                                 onChange={(e) => setFormData(prev => ({ ...prev, escalationPercentage: parseFloat(e.target.value) || 0 }))}
                             />
                             <p className="text-xs text-gray-500">Rent will increase by this percentage</p>
                         </div>
+                    </FormGrid>
 
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-                                <Label className="text-sm text-gray-600 font-normal">Apply penalty on late payments</Label>
-                                <Switch
-                                    checked={formData.applyLatePenalty}
-                                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLatePenalty: checked }))}
-                                />
-                            </div>
-
-                            {formData.applyLatePenalty && (
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm text-gray-900 font-medium">Penalty Percentage (%)</Label>
-                                    <div className="relative">
-                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            step="0.01"
-                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            placeholder="0"
-                                            value={formData.penaltyPercentage || ''}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, penaltyPercentage: parseFloat(e.target.value) || 0 }))}
-                                        />
-                                    </div>
-                                    <p className="text-xs text-gray-500">One-time penalty applied on overdue amount</p>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-                                <Label className="text-sm text-gray-600 font-normal">Apply interest on late payments</Label>
-                                <Switch
-                                    checked={formData.applyLateInterest}
-                                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLateInterest: checked }))}
-                                />
-                            </div>
-
-                            {formData.applyLateInterest && (
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm text-gray-900 font-medium">Interest Percentage per Month (%)</Label>
-                                    <div className="relative">
-                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            step="0.01"
-                                            className="h-9 pl-8 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            placeholder="0"
-                                            value={formData.interestPercentage || ''}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, interestPercentage: parseFloat(e.target.value) || 0 }))}
-                                        />
-                                    </div>
-                                    <p className="text-xs text-gray-500">Monthly interest compounded on overdue amount</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Rent Commencement Date</Label>
-                        <div className="relative">
-                            <Input
-                                type="date"
-                                placeholder="dd-mm-yyyy"
-                                className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                                value={formData.rent_commencement_date}
-                                onChange={(e) => setFormData(prev => ({ ...prev, rent_commencement_date: e.target.value }))}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+                            <Label className="text-sm text-gray-600 font-normal">Apply penalty on late payments</Label>
+                            <Switch
+                                checked={formData.applyLatePenalty}
+                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLatePenalty: checked }))}
                             />
                         </div>
+
+                        {formData.applyLatePenalty && (
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Penalty Percentage (%)</Label>
+                                <div className="relative">
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={formData.penaltyPercentage || ''}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, penaltyPercentage: parseFloat(e.target.value) || 0 }))}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">One-time penalty applied on overdue amount</p>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Rent-free Period (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="e.g., 30"
-                            value={formData.rent_free_period_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, rent_free_period_days: parseInt(e.target.value) || 0 }))}
-                        />
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+                            <Label className="text-sm text-gray-600 font-normal">Apply interest on late payments</Label>
+                            <Switch
+                                checked={formData.applyLateInterest}
+                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLateInterest: checked }))}
+                            />
+                        </div>
+
+                        {formData.applyLateInterest && (
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Interest Percentage per Month (%)</Label>
+                                <div className="relative">
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        className="h-9 pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={formData.interestPercentage || ''}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, interestPercentage: parseFloat(e.target.value) || 0 }))}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">Monthly interest compounded on overdue amount</p>
+                            </div>
+                        )}
                     </div>
+                </FormSection>
+
+                <FormSection title="Notice Period & Terms">
+                    <FormGrid>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">From Landlord (Days)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="30"
+                                value={formData.from_landlord_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, from_landlord_days: parseInt(e.target.value) || 0 }))}
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">From VIL (Days)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="60"
+                                value={formData.from_vil_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, from_vil_days: parseInt(e.target.value) || 0 }))}
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSEE</Label>
+                            <Textarea
+                                placeholder="e.g., Lessee can terminate with 30 days notice"
+                                className="bg-white text-gray-900 text-[13px]"
+                                rows={3}
+                                value={formData.termination_rights_lessee}
+                                onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessee: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSOR</Label>
+                            <Textarea
+                                placeholder="e.g., Lessor can terminate with 60 days notice"
+                                className="bg-white text-gray-900 text-[13px]"
+                                rows={3}
+                                value={formData.termination_rights_lessor}
+                                onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessor: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="space-y-2 col-span-full">
+                            <Label className="text-sm text-gray-900 font-medium">Handover Condition</Label>
+                            <Textarea
+                                placeholder="e.g., Property must be handed over clean and in good condition"
+                                className="bg-white text-gray-900 text-[13px]"
+                                rows={3}
+                                value={formData.handover_condition}
+                                onChange={(e) => setFormData(prev => ({ ...prev, handover_condition: e.target.value }))}
+                            />
+                        </div>
+                    </FormGrid>
 
                     <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Lock in Period (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="e.g., 180"
-                            value={formData.lock_in_period_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
+                        <Label className="text-sm text-gray-900 font-medium">Additional Notes</Label>
+                        <Textarea
+                            placeholder="Any additional notes or comments"
+                            className="min-h-[80px] bg-white text-gray-900 text-[13px]"
+                            value={formData.notes}
+                            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                         />
                     </div>
-                </div>
+                </FormSection>
             </div>
 
-
-            {/* Common Amenities - Full Width */}
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div className="space-y-1.5">
-                    <h3 className="font-semibold text-lg text-gray-900 mb-3"> Common Amenities</h3>
+            {/* Step 4: Facilities */}
+            <div role="tabpanel" id="rental-step-4" aria-labelledby="rental-tab-4" hidden={step !== 4} className="rental-step-panel">
+                <FormSection title="Common Amenities">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
                         {amenities.map((amenity: any) => (
                             <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
@@ -1505,331 +1400,267 @@ const EditRentalPage = () => {
                             </label>
                         ))}
                     </div>
-                </div>
-            </div>
+                </FormSection>
 
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-6 text-gray-900">Notice Period & Terms</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">From Landlord (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="30"
-                            value={formData.from_landlord_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, from_landlord_days: parseInt(e.target.value) || 0 }))}
-                        />
+                <FormSection title="Parking Details">
+                    <div className="flex justify-end mb-4">
+                        <Button
+                            type="button"
+                            onClick={addParking}
+                            className="fm-button-fix fm-button-brand px-6 py-2"
+                        >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Parking
+                        </Button>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">From VIL (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="60"
-                            value={formData.from_vil_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, from_vil_days: parseInt(e.target.value) || 0 }))}
-                        />
-                    </div>
+                    <div className="space-y-4">
+                        {parkings.map((parking, index) => (
+                            <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-md">
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Vehicle Type</Label>
+                                    <Select
+                                        value={parking.vehicle_type}
+                                        onValueChange={(value) => updateParking(index, 'vehicle_type', value)}
+                                    >
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="2wheeler">
+                                                <div className="flex items-center gap-2">
+                                                    <Bike className="h-4 w-4" />
+                                                    2 Wheeler
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="4wheeler">
+                                                <div className="flex items-center gap-2">
+                                                    <Car className="h-4 w-4" />
+                                                    4 Wheeler
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSEE</Label>
-                        <Textarea
-                            placeholder="e.g., Lessee can terminate with 30 days notice"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                            rows={3}
-                            value={formData.termination_rights_lessee}
-                            onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessee: e.target.value }))}
-                        />
-                    </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Parking Type</Label>
+                                    <Select
+                                        value={parking.parking_type}
+                                        onValueChange={(value) => {
+                                            const updated = [...parkings];
+                                            updated[index] = {
+                                                ...updated[index],
+                                                parking_type: value,
+                                                charge: value === 'free' ? '' : updated[index].charge
+                                            };
+                                            setParkings(updated);
+                                        }}
+                                    >
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="free">Free</SelectItem>
+                                            <SelectItem value="paid">Paid</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSOR</Label>
-                        <Textarea
-                            placeholder="e.g., Lessor can terminate with 60 days notice"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                            rows={3}
-                            value={formData.termination_rights_lessor}
-                            onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessor: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                        <Label className="text-sm text-gray-900 font-medium">Handover Condition</Label>
-                        <Textarea
-                            placeholder="e.g., Property must be handed over clean and in good condition"
-                            className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                            rows={3}
-                            value={formData.handover_condition}
-                            onChange={(e) => setFormData(prev => ({ ...prev, handover_condition: e.target.value }))}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-6 text-gray-900">Signing Authorities</h3>
-                ... (omitted to match AddRentalPage)
-            </div> */}
-
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-semibold text-lg text-gray-900">Parking Details</h3>
-                    <Button
-                        type="button"
-                        onClick={addParking}
-                        className="fm-button-fix fm-button-brand px-6 py-2"
-                    >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Parking
-                    </Button>
-                </div>
-
-                <div className="space-y-4">
-                    {parkings.map((parking, index) => (
-                        <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-md">
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Vehicle Type</Label>
-                                <Select
-                                    value={parking.vehicle_type}
-                                    onValueChange={(value) => updateParking(index, 'vehicle_type', value)}
-                                >
-                                    <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="2wheeler">
-                                            <div className="flex items-center gap-2">
-                                                <Bike className="h-4 w-4" />
-                                                2 Wheeler
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="4wheeler">
-                                            <div className="flex items-center gap-2">
-                                                <Car className="h-4 w-4" />
-                                                4 Wheeler
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Parking Type</Label>
-                                <Select
-                                    value={parking.parking_type}
-                                    onValueChange={(value) => {
-                                        const updated = [...parkings];
-                                        updated[index] = {
-                                            ...updated[index],
-                                            parking_type: value,
-                                            charge: value === 'free' ? '' : updated[index].charge
-                                        };
-                                        setParkings(updated);
-                                    }}
-                                >
-                                    <SelectTrigger className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="free">Free</SelectItem>
-                                        <SelectItem value="paid">Paid</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Size</Label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="0"
-                                    value={parking.count}
-                                    onChange={(e) => updateParking(index, 'count', e.target.value)}
-                                />
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Parking Charges (₹)</Label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="0"
-                                    value={parking.charge}
-                                    disabled={parking.parking_type === 'free'}
-                                    onChange={(e) => updateParking(index, 'charge', e.target.value)}
-                                />
-                            </div>
-
-                            <div className="flex items-end">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => removeParking(index)}
-                                    disabled={parkings.length === 1}
-                                    className="w-full"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-6 text-gray-900">Additional Details</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Dynamic Custom Fields */}
-                    {customFields.map((field) => (
-                        <div key={field.id} className="space-y-2">
-                            <Label className="text-sm text-gray-900 font-medium">
-                                {field.name} {field.required && <span className="text-red-500">*</span>}
-                            </Label>
-                            {field.field_type === 'text' || field.field_type === 'number' ? (
-                                <Input
-                                    type={field.field_type}
-                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                                    placeholder={`Enter ${field.name}`}
-                                    value={customFieldValues[field.name] || ''}
-                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
-                                />
-                            ) : field.field_type === 'date' ? (
-                                <Input
-                                    type="date"
-                                    className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                                    value={customFieldValues[field.name] || ''}
-                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
-                                />
-                            ) : field.field_type === 'boolean' ? (
-                                <div className="flex items-center space-x-2 pt-2">
-                                    <Switch
-                                        checked={customFieldValues[field.name] || false}
-                                        onCheckedChange={(checked) => setCustomFieldValues(prev => ({ ...prev, [field.name]: checked }))}
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Size</Label>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={parking.count}
+                                        onChange={(e) => updateParking(index, 'count', e.target.value)}
                                     />
-                                    <span className="text-sm text-gray-600">{customFieldValues[field.name] ? 'Yes' : 'No'}</span>
                                 </div>
-                            ) : field.field_type === 'textarea' ? (
-                                <Textarea
-                                    placeholder={`Enter ${field.name}`}
-                                    className="bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                                    value={customFieldValues[field.name] || ''}
-                                    onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
-                                />
-                            ) : null}
-                        </div>
-                    ))}
-                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Parking Charges (₹)</Label>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        className="h-9 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={parking.charge}
+                                        disabled={parking.parking_type === 'free'}
+                                        onChange={(e) => updateParking(index, 'charge', e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="flex items-end">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => removeParking(index)}
+                                        disabled={parkings.length === 1}
+                                        className="w-full"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </FormSection>
             </div>
 
-            <div className="mt-8 space-y-6">
-                <div className="space-y-1.5">
-                    <Label className="text-sm text-gray-900 font-medium">Agreement File</Label>
+            {/* Step 5: Documents & Review */}
+            <div role="tabpanel" id="rental-step-5" aria-labelledby="rental-tab-5" hidden={step !== 5} className="rental-step-panel">
+                {customFields.length > 0 && (
+                    <FormSection title="Additional Details">
+                        <FormGrid>
+                            {customFields.map((field) => (
+                                <div key={field.id} className="space-y-2">
+                                    <Label className="text-sm text-gray-900 font-medium">
+                                        {field.name} {field.required && <span className="text-red-500">*</span>}
+                                    </Label>
+                                    {field.field_type === 'text' || field.field_type === 'number' ? (
+                                        <Input
+                                            type={field.field_type}
+                                            className="h-9"
+                                            placeholder={`Enter ${field.name}`}
+                                            value={customFieldValues[field.name] || ''}
+                                            onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                        />
+                                    ) : field.field_type === 'date' ? (
+                                        <Input
+                                            type="date"
+                                            className="h-9"
+                                            value={customFieldValues[field.name] || ''}
+                                            onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                        />
+                                    ) : field.field_type === 'boolean' ? (
+                                        <div className="flex items-center space-x-2 pt-2">
+                                            <Switch
+                                                checked={customFieldValues[field.name] || false}
+                                                onCheckedChange={(checked) => setCustomFieldValues(prev => ({ ...prev, [field.name]: checked }))}
+                                            />
+                                            <span className="text-sm text-gray-600">{customFieldValues[field.name] ? 'Yes' : 'No'}</span>
+                                        </div>
+                                    ) : field.field_type === 'textarea' ? (
+                                        <Textarea
+                                            placeholder={`Enter ${field.name}`}
+                                            className="bg-white text-gray-900 text-[13px]"
+                                            value={customFieldValues[field.name] || ''}
+                                            onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                        />
+                                    ) : null}
+                                </div>
+                            ))}
+                        </FormGrid>
+                    </FormSection>
+                )}
 
-                    {/* Show existing documents */}
-                    {existingDocuments.length > 0 && (
-                        <div className="space-y-2 mb-3">
-                            <p className="text-sm text-gray-600 font-medium">Existing Documents:</p>
-                            {existingDocuments.map((doc) => {
-                                const fileUrl = doc.url?.startsWith('http') ? doc.url : `${getBaseUrl()}${doc.url}`;
-                                const fileSizeKB = doc.file_size ? (doc.file_size / 1024).toFixed(1) : null;
-                                const fileSizeMB = doc.file_size && doc.file_size > 1048576 ? (doc.file_size / 1048576).toFixed(2) : null;
-                                return (
-                                    <div key={doc.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                                        <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                                            <FileText className="h-5 w-5 text-[#C72030]" />
+                <AgreementServicesSection
+                    services={agreementServices}
+                    onChange={setAgreementServices}
+                />
+
+                <FormSection title="Attachments">
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Agreement File</Label>
+
+                        {/* Show existing documents */}
+                        {existingDocuments.length > 0 && (
+                            <div className="space-y-2 mb-3">
+                                <p className="text-sm text-gray-600 font-medium">Existing Documents:</p>
+                                {existingDocuments.map((doc) => {
+                                    const fileUrl = doc.url?.startsWith('http') ? doc.url : `${getBaseUrl()}${doc.url}`;
+                                    const fileSizeKB = doc.file_size ? (doc.file_size / 1024).toFixed(1) : null;
+                                    const fileSizeMB = doc.file_size && doc.file_size > 1048576 ? (doc.file_size / 1048576).toFixed(2) : null;
+                                    return (
+                                        <div key={doc.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                            <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                                                <FileText className="h-5 w-5 text-[#C72030]" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-gray-900 truncate">{doc.name || 'Agreement Document'}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {doc.document_type && <span className="capitalize">{doc.document_type}</span>}
+                                                    {fileSizeMB ? ` • ${fileSizeMB} MB` : fileSizeKB ? ` • ${fileSizeKB} KB` : ''}
+                                                    {doc.mime_type ? ` • ${doc.mime_type}` : ''}
+                                                </p>
+                                            </div>
+                                            <a
+                                                href={fileUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-[#C72030] bg-white border border-[#C72030] rounded-md hover:bg-[#C72030] hover:text-white transition-colors"
+                                            >
+                                                <Download className="h-4 w-4" />
+                                                View
+                                            </a>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setDeletedDocuments(prev => [...prev, doc]);
+                                                    setExistingDocuments(prev => prev.filter(d => d.id !== doc.id));
+                                                }}
+                                                className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-600 hover:text-white transition-colors"
+                                                title="Delete document"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                                Delete
+                                            </button>
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-gray-900 truncate">{doc.name || 'Agreement Document'}</p>
-                                            <p className="text-xs text-gray-500">
-                                                {doc.document_type && <span className="capitalize">{doc.document_type}</span>}
-                                                {fileSizeMB ? ` • ${fileSizeMB} MB` : fileSizeKB ? ` • ${fileSizeKB} KB` : ''}
-                                                {doc.mime_type ? ` • ${doc.mime_type}` : ''}
-                                            </p>
-                                        </div>
-                                        <a
-                                            href={fileUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-[#C72030] bg-white border border-[#C72030] rounded-md hover:bg-[#C72030] hover:text-white transition-colors"
-                                        >
-                                            <Download className="h-4 w-4" />
-                                            View
-                                        </a>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setDeletedDocuments(prev => [...prev, doc]);
-                                                setExistingDocuments(prev => prev.filter(d => d.id !== doc.id));
-                                            }}
-                                            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-600 hover:text-white transition-colors"
-                                            title="Delete document"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            Delete
-                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        <p className="text-xs text-gray-500">{existingDocuments.length > 0 ? 'Upload a new file to replace the existing document:' : 'Upload agreement file:'}</p>
+                        <Input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            className="h-9"
+                            onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
+                        />
+                        {existingAgreementUrl && (
+                            <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-red-50 rounded-lg">
+                                        <FileText className="h-6 w-6 text-[#C72030]" />
                                     </div>
-                                );
-                            })}
-                        </div>
-                    )}
-
-                    <p className="text-xs text-gray-500">{existingDocuments.length > 0 ? 'Upload a new file to replace the existing document:' : 'Upload agreement file:'}</p>
-                    <Input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        className="h-9 bg-white border-2 border-gray-300 hover:border-[#C72030] focus:ring-[#C72030] text-gray-900 text-[13px]"
-                        onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
-                    />
-                    {existingAgreementUrl && (
-                        <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-red-50 rounded-lg">
-                                    <FileText className="h-6 w-6 text-[#C72030]" />
+                                    <div className="overflow-hidden">
+                                        <p className="text-sm font-medium text-gray-900">Previously Uploaded Agreement</p>
+                                        <p className="text-xs text-gray-500 truncate max-w-[200px] md:max-w-xs">{existingAgreementName || 'agreement.pdf'}</p>
+                                    </div>
                                 </div>
-                                <div className="overflow-hidden">
-                                    <p className="text-sm font-medium text-gray-900">Previously Uploaded Agreement</p>
-                                    <p className="text-xs text-gray-500 truncate max-w-[200px] md:max-w-xs">{existingAgreementName || 'agreement.pdf'}</p>
+                                <div className="flex items-center gap-2 w-full md:w-auto">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => window.open(`https://rental-uat.lockated.com/${existingAgreementUrl}`, '_blank')}
+                                        className="h-9 px-4 border-[#C72030] text-[#C72030] hover:bg-red-50 flex-1 md:flex-none"
+                                    >
+                                        <ExternalLink className="h-4 w-4 mr-2" />
+                                        View
+                                    </Button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 w-full md:w-auto">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => window.open(`https://rental-uat.lockated.com/${existingAgreementUrl}`, '_blank')}
-                                    className="h-9 px-4 border-[#C72030] text-[#C72030] hover:bg-red-50 flex-1 md:flex-none"
-                                >
-                                    <ExternalLink className="h-4 w-4 mr-2" />
-                                    View
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                </FormSection>
 
-
-            </div >
-
-            <div className="flex justify-end gap-3 mt-8">
-                <Button variant="outline" onClick={() => navigate(-1)} className="" disabled={isSubmitting || loadingLease}>Cancel</Button>
-                <Button
-                    onClick={handleSubmit}
-                    className="fm-button-fix fm-button-brand px-6 py-2"
-                    disabled={isSubmitting || loadingLease}
-                >
-                    {isSubmitting ? 'Updating...' : loadingLease ? 'Loading...' : 'Update Rental'}
-                </Button>
+                <FormActions>
+                    <Button variant="outline" onClick={() => navigate(-1)} disabled={isSubmitting || loadingLease}>Cancel</Button>
+                    <Button
+                        onClick={handleSubmit}
+                        className="fm-button-fix fm-button-brand px-6 py-2"
+                        disabled={isSubmitting || loadingLease}
+                    >
+                        {isSubmitting ? 'Updating...' : loadingLease ? 'Loading...' : 'Update Rental'}
+                    </Button>
+                </FormActions>
             </div>
-        </div >
+        </PageContainer>
     );
 };
 

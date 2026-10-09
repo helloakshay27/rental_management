@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Building2, MapPin, Calendar, DollarSign, Users, AlertTriangle } from 'lucide-react';
+import { StatsCard } from '@/components/ui/stats-card';
 
 const LandlordPortfolioSummary = () => {
   const portfolioMetrics = [
@@ -110,29 +111,10 @@ const LandlordPortfolioSummary = () => {
 
         {/* Key Metrics Summary */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-blue-50 rounded-xl p-6 border border-blue-200 text-center">
-            <DollarSign size={24} className="text-blue-600 mx-auto mb-2" />
-            <p className="text-brand-body-1 font-bold text-blue-600">₹2.8Cr</p>
-            <p className="text-sm text-blue-700">Monthly Revenue</p>
-          </div>
-          
-          <div className="bg-green-50 rounded-xl p-6 border border-green-200 text-center">
-            <Building2 size={24} className="text-green-600 mx-auto mb-2" />
-            <p className="text-brand-body-1 font-bold text-green-600">206</p>
-            <p className="text-sm text-green-700">Total Properties</p>
-          </div>
-          
-          <div className="bg-purple-50 rounded-xl p-6 border border-purple-200 text-center">
-            <Users size={24} className="text-purple-600 mx-auto mb-2" />
-            <p className="text-brand-body-1 font-bold text-purple-600">94.2%</p>
-            <p className="text-sm text-purple-700">Occupancy Rate</p>
-          </div>
-          
-          <div className="bg-amber-50 rounded-xl p-6 border border-amber-200 text-center">
-            <MapPin size={24} className="text-amber-600 mx-auto mb-2" />
-            <p className="text-brand-body-1 font-bold text-amber-600">12</p>
-            <p className="text-sm text-amber-700">Cities Covered</p>
-          </div>
+          <StatsCard title="Monthly Revenue" value="₹2.8Cr" icon={<DollarSign />} />
+          <StatsCard title="Total Properties" value={206} icon={<Building2 />} />
+          <StatsCard title="Occupancy Rate" value="94.2%" icon={<Users />} />
+          <StatsCard title="Cities Covered" value={12} icon={<MapPin />} />
         </div>
       </CardContent>
     </Card>

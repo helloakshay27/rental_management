@@ -14,21 +14,21 @@ interface AddAmcDialogProps {
 const AddAmcDialog: React.FC<AddAmcDialogProps> = ({ open, onOpenChange }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add AMC Contract</DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogTitle className="text-sm font-semibold">Add AMC Contract</DialogTitle>
+          <DialogDescription>
             Create a new Annual Maintenance Contract
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="service-type" className="text-gray-700">Service Type</Label>
+            <Label htmlFor="service-type">Service Type</Label>
             <Select>
-              <SelectTrigger className="bg-white border-gray-200">
+              <SelectTrigger>
                 <SelectValue placeholder="Select service type" />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent>
                 <SelectItem value="hvac">HVAC Maintenance</SelectItem>
                 <SelectItem value="elevators">Elevator Service</SelectItem>
                 <SelectItem value="fire-safety">Fire Safety</SelectItem>
@@ -37,18 +37,18 @@ const AddAmcDialog: React.FC<AddAmcDialogProps> = ({ open, onOpenChange }) => {
             </Select>
           </div>
           <div>
-            <Label htmlFor="vendor" className="text-gray-700">Vendor</Label>
-            <Input id="vendor" placeholder="Enter vendor name" className="bg-white border-gray-200" />
+            <Label htmlFor="vendor">Vendor</Label>
+            <Input id="vendor" placeholder="Enter vendor name" />
           </div>
           <div>
-            <Label htmlFor="contract-value" className="text-gray-700">Contract Value</Label>
-            <Input id="contract-value" type="number" placeholder="0.00" className="bg-white border-gray-200" />
+            <Label htmlFor="contract-value">Contract Value</Label>
+            <Input id="contract-value" type="number" placeholder="0.00" />
           </div>
           <div className="flex space-x-3 pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 border-gray-200">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={() => onOpenChange(false)} className="flex-1 fm-button-fix fm-button-brand px-6 py-2">
+            <Button onClick={() => onOpenChange(false)} className="flex-1">
               Create Contract
             </Button>
           </div>

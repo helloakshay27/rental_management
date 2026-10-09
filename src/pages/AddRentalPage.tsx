@@ -1,7 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FormSection, FormActions } from '@/components/ui/form-section';
-import { FormStepper } from '@/components/ui/form-stepper';
+import './add-rental.css';
+import { RentalPartyDetails } from '@/components/Rental/RentalPartyDetails';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageContainer, PageHeader, StatsGrid } from '@/components/ui/page';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +21,15 @@ import AgreementServicesSection from '@/components/Rental/AgreementServicesSecti
 import { Heading, Text } from '@/components/ui/typography';
 import { trackCreated, trackFailed } from '@/utils/analytics';
 
-const STEPS = ['Property & Lease', 'Terms & Charges', 'Additional Details'];
+const STEPS = ['Property & Lessee', 'Agreement & Dates', 'Rent & Taxes', 'Terms & Payments', 'Facilities', 'Documents & Review'];
+const STEP_HELP = [
+    'Choose the property and lessee for this rental.',
+    'Set the agreement details, lease dates and applicable periods.',
+    'Configure rent, taxes, deposit and maintenance charges.',
+    'Set payment dates, escalation, penalties and notice terms.',
+    'Add parking spaces and select the included amenities.',
+    'Complete additional fields, attach the agreement and review your rental.',
+];
 
 const AddRentalPage = () => {
     const navigate = useNavigate();
@@ -45,7 +55,7 @@ const AddRentalPage = () => {
     const [loadingTakeoverConditions, setLoadingTakeoverConditions] = useState(true);
     const [amenities, setAmenities] = useState([])
     const [loadingAmenities, setLoadingAmenities] = useState(true)
-    const [status ,setStatus] = useState("")
+    const [status, setStatus] = useState("")
 
     const [formData, setFormData] = useState({
         circle: '',
@@ -114,11 +124,40 @@ const AddRentalPage = () => {
     const [step, setStep] = useState(0);
     const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
+    const stepHeadingRef = useRef<HTMLDivElement>(null);
+    const validateStep = (index: number) => {
+        const required = index === 0 ? ['circle', 'property', 'tenant'] : index === 1 ? ['aggreement_type', 'property_takeover_condition_id', 'leaseStart', 'leaseEnd'] : [];
+        const names = { circle: 'Circle', property: 'Property', tenant: 'Lessee', aggreement_type: 'Agreement Type', property_takeover_condition_id: 'Property Takeover Condition', leaseStart: 'Lease Start Date', leaseEnd: 'Lease End Date' };
+        const missing = required.filter(key => !formData[key]);
+        setFieldErrors(prev => ({ ...prev, ...Object.fromEntries(required.map(key => [key, missing.includes(key)])) }));
+        if (missing.length) {
+            toast.error('Please complete: ' + missing.map(key => names[key]).join(', '));
+            return false;
+        }
+        if (index === 1 && formData.leaseEnd < formData.leaseStart) {
+            setFieldErrors(prev => ({ ...prev, leaseEnd: true }));
+            toast.error('Lease end date must be on or after the start date.');
+            return false;
+        }
+        if (index === 5) {
+            const missingCustom = customFields.filter(field => field.required && (customFieldValues[field.name] == null || customFieldValues[field.name] === ''));
+            if (missingCustom.length) {
+                toast.error('Please complete: ' + missingCustom.map(field => field.name).join(', '));
+                return false;
+            }
+        }
+        return true;
+    };
     const goToStep = (next: number) => {
-        if (next > step && !completedSteps.includes(step)) {
-            setCompletedSteps(prev => [...prev, step]);
+        if (isSubmitting) return;
+        if (next > step) {
+            for (let index = 0; index < next; index++) {
+                if (!validateStep(index)) { setStep(index); return; }
+            }
+            setCompletedSteps(prev => [...new Set([...prev, ...Array.from({ length: next }, (_, i) => i)])]);
         }
         setStep(next);
+        requestAnimationFrame(() => { stepHeadingRef.current?.focus(); stepHeadingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); });
     };
 
     useEffect(() => {
@@ -278,49 +317,9 @@ const AddRentalPage = () => {
 
     const handleSubmit = async () => {
         try {
-            // Mandatory field validation
-            const errors: { [key: string]: boolean } = {};
-            const missingFields: string[] = [];
-
-            if (!formData.circle) {
-                errors.circle = true;
-                missingFields.push('Circle');
+            for (let index = 0; index < STEPS.length; index++) {
+                if (!validateStep(index)) { setStep(index); return; }
             }
-            if (!formData.property) {
-                errors.property = true;
-                missingFields.push('Property');
-            }
-            if (!formData.tenant) {
-                errors.tenant = true;
-                missingFields.push('Lessee');
-            }
-            if (!formData.aggreement_type) {
-                errors.aggreement_type = true;
-                missingFields.push('Agreement Type');
-            }
-            if (!formData.property_takeover_condition_id) {
-                errors.property_takeover_condition_id = true;
-                missingFields.push('Property Takeover Condition');
-            }
-            if (!formData.leaseStart) {
-                errors.leaseStart = true;
-                missingFields.push('Lease Start Date');
-            }
-            if (!formData.leaseEnd) {
-                errors.leaseEnd = true;
-                missingFields.push('Lease End Date');
-            }
-
-            if (missingFields.length > 0) {
-                setFieldErrors(errors);
-                // The mandatory fields are all on the first step; go back to them
-                // so the highlighted inputs are actually on screen.
-                setStep(0);
-                toast.error(`Please fill in the following mandatory fields: ${missingFields.join(', ')}`);
-                return;
-            }
-
-            // Clear field errors
             setFieldErrors({});
 
             // Additional validations
@@ -447,278 +446,155 @@ const AddRentalPage = () => {
     };
 
     return (
-        <PageContainer>
+        <PageContainer className="rental-wizard">
             <PageHeader
                 title="Add New Rental"
                 description="Add a new rental property to your portfolio"
                 backTo="/rental-dashboard"
             />
 
-            <FormStepper
-                steps={STEPS}
-                current={step}
-                completed={completedSteps}
-                onStepChange={goToStep}
-            />
+            <Tabs value={String(step)} onValueChange={(value) => goToStep(Number(value))} activationMode="manual">
+                <TabsList aria-label="Rental setup steps">
+                    {STEPS.map((label, index) => (
+                        <TabsTrigger
+                            key={label}
+                            value={String(index)}
+                            id={`rental-tab-${index}`}
+                            aria-controls={`rental-step-${index}`}
+                            disabled={isSubmitting}
+                        >
+                            <span aria-hidden="true" className="rental-step-number">{index + 1}</span>
+                            <span className="sr-only">Step {index + 1}: </span>
+                            {label}
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
+            <div className="rental-step-heading" ref={stepHeadingRef} tabIndex={-1}><p>Step {step + 1} of {STEPS.length}</p>
+                <h2>{STEPS[step]}</h2><p>{STEP_HELP[step]}</p></div>
 
-            {step === 0 && (
-            <>
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                {/* Left Column */}
-                <div className="space-y-5">
-                    {/* <div className="space-y-1.5">
-                        <Label className="text-gray-900 font-medium text-[#c72030]">SAP ID (SAP Number)</Label>
-                        <Input
-                            type="text"
-                            className="h-9 bg-white border-2 border-[#c72030]/30 text-gray-900 text-[13px]"
-                            placeholder="e.g., SAP000013"
-                            value={formData.sap_number}
-                            onChange={(e) => setFormData(prev => ({ ...prev, sap_number: e.target.value }))}
-                        />
-                    </div> */}
-
-                    <div className="space-y-2 w-full">
-                        <Label className="text-sm text-gray-900 font-medium">Circle *</Label>
-                        <Select value={formData.circle} onValueChange={handleCircleSelect}>
-                            <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.circle ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
-                                <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {circles.map((circle) => (
-                                    <SelectItem key={circle.id} value={circle.id.toString()}>
-                                        {circle.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2 w-full">
-                        <Label className="text-sm text-gray-900 font-medium">Select Property *</Label>
-                        <Select value={formData.property} onValueChange={handlePropertySelect}>
-                            <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.property ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
-                                <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {properties.map((property) => (
-                                    <SelectItem key={property.id} value={property.id.toString()}>
-                                        {property.name} - {property.city || property.address}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {selectedPropertyDetails && (
-                        <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg w-full">
-                            <h4 className="font-semibold text-md mb-4 text-gray-900">Property & Landlord Details:</h4>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-2">
-                                        <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Property:</p>
-                                            <p className="text-sm text-gray-900">
-                                                Property Name: {renderValue(selectedPropertyDetails.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Address: {renderValue(selectedPropertyDetails.address)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                City: {renderValue(selectedPropertyDetails?.pms_city?.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Zone: {renderValue(selectedPropertyDetails?.zone?.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                State: {renderValue(selectedPropertyDetails?.state)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Country: {renderValue(selectedPropertyDetails?.country)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Pin Code: {renderValue(selectedPropertyDetails?.postal_code)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Built Year: {renderValue(selectedPropertyDetails?.built_year)}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                {renderValue(selectedPropertyDetails.property_type)}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-2">
-                                        <MapPin className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Facility type:</p>
-                                            <p className="text-sm text-gray-900">
-                                                {renderValue(selectedPropertyDetails?.pms_site_facility?.facility_type?.name)}
-                                            </p>
-                                            <p className="text-sm text-gray-900">
-                                                Remarks: {renderValue(selectedPropertyDetails?.description)}
-                                            </p>
-                                            <p className="text-sm text-gray-900">
-                                                Owned/Leased: {renderValue(selectedPropertyDetails?.ownership_type)}
-                                            </p>
-                                            <p className="text-sm text-gray-900">
-                                                ITES Certification (Yes / No): {renderValue(selectedPropertyDetails?.ites_certified ? 'Yes' : 'No')}
-                                            </p>
-                                            {
-                                                selectedPropertyDetails?.ites_certified && (
-                                                    <p className="text-sm text-gray-900">
-                                                        ITES Certificate is Valid till what date: {renderValue(selectedPropertyDetails?.ites_certified_till)}
-                                                    </p>
-                                                )
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-2">
-                                        <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Area Details:</p>
-                                            <p className="text-sm text-gray-900">
-                                                Chargable Area: {renderValue(selectedPropertyDetails.leasable_area)} sq ft
-                                            </p>
-                                            {selectedPropertyDetails.carpet_area && (
-                                                <p className="text-sm text-gray-600">
-                                                    Carpet Area: {renderValue(selectedPropertyDetails.carpet_area)} sq ft
-                                                </p>
-                                            )}
-                                            {selectedPropertyDetails.area_efficiency && (
-                                                <p className="text-sm text-gray-600">
-                                                    Efficiency: {renderValue(selectedPropertyDetails.area_efficiency)}%
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {selectedPropertyDetails.amenities && selectedPropertyDetails.amenities.length > 0 && (
-                                        <div className="flex items-start gap-2">
-                                            <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Amenities:</p>
-                                                <p className="text-sm text-gray-900">
-                                                    {selectedPropertyDetails.amenities.join(', ')}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {selectedPropertyDetails.landlord && (
-                                        <div className="flex items-start gap-2">
-                                            <User className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Landlord / Lessor Details:</p>
-                                                {selectedPropertyDetails.landlord.company_name && (
-                                                    <p className="text-sm text-gray-900">
-                                                        Company Name: {renderValue(selectedPropertyDetails.landlord.company_name)}
-                                                    </p>
-                                                )}
-                                                <p className="text-sm text-gray-900">
-                                                    Contact Person: <span className="capitalize">{renderValue(selectedPropertyDetails.landlord.contact_person)}</span>
-                                                </p>
-                                                <p className="text-sm text-gray-600">
-                                                    Email: {renderValue(selectedPropertyDetails.landlord.email)}
-                                                </p>
-                                                <p className="text-sm text-gray-600">
-                                                    Phone No: {renderValue(selectedPropertyDetails.landlord.phone)}
-                                                </p>
-                                                {selectedPropertyDetails.landlord.pan && (
-                                                    <p className="text-sm text-gray-600">
-                                                        PAN No: {renderValue(selectedPropertyDetails.landlord.pan)}
-                                                    </p>
-                                                )}
-                                                {selectedPropertyDetails.landlord.gst && (
-                                                    <p className="text-sm text-gray-600">
-                                                        GST: {renderValue(selectedPropertyDetails.landlord.gst)}
-                                                    </p>
-                                                )}
-                                                {selectedPropertyDetails.landlord.aadhaar_number && (
-                                                    <p className="text-sm text-gray-600">
-                                                        Aadhar No: {renderValue(selectedPropertyDetails.landlord.aadhaar_number)}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-start gap-2">
-                                        <User className="h-4 w-4 mt-1 text-gray-600" />
-                                        <div>
-                                            <p className="text-xs text-gray-500">Compliences</p>
-                                            <p className="text-sm text-gray-900">
-                                                {selectedPropertyDetails?.property_compliances?.map((compliance) => compliance?.compliance_requirement?.title)?.join(', ')}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+            <div role="tabpanel" tabIndex={0} id="rental-step-0" aria-labelledby="rental-tab-0" hidden={step !== 0} className="rental-step-panel">
+                <section className="rental-card">
+                    <h2>Property & Lessee</h2>
+                    <div className="rental-field-grid">
+                        <div className="space-y-2 w-full">
+                            <Label className="text-sm text-gray-900 font-medium">Circle *</Label>
+                            <Select value={formData.circle} onValueChange={handleCircleSelect}>
+                                <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.circle ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
+                                    <SelectValue placeholder={loadingCircles ? "Loading circles..." : "Select a circle"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {circles.map((circle) => (
+                                        <SelectItem key={circle.id} value={circle.id.toString()}>
+                                            {circle.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                    )}
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Property Takeover Condition *</Label>
-                        <Select
-                            value={formData.property_takeover_condition_id}
-                            onValueChange={(value) => { setFormData(prev => ({ ...prev, property_takeover_condition_id: value })); setFieldErrors(prev => ({ ...prev, property_takeover_condition_id: false })); }}
-                        >
-                            <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.property_takeover_condition_id ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
-                                <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {propertyTakeoverConditions.map((condition) => (
-                                    <SelectItem key={condition.id} value={condition.id.toString()}>
-                                        {condition.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Agreement Type *</Label>
-                        <Select
-                            value={formData.aggreement_type}
-                            onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
-                        >
-                            <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.aggreement_type ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
-                                <SelectValue placeholder={"Select agreement type"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {["Lease Agreement", "Leave & License Agreement", "Sale Deed", "Addendum", "Side Letter", "Annexure"].map((condition) => (
-                                    <SelectItem key={condition} value={condition}>
-                                        {condition}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Purpose of Agreement</Label>
-                        <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
-                            <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
-                                <SelectValue placeholder="Select purpose" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="New Office">New Office</SelectItem>
-                                <SelectItem value="Renewal">Renewal</SelectItem>
-                                <SelectItem value="Change of Location">Change of Location</SelectItem>
-                                <SelectItem value="Change of Area">Change of Area</SelectItem>
-                                <SelectItem value="Change of ownership">Change of ownership</SelectItem>
-                                <SelectItem value="Name Change">Name Change</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
-                        {/* <Select value={formData.stamp_duty_sharing} onValueChange={(value) => setFormData(prev => ({ ...prev, stamp_duty_sharing: value }))}>
+                        <div className="space-y-2 w-full">
+                            <Label className="text-sm text-gray-900 font-medium">Select Property *</Label>
+                            <Select value={formData.property} onValueChange={handlePropertySelect}>
+                                <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.property ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
+                                    <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {properties.map((property) => (
+                                        <SelectItem key={property.id} value={property.id.toString()}>
+                                            {property.name} - {property.city || property.address}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lessee *</Label>
+                            <Select value={formData.tenant} onValueChange={handleTenantSelect}>
+                                <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.tenant ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
+                                    <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {tenants.map((tenant) => (
+                                        <SelectItem key={tenant.id} value={tenant.id.toString()}>
+                                            {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Status</Label>
+                            <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div></div></section>
+                <RentalPartyDetails property={selectedPropertyDetails} tenant={selectedTenantDetails} />
+            </div>
+            <div role="tabpanel" tabIndex={0} id="rental-step-1" aria-labelledby="rental-tab-1" hidden={step !== 1} className="rental-step-panel">
+                <section className="rental-card">
+                    <h2>Agreement Details</h2>
+                    <div className="rental-field-grid">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Property Takeover Condition *</Label>
+                            <Select
+                                value={formData.property_takeover_condition_id}
+                                onValueChange={(value) => { setFormData(prev => ({ ...prev, property_takeover_condition_id: value })); setFieldErrors(prev => ({ ...prev, property_takeover_condition_id: false })); }}
+                            >
+                                <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.property_takeover_condition_id ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
+                                    <SelectValue placeholder={loadingTakeoverConditions ? "Loading conditions..." : "Select takeover condition"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {propertyTakeoverConditions.map((condition) => (
+                                        <SelectItem key={condition.id} value={condition.id.toString()}>
+                                            {condition.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Agreement Type *</Label>
+                            <Select
+                                value={formData.aggreement_type}
+                                onValueChange={(value) => { setFormData(prev => ({ ...prev, aggreement_type: value })); setFieldErrors(prev => ({ ...prev, aggreement_type: false })); }}
+                            >
+                                <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.aggreement_type ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
+                                    <SelectValue placeholder={"Select agreement type"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {["Lease Agreement", "Leave & License Agreement", "Sale Deed", "Addendum", "Side Letter", "Annexure"].map((condition) => (
+                                        <SelectItem key={condition} value={condition}>
+                                            {condition}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Purpose of Agreement</Label>
+                            <Select value={formData.purpose_of_agreement} onValueChange={(value) => setFormData(prev => ({ ...prev, purpose_of_agreement: value }))}>
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                    <SelectValue placeholder="Select purpose" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="New Office">New Office</SelectItem>
+                                    <SelectItem value="Renewal">Renewal</SelectItem>
+                                    <SelectItem value="Change of Location">Change of Location</SelectItem>
+                                    <SelectItem value="Change of Area">Change of Area</SelectItem>
+                                    <SelectItem value="Change of ownership">Change of ownership</SelectItem>
+                                    <SelectItem value="Name Change">Name Change</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Stamp Duty and Registration Charges Sharing</Label>
+                            {/* <Select value={formData.stamp_duty_sharing} onValueChange={(value) => setFormData(prev => ({ ...prev, stamp_duty_sharing: value }))}>
                             <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
                                 <SelectValue placeholder="Select sharing option" />
                             </SelectTrigger>
@@ -728,51 +604,87 @@ const AddRentalPage = () => {
                                 <SelectItem value="Shared">Shared (50-50)</SelectItem>
                             </SelectContent>
                         </Select> */}
-                        <Input
-                            type="text"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            value={formData.stamp_duty_sharing}
-                            onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Agreement Sign off Date</Label>
-                        <div className="relative">
                             <Input
-                                type="date"
-                                placeholder="dd-mm-yyyy"
+                                type="text"
                                 className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                                value={formData.agreement_sign_off_date}
-                                onChange={(e) => setFormData(prev => ({ ...prev, agreement_sign_off_date: e.target.value }))}
+                                value={formData.stamp_duty_sharing}
+                                onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
                             />
+                        </div></div></section>
+                <section className="rental-card">
+                    <h2>Lease Dates & Periods</h2>
+                    <div className="rental-field-grid">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Agreement Sign off Date</Label>
+                            <div className="relative">
+                                <Input
+                                    type="date"
+                                    placeholder="dd-mm-yyyy"
+                                    className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
+                                    value={formData.agreement_sign_off_date}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, agreement_sign_off_date: e.target.value }))}
+                                />
+                            </div>
                         </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Lease Start Date *</Label>
-                        <div className="relative">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lease Start Date *</Label>
+                            <div className="relative">
+                                <Input
+                                    type="date"
+                                    className={`h-9 bg-white ${fieldErrors.leaseStart ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}
+                                    value={formData.leaseStart}
+                                    onChange={(e) => { setFormData(prev => ({ ...prev, leaseStart: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseStart: false })); }}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lease End Date *</Label>
+                            <div className="relative">
+                                <Input
+                                    type="date"
+                                    className={`h-9 bg-white ${fieldErrors.leaseEnd ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}
+                                    value={formData.leaseEnd}
+                                    onChange={(e) => { setFormData(prev => ({ ...prev, leaseEnd: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseEnd: false })); }}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Rent Commencement Date</Label>
+                            <div className="relative">
+                                <Input
+                                    type="date"
+                                    placeholder="dd-mm-yyyy"
+                                    className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
+                                    value={formData.rent_commencement_date}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, rent_commencement_date: e.target.value }))}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Rent-free Period (Days)</Label>
                             <Input
-                                type="date"
-                                className={`h-9 bg-white ${fieldErrors.leaseStart ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}
-                                value={formData.leaseStart}
-                                onChange={(e) => { setFormData(prev => ({ ...prev, leaseStart: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseStart: false })); }}
+                                type="number"
+                                min="0"
+                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 30"
+                                value={formData.rent_free_period_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, rent_free_period_days: parseInt(e.target.value) || 0 }))}
                             />
                         </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Lease End Date *</Label>
-                        <div className="relative">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Lock in Period (Days)</Label>
                             <Input
-                                type="date"
-                                className={`h-9 bg-white ${fieldErrors.leaseEnd ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}
-                                value={formData.leaseEnd}
-                                onChange={(e) => { setFormData(prev => ({ ...prev, leaseEnd: e.target.value })); setFieldErrors(prev => ({ ...prev, leaseEnd: false })); }}
+                                type="number"
+                                min="0"
+                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 180"
+                                value={formData.lock_in_period_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
                             />
-                        </div>
-                    </div>
-
+                        </div></div></section></div>
+            <div role="tabpanel" tabIndex={0} id="rental-step-2" aria-labelledby="rental-tab-2" hidden={step !== 2} className="rental-step-panel">
+                <section className="rental-card">
+                    <h2>Rent & Taxes</h2>
                     <div>
                         <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand">Rent Breakdown</h3>
 
@@ -1051,125 +963,10 @@ const AddRentalPage = () => {
                             </div>
 
                         </div>
-                    </div>
-                </div>
-
-                {/* Right Column */}
-                <div className="space-y-5">
-                    <div className="grid grid-cols-1 gap-4">
-
-                        {/* <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium"> Circle *</Label>
-                            <Select value={formData.property} onValueChange={handlePropertySelect}>
-                                <SelectTrigger className="w-full bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
-                                    <SelectValue placeholder={loadingProperties ? "Loading properties..." : "Select a property"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {properties.map((property) => (
-                                        <SelectItem key={property.id} value={property.id.toString()}>
-                                            {property.name} - {property.city || property.address}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div> */}
-
-                        <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Lessee *</Label>
-                            <Select value={formData.tenant} onValueChange={handleTenantSelect}>
-                                <SelectTrigger className={`h-9 w-full bg-white ${fieldErrors.tenant ? 'border-brand-error' : 'border-gray-300'} text-gray-900 text-[13px]`}>
-                                    <SelectValue placeholder={loadingTenants ? "Loading tenants..." : "Select a Lessee"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {tenants.map((tenant) => (
-                                        <SelectItem key={tenant.id} value={tenant.id.toString()}>
-                                            {tenant.name || tenant.company_name} {tenant.email ? `- ${tenant.email}` : ''}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {selectedTenantDetails && (
-                            <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
-                                <h4 className="font-semibold text-md mb-4 text-gray-900">Signing Authority:</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-2">
-                                            <User className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Name:</p>
-                                                <p className="font-medium text-gray-900">
-                                                    {renderValue(selectedTenantDetails.full_name)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                                <span className="text-gray-600 text-[10px] font-bold">@</span>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-500">Contact Details:</p>
-                                                <p className="text-sm text-gray-900">Email: {renderValue(selectedTenantDetails.email)}</p>
-                                                <p className="text-sm text-gray-900">Phone: {renderValue(selectedTenantDetails.phone || selectedTenantDetails.phone_number)}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-2">
-                                            <Building2 className="h-4 w-4 mt-1 text-gray-600" />
-                                            <div>
-                                                <p className="text-xs text-gray-500">Designation:</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.designation)}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                                {/* <span className="text-gray-600 text-[10px] font-bold">ID</span> */}
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-500">Aadhar Number:</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.aadhar_number)}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <div className="h-4 w-4 mt-1 flex items-center justify-center">
-                                                {/* <span className="text-gray-600 text-[10px] font-bold">PAN</span> */}
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-500">PAN Number:</p>
-                                                <p className="text-sm text-gray-900">{renderValue(selectedTenantDetails.pan_number)}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Status</Label>
-                            <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="active">Active</SelectItem>
-                                    <SelectItem value="inactive">Inactive</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Additional Notes</Label>
-                            <Textarea
-                                placeholder="Any additional notes or comments"
-                                className="min-h-[80px] bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                                value={formData.notes}
-                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                            />
-                        </div>
-                    </div>
-
+                    </div></section></div>
+            <div role="tabpanel" tabIndex={0} id="rental-step-3" aria-labelledby="rental-tab-3" hidden={step !== 3} className="rental-step-panel">
+                <section className="rental-card">
+                    <h2>Payment Schedule</h2>
                     <div className="space-y-4">
                         <div className="flex justify-start items-center gap-2">
                             <Clock className="h-5 w-5 text-gray-900" />
@@ -1209,361 +1006,308 @@ const AddRentalPage = () => {
                             </Select>
                             <p className="text-xs text-gray-500">Rent will be due on this date before each month begins</p>
                         </div>
-                    </div>
+                    </div></section>
+                <div className="space-y-5 rounded-lg border border-brand-border bg-white p-5">
+                    <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand">Escalation & Penalty Settings</h3>
 
-                    <div className="space-y-5 rounded-lg border border-brand-border bg-white p-5">
-                        <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand">Escalation & Penalty Settings</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Escalation Frequency </Label>
-                                <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))} disabled>
-                                    <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
-                                        <SelectValue placeholder="Select Escalation Frequency " />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {/* <SelectItem value="monthly">Monthly</SelectItem>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Escalation Frequency </Label>
+                            <Select value={formData.escalation_type} onValueChange={(value) => setFormData(prev => ({ ...prev, escalation_type: value }))} disabled>
+                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                    <SelectValue placeholder="Select Escalation Frequency " />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {/* <SelectItem value="monthly">Monthly</SelectItem>
                                         <SelectItem value="quarterly">Quarterly</SelectItem> */}
-                                        <SelectItem value="annual">In Years</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Esclation Frequency (in yrs)</Label>
-                                <Input
-                                    type="number"
-                                    min="1"
-                                    className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="1"
-                                    value={formData.escalation_interval || ''}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, escalation_interval: parseInt(e.target.value) || 1 }))}
-                                />
-                                <p className="text-xs text-gray-500">Rent increases every {formData.escalation_interval} {formData.escalation_type === 'monthly' ? 'month(s)' : formData.escalation_type === 'quarterly' ? 'quarter(s)' : 'year(s)'}</p>
-                            </div>
+                                    <SelectItem value="annual">In Years</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label className="text-sm text-gray-900 font-medium">Escalation (%)</Label>
+                            <Label className="text-sm text-gray-900 font-medium">Esclation Frequency (in yrs)</Label>
+                            <Input
+                                type="number"
+                                min="1"
+                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="1"
+                                value={formData.escalation_interval || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, escalation_interval: parseInt(e.target.value) || 1 }))}
+                            />
+                            <p className="text-xs text-gray-500">Rent increases every {formData.escalation_interval} {formData.escalation_type === 'monthly' ? 'month(s)' : formData.escalation_type === 'quarterly' ? 'quarter(s)' : 'year(s)'}</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label className="text-sm text-gray-900 font-medium">Escalation (%)</Label>
+                        <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
+                            value={formData.escalationPercentage || ''}
+                            onChange={(e) => setFormData(prev => ({ ...prev, escalationPercentage: parseFloat(e.target.value) || 0 }))}
+                        />
+                        <p className="text-xs text-gray-500">Rent will increase by this percentage</p>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+                            <Label className="text-sm text-gray-600 font-normal">Apply penalty on late payments</Label>
+                            <Switch
+                                checked={formData.applyLatePenalty}
+                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLatePenalty: checked }))}
+                            />
+                        </div>
+
+                        {formData.applyLatePenalty && (
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Penalty Percentage (%)</Label>
+                                <div className="relative">
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={formData.penaltyPercentage || ''}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, penaltyPercentage: parseFloat(e.target.value) || 0 }))}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">One-time penalty applied on overdue amount</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+                            <Label className="text-sm text-gray-600 font-normal">Apply interest on late payments</Label>
+                            <Switch
+                                checked={formData.applyLateInterest}
+                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLateInterest: checked }))}
+                            />
+                        </div>
+
+                        {formData.applyLateInterest && (
+                            <div className="space-y-1.5">
+                                <Label className="text-sm text-gray-900 font-medium">Interest Percentage per Month (%)</Label>
+                                <div className="relative">
+                                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        className="pl-8 bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={formData.interestPercentage || ''}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, interestPercentage: parseFloat(e.target.value) || 0 }))}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">Monthly interest compounded on overdue amount</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <FormSection collapsible={false} title="Notice Period & Terms">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">From Landlord (Days)</Label>
                             <Input
                                 type="number"
                                 min="0"
-                                max="100"
-                                step="0.01"
                                 className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                placeholder="0"
-                                value={formData.escalationPercentage || ''}
-                                onChange={(e) => setFormData(prev => ({ ...prev, escalationPercentage: parseFloat(e.target.value) || 0 }))}
+                                placeholder="30"
+                                value={formData.from_landlord_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, from_landlord_days: parseInt(e.target.value) || 0 }))}
                             />
-                            <p className="text-xs text-gray-500">Rent will increase by this percentage</p>
                         </div>
 
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-                                <Label className="text-sm text-gray-600 font-normal">Apply penalty on late payments</Label>
-                                <Switch
-                                    checked={formData.applyLatePenalty}
-                                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLatePenalty: checked }))}
-                                />
-                            </div>
-
-                            {formData.applyLatePenalty && (
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm text-gray-900 font-medium">Penalty Percentage (%)</Label>
-                                    <div className="relative">
-                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            step="0.01"
-                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            placeholder="0"
-                                            value={formData.penaltyPercentage || ''}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, penaltyPercentage: parseFloat(e.target.value) || 0 }))}
-                                        />
-                                    </div>
-                                    <p className="text-xs text-gray-500">One-time penalty applied on overdue amount</p>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-                                <Label className="text-sm text-gray-600 font-normal">Apply interest on late payments</Label>
-                                <Switch
-                                    checked={formData.applyLateInterest}
-                                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, applyLateInterest: checked }))}
-                                />
-                            </div>
-
-                            {formData.applyLateInterest && (
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm text-gray-900 font-medium">Interest Percentage per Month (%)</Label>
-                                    <div className="relative">
-                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">%</span>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            step="0.01"
-                                            className="pl-8 bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            placeholder="0"
-                                            value={formData.interestPercentage || ''}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, interestPercentage: parseFloat(e.target.value) || 0 }))}
-                                        />
-                                    </div>
-                                    <p className="text-xs text-gray-500">Monthly interest compounded on overdue amount</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Rent Commencement Date</Label>
-                        <div className="relative">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">From VIL (Days)</Label>
                             <Input
-                                type="date"
-                                placeholder="dd-mm-yyyy"
+                                type="number"
+                                min="0"
+                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="60"
+                                value={formData.from_vil_days || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, from_vil_days: parseInt(e.target.value) || 0 }))}
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSEE</Label>
+                            <Textarea
+                                placeholder="e.g., Lessee can terminate with 30 days notice"
                                 className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                                value={formData.rent_commencement_date}
-                                onChange={(e) => setFormData(prev => ({ ...prev, rent_commencement_date: e.target.value }))}
+                                rows={3}
+                                value={formData.termination_rights_lessee}
+                                onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessee: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSOR</Label>
+                            <Textarea
+                                placeholder="e.g., Lessor can terminate with 60 days notice"
+                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
+                                rows={3}
+                                value={formData.termination_rights_lessor}
+                                onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessor: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                            <Label className="text-sm text-gray-900 font-medium">Handover Condition</Label>
+                            <Textarea
+                                placeholder="e.g., Property must be handed over clean and in good condition"
+                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
+                                rows={3}
+                                value={formData.handover_condition}
+                                onChange={(e) => setFormData(prev => ({ ...prev, handover_condition: e.target.value }))}
                             />
                         </div>
                     </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Rent-free Period (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="e.g., 30"
-                            value={formData.rent_free_period_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, rent_free_period_days: parseInt(e.target.value) || 0 }))}
-                        />
+                </FormSection></div>
+            <div role="tabpanel" tabIndex={0} id="rental-step-4" aria-labelledby="rental-tab-4" hidden={step !== 4} className="rental-step-panel">
+                <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-brand-body-3 font-semibold uppercase text-brand">Parking Details</h3>
+                        <Button
+                            type="button"
+                            onClick={addParking}
+                            className="fm-button-fix fm-button-brand px-6 py-2"
+                        >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Parking
+                        </Button>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Lock in Period (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="e.g., 180"
-                            value={formData.lock_in_period_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
-                        />
-                    </div>
-                </div>
-            </div>
+                    <div className="space-y-4">
+                        {parkings.map((parking, index) => (
+                            <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-md">
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Vehicle Type</Label>
+                                    <Select
+                                        value={parking.vehicle_type}
+                                        onValueChange={(value) => updateParking(index, 'vehicle_type', value)}
+                                    >
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="2wheeler">
+                                                <div className="flex items-center gap-2">
+                                                    <Bike className="h-4 w-4" />
+                                                    2 Wheeler
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="4wheeler">
+                                                <div className="flex items-center gap-2">
+                                                    <Car className="h-4 w-4" />
+                                                    4 Wheeler
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-            </>
-            )}
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Parking Type</Label>
+                                    <Select
+                                        value={parking.parking_type}
+                                        onValueChange={(value) => {
+                                            const updated = [...parkings];
+                                            updated[index] = {
+                                                ...updated[index],
+                                                parking_type: value,
+                                                charge: value === 'free' ? '' : updated[index].charge
+                                            };
+                                            setParkings(updated);
+                                        }}
+                                    >
+                                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="free">Free</SelectItem>
+                                            <SelectItem value="paid">Paid</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-            {step === 1 && (
-            <>
-            <FormSection step={1} title="Notice Period & Terms">
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Size</Label>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={parking.count}
+                                        onChange={(e) => updateParking(index, 'count', e.target.value)}
+                                    />
+                                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">From Landlord (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="30"
-                            value={formData.from_landlord_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, from_landlord_days: parseInt(e.target.value) || 0 }))}
-                        />
-                    </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-sm text-gray-900 font-medium">Parking Charges (₹)</Label>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="0"
+                                        value={parking.charge}
+                                        disabled={parking.parking_type === 'free'}
+                                        onChange={(e) => updateParking(index, 'charge', e.target.value)}
+                                    />
+                                </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">From VIL (Days)</Label>
-                        <Input
-                            type="number"
-                            min="0"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            placeholder="60"
-                            value={formData.from_vil_days || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, from_vil_days: parseInt(e.target.value) || 0 }))}
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSEE</Label>
-                        <Textarea
-                            placeholder="e.g., Lessee can terminate with 30 days notice"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            rows={3}
-                            value={formData.termination_rights_lessee}
-                            onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessee: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Termination Rights with LESSOR</Label>
-                        <Textarea
-                            placeholder="e.g., Lessor can terminate with 60 days notice"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            rows={3}
-                            value={formData.termination_rights_lessor}
-                            onChange={(e) => setFormData(prev => ({ ...prev, termination_rights_lessor: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                        <Label className="text-sm text-gray-900 font-medium">Handover Condition</Label>
-                        <Textarea
-                            placeholder="e.g., Property must be handed over clean and in good condition"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            rows={3}
-                            value={formData.handover_condition}
-                            onChange={(e) => setFormData(prev => ({ ...prev, handover_condition: e.target.value }))}
-                        />
-                    </div>
-                </div>
-                        </FormSection>
-
-            <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-brand-body-3 font-semibold uppercase text-brand">Parking Details</h3>
-                    <Button
-                        type="button"
-                        onClick={addParking}
-                        className="fm-button-fix fm-button-brand px-6 py-2"
-                    >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Parking
-                    </Button>
-                </div>
-
-                <div className="space-y-4">
-                    {parkings.map((parking, index) => (
-                        <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-md">
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Vehicle Type</Label>
-                                <Select
-                                    value={parking.vehicle_type}
-                                    onValueChange={(value) => updateParking(index, 'vehicle_type', value)}
-                                >
-                                    <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="2wheeler">
-                                            <div className="flex items-center gap-2">
-                                                <Bike className="h-4 w-4" />
-                                                2 Wheeler
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="4wheeler">
-                                            <div className="flex items-center gap-2">
-                                                <Car className="h-4 w-4" />
-                                                4 Wheeler
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <div className="flex items-end">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => removeParking(index)}
+                                        disabled={parkings.length === 1}
+                                        className="w-full"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
                             </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Parking Type</Label>
-                                <Select
-                                    value={parking.parking_type}
-                                    onValueChange={(value) => {
-                                        const updated = [...parkings];
-                                        updated[index] = {
-                                            ...updated[index],
-                                            parking_type: value,
-                                            charge: value === 'free' ? '' : updated[index].charge
-                                        };
-                                        setParkings(updated);
-                                    }}
-                                >
-                                    <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="free">Free</SelectItem>
-                                        <SelectItem value="paid">Paid</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Size</Label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="0"
-                                    value={parking.count}
-                                    onChange={(e) => updateParking(index, 'count', e.target.value)}
-                                />
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-sm text-gray-900 font-medium">Parking Charges (₹)</Label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    className="bg-white border-gray-300 text-gray-900 h-9 text-[13px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="0"
-                                    value={parking.charge}
-                                    disabled={parking.parking_type === 'free'}
-                                    onChange={(e) => updateParking(index, 'charge', e.target.value)}
-                                />
-                            </div>
-
-                            <div className="flex items-end">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => removeParking(index)}
-                                    disabled={parkings.length === 1}
-                                    className="w-full"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
-                <div className="space-y-1.5">
-                    <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand"> Common Amenities</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
-                        {amenities.map((amenity) => (
-                            <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.amenities.includes(amenity.id)}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setFormData({ ...formData, amenities: [...formData.amenities, amenity.id] });
-                                        } else {
-                                            setFormData({ ...formData, amenities: formData.amenities.filter(a => a !== amenity.id) });
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-[#C72030] border-gray-300 rounded focus:ring-[#C72030]"
-                                />
-                                <span className="text-sm text-gray-700">{amenity.name}</span>
-                            </label>
                         ))}
                     </div>
                 </div>
-            </div>
-
-            </>
-            )}
-
-            {step === 2 && (
-            <>
-            <FormSection step={2} title="Additional Details">
+                <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
+                    <div className="space-y-1.5">
+                        <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand"> Common Amenities</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
+                            {amenities.map((amenity) => (
+                                <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.amenities.includes(amenity.id)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setFormData({ ...formData, amenities: [...formData.amenities, amenity.id] });
+                                            } else {
+                                                setFormData({ ...formData, amenities: formData.amenities.filter(a => a !== amenity.id) });
+                                            }
+                                        }}
+                                        className="w-4 h-4 text-[#C72030] border-gray-300 rounded focus:ring-[#C72030]"
+                                    />
+                                    <span className="text-sm text-gray-700">{amenity.name}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                </div></div>
+            <div role="tabpanel" tabIndex={0} id="rental-step-5" aria-labelledby="rental-tab-5" hidden={step !== 5} className="rental-step-panel">{customFields.length > 0 && (<FormSection collapsible={false} title="Additional Details">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Dynamic Custom Fields */}
@@ -1606,76 +1350,42 @@ const AddRentalPage = () => {
                         </div>
                     ))}
                 </div>
-                        </FormSection>
-
-            {/* <FormSection step={3} title="Signing Authorities">
-
-                <StatsGrid>
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Name</Label>
-                        <Input
-                            type="text"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            placeholder="Enter name"
-                            value={formData.signing_authority_name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_name: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Designation</Label>
-                        <Input
-                            type="text"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            placeholder="Enter designation"
-                            value={formData.signing_authority_designation}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_designation: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Email</Label>
-                        <Input
-                            type="email"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            placeholder="Enter email address"
-                            value={formData.signing_authority_email}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_email: e.target.value }))}
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="text-sm text-gray-900 font-medium">Phone Number</Label>
-                        <Input
-                            type="tel"
-                            className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                            placeholder="Enter phone number"
-                            value={formData.signing_authority_phone}
-                            onChange={(e) => setFormData(prev => ({ ...prev, signing_authority_phone: e.target.value }))}
-                        />
-                    </div>
-                </StatsGrid>
-             </FormSection>
-
-            {/* <AgreementServicesSection services={agreementServices} onChange={setAgreementServices} /> */}
-
-            <div className="mt-8 space-y-6">
-                <div className="space-y-1.5">
-                    <Label className="text-sm text-gray-900 font-medium">Agreement File</Label>
-                    <Input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
-                        onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
-                    />
-                </div>
+            </FormSection>)}<section className="rental-card">
+                    <h2>Notes & Agreement Document</h2>
+                    <div className="rental-field-grid">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Additional Notes</Label>
+                            <Textarea
+                                placeholder="Any additional notes or comments"
+                                className="min-h-[80px] bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
+                                value={formData.notes}
+                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                            />
+                        </div></div>
+                    <div className="mt-8 space-y-6">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm text-gray-900 font-medium">Agreement File</Label>
+                            <Input
+                                type="file"
+                                accept=".pdf,.doc,.docx"
+                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
+                                onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
+                            />
+                        </div>
 
 
-            </div>
-
-            </>
-            )}
-
+                    </div></section>
+                <section className="rental-card">
+                    <h2>Review Rental</h2><p className="rental-help">Check the key details before creating this rental. Use the steps above to make changes.</p>
+                    <dl className="rental-review">{[
+                        ['Property', selectedPropertyDetails?.name || properties.find(p => String(p.id) === formData.property)?.name],
+                        ['Lessee', selectedTenantDetails?.company_name || selectedTenantDetails?.name || tenants.find(t => String(t.id) === formData.tenant)?.name],
+                        ['Agreement type', formData.aggreement_type],
+                        ['Lease period', formData.leaseStart + ' to ' + formData.leaseEnd],
+                        ['Monthly rent', 'INR ' + (formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2)],
+                        ['Security deposit', 'INR ' + formData.securityDeposit],
+                        ['Agreement file', (formData.agreementFile as File | null)?.name || 'No file attached'],
+                    ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{renderValue(value) || 'Not provided'}</dd></div>)}</dl></section></div>
             <FormActions>
                 <Button
                     variant="outline"

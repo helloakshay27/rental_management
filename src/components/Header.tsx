@@ -166,13 +166,12 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           {/* Notifications Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full p-0 hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-brand-text">
-                {/* Same 32px circle as the avatar next to it, so the two controls read as one pair. */}
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-selected">
+              <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl p-0 hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-brand-text">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-selected">
                   <Bell className="h-[18px] w-[18px]" strokeWidth={1.75} />
                 </span>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold leading-none text-white">
+                  <span className="absolute -top-1 -left-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-semibold leading-none text-white">
                     {unreadCount}
                   </span>
                 )}
@@ -240,9 +239,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full p-0 h-8 w-8 hover:opacity-90 focus-visible:ring-0 [&_svg]:!text-white">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand">
-                  <UserRound className="h-[18px] w-[18px] text-white" fill="none" strokeWidth={1.75} />
+              <Button variant="ghost" size="icon" className="rounded-xl p-0 h-10 w-10 hover:opacity-90 focus-visible:ring-0">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-selected text-brand-text text-sm font-semibold">
+                  {initials}
                 </span>
               </Button>
             </DropdownMenuTrigger>
