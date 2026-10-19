@@ -1,3 +1,4 @@
+import { fetchWithSlowWarning } from "@/lib/slowRequest";
 import { resourceFromPath, trackApiWrite } from "@/utils/analytics";
 
 /** Where requests go when the session has not stored a host of its own. */
@@ -80,15 +81,14 @@ function handleUnauthorized(res: Response, path: string) {
 }
 
 export async function post(path: string, body: any) {
-  const res = await fetch(`${getBaseUrl()}${path}`, {
+  const { res, data } = await fetchWithSlowWarning(`${getBaseUrl()}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
-  });
+  }, readJsonResponse);
 
-  const data = await res.json().catch(() => null);
   if (!res.ok) {
     handleUnauthorized(res, path);
     const message = data?.message || res.statusText || "Request failed";
@@ -109,16 +109,16 @@ async function writeRequest(method: 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: s
   const startedAt = Date.now();
   const resource = resourceFromPath(path);
 
-  let res: Response;
+  let result: Awaited<ReturnType<typeof readJsonResponse>>;
   try {
-    res = await fetch(getBaseUrl() + path, {
+    result = await fetchWithSlowWarning(getBaseUrl() + path, {
       method,
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
+    }, readJsonResponse);
   } catch (networkError: any) {
     trackApiWrite({
       method,
@@ -131,7 +131,7 @@ async function writeRequest(method: 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: s
     throw networkError;
   }
 
-  const data = await res.json().catch(() => null);
+  const { res, data } = result;
   const duration_ms = Date.now() - startedAt;
 
   if (!res.ok) {
@@ -153,15 +153,14 @@ export async function postAuth(path: string, body: any) {
 
 export async function getAuth(path: string) {
   const token = getToken();
-  const res = await fetch(`${getBaseUrl()}${path}`, {
+  const { res, data } = await fetchWithSlowWarning(`${getBaseUrl()}${path}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-  });
+  }, readJsonResponse);
 
-  const data = await res.json().catch(() => null);
   if (!res.ok) {
     handleUnauthorized(res, path);
     const message = data?.message || res.statusText || "Request failed";
@@ -174,6 +173,10 @@ export async function getAuth(path: string) {
 
 export async function putAuth(path: string, body: any) {
   return writeRequest('PUT', path, body);
+}
+
+async function readJsonResponse(res: Response) {
+  return { res, data: await res.json().catch(() => null) };
 }
 
 export async function patchAuth(path: string, body: any) {

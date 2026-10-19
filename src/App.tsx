@@ -84,28 +84,7 @@ import AmenityMaster from "./pages/masters/AmenityMaster";
 
 const queryClient = new QueryClient();
 
-/**
- * Toasts exactly as fm-matrix-revamp mounts them on its regular pages: the
- * standard sonner toast at the top-right — white card, dark text, tick/cross
- * icons, close button. Passing toastOptions here replaces the dark-pill
- * classNames in components/ui/sonner.tsx, as it does in fm-matrix-revamp.
- */
-const AppToaster = () => (
-  <Toaster
-    position="top-right"
-    richColors
-    closeButton
-    className="toaster group"
-    toastOptions={{
-      duration: 4000,
-      style: {
-        background: "white",
-        border: "1px solid #e5e7eb",
-        color: "#1a1a1a",
-      },
-    }}
-  />
-);
+const AppToaster = () => <Toaster />;
 
 const App = () => {
   return (

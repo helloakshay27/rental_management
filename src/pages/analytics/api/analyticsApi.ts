@@ -1,3 +1,4 @@
+import { fetchWithSlowWarning } from "@/lib/slowRequest";
 /**
  * Lease Management analytics API — the PostHog Adoption Analytics service.
  *
@@ -113,12 +114,13 @@ async function get<T>(path: string, params: Record<string, string>): Promise<T> 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(`${BASE_URL}/fm/adoption/${path}?${qs}`, {
+    return await fetchWithSlowWarning(`${BASE_URL}/fm/adoption/${path}?${qs}`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
+    }, async (res) => {
+      if (!res.ok) throw new Error(`${path} failed: ${res.status} ${res.statusText}`);
+      return (await res.json()) as T;
     });
-    if (!res.ok) throw new Error(`${path} failed: ${res.status} ${res.statusText}`);
-    return (await res.json()) as T;
   } finally {
     clearTimeout(timer);
   }
@@ -448,12 +450,13 @@ export async function fetchRecentActiveUsers(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(`${baseUrl}/fm/adoption/recent_active_users?${qs}`, {
+    return await fetchWithSlowWarning(`${baseUrl}/fm/adoption/recent_active_users?${qs}`, {
       signal: controller.signal,
       headers,
+    }, async (res) => {
+      if (!res.ok) throw new Error(`recent_active_users failed: ${res.status} ${res.statusText}`);
+      return (await res.json()) as RecentActiveUsersResponse;
     });
-    if (!res.ok) throw new Error(`recent_active_users failed: ${res.status} ${res.statusText}`);
-    return (await res.json()) as RecentActiveUsersResponse;
   } finally {
     clearTimeout(timer);
   }
@@ -475,12 +478,12 @@ export async function downloadActiveUsersExport(
   const qs = new URLSearchParams(params).toString();
   const url = `${baseUrl}/fm/adoption/active_users_export${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, { headers });
-  if (!res.ok) {
-    throw new Error(`active_users_export failed: ${res.status} ${res.statusText}`);
-  }
-
-  const blob = await res.blob();
+  const { res, blob } = await fetchWithSlowWarning(url, { headers }, async (res) => {
+    if (!res.ok) {
+      throw new Error(`active_users_export failed: ${res.status} ${res.statusText}`);
+    }
+    return { res, blob: await res.blob() };
+  });
 
   let filename = 'active_users.xlsx';
   const disposition = res.headers.get('content-disposition');

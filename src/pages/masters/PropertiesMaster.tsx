@@ -1,3 +1,4 @@
+import { fetchWithSlowWarning } from "@/lib/slowRequest";
 
 import React, { useState } from 'react';
 import { FileUploadZone } from '@/components/ui/file-upload-zone';
@@ -372,8 +373,7 @@ const PropertiesMaster = () => {
           const preview = doc.url?.startsWith('http') ? doc.url : `${getBaseUrl()}${doc.url}`;
           let base64 = '';
           try {
-            const resp = await fetch(preview);
-            const blob = await resp.blob();
+            const blob = await fetchWithSlowWarning(preview, undefined, (resp) => resp.blob());
             base64 = await new Promise((resolve) => {
               const reader = new FileReader();
               reader.onloadend = () => {
