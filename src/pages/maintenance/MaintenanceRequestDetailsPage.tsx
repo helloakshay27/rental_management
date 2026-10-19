@@ -5,6 +5,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
+import { formatCurrency } from '@/lib/format';
 import { getAuth, patchAuth } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
@@ -65,15 +67,6 @@ const MaintenanceRequestDetailsPage = () => {
             case 'in-progress': return 'bg-blue-100 text-blue-800 border-blue-200';
             case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
             default: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-        }
-    };
-
-    const getPriorityColor = (priority: string) => {
-        switch (priority?.toLowerCase()) {
-            case 'critical': return 'bg-red-100 text-red-800 border-red-200';
-            case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 'medium': return 'bg-blue-100 text-blue-800 border-blue-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
@@ -140,7 +133,7 @@ const MaintenanceRequestDetailsPage = () => {
                             </div>
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500 mb-1">Estimated Cost</h3>
-                                <p className="text-gray-900 font-medium">₹{request.estimated_cost || '0.00'}</p>
+                                <p className="text-gray-900 font-medium tabular-nums">{formatCurrency(request.estimated_cost || 0)}</p>
                             </div>
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500 mb-1">Created Date</h3>
@@ -160,8 +153,8 @@ const MaintenanceRequestDetailsPage = () => {
                                 </h3>
                                 <div className="text-right">
                                     <p className="text-sm text-gray-500">Total Maintenance Cost</p>
-                                    <p className="text-xl font-black text-[#C72030]">
-                                        ₹{request.maintenance_costs?.reduce((acc: number, curr: any) => acc + parseFloat(curr.amount || 0), 0).toLocaleString() || '0'}
+                                    <p className="text-xl font-black tabular-nums text-[#C72030]">
+                                        {formatCurrency(request.maintenance_costs?.reduce((acc: number, curr: any) => acc + parseFloat(curr.amount || 0), 0) || 0)}
                                     </p>
                                 </div>
                             </div>
@@ -186,7 +179,7 @@ const MaintenanceRequestDetailsPage = () => {
                                                             </Badge>
                                                         </td>
                                                         <td className="px-4 py-3 text-sm text-gray-700">{cost.description}</td>
-                                                        <td className="px-4 py-3 text-sm font-bold text-gray-900 text-right">₹{parseFloat(cost.amount).toLocaleString()}</td>
+                                                        <td className="px-4 py-3 text-sm font-bold tabular-nums text-gray-900 text-right">{formatCurrency(cost.amount)}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -270,9 +263,7 @@ const MaintenanceRequestDetailsPage = () => {
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 mb-2">Priority Level</p>
-                                <Badge variant="outline" className={`${getPriorityColor(request.priority)} px-3 py-1 capitalize`}>
-                                    {request.priority}
-                                </Badge>
+                                <StatusPill status={request.priority || 'Unknown'} />
                             </div>
                         </CardContent>
                     </Card>

@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { ArrowLeft, Edit, Calendar, FileText, User, Building, IndianRupee, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -78,15 +79,12 @@ const AmcContractDetail = () => {
                             <ArrowLeft className="h-6 w-6 text-gray-600" />
                         </Button>
                         <div>
-                            <h1 className="text-brand-body-1 font-bold text-gray-900 flex items-center gap-3">
-                                AMC Contract #{contract.id}
-                                <Badge className={`text-sm font-medium capitalize ${contract.status === 'active' ? 'bg-green-100 text-green-800' :
-                                    contract.status === 'expired' ? 'bg-red-100 text-red-800' :
-                                        'bg-gray-100 text-gray-800'
-                                    }`}>
-                                    {contract.status}
-                                </Badge>
-                            </h1>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-[22px] font-semibold tracking-[-0.015em] leading-[1.2] text-[#1A1A18]">
+                                    AMC Contract #{contract.id}
+                                </h1>
+                                <StatusPill status={contract.status} />
+                            </div>
                             <p className="text-sm text-gray-500 mt-1">Created on {new Date(contract.created_at).toLocaleDateString()}</p>
                         </div>
                     </div>
@@ -259,7 +257,7 @@ const AmcContractDetail = () => {
                         </Card>
 
                         {contract.remarks && (
-                            <Card className="border-gray-200 bg-yellow-50/50">
+                            <Card className="border-gray-200">
                                 <CardHeader>
                                     <CardTitle className="text-sm font-semibold text-gray-800">Remarks</CardTitle>
                                 </CardHeader>

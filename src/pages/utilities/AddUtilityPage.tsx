@@ -113,11 +113,11 @@ const AddUtilityPage = () => {
             </button>
 
             <div className="mb-6 mt-2 flex items-center gap-4">
-                <h1 className="text-brand-body-1 font-bold text-[#1a1a1a]">ADD UTILITY</h1>
+                <h1 className="text-[22px] font-semibold leading-[1.2] tracking-[-0.015em] text-[#1A1A18]">Add Utility</h1>
             </div>
 
             <form onSubmit={handleSubmit}>
-                <FormSection step={1} title="UTILITY CONNECTION DETAILS" className="mb-5">
+                <FormSection step={1} title="Utility Connection Details" className="mb-5">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             <div className="space-y-1.5">
                                 <Label className="text-sm text-gray-900 font-medium">

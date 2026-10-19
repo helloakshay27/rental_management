@@ -4,6 +4,8 @@ import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { StatusPill } from '@/components/ui/status-pill';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -114,10 +116,16 @@ const AmenityMaster = () => {
         setFormData({ name: '', active: true });
     };
 
-    const deleteAmenity = async (amenity: Amenity) => {
-        if (!window.confirm('Are you sure you want to delete this amenity?')) {
-            return;
-        }
+    const [deletingAmenity, setDeletingAmenity] = useState<Amenity | null>(null);
+
+    const deleteAmenity = (amenity: Amenity) => {
+        setDeletingAmenity(amenity);
+    };
+
+    const confirmDeleteAmenity = async () => {
+        if (!deletingAmenity) return;
+        const amenity = deletingAmenity;
+        setDeletingAmenity(null);
         try {
             await deleteAuth(`/pms/amenities/${amenity.id}.json`);
             trackDeleted('Amenity', { record_id: amenity.id, source: 'masters' });
@@ -151,15 +159,7 @@ const AmenityMaster = () => {
                     </div>
                 );
             case 'active':
-                return (
-                    <span
-                        className={`px-2 py-0.5 rounded text-brand-caption font-bold uppercase tracking-wider ${getStatusStyle(
-                            amenity.active
-                        )}`}
-                    >
-                        {amenity.active ? 'Active' : 'Inactive'}
-                    </span>
-                );
+                return <StatusPill status={amenity.active ? 'Active' : 'Inactive'} />;
             default:
                 return amenity[columnKey as keyof Amenity] as React.ReactNode;
         }
@@ -260,6 +260,24 @@ const AmenityMaster = () => {
                     pageSize={10}
                 />
             </div>
+
+            {/* Delete confirmation */}
+            <AlertDialog open={deletingAmenity !== null} onOpenChange={(open) => { if (!open) setDeletingAmenity(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Amenity</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete {deletingAmenity?.name ? `"${deletingAmenity.name}"` : 'this amenity'}? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmDeleteAmenity}>
+                            Delete Amenity
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </PageContainer>
     );
 };

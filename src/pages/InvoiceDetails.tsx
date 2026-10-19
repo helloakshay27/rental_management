@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { ArrowLeft, Printer, Send, CreditCard, Building, User, Calendar, Receipt, FileText } from 'lucide-react';
@@ -76,18 +77,8 @@ const InvoiceDetails = () => {
         );
     }
 
-    const getStatusBadge = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case 'paid':
-                return <Badge variant="success">Paid</Badge>;
-            case 'pending':
-                return <Badge variant="pending">Pending</Badge>;
-            case 'overdue':
-                return <Badge variant="rejected">Overdue</Badge>;
-            default:
-                return <Badge>{status}</Badge>;
-        }
-    };
+    // Shared low-tint state pill; enum keys (e.g. partially_paid) display humanised.
+    const getStatusBadge = (status: string) => <StatusPill status={status} />;
 
     const totalPayable =
         (invoice.amount || 0) +

@@ -6,8 +6,8 @@ import { cn } from '@/lib/utils';
  * Details-page primitives.
  *
  * Ported from fm-matrix-revamp's `ProjectTaskDetails` (`/vas/tasks/:id`): a
- * white rounded card whose header carries a rotating ChevronDownCircle and an
- * ALL-CAPS title, with label/value pairs inside.
+ * white rounded card whose header carries a rotating ChevronDownCircle and a
+ * title-case 14px/600 section title, with label/value pairs inside.
  *
  *   <DetailHeader id="LSE000038" title="Idea Cellular Limited" meta={…} />
  *   <DetailSection title="Details">
@@ -41,22 +41,22 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
 
     return (
         <div
-            className={cn('mb-5 rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5', className)}
+            className={cn('mb-5 rounded-[16px] border border-[rgba(26,26,24,0.08)] bg-white px-5 py-5 shadow-none sm:px-7 sm:py-6', className)}
             {...props}
         >
-            <div className="flex items-center gap-3 border-b border-gray-200 pb-3">
+            <div className="flex items-center gap-3 border-b border-[rgba(26,26,24,0.08)] pb-3">
                 {collapsible && (
                     <ChevronDownCircle
-                        color="#E95420"
-                        size={22}
+                        size={18}
+                        strokeWidth={1.8}
                         className={cn(
-                            'shrink-0 cursor-pointer transition-transform',
+                            'shrink-0 cursor-pointer text-[rgba(26,26,24,0.62)] transition-transform',
                             open ? 'rotate-0' : 'rotate-180'
                         )}
                         onClick={() => setOpen(!open)}
                     />
                 )}
-                <h3 className="flex-1 text-brand-body-3 font-semibold uppercase text-[#1A1A1A]">{title}</h3>
+                <h3 className="flex-1 text-[14px] font-semibold text-[#1A1A18]">{title}</h3>
                 {action}
             </div>
 
@@ -106,7 +106,7 @@ interface DetailHeaderProps {
     className?: string;
 }
 
-/** Record title block with the reference's 3px rule and meta row. */
+/** Record title block: 22px/600 record title, hairline rule and meta row. */
 export const DetailHeader: React.FC<DetailHeaderProps> = ({
     id,
     title,
@@ -118,12 +118,12 @@ export const DetailHeader: React.FC<DetailHeaderProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
                 {id && <span className="text-brand">{id}</span>}
-                <span className="text-brand-body-2 font-semibold text-brand-text">{title}</span>
+                <h1 className="text-[22px] font-semibold leading-[1.2] tracking-[-0.015em] text-[#1A1A18]">{title}</h1>
             </div>
             {actions}
         </div>
 
-        <div className="mt-2 border-b-[3px] border-[rgba(190,190,190,1)]" />
+        <div className="mt-3 border-b border-[rgba(26,26,24,0.08)]" />
 
         {meta && (
             <div className="my-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[#323232]">

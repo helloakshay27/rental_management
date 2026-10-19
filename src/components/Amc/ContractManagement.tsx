@@ -18,7 +18,7 @@ const columns: ColumnConfig[] = [
   { key: 'site', label: 'Property', sortable: true, draggable: true },
   { key: 'start_date', label: 'Start Date', sortable: true, draggable: true },
   { key: 'end_date', label: 'End Date', sortable: true, draggable: true },
-  { key: 'contract_value', label: 'Value', sortable: true, draggable: true },
+  { key: 'contract_value', label: 'Value', sortable: true, draggable: true, align: 'right' },
   { key: 'status', label: 'Status', sortable: true, draggable: true },
 ];
 

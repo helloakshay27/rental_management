@@ -315,7 +315,7 @@ const CityMaster = () => {
             <div className="flex items-center justify-between">
                 <PageHeader title="City Master" description="Manage cities and their association with zones" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogContent className="max-w-2xl bg-white">
+                    <DialogContent>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingCity ? 'Edit City' : 'Add New City'}

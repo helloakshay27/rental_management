@@ -230,7 +230,7 @@ const TakeoverConditionsManagement = () => {
                     setIsDialogOpen(open);
                     if (!open) handleCloseDialog();
                 }}>
-                    <DialogContent className="max-w-md bg-white">
+                    <DialogContent className="bg-white">
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">{editingCondition ? 'Edit Condition' : 'Add New Condition'}</DialogTitle>
                             <DialogDescription className="text-gray-600">Enter the details for the property takeover condition</DialogDescription>

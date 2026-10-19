@@ -140,7 +140,7 @@ const ProfileTab = () => {
   }
 
   return (
-    <Card className="bg-white border border-gray-100 shadow-sm p-6">
+    <Card className="bg-white px-7 py-6">
       <CardHeader className="pt-0 pb-4 px-0">
         <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
           <User className="h-4 w-4" />
@@ -257,11 +257,11 @@ const ProfileTab = () => {
           </div>
 
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="block text-sm font-medium text-gray-900">Bio</Label>
+            <Label className="block">Bio</Label>
             <Textarea
               value={userData.bio}
               onChange={(e) => setUserData({ ...userData, bio: e.target.value })}
-              className="bg-gray-50 border border-gray-200 min-h-[90px] text-[13px] text-gray-700 focus:bg-white transition-all resize-none"
+              className="min-h-[88px]"
               placeholder="Tell us about yourself..."
             />
           </div>
@@ -271,7 +271,7 @@ const ProfileTab = () => {
           <Button
             onClick={handleSave}
             disabled={loading}
-            className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]"
+            className="fm-button-fix fm-button-brand"
           >
             {loading ? <Spinner className="mr-2" /> : null}
             Save Changes

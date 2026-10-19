@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { StatsGrid } from '@/components/ui/page';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, Legend, PieChart, Pie, Cell } from 'recharts';
 import { Building, Clock, DollarSign, TrendingDown } from 'lucide-react';
@@ -17,20 +17,20 @@ const fitoutData = [
 ];
 
 const lockinStatusData = [
-  { status: 'High Risk (< 6 months)', count: 12, percentage: 15, color: '#E5484D' },
-  { status: 'Medium Risk (6-12 months)', count: 18, percentage: 22, color: '#2F6FE0' },
-  { status: 'Safe (12-24 months)', count: 28, percentage: 35, color: '#5A4BE0' },
-  { status: 'Very Safe (24+ months)', count: 22, percentage: 28, color: '#12A150' }
+  { status: 'High Risk (< 6 months)', count: 12, percentage: 15, color: ANALYTICS_PALETTE[0] },
+  { status: 'Medium Risk (6-12 months)', count: 18, percentage: 22, color: ANALYTICS_PALETTE[1] },
+  { status: 'Safe (12-24 months)', count: 28, percentage: 35, color: ANALYTICS_PALETTE[2] },
+  { status: 'Very Safe (24+ months)', count: 22, percentage: 28, color: ANALYTICS_PALETTE[3] }
 ];
 
 const chartConfig = {
   fitoutCost: {
     label: 'Fitout Cost (₹)',
-    color: '#5A4BE0'
+    color: ANALYTICS_PALETTE[0]
   },
   monthsRemaining: {
     label: 'Months Remaining',
-    color: '#2F6FE0'
+    color: ANALYTICS_PALETTE[1]
   }
 };
 
@@ -48,7 +48,7 @@ const FitoutAnalytics = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard
           title="Total Fitout Investment"
           value={`₹${(totalFitoutInvestment / 10000000).toFixed(1)}Cr`}
@@ -68,9 +68,8 @@ const FitoutAnalytics = () => {
           title="At Risk Properties"
           value={12}
           icon={<TrendingDown />}
-          valueClassName="text-brand-error"
         />
-      </StatsGrid>
+      </KpiGrid>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -88,8 +87,8 @@ const FitoutAnalytics = () => {
                 <YAxis yAxisId="right" orientation="right" />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Legend />
-                <Bar yAxisId="left" dataKey="fitoutCost" fill="#5A4BE0" name="Fitout Cost (₹)" />
-                <Bar yAxisId="right" dataKey="monthsRemaining" fill="#2F6FE0" name="Months Remaining" />
+                <Bar yAxisId="left" dataKey="fitoutCost" fill={ANALYTICS_PALETTE[0]} name="Fitout Cost (₹)" />
+                <Bar yAxisId="right" dataKey="monthsRemaining" fill={ANALYTICS_PALETTE[1]} name="Months Remaining" />
               </BarChart>
             </ChartContainer>
           </CardContent>
@@ -109,7 +108,7 @@ const FitoutAnalytics = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  fill="#5A4BE0"
+                  fill={ANALYTICS_PALETTE[0]}
                   dataKey="count"
                   label={({ percentage }) => `${percentage}%`}
                 >

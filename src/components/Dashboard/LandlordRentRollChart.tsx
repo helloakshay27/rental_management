@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { ComposedChart, Bar, Line, XAxis, YAxis, Legend } from 'recharts';
@@ -16,19 +17,19 @@ const rentRollData = [
 const chartConfig = {
   collections: {
     label: 'Collection Rate (%)',
-    color: '#5A4BE0'
+    color: ANALYTICS_PALETTE[0]
   },
   escalations: {
     label: 'Escalations',
-    color: '#2F6FE0'
+    color: ANALYTICS_PALETTE[1]
   },
   newLeases: {
     label: 'New Leases',
-    color: '#12A150'
+    color: ANALYTICS_PALETTE[2]
   },
   renewals: {
     label: 'Renewals',
-    color: '#BFBFBD'
+    color: ANALYTICS_PALETTE[3]
   }
 };
 

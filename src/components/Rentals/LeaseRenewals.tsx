@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StatsGrid } from '@/components/ui/page';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
@@ -192,13 +191,13 @@ const LeaseRenewals = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard
           title="Expiring Soon"
           value={renewals.filter(r => r.daysUntilExpiry <= 30 && r.daysUntilExpiry >= 0).length}
           icon={<Clock />}
           footer={
-            <p className="mt-0.5 text-brand-caption text-brand-warning">Within 30 days</p>
+            <p className="text-brand-warning">Within 30 days</p>
           }
         />
         <StatsCard
@@ -216,7 +215,7 @@ const LeaseRenewals = () => {
           value={renewals.filter(r => r.renewalStatus === 'renewed').length}
           icon={<CheckCircle />}
         />
-      </StatsGrid>
+      </KpiGrid>
 
       {/* Lease Renewals Table */}
       <div>

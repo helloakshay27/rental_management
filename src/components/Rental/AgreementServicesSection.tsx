@@ -95,7 +95,7 @@ const AgreementServicesSection: React.FC<AgreementServicesSectionProps> = ({ ser
     };
 
     return (
-        <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="mt-8 p-6 bg-white border border-gray-200 rounded-[16px]">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="font-semibold text-lg text-gray-900 flex items-center gap-2">
                     <Zap className="h-5 w-5 text-[#C72030]" />

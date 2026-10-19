@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { StatsGrid } from '@/components/ui/page';
 import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
+import { formatCompactCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -315,7 +315,7 @@ const MyRentals = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard
           title="Total Properties"
           value={summary.total_properties}
@@ -323,12 +323,12 @@ const MyRentals = () => {
         />
         <StatsCard
           title="Monthly Rent"
-          value={`₹${totalMonthlyRent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          value={formatCompactCurrency(totalMonthlyRent)}
           icon={<DollarSign />}
         />
         <StatsCard
           title="Security Deposits"
-          value={`₹${totalSecurityDeposit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          value={formatCompactCurrency(totalSecurityDeposit)}
           icon={<CreditCard />}
         />
         <StatsCard
@@ -336,7 +336,7 @@ const MyRentals = () => {
           value={summary.active_leases}
           icon={<CheckCircle />}
         />
-      </StatsGrid>
+      </KpiGrid>
 
       <div>
         <EnhancedTable
@@ -367,7 +367,7 @@ const MyRentals = () => {
       </div>
 
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Record Rent Payment</DialogTitle>
             <DialogDescription>
@@ -377,14 +377,14 @@ const MyRentals = () => {
 
           <div className="grid gap-6 py-4">
             <div className="space-y-2">
-              <Label htmlFor="invoice_id" className="text-gray-900 font-medium">
+              <Label htmlFor="invoice_id">
                 Select Invoice *
               </Label>
               <Select
                 value={paymentFormData.invoice_id}
                 onValueChange={(value) => setPaymentFormData(prev => ({ ...prev, invoice_id: value }))}
               >
-                <SelectTrigger className="w-full bg-white border-gray-300 text-gray-900">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={loadingInvoices ? "Loading invoices..." : "Select Invoice"} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -402,14 +402,13 @@ const MyRentals = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amount" className="text-gray-900 font-medium">
+              <Label htmlFor="amount">
                 Amount (₹) *
               </Label>
               <Input
                 id="amount"
                 type="number"
                 placeholder="0.00"
-                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.amount}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, amount: e.target.value }))}
               />
@@ -417,52 +416,49 @@ const MyRentals = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="payment_date" className="text-gray-900 font-medium">
+                <Label htmlFor="payment_date">
                   Payment Date
                 </Label>
                 <Input
                   id="payment_date"
                   type="date"
-                  className="bg-white border-gray-300 text-gray-900"
                   value={paymentFormData.payment_date}
                   onChange={(e) => setPaymentFormData(prev => ({ ...prev, payment_date: e.target.value }))}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="payment_type" className="text-gray-900 font-medium">
+                <Label htmlFor="payment_type">
                   Payment Type
                 </Label>
                 <Input
                   id="payment_type"
                   value="rent"
                   disabled
-                  className="bg-gray-50 border-2 border-gray-200 text-gray-500 font-medium"
+                  className="bg-gray-50 text-gray-500"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="transaction_id" className="text-gray-900 font-medium">
+              <Label htmlFor="transaction_id">
                 Transaction ID *
               </Label>
               <Input
                 id="transaction_id"
                 placeholder="UPI / Bank Ref No."
-                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.transaction_id}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, transaction_id: e.target.value }))}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-gray-900 font-medium">
+              <Label htmlFor="description">
                 Description
               </Label>
               <Input
                 id="description"
                 placeholder="Optional notes"
-                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.description}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, description: e.target.value }))}
               />
@@ -473,14 +469,14 @@ const MyRentals = () => {
             <Button
               variant="outline"
               onClick={() => setIsPaymentModalOpen(false)}
-              className="border-gray-300 text-gray-700"
+              className="fm-button-fix"
             >
               Cancel
             </Button>
             <Button
               onClick={handlePaymentSubmit}
               disabled={isSubmittingPayment}
-              className="fm-button-fix fm-button-brand px-6 py-2"
+              className="fm-button-fix fm-button-brand"
             >
               {isSubmittingPayment ? "Processing..." : "Submit Payment"}
             </Button>

@@ -325,7 +325,7 @@ const TenantsManagement = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Lessee Management" description="Manage lessee information, documents, and profiles" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                 {editingTenant ? 'Edit Lessee' : 'Add New Lessee'}

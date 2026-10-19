@@ -5,7 +5,7 @@ import { PageLoader } from '@/components/ui/loader';
 import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { StatusPill, MetaChip } from '@/components/ui/status-pill';
 import { getAuth } from '@/lib/api';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -66,9 +66,7 @@ const LeaseCustomFieldDetailsPage = () => {
                 actions={
                     <>
                 <div className="flex items-center gap-3">
-                    <Badge className={field.status === 'Active' ? 'bg-green-600' : 'bg-gray-500'}>
-                        {field.status || 'Active'}
-                    </Badge>
+                    <StatusPill status={field.status || 'Active'} />
                     </div>
                     </>
                 }
@@ -81,9 +79,7 @@ const LeaseCustomFieldDetailsPage = () => {
                         <DetailField
                             label="Field Type"
                             value={
-                                <Badge variant="secondary" className="text-xs capitalize px-2 py-0.5">
-                                    {field.field_type || '-'}
-                                </Badge>
+                                <MetaChip className="capitalize">{field.field_type || '-'}</MetaChip>
                             }
                         />
                         <DetailField

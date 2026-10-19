@@ -81,7 +81,8 @@ export const StatsGrid: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     ...props
 }) => (
     <div
-        className={cn('grid grid-cols-1 gap-4 pb-6 sm:grid-cols-2 lg:grid-cols-4', className)}
+        // Same row as KpiGrid (stats-card.tsx).
+        className={cn('mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4', className)}
         {...props}
     >
         {children}

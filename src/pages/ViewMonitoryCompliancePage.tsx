@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heading, Text } from '@/components/ui/typography';
 import { trackViewed } from '@/utils/analytics';
+import { StatusPill } from '@/components/ui/status-pill';
 
 const ViewMonitoryCompliancePage = () => {
     const navigate = useNavigate();
@@ -84,7 +85,7 @@ const ViewMonitoryCompliancePage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="md:col-span-2 bg-white border-gray-200">
+                <Card className="md:col-span-2 bg-white shadow-none">
                     <CardHeader className="border-b border-gray-100">
                         <CardTitle className="text-lg font-semibold flex items-center gap-2">
                             <Info className="h-5 w-5 text-[#C72030]" />
@@ -108,11 +109,7 @@ const ViewMonitoryCompliancePage = () => {
                             <div>
                                 <Label className="text-gray-500 text-xs uppercase tracking-wider">Status</Label>
                                 <div className="mt-1">
-                                    <span className={`px-2 py-1 rounded text-xs font-semibold capitalize ${data.status === 'approved' ? 'bg-green-100 text-green-700' :
-                                        data.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                                        }`}>
-                                        {data.status}
-                                    </span>
+                                    <StatusPill status={data.status || 'pending'} />
                                 </div>
                             </div>
                             <div className="md:col-span-2">
@@ -123,7 +120,7 @@ const ViewMonitoryCompliancePage = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-white border-gray-200 h-fit">
+                <Card className="bg-white shadow-none h-fit">
                     <CardHeader className="border-b border-gray-100">
                         <CardTitle className="text-lg font-semibold flex items-center gap-2">
                             <Calendar className="h-5 w-5 text-[#C72030]" />

@@ -5,7 +5,7 @@ import { PageLoader } from '@/components/ui/loader';
 import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { trackViewed } from '@/utils/analytics';
@@ -65,9 +65,7 @@ const CountryDetailsPage = () => {
                 actions={
                     <>
                 <div className="flex items-center gap-3">
-                    <Badge className={country.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-red-500 hover:bg-red-600'}>
-                        {country.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
+                    <StatusPill status={country.is_active ? 'Active' : 'Inactive'} />
                     </div>
                     </>
                 }
@@ -87,9 +85,9 @@ const CountryDetailsPage = () => {
                     <DetailField
                         label="Geopolitical Status"
                         value={
-                            <Badge className={country.is_active ? 'bg-green-100 text-green-700 border-none' : 'bg-red-100 text-red-700 border-none'}>
+                            <StatusPill tone={country.is_active ? 'success' : 'neutral'}>
                                 {country.is_active ? 'Operational' : 'Restricted'}
-                            </Badge>
+                            </StatusPill>
                         }
                     />
                 </DetailGrid>

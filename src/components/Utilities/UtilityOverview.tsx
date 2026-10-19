@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { StatsGrid } from '@/components/ui/page';
-import { Panel, PanelRow, PanelBadge } from '@/components/ui/panel';
-import { StatsCard } from '@/components/ui/stats-card';
+import { Panel, PanelRow } from '@/components/ui/panel';
+import { StatusPill } from '@/components/ui/status-pill';
+import { KpiGrid, StatsCard } from '@/components/ui/stats-card';
 import { Zap, Droplets, Thermometer, Wifi, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 
 const UtilityOverview = () => {
@@ -13,17 +13,9 @@ const UtilityOverview = () => {
     { type: 'Internet', icon: Wifi, usage: '5 connections', cost: '$299', change: '0%', trend: 'neutral' }
   ];
 
-  /** Due-date urgency is the one semantic colour these rows keep. */
-  const getBillTone = (status: string) =>
-    status === 'Due Soon'
-      ? 'text-brand-error'
-      : status === 'Pending'
-        ? 'text-brand-warning'
-        : 'text-brand-success';
-
   return (
     <div className="space-y-5">
-      <StatsGrid>
+      <KpiGrid>
         {utilities.map((utility, index) => {
           const Icon = utility.icon;
           return (
@@ -34,9 +26,9 @@ const UtilityOverview = () => {
               icon={<Icon />}
               footer={
                 <>
-                  <p className="text-brand-body-5 text-brand-text-light">{utility.usage}</p>
+                  <p>{utility.usage}</p>
                   <p
-                    className={`mt-0.5 flex items-center text-brand-caption ${
+                    className={`flex items-center ${
                       utility.trend === 'up'
                         ? 'text-brand-success'
                         : utility.trend === 'down'
@@ -53,7 +45,7 @@ const UtilityOverview = () => {
             />
           );
         })}
-      </StatsGrid>
+      </KpiGrid>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel
@@ -103,7 +95,7 @@ const UtilityOverview = () => {
               value={
                 <span className="flex items-center gap-2">
                   {bill.amount}
-                  <PanelBadge tone={getBillTone(bill.status)}>{bill.status}</PanelBadge>
+                  <StatusPill status={bill.status} />
                 </span>
               }
             />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FileUploadZone } from '@/components/ui/file-upload-zone';
 import { FormSection, FormActions } from '@/components/ui/form-section';
 import { PageLoader, Spinner } from '@/components/ui/loader';
 import { PageContainer, PageHeader } from '@/components/ui/page';
@@ -206,7 +207,7 @@ const AddMaintenanceRequestPage = () => {
                                     <Textarea
                                         value={formData.description}
                                         onChange={(e) => handleChange('description', e.target.value)}
-                                        className="bg-white border-gray-300 text-gray-900 text-[13px] min-h-[80px]"
+                                        className="min-h-[88px]"
                                         placeholder="Detailed description of the issue..."
                                     />
                                 </div>
@@ -344,18 +345,7 @@ const AddMaintenanceRequestPage = () => {
                             {/* Documents */}
                             <div className="space-y-4 pt-4 border-t border-gray-100">
                                 <Label className="text-sm font-medium text-gray-900">Attachments</Label>
-                                <div className="border border-dashed border-gray-300 rounded-xl py-10 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative">
-
-                                    <Input
-                                        type="file"
-                                        multiple
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                        onChange={handleFileChange}
-                                    />
-                                    <Upload className="h-5 w-5 text-gray-700 mb-2" />
-<p className="text-[14px] font-medium text-gray-900">Drop a file or choose one</p>
-<p className="text-[13px] text-gray-400 mt-1">No file chosen</p>
-</div>
+                                <FileUploadZone multiple onChange={handleFileChange} />
 
                                 {/* File List */}
                                 {formData.documents.length > 0 && (

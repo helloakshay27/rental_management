@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FileUploadZone } from '@/components/ui/file-upload-zone';
 import { FormSection } from '@/components/ui/form-section';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { getAuth, postAuth, patchAuth } from '@/lib/api';
 import { toast } from 'sonner';
+import { Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { trackCreated, trackFailed, trackUpdated } from '@/utils/analytics';
 
@@ -179,12 +181,12 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div className="space-y-1.5">
-                            <Label htmlFor="complianceRequirement" className="text-sm text-gray-900 font-medium">Compliance Requirement *</Label>
+                            <Label htmlFor="complianceRequirement">Compliance Requirement *</Label>
                             <Select
                                 onValueChange={handleComplianceChange}
                                 value={formData.compliance_requirement_id}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                <SelectTrigger className="bg-white">
                                     <SelectValue placeholder="Select requirement" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
@@ -198,12 +200,12 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="site" className="text-sm text-gray-900 font-medium">Property *</Label>
+                            <Label htmlFor="site">Property *</Label>
                             <Select
                                 onValueChange={(value) => setFormData({ ...formData, site_id: value })}
                                 value={formData.site_id}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                <SelectTrigger className="bg-white">
                                     <SelectValue placeholder="Select Property" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
@@ -217,45 +219,45 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="dueDate" className="text-sm text-gray-900 font-medium">Due Date</Label>
+                            <Label htmlFor="dueDate">Due Date</Label>
                             <Input
                                 id="dueDate"
                                 type="date"
                                 value={formData.due_date}
                                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                                className="h-9 bg-white border-gray-300 text-gray-900 px-4 text-[13px]"
+                                className="bg-white"
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="issueDate" className="text-sm text-gray-900 font-medium">Issue Date</Label>
+                            <Label htmlFor="issueDate">Issue Date</Label>
                             <Input
                                 id="issueDate"
                                 type="date"
                                 value={formData.issue_date}
                                 onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
-                                className="h-9 bg-white border-gray-300 text-gray-900 px-4 text-[13px]"
+                                className="bg-white"
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="expiryDate" className="text-sm text-gray-900 font-medium">Expiry Date</Label>
+                            <Label htmlFor="expiryDate">Expiry Date</Label>
                             <Input
                                 id="expiryDate"
                                 type="date"
                                 value={formData.expiry_date}
                                 onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
-                                className="h-9 bg-white border-gray-300 text-gray-900 px-4 text-[13px]"
+                                className="bg-white"
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="assignedTo" className="text-sm text-gray-900 font-medium">Assigned To</Label>
+                            <Label htmlFor="assignedTo">Assigned To</Label>
                             <Select
                                 onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}
                                 value={formData.assigned_to}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                <SelectTrigger className="bg-white">
                                     <SelectValue placeholder="Select user" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
@@ -269,22 +271,22 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="documentType" className="text-sm text-gray-900 font-medium">Document Type</Label>
+                            <Label htmlFor="documentType">Document Type</Label>
                             <Input
                                 id="documentType"
                                 value={formData.document_type}
                                 onChange={(e) => setFormData({ ...formData, document_type: e.target.value })}
-                                className="h-9 bg-white border-gray-300 text-gray-900 px-4 text-[13px]"
+                                className="bg-white"
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="status" className="text-sm text-gray-900 font-medium">Status</Label>
+                            <Label htmlFor="status">Status</Label>
                             <Select
                                 onValueChange={(value) => setFormData({ ...formData, status: value })}
                                 value={formData.status}
                             >
-                                <SelectTrigger className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]">
+                                <SelectTrigger className="bg-white">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
@@ -296,35 +298,27 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                             </Select>
                         </div>
 
-                        <div className="space-y-3 md:col-span-2">
-                            <Label htmlFor="remarks" className="text-sm text-gray-900 font-medium">Remarks</Label>
+                        <div className="space-y-1.5 md:col-span-2">
+                            <Label htmlFor="remarks">Remarks</Label>
                             <Textarea
                                 id="remarks"
                                 placeholder="Enter any remarks..."
                                 value={formData.remarks}
                                 onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-                                className="bg-white border-gray-300 text-gray-900 p-4 resize-none min-h-[100px] text-[13px]"
+                                className="bg-white resize-none"
                             />
                         </div>
 
-                        <div className="space-y-3 md:col-span-2">
-                            <Label htmlFor="file" className="text-sm text-gray-900 font-medium">
+                        <div className="space-y-1.5 md:col-span-2">
+                            <Label htmlFor="file">
                                 {isEdit ? 'Replace Document (optional)' : 'Upload Compliance Document *'}
                             </Label>
-                            <div className="relative">
-                                <Input
-                                    id="file"
-                                    type="file"
-                                    onChange={handleFileChange}
-                                    className="bg-gray-50 border-2 border-dashed border-gray-300 h-24 rounded-2xl file:hidden flex items-center justify-center text-center cursor-pointer hover:bg-gray-100 transition-colors text-[13px]"
-                                />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <p className="text-sm font-semibold text-gray-900">
-                                        {formData.file ? formData.file.name : 'Click to select or drag and drop file'}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">PDF, DOC, JPG or PNG (Max 10MB)</p>
-                                </div>
-                            </div>
+                            <FileUploadZone
+                                id="file"
+                                onChange={handleFileChange}
+                                fileName={formData.file?.name}
+                                hint="PDF, DOC, JPG or PNG (Max 10MB)"
+                            />
                             {formData.document_name && !formData.file && (
                                 <div className="mt-2 flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200">
                                     <p className="text-sm text-[#C72030] font-semibold flex items-center gap-1">
@@ -335,9 +329,10 @@ const MonitorComplianceForm = ({ initialData, isEdit = false }: MonitorComplianc
                                             type="button"
                                             variant="ghost"
                                             size="sm"
-                                            className="text-[#C72030] hover:bg-red-50 font-bold"
+                                            className="h-auto gap-1.5 px-3 py-1.5 text-[12px] font-semibold"
                                             onClick={() => window.open(formData.document_url, '_blank')}
                                         >
+                                            <Download className="h-4 w-4" />
                                             Download Existing File
                                         </Button>
                                     )}

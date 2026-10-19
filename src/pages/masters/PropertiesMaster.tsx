@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { FileUploadZone } from '@/components/ui/file-upload-zone';
 import { PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -713,7 +714,7 @@ const PropertiesMaster = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Properties Master" description="Central property database with all property details" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">{editingProperty ? 'Edit Property' : 'Add New Property'}</DialogTitle>
               <DialogDescription className="text-gray-600">{editingProperty ? 'Update the property details below' : 'Enter complete property information'}</DialogDescription>
@@ -1154,7 +1155,7 @@ const PropertiesMaster = () => {
                 <textarea
                   id="description"
                   placeholder="Enter property Remarks"
-                  className="w-full min-h-[80px] px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C72030]"
+                  className="w-full min-h-[88px] px-[14px] py-3 bg-white border border-[rgba(26,26,24,0.12)] text-[13.5px] font-medium text-gray-900 placeholder:text-gray-500 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[rgba(26,26,24,0.24)]"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
@@ -1195,21 +1196,11 @@ const PropertiesMaster = () => {
                   {/* Property Image Upload */}
                   <div className="space-y-2">
                     <Label className="text-gray-700 font-medium">Property Image</Label>
-                    <div
-                      className="border border-dashed border-gray-300 rounded-xl py-10 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer relative"
-                      onClick={() => document.getElementById('property_image_input')?.click()}
-                    >
-                      <Upload className="h-5 w-5 text-gray-700 mb-2" />
-                      <p className="text-[14px] font-medium text-gray-900">Drop a file or choose one</p>
-                      <p className="text-[13px] text-gray-400 mt-1">No file chosen</p>
-                      <input
-                        id="property_image_input"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleFileChange(e, 'site_image')}
-                      />
-                    </div>
+                    <FileUploadZone
+                      id="property_image_input"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, 'site_image')}
+                    />
                   </div>
                 </div>
 

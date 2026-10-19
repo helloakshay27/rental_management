@@ -137,7 +137,7 @@ export default function RentalDetailsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Property & Landlord Information Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+        <Card className="bg-white border border-gray-200 lg:col-span-full">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <MapPin className="h-5 w-5 text-gray-600" />
@@ -279,7 +279,7 @@ export default function RentalDetailsPage() {
         </Card>
 
         {/* Tenant Information Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+        <Card className="bg-white border border-gray-200 lg:col-span-full">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <User className="h-5 w-5 text-gray-600" />
@@ -323,7 +323,7 @@ export default function RentalDetailsPage() {
         </Card>
 
         {/* Rent Breakdown Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm">
+        <Card className="bg-white border border-gray-200">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <DollarSign className="h-5 w-5 text-gray-600" />
@@ -425,7 +425,7 @@ export default function RentalDetailsPage() {
         </Card>
 
         {/* Lease Information Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm">
+        <Card className="bg-white border border-gray-200">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <Calendar className="h-5 w-5 text-gray-600" />
@@ -478,7 +478,7 @@ export default function RentalDetailsPage() {
 
 
         {/* Escalation & Penalty Settings Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm">
+        <Card className="bg-white border border-gray-200">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <DollarSign className="h-5 w-5 text-gray-600" />
@@ -523,7 +523,7 @@ export default function RentalDetailsPage() {
 
         {/* Agreement Services Card */}
         {lease.agreement_services && lease.agreement_services.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+          <Card className="bg-white border border-gray-200 lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />
@@ -595,7 +595,7 @@ export default function RentalDetailsPage() {
         {/* Documents Card */}
 
         {lease.documents && lease.documents.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm">
+          <Card className="bg-white border border-gray-200">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />
@@ -646,7 +646,7 @@ export default function RentalDetailsPage() {
 
         {/* Parking Details Card */}
         {lease.parkings && lease.parkings.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+          <Card className="bg-white border border-gray-200 lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <Building2 className="h-5 w-5 text-gray-600" />
@@ -684,7 +684,7 @@ export default function RentalDetailsPage() {
 
         {/* Signing Authority Card */}
         {lease.signing_authorities && lease.signing_authorities.length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+          <Card className="bg-white border border-gray-200 lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <User className="h-5 w-5 text-gray-600" />
@@ -742,7 +742,7 @@ export default function RentalDetailsPage() {
 
         {/* Notice Terms Card */}
         {lease.notice_terms && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+          <Card className="bg-white border border-gray-200 lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />
@@ -785,7 +785,7 @@ export default function RentalDetailsPage() {
         )}
 
         {/* Financial Details (Detailed) */}
-        <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+        <Card className="bg-white border border-gray-200 lg:col-span-full">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
               <DollarSign className="h-5 w-5 text-gray-600" />
@@ -848,7 +848,7 @@ export default function RentalDetailsPage() {
 
         {/* Custom Fields Card */}
         {Object.keys(customFeilds).length > 0 && (
-          <Card className="bg-white border border-gray-200 shadow-sm lg:col-span-full">
+          <Card className="bg-white border border-gray-200 lg:col-span-full">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="flex items-center gap-2 text-[15px] font-semibold text-brand-text">
                 <FileText className="h-5 w-5 text-gray-600" />

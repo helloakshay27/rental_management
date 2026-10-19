@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { getAuth } from '@/lib/api';
 import { User as UserIcon, Mail, Phone, MapPin, Building2, Briefcase, FileText, ArrowLeft, Edit, Shield, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
@@ -68,9 +69,7 @@ const UserDetailsPage = () => {
                 actions={
                     <>
                 <div className="flex items-center gap-3">
-                    <Badge className={user.status === 'active' ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}>
-                        {user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Unknown'}
-                    </Badge>
+                    <StatusPill status={user.status || 'Unknown'} />
                     </div>
                     </>
                 }

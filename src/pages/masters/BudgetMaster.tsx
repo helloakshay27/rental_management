@@ -4,6 +4,7 @@ import { Spinner } from '@/components/ui/loader';
 import { PageContainer, PageHeader } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
@@ -220,8 +221,16 @@ const BudgetMaster = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this budget?')) return;
+    const [deletingBudgetId, setDeletingBudgetId] = useState<number | null>(null);
+
+    const handleDelete = (id: number) => {
+        setDeletingBudgetId(id);
+    };
+
+    const confirmDelete = async () => {
+        if (deletingBudgetId === null) return;
+        const id = deletingBudgetId;
+        setDeletingBudgetId(null);
         try {
             await deleteAuth(`/budgets/${id}.json`);
             trackDeleted('Budget', { record_id: id, source: 'masters' });
@@ -297,7 +306,7 @@ const BudgetMaster = () => {
                     setIsAddModalOpen(open);
                     if (!open) handleResetForm();
                 }}>
-                    <DialogContent className="sm:max-w-[425px] bg-white">
+                    <DialogContent className="bg-white">
                         <form onSubmit={handleAddSubmit}>
                             <DialogHeader>
                                 <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add New Budget</DialogTitle>
@@ -411,7 +420,7 @@ const BudgetMaster = () => {
                 setIsEditModalOpen(open);
                 if (!open) handleResetForm();
             }}>
-                <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
+                <DialogContent className="bg-white text-gray-900">
                     <form onSubmit={handleEditSubmit}>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Edit Budget</DialogTitle>
@@ -490,7 +499,7 @@ const BudgetMaster = () => {
 
             {/* View Modal */}
             <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-                <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
+                <DialogContent className="max-w-[640px] bg-white text-gray-900">
                     <DialogHeader>
                         <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">View Budget Details</DialogTitle>
                         <DialogDescription className="text-gray-600">
@@ -532,6 +541,24 @@ const BudgetMaster = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Delete confirmation */}
+            <AlertDialog open={deletingBudgetId !== null} onOpenChange={(open) => { if (!open) setDeletingBudgetId(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Budget</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this budget? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+                            Delete Budget
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </PageContainer>
     );
 };

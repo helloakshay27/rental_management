@@ -43,7 +43,7 @@ const StatCard = ({ title, value, change, changeType, icon: Icon }: StatCardProp
       icon={<Icon />}
       footer={
         change ? (
-          <p className={`mt-0.5 text-brand-caption font-medium ${changeColor()}`}>{change}</p>
+          <span className={changeType && changeType !== 'neutral' ? changeColor() : undefined}>{change}</span>
         ) : null
       }
     />

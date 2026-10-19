@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { SectionLoader } from '@/components/ui/loader';
-import { StatsGrid } from '@/components/ui/page';
-import { Panel, PanelBadge } from '@/components/ui/panel';
-import { StatsCard } from '@/components/ui/stats-card';
+import { Panel } from '@/components/ui/panel';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
+import { StatusPill } from '@/components/ui/status-pill';
+import { ANALYTICS_PALETTE, DURATION_BUCKET_COLORS, getPaletteColor } from '@/styles/chartPalette';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, Legend, BarChart, Bar, XAxis, YAxis } from 'recharts';
 import { Shield, DollarSign, Calendar, TrendingUp } from 'lucide-react';
@@ -17,20 +18,20 @@ const securityDepositData = [
 ];
 
 const depositByDuration = [
-  { duration: '2 months', amount: 2250000, count: 1, color: '#E5484D' },
-  { duration: '3 months', amount: 6450000, count: 2, color: '#2F6FE0' },
-  { duration: '4 months', amount: 2100000, count: 1, color: '#5A4BE0' },
-  { duration: '6 months', amount: 3600000, count: 1, color: '#12A150' }
+  { duration: '2 months', amount: 2250000, count: 1, color: ANALYTICS_PALETTE[0] },
+  { duration: '3 months', amount: 6450000, count: 2, color: ANALYTICS_PALETTE[1] },
+  { duration: '4 months', amount: 2100000, count: 1, color: ANALYTICS_PALETTE[2] },
+  { duration: '6 months', amount: 3600000, count: 1, color: ANALYTICS_PALETTE[3] }
 ];
 
 const chartConfig = {
   deposit: {
     label: 'Security Deposit (₹)',
-    color: '#5A4BE0'
+    color: ANALYTICS_PALETTE[0]
   },
   duration: {
     label: 'Duration (months)',
-    color: '#2F6FE0'
+    color: ANALYTICS_PALETTE[1]
   }
 };
 
@@ -67,21 +68,15 @@ const SecurityDepositAnalytics = ({ data, loading }: { data: any, loading: boole
    * present rather than rendered as a second, identical badge.
    */
   const getDurationBadge = (duration: number, label?: string) => {
-    const tone =
-      duration <= 2
-        ? 'text-brand-error'
-        : duration <= 4
-          ? 'text-brand-warning'
-          : 'text-brand-success';
     const text = label || (duration <= 2 ? 'Short' : duration <= 4 ? 'Medium' : 'Long');
 
-    return <PanelBadge tone={tone} className="capitalize">{text}</PanelBadge>;
+    return <StatusPill status={text} />;
   };
 
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard
           title="Total Deposits Given"
           value={`₹${summary.total_deposits_given?.amount_in_cr || '0.0'}Cr`}
@@ -102,7 +97,7 @@ const SecurityDepositAnalytics = ({ data, loading }: { data: any, loading: boole
           value={`₹${Number(summary.highest_deposit?.amount_in_lakh || 0).toFixed(1)}L`}
           icon={<TrendingUp />}
         />
-      </StatsGrid>
+      </KpiGrid>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel
@@ -116,8 +111,8 @@ const SecurityDepositAnalytics = ({ data, loading }: { data: any, loading: boole
               <YAxis yAxisId="right" orientation="right" />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Legend />
-              <Bar yAxisId="left" dataKey="deposit" fill="#5A4BE0" name="Deposit Amount (₹)" />
-              <Bar yAxisId="right" dataKey="duration" fill="#2F6FE0" name="Duration (months)" />
+              <Bar yAxisId="left" dataKey="deposit" fill={ANALYTICS_PALETTE[0]} name="Deposit Amount (₹)" />
+              <Bar yAxisId="right" dataKey="duration" fill={ANALYTICS_PALETTE[1]} name="Duration (months)" />
             </BarChart>
           </ChartContainer>
         </Panel>
@@ -133,17 +128,28 @@ const SecurityDepositAnalytics = ({ data, loading }: { data: any, loading: boole
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                fill="#5A4BE0"
+                fill={ANALYTICS_PALETTE[0]}
                 dataKey="count"
+                nameKey="duration"
                 label={({ duration, count }) => `${duration} (${count})`}
               >
                 {depositByDuration.map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={['#E5484D', '#2F6FE0', '#5A4BE0', '#12A150', '#BFBFBD'][index % 5]} />
+                  <Cell key={`cell-${index}`} fill={index < DURATION_BUCKET_COLORS.length ? DURATION_BUCKET_COLORS[index] : getPaletteColor(index)} />
                 ))}
               </Pie>
               <ChartTooltip
-                content={<ChartTooltipContent />}
-                formatter={(value) => [value, 'Count']}
+                content={
+                  <ChartTooltipContent
+                    hideLabel
+                    className="rounded-[9px] px-[9px] py-[5px] text-[11px] font-semibold"
+                    formatter={(value, name) => (
+                      <div className="flex w-full items-center justify-between gap-3">
+                        <span className="text-muted-foreground">{name}</span>
+                        <span className="tabular-nums">{`Count: ${value}`}</span>
+                      </div>
+                    )}
+                  />
+                }
               />
               <Legend />
             </PieChart>

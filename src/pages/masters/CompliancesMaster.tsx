@@ -159,7 +159,7 @@ const CompliancesMaster = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Compliances Master" description="Manage property compliance requirements and tracking" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-3xl bg-white">
+          <DialogContent className="bg-white">
             <DialogHeader>
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add New Compliance</DialogTitle>
               <DialogDescription className="text-gray-600">Create a new compliance requirement</DialogDescription>
@@ -225,7 +225,7 @@ const CompliancesMaster = () => {
 
       {/* Edit Compliance Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => !open && handleCancelEdit()}>
-        <DialogContent className="max-w-3xl bg-white">
+        <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Edit Compliance</DialogTitle>
             <DialogDescription>Update compliance information</DialogDescription>

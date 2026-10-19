@@ -1,7 +1,9 @@
 
 import React from 'react';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { SectionLoader } from '@/components/ui/loader';
-import { Panel, PanelRow, PanelBadge } from '@/components/ui/panel';
+import { Panel, PanelRow } from '@/components/ui/panel';
+import { StatusPill } from '@/components/ui/status-pill';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, Legend } from 'recharts';
 import { MapPin, TrendingUp, Clock, CheckCircle } from 'lucide-react';
@@ -17,7 +19,7 @@ const regionalData = [
 
 // Distinct series colours from the brand palette (two source hexes previously
 // collapsed onto the same mint, making two regions indistinguishable).
-const COLORS = ['#5A4BE0', '#2F6FE0', '#12A150', '#BFBFBD', '#E5484D', '#5A4BE0', '#2F6FE0'];
+const COLORS = [...ANALYTICS_PALETTE];
 
 const TenantRegionalAnalytics = ({ data, loading }: { data: any, loading: boolean }) => {
   // Transform API data structure to Recharts format
@@ -145,9 +147,7 @@ const TenantRegionalAnalytics = ({ data, loading }: { data: any, loading: boolea
             }
             value={
               activity.status ? (
-                <PanelBadge tone="text-brand-success" className="capitalize">
-                  {activity.status}
-                </PanelBadge>
+                <StatusPill status={activity.status} />
               ) : null
             }
           />

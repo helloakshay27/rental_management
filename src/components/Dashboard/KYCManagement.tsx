@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
-import { StatsGrid } from '@/components/ui/page';
 import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -198,12 +197,12 @@ const KYCManagement = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard title="Total Profiles" value={156} icon={<User />} />
         <StatsCard title="Complete KYC" value={142} icon={<CheckCircle />} />
         <StatsCard title="Under Review" value={8} icon={<Clock />} />
         <StatsCard title="Incomplete" value={6} icon={<AlertCircle />} />
-      </StatsGrid>
+      </KpiGrid>
 
       <Tabs defaultValue="profiles" className="space-y-6">
         <TabsList>

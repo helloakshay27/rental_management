@@ -93,7 +93,7 @@ const UtilityDetailsPage = () => {
             </button>
 
             <div className="mb-6 mt-2 flex items-center justify-between">
-                <h1 className="text-brand-body-1 font-bold text-[#1a1a1a]">UTILITY DETAILS</h1>
+                <h1 className="text-[22px] font-semibold leading-[1.2] tracking-[-0.015em] text-[#1A1A18]">Utility Details</h1>
                 <Button
                     onClick={() => navigate(`/utilities/edit/${id}`)}
                     variant="outline"
@@ -107,9 +107,9 @@ const UtilityDetailsPage = () => {
             <Card className="mb-6 border-[#D9D9D9] bg-[#F6F7F7]">
                 <CardHeader className="bg-[#F6F4EE] mb-4">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg text-black flex items-center gap-2">
+                        <CardTitle className="text-[14px] font-semibold text-[#1A1A18] flex items-center gap-2">
                             <Zap className="h-5 w-5 text-brand" />
-                            UTILITY CONNECTION DETAILS
+                            Utility Connection Details
                         </CardTitle>
                         <span
                             className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${utility.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
@@ -143,9 +143,9 @@ const UtilityDetailsPage = () => {
 
             <Card className="mb-6 border-[#D9D9D9] bg-[#F6F7F7]">
                 <CardHeader className="bg-[#F6F4EE] mb-4">
-                    <CardTitle className="text-lg text-black flex items-center gap-2">
+                    <CardTitle className="text-[14px] font-semibold text-[#1A1A18] flex items-center gap-2">
                         <Activity className="h-5 w-5 text-brand" />
-                        QUICK ACTIONS
+                        Quick Actions
                     </CardTitle>
                 </CardHeader>
 

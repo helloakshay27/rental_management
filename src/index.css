@@ -403,9 +403,12 @@ a.fm-button-fix,
   gap: 0.5rem !important;
   width: auto !important;
   max-width: 100% !important;
-  height: auto !important;
-  min-height: 36px !important;
-  padding: 8px 14px !important;
+  /* Standard action: 42px, radius 8px, padding 0 22px, 13px/600. */
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 22px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
   line-height: 1.25 !important;
   text-align: center !important;
   vertical-align: middle !important;

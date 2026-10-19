@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { MetaChip } from '@/components/ui/status-pill';
 import { getAuth, getBaseUrl } from '@/lib/api';
 import { Building2, ArrowLeft, MapPin, Home, Calendar, Layers, Maximize2, Info, CheckCircle2, User, Globe, Map, Hash, FileText } from 'lucide-react';
 import { toast } from 'sonner';
@@ -76,8 +77,8 @@ const PropertyMasterDetailsPage = () => {
                 backTo="/masters/properties"
                 actions={
                     <>
-                        <Badge variant="outline">{renderValue(property.property_type)}</Badge>
-                        <Badge>{property.ownership_type || 'Owned'}</Badge>
+                        <MetaChip>{renderValue(property.property_type)}</MetaChip>
+                        <MetaChip>{property.ownership_type || 'Owned'}</MetaChip>
                     </>
                 }
             />
@@ -85,11 +86,10 @@ const PropertyMasterDetailsPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     {/* Physical Specifications */}
-                    <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="h-1 bg-[#C72030]" />
+                    <Card className="bg-white border border-gray-200 overflow-hidden">
                         <CardHeader className="border-b border-gray-50 p-6 bg-gray-50/30">
                             <div className="flex items-center gap-3">
-                                <Home className="h-5 w-5 text-[#C72030]" />
+                                <Home className="h-5 w-5 text-[rgba(26,26,24,0.72)]" />
                                 <CardTitle className="text-lg font-bold text-gray-900">Physical Asset Matrix</CardTitle>
                             </div>
                         </CardHeader>
@@ -166,7 +166,7 @@ const PropertyMasterDetailsPage = () => {
                     </DetailSection>
 
                     {/* Description */}
-                    <Card className="bg-white border border-gray-200 shadow-sm">
+                    <Card className="bg-white border border-gray-200">
                         <CardContent className="p-6">
                             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-4">Asset Description</p>
                             <p className="text-gray-600 leading-relaxed italic bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -179,8 +179,7 @@ const PropertyMasterDetailsPage = () => {
                 <div className="space-y-5">
                     {/* Property Image */}
                     {imageUrl && (
-                        <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                            <div className="h-1 bg-[#C72030]" />
+                        <Card className="bg-white border border-gray-200 overflow-hidden">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-xs text-gray-500 font-semibold uppercase tracking-wider flex items-center gap-2">
                                     <FileText className="h-3 w-3" /> Property Image
@@ -199,10 +198,9 @@ const PropertyMasterDetailsPage = () => {
                     )}
 
                     {/* Landlord Card */}
-                    <Card className="bg-white border-2 border-blue-100 shadow-md overflow-hidden">
-                        <div className="h-1 bg-blue-500" />
+                    <Card className="bg-white border border-gray-200 overflow-hidden">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-xs text-blue-600 font-bold uppercase tracking-widest flex items-center gap-2">
+                            <CardTitle className="text-xs text-gray-500 font-semibold uppercase tracking-wider flex items-center gap-2">
                                 <User className="h-4 w-4" /> Ownership Detail
                             </CardTitle>
                         </CardHeader>
@@ -223,7 +221,7 @@ const PropertyMasterDetailsPage = () => {
                     </Card>
 
                     {/* Asset Intelligence */}
-                    <Card className="bg-white border border-gray-200 shadow-sm">
+                    <Card className="bg-white border border-gray-200">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-xs text-gray-500 font-semibold uppercase tracking-wider flex items-center gap-2">
                                 <Info className="h-3 w-3" /> Asset Intelligence

@@ -21,6 +21,12 @@ html body button[role="combobox"] {
   height: auto !important;
 }
 
+/* Multiline controls: 88px minimum, 12px 14px padding. */
+html body textarea {
+  min-height: 88px !important;
+  padding: 12px 14px;
+}
+
 /* Restore error-state border */
 html body input.border-red-500,
 html body textarea.border-red-500,
@@ -54,58 +60,36 @@ html body button[role="combobox"]:disabled {
   -webkit-text-fill-color: rgba(26, 26, 24, 0.48) !important;
 }
 
-/* Existing label/control pairs receive the same notched outline as the
-   reference's MUI fields, without changing their values or event handlers. */
+/* Form fields: labels sit ABOVE the control (12px/600 soft ink, 6px gap),
+   never inside a notch in the outline. Controls keep the shared 44px shell. */
 .asset-form-section div:not(.field-group):has(> label):has(> :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, button[role="combobox"])) {
   position: relative;
-  padding-top: 0;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 html body .asset-form-section div:not(.field-group):has(> :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, button[role="combobox"])) > label {
-  position: absolute;
-  top: -9px;
-  left: 14px;
-  z-index: 1;
-  max-width: calc(100% - 28px);
-  padding: 0 6px;
-  background: #fff;
-  color: #666;
+  position: static;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: rgba(26, 26, 24, 0.62);
   font-size: 12px;
-  font-weight: 500;
-  line-height: 18px;
-}
-
-html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, button[role="combobox"]) {
-  margin-top: 0 !important;
-  background-color: #fff;
-  border: 1px solid #ccc !important;
-  padding: 8px 12px;
-  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), button[role="combobox"]) {
-  height: 36px;
+  margin-top: 0 !important;
+  padding: 0 14px;
 }
 
-html body .asset-form-section label ~ :is(input, textarea, button[role="combobox"]):focus,
-html body .asset-form-section label ~ button[role="combobox"][data-state="open"] {
-  border-color: var(--color-input-focus-border) !important;
-}
-
-@media (min-width: 640px) {
-  html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), button[role="combobox"]) {
-    height: 40px;
-    padding: 10px 14px;
-  }
-}
-
-@media (min-width: 768px) {
-  html body .asset-form-section label ~ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), button[role="combobox"]) {
-    height: 45px;
-    padding: 12px 14px;
-  }
+html body .asset-form-section label ~ textarea {
+  margin-top: 0 !important;
+  min-height: 88px !important;
+  padding: 12px 14px;
 }
 
 /* Table reference: Downloads/asset-management.html (.tw, .tr, .gbtn). */

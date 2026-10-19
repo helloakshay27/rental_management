@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -34,8 +35,8 @@ const IncomeExpenseChart = () => {
               }}
             />
             <Legend />
-            <Bar dataKey="income" fill="#5A4BE0" name="Income" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="expense" fill="#E5484D" name="Expense" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="income" fill={ANALYTICS_PALETTE[0]} name="Income" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="expense" fill={ANALYTICS_PALETTE[1]} name="Expense" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

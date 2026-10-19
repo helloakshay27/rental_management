@@ -6,7 +6,8 @@ import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
+import { StatsCard } from '@/components/ui/stats-card';
 import { getAuth } from '@/lib/api';
 import { Shield, ArrowLeft, Users, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -68,9 +69,7 @@ const RoleDetailsPage = () => {
                 actions={
                     <>
                 <div className="flex items-center gap-3">
-                    <Badge className={role.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-red-500 hover:bg-red-600'}>
-                        {role.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
+                    <StatusPill status={role.is_active ? 'Active' : 'Inactive'} />
                     </div>
                     </>
                 }
@@ -109,10 +108,7 @@ const RoleDetailsPage = () => {
                 {/* Usage Statistics */}
                 <DetailSection title="Associated Users">
                         <div className="space-y-5">
-                            <div className="text-center p-6 bg-red-50 rounded-xl border border-red-100">
-                                <p className="text-brand-h1 font-bold text-[#C72030]">{role.users_count || 0}</p>
-                                <p className="text-[10px] text-red-600 uppercase font-semibold tracking-wider mt-1">Active Users</p>
-                            </div>
+                            <StatsCard title="Active Users" value={role.users_count || 0} icon={<Users />} />
 
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">Recent Users with this Role</p>

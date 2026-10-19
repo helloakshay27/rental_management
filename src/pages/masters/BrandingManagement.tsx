@@ -376,7 +376,7 @@ const BrandingManagement = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Invoice Branding Management" description="Manage branding profiles for invoices and communications" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-white">
             <DialogHeader>
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                 {editingProfile ? 'Edit Branding Profile' : 'Create New Branding Profile'}

@@ -11,6 +11,8 @@ export interface ColumnConfig {
   width?: number | string;
   /** Group name, used to bucket columns together in the column-visibility menu. */
   group?: string;
+  /** Numeric columns use "right": header and values right-aligned with tabular numerals. */
+  align?: "left" | "right";
 }
 
 interface UseEnhancedTableProps<T> {

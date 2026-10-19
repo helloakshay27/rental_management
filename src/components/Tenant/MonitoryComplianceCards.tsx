@@ -1,6 +1,5 @@
 import React from 'react';
-import { StatsGrid } from '@/components/ui/page';
-import { StatsCard } from '@/components/ui/stats-card';
+import { KpiGrid, StatsCard } from '@/components/ui/stats-card';
 import { FileText, CheckCircle2, Clock, XCircle } from 'lucide-react';
 
 interface MonitoryComplianceCardsProps {
@@ -21,7 +20,7 @@ const MonitoryComplianceCards = ({ documents }: MonitoryComplianceCardsProps) =>
     ];
 
     return (
-        <StatsGrid>
+        <KpiGrid>
             {stats.map((stat) => (
                 <StatsCard
                     key={stat.label}
@@ -30,7 +29,7 @@ const MonitoryComplianceCards = ({ documents }: MonitoryComplianceCardsProps) =>
                     icon={stat.icon}
                 />
             ))}
-        </StatsGrid>
+        </KpiGrid>
     );
 };
 

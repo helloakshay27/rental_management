@@ -132,25 +132,25 @@ const Reports = () => {
               title="Total Revenue"
               value="₹3.18Cr"
               icon={<DollarSign />}
-              footer={<p className="mt-0.5 text-brand-caption text-brand-success">+12.5% from last month</p>}
+              footer={<p className="text-brand-success">+12.5% from last month</p>}
             />
             <StatsCard
               title="Occupancy Rate"
               value="94.2%"
               icon={<TrendingUp />}
-              footer={<p className="mt-0.5 text-brand-caption text-brand-success">+2.1% from last month</p>}
+              footer={<p className="text-brand-success">+2.1% from last month</p>}
             />
             <StatsCard
               title="Total Expenses"
               value="₹1.27Cr"
               icon={<BarChart3 />}
-              footer={<p className="mt-0.5 text-brand-caption text-brand-error">+5.3% from last month</p>}
+              footer={<p className="text-brand-error">+5.3% from last month</p>}
             />
             <StatsCard
               title="Net Income"
               value="₹1.91Cr"
               icon={<PieChart />}
-              footer={<p className="mt-0.5 text-brand-caption text-brand-success">+18.2% from last month</p>}
+              footer={<p className="text-brand-success">+18.2% from last month</p>}
             />
           </StatsGrid>
 

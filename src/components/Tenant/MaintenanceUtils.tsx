@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { Clock, AlertCircle, CheckCircle } from 'lucide-react';
 
 export const getStatusBadge = (status: string) => {
@@ -18,18 +19,9 @@ export const getStatusBadge = (status: string) => {
   }
 };
 
-export const getPriorityBadge = (priority: string) => {
-  switch (priority) {
-    case 'high':
-      return <Badge className="bg-red-100 text-red-800">High</Badge>;
-    case 'medium':
-      return <Badge className="bg-yellow-100 text-yellow-800">Medium</Badge>;
-    case 'low':
-      return <Badge className="bg-green-100 text-green-800">Low</Badge>;
-    default:
-      return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
-  }
-};
+/** Same shared state pill (and tone) as the request detail view. */
+export const getPriorityBadge = (priority: string) =>
+  <StatusPill status={priority || 'Unknown'} />;
 
 export const getStatusIcon = (status: string) => {
   switch (status) {

@@ -50,7 +50,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               "floating-label w-full px-[15px] text-base border border-[#ccc] rounded transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-0 focus-visible:border-brand disabled:cursor-not-allowed disabled:opacity-50",
-              "h-[36px]",
+              "h-11 min-h-[44px]",
               className
             )}
             placeholder=""
@@ -85,8 +85,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          "flex w-full rounded-md border border-gray-300 bg-transparent px-3 text-base transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-0 focus-visible:border-brand disabled:cursor-not-allowed disabled:opacity-50",
-          "h-[36px]",
+          "flex w-full rounded-[12px] border border-[rgba(26,26,24,0.12)] bg-transparent px-[14px] text-[13.5px] font-medium transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-0 focus-visible:border-brand disabled:cursor-not-allowed disabled:opacity-50",
+          "h-11 min-h-[44px]",
           className
         )}
         placeholder={placeholder}

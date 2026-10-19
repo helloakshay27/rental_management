@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { FileUploadZone } from '@/components/ui/file-upload-zone';
 import './add-rental.css';
 import { FormSection, FormGrid, FormActions } from '@/components/ui/form-section';
 import { PageContainer, PageHeader } from '@/components/ui/page';
@@ -1383,40 +1384,32 @@ const EditRentalPage = () => {
 
             {/* Step 4: Facilities */}
             <div role="tabpanel" id="rental-step-4" aria-labelledby="rental-tab-4" hidden={step !== 4} className="rental-step-panel">
-                <FormSection title="Common Amenities">
+                <div className="mb-5 rounded-lg border bg-white p-4 sm:p-6">
+                    <h3 className="mb-4 text-brand-body-3 font-semibold text-brand">Common Amenities</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
                         {amenities.map((amenity: any) => (
                             <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
+                                <Checkbox
                                     checked={formData.amenities.includes(amenity.id)}
-                                    onChange={(e) => {
-                                        if (e.target.checked) setFormData({ ...formData, amenities: [...formData.amenities, amenity.id] });
+                                    onCheckedChange={(checked) => {
+                                        if (checked === true) setFormData({ ...formData, amenities: [...formData.amenities, amenity.id] });
                                         else setFormData({ ...formData, amenities: formData.amenities.filter(a => a !== amenity.id) });
                                     }}
-                                    className="w-4 h-4 text-[#C72030] border-gray-300 rounded focus:ring-[#C72030]"
                                 />
                                 <span className="text-sm text-gray-700">{amenity.name}</span>
                             </label>
                         ))}
                     </div>
-                </FormSection>
+                </div>
 
-                <FormSection title="Parking Details">
-                    <div className="flex justify-end mb-4">
-                        <Button
-                            type="button"
-                            onClick={addParking}
-                            className="fm-button-fix fm-button-brand px-6 py-2"
-                        >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Parking
-                        </Button>
-                    </div>
+                {/* Plain card (not FormSection) so labels sit above the controls
+                    rather than in the asset-form-section border notch. */}
+                <div className="mb-5 rounded-lg border bg-white p-4 sm:p-6">
+                    <h3 className="mb-4 text-brand-body-3 font-semibold text-brand">Parking Details</h3>
 
                     <div className="space-y-4">
                         {parkings.map((parking, index) => (
-                            <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-md">
+                            <div key={index} className="grid grid-cols-1 md:grid-cols-[repeat(4,minmax(0,1fr))_auto] gap-4 p-4 border border-gray-200 rounded-md">
                                 <div className="space-y-1.5">
                                     <Label className="text-sm text-gray-900 font-medium">Vehicle Type</Label>
                                     <Select
@@ -1493,21 +1486,31 @@ const EditRentalPage = () => {
                                     />
                                 </div>
 
-                                <div className="flex items-end">
+                                <div className="flex items-end pb-1.5">
                                     <Button
                                         type="button"
-                                        variant="outline"
+                                        variant="ghost"
+                                        size="icon"
                                         onClick={() => removeParking(index)}
                                         disabled={parkings.length === 1}
-                                        className="w-full"
+                                        aria-label="Remove parking row"
+                                        title="Remove parking row"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
                         ))}
+                        <button
+                            type="button"
+                            onClick={addParking}
+                            className="flex w-full items-center justify-center gap-2 rounded-[12px] border-2 border-dashed border-[rgba(26,26,24,0.16)] p-3 text-[13px] font-semibold text-[#1A1A18] transition-colors hover:bg-[#F5F4F0]"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Add parking row
+                        </button>
                     </div>
-                </FormSection>
+                </div>
             </div>
 
             {/* Step 5: Documents & Review */}
@@ -1615,10 +1618,9 @@ const EditRentalPage = () => {
                         )}
 
                         <p className="text-xs text-gray-500">{existingDocuments.length > 0 ? 'Upload a new file to replace the existing document:' : 'Upload agreement file:'}</p>
-                        <Input
-                            type="file"
+                        <FileUploadZone
                             accept=".pdf,.doc,.docx"
-                            className="h-9"
+                            fileName={(formData.agreementFile as File | null)?.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
                         />
                         {existingAgreementUrl && (

@@ -4,7 +4,7 @@ import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { MetaChip } from '@/components/ui/status-pill';
 import { ArrowLeft, Edit, Calendar, Building2, User, Wallet, Info, IndianRupee, Clock, RotateCcw } from 'lucide-react';
 import { getAuth, getToken } from '@/lib/api';
 import { toast } from 'sonner';
@@ -81,8 +81,7 @@ const ExpenseDetailsPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Main Details */}
                     <div className="lg:col-span-2 space-y-6">
-                        <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-                            <div className="h-1 bg-[#C72030]"></div>
+                        <Card className="bg-white overflow-hidden">
                             <CardHeader className="pb-4">
                                 <div className="flex items-center justify-between">
                                     <div>
@@ -95,9 +94,7 @@ const ExpenseDetailsPage = () => {
                                             {parseFloat(expense.amount || 0).toLocaleString()}
                                         </div>
                                         {expense.is_recurring && (
-                                            <Badge variant="outline" className="mt-1 bg-blue-50 text-blue-700 border-blue-200">
-                                                <Clock className="h-3 w-3 mr-1" /> Recurring
-                                            </Badge>
+                                            <MetaChip className="mt-1" icon={<Clock />}>Recurring</MetaChip>
                                         )}
                                     </div>
                                 </div>
@@ -175,7 +172,7 @@ const ExpenseDetailsPage = () => {
 
                     {/* Meta Sidebar */}
                     <div className="space-y-5">
-                        <Card className="bg-white border border-gray-200 shadow-sm">
+                        <Card className="bg-white">
                             <CardHeader>
                                 <CardTitle className="text-sm font-bold uppercase tracking-widest text-gray-400">Timeline</CardTitle>
                             </CardHeader>
@@ -195,22 +192,22 @@ const ExpenseDetailsPage = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-gray-900 text-white border-none shadow-xl">
+                        <Card className="bg-white">
                             <CardHeader>
-                                <CardTitle className="text-xs font-bold uppercase tracking-widest text-[#C72030]">Management Actions</CardTitle>
+                                <CardTitle className="text-[14px] font-semibold text-[#1A1A18]">Management Actions</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3 pt-2">
-                                <p className="text-xs text-gray-400">Need to make changes? You can update categorization or notes here.</p>
+                                <p className="text-xs text-[rgba(26,26,24,0.62)]">Need to make changes? You can update categorization or notes here.</p>
                                 <Button
                                     variant="outline"
-                                    className="w-full justify-start text-white border-white/20 hover:bg-white/10"
+                                    className="w-full justify-start"
                                     onClick={() => navigate(`/opex/edit/${id}`)}
                                 >
                                     <Edit className="h-4 w-4 mr-2" /> Modify Entry
                                 </Button>
                                 <Button
-                                    variant="outline"
-                                    className="w-full justify-start text-red-400 border-red-400/20 hover:bg-red-400/10"
+                                    variant="destructive"
+                                    className="w-full justify-start"
                                 >
                                     <RotateCcw className="h-4 w-4 mr-2" /> Flag for Review
                                 </Button>

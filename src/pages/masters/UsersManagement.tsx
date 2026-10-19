@@ -360,7 +360,7 @@ const UsersManagement = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Users Management" description="Manage system users and their basic information" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogContent className="max-w-2xl bg-white">
+          <DialogContent className="bg-white">
             <DialogHeader>
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
               <DialogDescription className="text-gray-600">{editingUser ? 'Update user account information' : 'Create a new user account with basic information'}</DialogDescription>

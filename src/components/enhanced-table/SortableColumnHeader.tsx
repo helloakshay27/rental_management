@@ -17,6 +17,8 @@ interface SortableColumnHeaderProps {
   style?: React.CSSProperties;
   /** Spans this header cell down through a second grouped-header row (see EnhancedTable's `columnGroups`). */
   rowSpan?: number;
+  /** Right-aligns the label and sort arrows for numeric columns. */
+  align?: "left" | "right";
 }
 
 export const SortableColumnHeader: React.FC<SortableColumnHeaderProps> = ({
@@ -28,7 +30,8 @@ export const SortableColumnHeader: React.FC<SortableColumnHeaderProps> = ({
   onSort,
   className,
   style: externalStyle,
-  rowSpan
+  rowSpan,
+  align = "left",
 }) => {
   const {
     attributes,
@@ -64,7 +67,7 @@ export const SortableColumnHeader: React.FC<SortableColumnHeaderProps> = ({
       )}
       {...attributes}
     >
-      <div className="flex items-center justify-left w-full">
+      <div className={cn("flex items-center w-full", align === "right" ? "justify-end" : "justify-start")}>
         <div
           className="flex items-center gap-1 select-none"
           onClick={handleClick}

@@ -335,7 +335,7 @@ const ZoneMaster = () => {
             <div className="flex items-center justify-between">
                 <PageHeader title="Zone Master" description="Manage zones and their association with regions" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogContent className="max-w-2xl bg-white">
+                    <DialogContent>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingZone ? 'Edit Zone' : 'Add New Zone'}

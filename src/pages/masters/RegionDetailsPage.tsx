@@ -5,7 +5,7 @@ import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { getAuth } from '@/lib/api';
 import { Map, ArrowLeft, Landmark, Hash, Info, FileText } from 'lucide-react';
 import { toast } from 'sonner';
@@ -68,7 +68,7 @@ const RegionDetailsPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                             <div className="space-y-5">
                                 <div className="flex items-start gap-4">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <Hash className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -77,7 +77,7 @@ const RegionDetailsPage = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <FileText className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -86,14 +86,12 @@ const RegionDetailsPage = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <Info className="h-4 w-4" />
                                     </div>
                                     <div>
                                         <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-text-light">Status</p>
-                                        <Badge variant="outline" className={`${region.is_active ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-700'} font-bold`}>
-                                            {region.is_active ? 'Active' : 'Inactive'}
-                                        </Badge>
+                                        <StatusPill status={region.is_active ? 'Active' : 'Inactive'} />
                                     </div>
                                 </div>
                             </div>
@@ -113,13 +111,10 @@ const RegionDetailsPage = () => {
                         </div>
                 </DetailSection>
 
-                <Card className="bg-[#C72030] border-none shadow-xl text-white overflow-hidden relative">
-                    <div className="absolute -right-16 -top-16 opacity-10">
-                        <Landmark className="h-64 w-64" />
-                    </div>
+                <Card className="bg-white overflow-hidden relative">
                     <CardHeader className="pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-2">
-                            <Landmark className="h-5 w-5" />
+                        <CardTitle className="text-[14px] font-semibold text-[#1A1A18] flex items-center gap-2">
+                            <Landmark className="h-[18px] w-[18px] text-[rgba(26,26,24,0.72)]" />
                             State Association
                         </CardTitle>
                     </CardHeader>
@@ -127,29 +122,29 @@ const RegionDetailsPage = () => {
                         {region.state ? (
                             <>
                                 <div>
-                                    <p className="text-white/60 text-xs uppercase font-semibold tracking-wider mb-1">Parent State</p>
-                                    <p className="text-brand-body-1 font-bold truncate">{region.state.name}</p>
+                                    <p className="text-[12px] font-semibold text-[rgba(26,26,24,0.62)] mb-1">Parent State</p>
+                                    <p className="text-[18px] font-semibold text-[#1A1A18] truncate">{region.state.name}</p>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <div className="flex-1 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                                        <p className="text-white/60 text-[10px] uppercase font-semibold mb-1 tracking-wider">State Code</p>
-                                        <p className="text-lg font-mono font-bold">{region.state.code}</p>
+                                    <div className="flex-1 bg-[#F5F4F0] rounded-[12px] p-4">
+                                        <p className="text-[12px] font-semibold text-[rgba(26,26,24,0.62)] mb-1">State Code</p>
+                                        <p className="text-[15px] font-mono font-semibold text-[#1A1A18]">{region.state.code}</p>
                                     </div>
-                                    <div className="flex-1 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                                        <p className="text-white/60 text-[10px] uppercase font-semibold mb-1 tracking-wider">State ID</p>
-                                        <p className="text-lg font-mono font-bold">#{region.state.id}</p>
+                                    <div className="flex-1 bg-[#F5F4F0] rounded-[12px] p-4">
+                                        <p className="text-[12px] font-semibold text-[rgba(26,26,24,0.62)] mb-1">State ID</p>
+                                        <p className="text-[15px] font-mono font-semibold text-[#1A1A18]">#{region.state.id}</p>
                                     </div>
                                 </div>
                                 <Button
-                                    variant="secondary"
-                                    className="w-full bg-white text-[#C72030] hover:bg-gray-100 font-bold"
+                                    variant="outline"
+                                    className="w-full"
                                     onClick={() => navigate(`/masters/states/${region.state.id}`)}
                                 >
                                     View State Details
                                 </Button>
                             </>
                         ) : (
-                            <div className="py-8 text-center text-white/50 italic">
+                            <div className="py-8 text-center text-[rgba(26,26,24,0.62)] italic">
                                 No state association found for this region record.
                             </div>
                         )}

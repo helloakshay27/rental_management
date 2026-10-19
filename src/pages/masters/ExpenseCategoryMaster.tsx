@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth, postAuth, patchAuth, deleteAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
+import { StatusPill } from '@/components/ui/status-pill';
 import { Switch } from '@/components/ui/switch';
 import { Heading, Text } from '@/components/ui/typography';
 import { trackFormOpened, trackCreated, trackDeleted, trackUpdated } from '@/utils/analytics';
@@ -170,17 +171,7 @@ const ExpenseCategoryMaster = () => {
             case 'code':
                 return <span className="font-mono text-[13px] text-brand-text-light">{category.code}</span>;
             case 'active':
-                return category.active ? (
-                    <div className="flex items-center text-brand-success gap-1.5 text-[13px] font-medium">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Active
-                    </div>
-                ) : (
-                    <div className="flex items-center text-brand-text-light gap-1.5 text-[13px] font-medium">
-                        <XCircle className="h-3.5 w-3.5" />
-                        Inactive
-                    </div>
-                );
+                return <StatusPill status={category.active ? 'Active' : 'Inactive'} />;
             case 'created_at':
                 return (
                     <span className="text-[13px] text-brand-text-light">
@@ -223,7 +214,7 @@ const ExpenseCategoryMaster = () => {
                     setIsAddModalOpen(open);
                     if (!open) handleResetForm();
                 }}>
-                    <DialogContent className="sm:max-w-[425px] bg-white">
+                    <DialogContent className="bg-white">
                         <form onSubmit={handleAddSubmit}>
                             <DialogHeader>
                                 <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add Expense Category</DialogTitle>
@@ -312,7 +303,7 @@ const ExpenseCategoryMaster = () => {
                 setIsEditModalOpen(open);
                 if (!open) handleResetForm();
             }}>
-                <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
+                <DialogContent className="bg-white text-gray-900">
                     <form onSubmit={handleEditSubmit}>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Edit Expense Category</DialogTitle>
@@ -366,7 +357,7 @@ const ExpenseCategoryMaster = () => {
 
             {/* View Modal */}
             <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-                <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
+                <DialogContent className="max-w-[640px] bg-white text-gray-900">
                     <DialogHeader>
                         <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">View Expense Category</DialogTitle>
                         <DialogDescription className="text-gray-600">
@@ -385,17 +376,7 @@ const ExpenseCategoryMaster = () => {
                         <div className="grid gap-1 border-b pb-2">
                             <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-text-light">Status</span>
                             <div className="flex items-center gap-1.5 pt-0.5">
-                                {viewingCategory?.active ? (
-                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-success">
-                                        <CheckCircle2 className="h-4 w-4" />
-                                        ACTIVE
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-1 text-[13px] font-medium text-brand-text-light">
-                                        <XCircle className="h-4 w-4" />
-                                        INACTIVE
-                                    </div>
-                                )}
+                                <StatusPill status={viewingCategory?.active ? 'Active' : 'Inactive'} />
                             </div>
                         </div>
                         <div className="grid gap-1">

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Download, Eye, Edit, FileText } from 'lucide-react';
+import { StatusPill } from '@/components/ui/status-pill';
 
 interface MonitoryComplianceTableProps {
     documents: any[];
@@ -23,15 +24,6 @@ const columns: ColumnConfig[] = [
 ];
 
 const MonitoryComplianceTable = ({ documents, onView, onEdit, onDownload, leftActions, onFilterClick }: MonitoryComplianceTableProps) => {
-    const getStatusStyle = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case 'approved': return 'bg-brand-success-bg text-brand-success';
-            case 'rejected': return 'bg-brand-error-bg text-brand-error';
-            case 'pending': return 'bg-brand-warning-light text-brand-text';
-            default: return 'bg-brand-muted text-brand-text';
-        }
-    };
-
     const renderCell = (doc: any, columnKey: string) => {
         switch (columnKey) {
             case 'document_name':
@@ -79,9 +71,7 @@ const MonitoryComplianceTable = ({ documents, onView, onEdit, onDownload, leftAc
                 );
             case 'status':
                 return (
-                    <span className={`px-2 py-0.5 rounded text-brand-caption font-bold uppercase tracking-wider ${getStatusStyle(doc.status)}`}>
-                        {doc.status || 'Pending'}
-                    </span>
+                    <StatusPill status={doc.status || 'pending'} />
                 );
             default:
                 return doc[columnKey];

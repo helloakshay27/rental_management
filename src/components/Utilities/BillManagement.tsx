@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { formatCurrency } from '@/lib/format';
 import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,7 +16,7 @@ const columns: ColumnConfig[] = [
   { key: 'utility_type', label: 'Type', sortable: true, draggable: true },
   { key: 'provider', label: 'Provider', sortable: true, draggable: true },
   { key: 'meter_number', label: 'Meter No.', sortable: true, draggable: true },
-  { key: 'monthly_cost', label: 'Est. Cost', sortable: true, draggable: true },
+  { key: 'monthly_cost', label: 'Est. Cost', sortable: true, draggable: true, align: 'right' },
   { key: 'is_active', label: 'Status', sortable: true, draggable: true },
 ];
 
@@ -71,8 +72,8 @@ const BillManagement = () => {
         return utility.meter_number || '-';
       case 'monthly_cost':
         return (
-          <span className="font-semibold text-brand-text">
-            ₹{utility.monthly_cost?.toLocaleString()}
+          <span className="block text-right font-semibold tabular-nums text-brand-text">
+            {formatCurrency(utility.monthly_cost)}
           </span>
         );
       case 'is_active':

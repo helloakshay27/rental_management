@@ -174,8 +174,8 @@ const Masters = () => {
     <PageContainer>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-brand-body-1 font-bold text-[#1a1a1a]">Masters</h1>
-          <p className="text-sm text-[#D5DbDB]">Manage all master data and system configurations</p>
+          <h1 className="text-[22px] font-semibold leading-[1.2] tracking-[-0.015em] text-[#1A1A18]">Masters</h1>
+          <p className="text-sm text-[rgba(26,26,24,0.62)]">Manage all master data and system configurations</p>
         </div>
       </div>
 
@@ -183,17 +183,17 @@ const Masters = () => {
         {masterModules.map((module) => {
           const Icon = module.icon;
           return (
-            <Card key={module.path} className="bg-[#FFFFFF] hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 flex flex-col">
+            <Card key={module.path} className="bg-[#FFFFFF] hover:border-[rgba(26,26,24,0.24)] transition-colors cursor-pointer border border-gray-200 flex flex-col">
               <CardHeader className="pb-3 flex-1">
                 <div className={`w-10 h-10 rounded-lg ${module.color} flex items-center justify-center mb-2`}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-base text-[#1a1a1a]">{module.title}</CardTitle>
-                <CardDescription className="text-[13px] text-[#D5DbDB]">{module.description}</CardDescription>
+                <CardDescription className="text-[13px] text-[rgba(26,26,24,0.62)]">{module.description}</CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <Link to={module.path}>
-                  <Button className="w-full fm-button-fix fm-button-brand h-8 px-4 text-[13px]">
+                  <Button variant="outline" size="sm" className="w-full">
                     {'cta' in module ? module.cta : `Manage ${module.title.split(' ')[0]}`}
                   </Button>
                 </Link>

@@ -313,7 +313,7 @@ const CircleMaster = () => {
             <div className="flex items-center justify-between">
                 <PageHeader title="Circle Master" description="Manage circles and their association with cities" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogContent className="max-w-2xl bg-white">
+                    <DialogContent>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingCircle ? 'Edit Circle' : 'Add New Circle'}

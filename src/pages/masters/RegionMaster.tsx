@@ -335,7 +335,7 @@ const RegionMaster = () => {
             <div className="flex items-center justify-between">
                 <PageHeader title="Region Master" description="Manage regions and their association with states" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogContent className="max-w-2xl bg-white">
+                    <DialogContent>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingRegion ? 'Edit Region' : 'Add New Region'}

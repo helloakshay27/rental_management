@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { StatsGrid } from '@/components/ui/page';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
 import { Users, UserCheck, UserX, TrendingUp } from 'lucide-react';
 
 interface Tenant {
@@ -31,12 +30,12 @@ const TenantSummaryCards = ({ tenants }: TenantSummaryCardsProps) => {
     : 0;
 
   return (
-    <StatsGrid>
+    <KpiGrid>
       <StatsCard title="Total Tenants" value={tenants.length} icon={<Users />} />
       <StatsCard title="Active Tenants" value={activeTenants} icon={<UserCheck />} />
       <StatsCard title="Notice Given" value={noticeGivenTenants} icon={<UserX />} />
       <StatsCard title="Occupancy Rate" value={`${occupancyRate}%`} icon={<TrendingUp />} />
-    </StatsGrid>
+    </KpiGrid>
   );
 };
 

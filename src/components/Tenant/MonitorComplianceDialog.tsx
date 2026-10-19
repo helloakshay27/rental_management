@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FileUploadZone } from '@/components/ui/file-upload-zone';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -298,12 +299,7 @@ const MonitorComplianceDialog = ({ isOpen, onClose, onUpload, initialData }: Mon
                         <Label htmlFor="file" className="text-gray-900 font-medium">
                             {initialData ? 'Replace Document (optional)' : 'Upload Compliance Document *'}
                         </Label>
-                        <Input
-                            id="file"
-                            type="file"
-                            onChange={handleFileChange}
-                            className="bg-white border-2 border-gray-200 file:bg-gray-50 file:border-0 file:mr-4 file:py-1 file:px-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-100"
-                        />
+                        <FileUploadZone id="file" onChange={handleFileChange} fileName={formData.file?.name} />
                         {formData.document_name && (
                             <p className="text-sm text-gray-500 mt-1">Current: {formData.document_name}</p>
                         )}

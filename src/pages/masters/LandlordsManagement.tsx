@@ -370,7 +370,7 @@ const LandlordsManagement = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Landlords Management" description="Manage landlord profiles, properties, and contact details" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                 {editingLandlord ? 'Edit Landlord' : 'Add New Landlord'}

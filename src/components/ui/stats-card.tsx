@@ -13,9 +13,15 @@ export interface StatsCardProps {
   valueClassName?: string
   titleClassName?: string
   iconWrapperClassName?: string
+  /** Optional context line under the title (e.g. a trend). */
   footer?: React.ReactNode
 }
 
+/**
+ * Stat card ported from fm-matrix-revamp's `components/StatsCard.tsx`: tan
+ * #f6f4ee tile, square icon chip, value above title. `footer` is a local
+ * addition for the dashboards' change/context line.
+ */
 export const StatsCard: React.FC<StatsCardProps> = ({
   title,
   value,
@@ -28,8 +34,6 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   iconWrapperClassName,
   footer,
 }) => {
-  const interactive = typeof onClick === "function"
-
   return (
     <div
       className={cn(
@@ -38,18 +42,6 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         className
       )}
       onClick={() => onClick?.(title)}
-      role={interactive ? "button" : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onKeyDown={
-        interactive
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                onClick?.(title)
-              }
-            }
-          : undefined
-      }
     >
       {icon && (
         <div
@@ -78,10 +70,25 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         >
           {title}
         </p>
-        {footer}
+        {footer && <div className="mt-0.5 text-brand-caption font-medium">{footer}</div>}
       </div>
     </div>
   )
 }
+
+/** Stat row: four equal columns. */
+export const KpiGrid: React.FC<{ className?: string; children: React.ReactNode }> = ({
+  className,
+  children,
+}) => (
+  <div
+    className={cn(
+      "mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4",
+      className
+    )}
+  >
+    {children}
+  </div>
+)
 
 export default StatsCard

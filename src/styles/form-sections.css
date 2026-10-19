@@ -32,13 +32,15 @@ html body .form-section-header {
   outline-offset: -3px;
 }
 
+/* Section title: 14px/600, title case. Uppercase is reserved for eyebrows
+   and table headers. */
 html body .form-section-title {
   flex: 1;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: .025em;
-  text-transform: uppercase;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 html body .form-section-icon {
@@ -72,6 +74,18 @@ html body .form-section-chevron {
 
 html body .form-section-content {
   padding: 0 24px 24px;
+}
+
+/* Fields stack with labels above, so rows and blocks need their own rhythm. */
+html body .form-section-content:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+html body .form-section-content > .grid,
+html body .form-section-content > form > .grid {
+  row-gap: 20px;
 }
 
 .form-section-content[hidden] {

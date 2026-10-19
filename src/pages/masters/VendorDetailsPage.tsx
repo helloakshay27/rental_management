@@ -6,7 +6,7 @@ import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { getAuth } from '@/lib/api';
 import { Building, ArrowLeft, User, Mail, Phone, MapPin, Receipt, Star, Landmark, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
@@ -68,9 +68,7 @@ const VendorDetailsPage = () => {
                 actions={
                     <>
                 <div className="flex items-center gap-3">
-                    <Badge className={vendor.is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}>
-                        {vendor.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
+                    <StatusPill status={vendor.is_active ? 'Active' : 'Inactive'} />
                     </div>
                     </>
                 }
@@ -149,7 +147,7 @@ const VendorDetailsPage = () => {
                             </div>
                     </DetailSection>
 
-                    <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+                    <Card className="bg-white border border-gray-200 overflow-hidden">
                         <div className="bg-[#C72030]/5 p-4 border-b border-gray-100 flex items-center gap-2">
                             <Landmark className="h-4 w-4 text-[#C72030]" />
                             <span className="text-xs font-semibold uppercase tracking-wider text-[#C72030]">Bank Information</span>

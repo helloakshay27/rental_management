@@ -129,15 +129,15 @@ const EditUtilityPage = () => {
             </button>
 
             <div className="mb-6 mt-2 flex items-center gap-4">
-                <h1 className="text-brand-body-1 font-bold text-[#1a1a1a]">EDIT UTILITY</h1>
+                <h1 className="text-[22px] font-semibold leading-[1.2] tracking-[-0.015em] text-[#1A1A18]">Edit Utility</h1>
             </div>
 
             <form onSubmit={handleSubmit}>
                 <Card className="mb-6 border-[#D9D9D9] bg-[#F6F7F7]">
                     <CardHeader className="bg-[#F6F4EE] mb-4">
-                        <CardTitle className="text-lg text-black flex items-center gap-2">
+                        <CardTitle className="text-[14px] font-semibold text-[#1A1A18] flex items-center gap-2">
                             <Zap className="h-5 w-5 text-brand" />
-                            UTILITY CONNECTION DETAILS
+                            Utility Connection Details
                         </CardTitle>
                     </CardHeader>
 
@@ -233,14 +233,14 @@ const EditUtilityPage = () => {
                         type="button"
                         variant="outline"
                         onClick={() => navigate(-1)}
-                        className="fm-button-fix px-8 py-2"
+                        className="fm-button-fix"
                         disabled={isLoading}
                     >
                         Cancel
                     </Button>
                     <Button
                         type="submit"
-                        className="fm-button-fix fm-button-brand px-6 py-2"
+                        className="fm-button-fix fm-button-brand"
                         disabled={isLoading}
                     >
                         {isLoading ? (

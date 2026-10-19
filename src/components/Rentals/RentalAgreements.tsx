@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StatsGrid } from '@/components/ui/page';
 import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
+import { formatCompactCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -205,7 +205,7 @@ const RentalAgreements = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard
           title="Total Agreements"
           value={agreements.length}
@@ -229,13 +229,12 @@ const RentalAgreements = () => {
         />
         <StatsCard
           title="Monthly Revenue"
-          value={`₹${agreements
+          value={formatCompactCurrency(agreements
             .filter(a => a.status === 'active')
-            .reduce((sum, a) => sum + a.monthlyRent, 0)
-            .toLocaleString()}`}
+            .reduce((sum, a) => sum + a.monthlyRent, 0))}
           icon={<DollarSign />}
         />
-      </StatsGrid>
+      </KpiGrid>
 
       {/* Agreements Table */}
       <div>

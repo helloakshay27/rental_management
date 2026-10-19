@@ -17,7 +17,7 @@ const columns: ColumnConfig[] = [
   { key: 'contact', label: 'Contact', sortable: false, draggable: true },
   { key: 'rating', label: 'Rating', sortable: true, draggable: true },
   { key: 'active_contracts', label: 'Active Contracts', sortable: true, draggable: true },
-  { key: 'total_value', label: 'Total Value', sortable: true, draggable: true },
+  { key: 'total_value', label: 'Total Value', sortable: true, draggable: true, align: 'right' },
 ];
 
 const VendorManagement = () => {

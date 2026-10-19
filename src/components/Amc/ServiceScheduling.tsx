@@ -4,6 +4,7 @@ import { SectionLoader } from '@/components/ui/loader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Panel } from '@/components/ui/panel';
+import { StatusPill } from '@/components/ui/status-pill';
 import { Calendar, Clock, User, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -73,47 +74,25 @@ const ServiceScheduling = () => {
     { service: 'Cleaning Service', property: 'Sunset Apartments', vendor: 'CleanCorp', date: '2024-01-10', rating: 4.2 }
   ];
 
-  const getStatusStyle = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'scheduled':
-      case 'confirmed':
-        return 'bg-blue-100 text-blue-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   /**
-   * One schedule row. Overdue entries only change the accent — a red left rule
-   * and a red badge — instead of getting their own fill, border weight and
-   * hover colour, so both lists read as the same component.
+   * One schedule row. Overdue entries use the same neutral row shell; the
+   * Overdue state is carried only by the shared low-tint pill.
    */
   const renderSchedule = (schedule: any, overdue = false) => (
     <div
       key={schedule.id}
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50 mb-3 ${overdue ? 'border-l-[3px] border-l-[#C72030]' : ''
-        }`}
+      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[12px] border border-[rgba(26,26,24,0.08)] px-4 py-3 transition-colors hover:bg-[#F7F6F2] mb-3"
     >
       <div className="flex min-w-0 items-center gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gray-100">
-          <Calendar className="h-4 w-4 text-[#C72030]" />
+          <Calendar className="h-4 w-4 text-[#1A1A18]" />
         </span>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="truncate text-brand-body-4 font-medium text-brand-text">
               {schedule.service_type || 'Maintenance Service'}
             </span>
-            {overdue && (
-              <span className="shrink-0 rounded-full bg-brand-error-bg px-2 py-0.5 text-brand-caption font-medium text-brand-error">
-                Overdue
-              </span>
-            )}
+            {overdue && <StatusPill status="Overdue" />}
           </div>
           <div className="truncate text-brand-body-5 text-brand-text-light">
             {schedule.amc_contract?.site_name || 'Various Sites'}
@@ -137,11 +116,7 @@ const ServiceScheduling = () => {
       </div>
 
       <div className="flex w-full sm:w-auto shrink-0 items-center justify-between sm:justify-end gap-2 mt-2 sm:mt-0">
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-brand-caption font-medium capitalize ${getStatusStyle(schedule.status)}`}
-        >
-          {schedule.status_badge?.label || schedule.status}
-        </span>
+        <StatusPill status={schedule.status_badge?.label || schedule.status} />
         <Button variant="outline" size="sm" className="fm-button-fix px-4">
           Details
         </Button>

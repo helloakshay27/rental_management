@@ -233,7 +233,7 @@ const ServiceTypeMaster = () => {
                     setIsAddModalOpen(open);
                     if (!open) handleResetForm();
                 }}>
-                    <DialogContent className="sm:max-w-[425px] bg-white">
+                    <DialogContent className="bg-white">
                         <form onSubmit={handleAddSubmit}>
                             <DialogHeader>
                                 <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Add Service Type</DialogTitle>
@@ -333,7 +333,7 @@ const ServiceTypeMaster = () => {
                 setIsEditModalOpen(open);
                 if (!open) handleResetForm();
             }}>
-                <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
+                <DialogContent className="bg-white text-gray-900">
                     <form onSubmit={handleEditSubmit}>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Edit Service Type</DialogTitle>
@@ -398,7 +398,7 @@ const ServiceTypeMaster = () => {
 
             {/* View Modal */}
             <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-                <DialogContent className="sm:max-w-[425px] bg-white text-gray-900">
+                <DialogContent className="max-w-[640px] bg-white text-gray-900">
                     <DialogHeader>
                         <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">View Service Type</DialogTitle>
                         <DialogDescription className="text-gray-600">

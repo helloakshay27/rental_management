@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, Legend } from 'recharts';
@@ -16,15 +17,15 @@ const vacancyData = [
 const chartConfig = {
   vacancyRate: {
     label: 'Our Vacancy Rate',
-    color: '#E5484D'
+    color: ANALYTICS_PALETTE[0]
   },
   averageMarket: {
     label: 'Market Average',
-    color: '#2F6FE0'
+    color: ANALYTICS_PALETTE[1]
   },
   targetRate: {
     label: 'Target Rate',
-    color: '#12A150'
+    color: ANALYTICS_PALETTE[2]
   }
 };
 

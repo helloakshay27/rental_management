@@ -47,7 +47,7 @@ const ConsumptionTracking = () => {
         <div className="text-brand-body-5 text-brand-text-light">
           {usage.current} {unit} (vs {usage.previous} {unit} last month)
         </div>
-        <Progress value={Math.min(usage.percentage, 100)} className="h-2" />
+        <Progress value={Math.min(usage.percentage, 100)} />
       </div>
     );
   };

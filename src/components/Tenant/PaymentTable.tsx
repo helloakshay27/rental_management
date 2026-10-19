@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { MetaChip } from '@/components/ui/status-pill';
 import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
 import { Download, CreditCard } from 'lucide-react';
@@ -30,7 +31,7 @@ interface PaymentTableProps {
 const columns: ColumnConfig[] = [
   { key: 'propertyName', label: 'Property & Landlord', sortable: true, draggable: true },
   { key: 'type', label: 'Type', sortable: true, draggable: true },
-  { key: 'amount', label: 'Amount', sortable: true, draggable: true },
+  { key: 'amount', label: 'Amount', sortable: true, draggable: true, align: 'right' },
   { key: 'dueDate', label: 'Due Date', sortable: true, draggable: true },
   { key: 'paymentDate', label: 'Payment Date', sortable: true, draggable: true },
   { key: 'status', label: 'Status', sortable: true, draggable: true },
@@ -49,16 +50,17 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+// Payment type is metadata, not state: neutral read-only chip.
 const getPaymentTypeBadge = (type: string) => {
   switch (type) {
     case 'rent':
-      return <Badge variant="info">Rent</Badge>;
+      return <MetaChip>Rent</MetaChip>;
     case 'maintenance':
-      return <Badge variant="warning">Maintenance</Badge>;
+      return <MetaChip>Maintenance</MetaChip>;
     case 'deposit':
-      return <Badge variant="tag">Deposit</Badge>;
+      return <MetaChip>Deposit</MetaChip>;
     default:
-      return <Badge variant="outline">Other</Badge>;
+      return <MetaChip>Other</MetaChip>;
   }
 };
 

@@ -6,6 +6,7 @@ import { PageContainer, PageHeader } from '@/components/ui/page';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill, MetaChip } from '@/components/ui/status-pill';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
 import { trackViewed } from '@/utils/analytics';
@@ -57,13 +58,10 @@ const ComplianceDetailsPage = () => {
         );
     }
 
-    const getStatusVariant = (status: string) => {
-        const s = status?.toLowerCase();
-        if (s === 'active' || s === 'completed') return 'bg-green-600';
-        if (s === 'pending') return 'bg-yellow-600';
-        if (s === 'overdue') return 'bg-red-600';
-        return 'bg-gray-500';
-    };
+    // Same state and label mapping as the Compliances Master list (empty status displays as Active there).
+    const displayStatus = compliance.status
+        ? compliance.status.charAt(0).toUpperCase() + compliance.status.slice(1).toLowerCase()
+        : 'Active';
 
     return (
         <PageContainer>
@@ -71,9 +69,7 @@ const ComplianceDetailsPage = () => {
                 title="Compliance Requirement"
                 backTo="/masters/compliances"
                 actions={
-                    <Badge className={`${getStatusVariant(compliance.status)} text-white`}>
-                        {compliance.status?.toUpperCase() || 'UNKNOWN'}
-                    </Badge>
+                    <StatusPill status={displayStatus} />
                 }
             />
 
@@ -97,9 +93,7 @@ const ComplianceDetailsPage = () => {
                                 compliance.property_types?.length ? (
                                     <span className="flex flex-wrap gap-2">
                                         {compliance.property_types.map((type: any) => (
-                                            <Badge key={type.id} variant="secondary" className="text-xs font-medium">
-                                                {type.name}
-                                            </Badge>
+                                            <MetaChip key={type.id}>{type.name}</MetaChip>
                                         ))}
                                     </span>
                                 ) : (

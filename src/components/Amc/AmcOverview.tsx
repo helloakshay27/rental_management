@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { SectionLoader } from '@/components/ui/loader';
-import { StatsGrid } from '@/components/ui/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
 import { Wrench, Calendar, AlertTriangle, CheckCircle, DollarSign } from 'lucide-react';
 import { getAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -61,7 +60,7 @@ const AmcOverview = () => {
 
   return (
     <div className="space-y-5">
-      <StatsGrid>
+      <KpiGrid>
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -70,15 +69,11 @@ const AmcOverview = () => {
               title={stat.title}
               value={stat.value}
               icon={<Icon />}
-              footer={
-                <p className="mt-0.5 text-brand-caption text-brand-text-light">
-                  {stat.change}
-                </p>
-              }
+              footer={stat.change}
             />
           );
         })}
-      </StatsGrid>
+      </KpiGrid>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="bg-white border border-gray-200">

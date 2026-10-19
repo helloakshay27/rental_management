@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
-import { StatsGrid } from '@/components/ui/page';
 import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -223,7 +222,7 @@ const RentCollection = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard
           title="Total Rent Due"
           value={`₹${totalRent.toLocaleString()}`}
@@ -234,7 +233,7 @@ const RentCollection = () => {
           value={`₹${collectedRent.toLocaleString()}`}
           icon={<CheckCircle />}
           footer={
-            <p className="mt-0.5 text-brand-caption text-brand-success">
+            <p className="text-brand-success">
               {totalRent ? Math.round((collectedRent / totalRent) * 100) : 0}% collected
             </p>
           }
@@ -244,7 +243,7 @@ const RentCollection = () => {
           value={`₹${overdueAmount.toLocaleString()}`}
           icon={<AlertCircle />}
           footer={
-            <p className="mt-0.5 text-brand-caption text-brand-error">
+            <p className="text-brand-error">
               {rentRecords.filter(r => r.status === 'overdue').length} properties
             </p>
           }
@@ -254,7 +253,7 @@ const RentCollection = () => {
           value={`₹${lateFees.toLocaleString()}`}
           icon={<TrendingUp />}
         />
-      </StatsGrid>
+      </KpiGrid>
 
       {/* Rent Collection Table */}
       <div>

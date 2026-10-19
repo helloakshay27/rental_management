@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { PageContainer, StatsGrid, PageHeader } from '@/components/ui/page';
-import { StatsCard } from '@/components/ui/stats-card';
+import { PageContainer, PageHeader } from '@/components/ui/page';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -158,7 +158,7 @@ const AccessManagement = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Access Management" description="Control user permissions and access levels" backTo="/masters" />
         <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
-          <DialogContent className="max-w-2xl bg-white">
+          <DialogContent className="bg-white">
             <DialogHeader>
               <DialogTitle>Configure User Access</DialogTitle>
               <DialogDescription>Set specific permissions and restrictions for a user</DialogDescription>
@@ -246,12 +246,12 @@ const AccessManagement = () => {
         </Dialog>
       </div>
 
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard title="Total Users" value={24} icon={<Shield />} />
         <StatsCard title="Active Sessions" value={18} icon={<Unlock />} />
         <StatsCard title="Restricted Access" value={3} icon={<Lock />} />
         <StatsCard title="Suspended" value={1} icon={<Key />} />
-      </StatsGrid>
+      </KpiGrid>
 
       <div>
         <EnhancedTable

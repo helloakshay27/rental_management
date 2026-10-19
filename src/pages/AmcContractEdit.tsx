@@ -171,16 +171,16 @@ const AmcContractEdit = () => {
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <Card className="bg-white border border-gray-200 shadow-sm">
+                    <Card className="bg-white border border-gray-200">
                         <CardHeader className="border-b border-gray-100 pb-4">
                             <CardTitle className="text-lg font-semibold text-gray-800">Contract Details</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-4 space-y-3">
+                        <CardContent className="p-4 space-y-5">
 
                             {/* Basic Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Property (Site) <span className="text-red-500">*</span></Label>
+                                    <Label>Property (Site) <span className="text-red-500">*</span></Label>
                                     <Select value={formData.site_id} onValueChange={(val) => handleChange('site_id', val)}>
                                         <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 focus:ring-[#C72030]">
                                             <SelectValue placeholder="Select Property" />
@@ -194,7 +194,7 @@ const AmcContractEdit = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Vendor <span className="text-red-500">*</span></Label>
+                                    <Label>Vendor <span className="text-red-500">*</span></Label>
                                     <Select value={formData.vendor_id} onValueChange={(val) => handleChange('vendor_id', val)}>
                                         <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 focus:ring-[#C72030]">
                                             <SelectValue placeholder="Select Vendor" />
@@ -210,7 +210,7 @@ const AmcContractEdit = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Service Type <span className="text-red-500">*</span></Label>
+                                    <Label>Service Type <span className="text-red-500">*</span></Label>
                                     <Input
                                         className="bg-white border-gray-300"
                                         placeholder="Enter Service Type"
@@ -220,7 +220,7 @@ const AmcContractEdit = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Status</Label>
+                                    <Label>Status</Label>
                                     <Select value={formData.status} onValueChange={(val) => handleChange('status', val)}>
                                         <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 focus:ring-[#C72030]">
                                             <SelectValue placeholder="Select Status" />
@@ -234,9 +234,9 @@ const AmcContractEdit = () => {
                             </div>
 
                             {/* Financials & Dates */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Contract Value</Label>
+                                    <Label>Contract Value</Label>
                                     <div className="relative">
                                         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                         <Input
@@ -250,7 +250,7 @@ const AmcContractEdit = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Annual Cost</Label>
+                                    <Label>Annual Cost</Label>
                                     <div className="relative">
                                         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-gray-500">₹</span>
                                         <Input
@@ -264,7 +264,7 @@ const AmcContractEdit = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Start Date</Label>
+                                    <Label>Start Date</Label>
                                     <Input
                                         type="date"
                                         className="bg-white border-gray-300"
@@ -274,7 +274,7 @@ const AmcContractEdit = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">End Date</Label>
+                                    <Label>End Date</Label>
                                     <Input
                                         type="date"
                                         className="bg-white border-gray-300"
@@ -285,9 +285,9 @@ const AmcContractEdit = () => {
                             </div>
 
                             {/* Terms */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
                                 <div className="space-y-1.5">
-                                    <Label className="text-gray-700 font-medium">Payment Terms</Label>
+                                    <Label>Payment Terms</Label>
                                     <Select value={formData.payment_terms} onValueChange={(val) => handleChange('payment_terms', val)}>
                                         <SelectTrigger className="w-full bg-white border border-gray-300 text-gray-900 focus:ring-[#C72030]">
                                             <SelectValue placeholder="Select Payment Terms" />
@@ -304,7 +304,7 @@ const AmcContractEdit = () => {
 
                                 <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50">
                                     <div className="space-y-0.5">
-                                        <Label className="text-gray-700 font-medium">Auto Renewal</Label>
+                                        <Label>Auto Renewal</Label>
                                         <p className="text-xs text-gray-500">Automatically renew contract at end of term</p>
                                     </div>
                                     <Switch
@@ -315,7 +315,7 @@ const AmcContractEdit = () => {
 
                                 {formData.auto_renewal && (
                                     <div className="space-y-1.5">
-                                        <Label className="text-gray-700 font-medium">Renewal Notice Days</Label>
+                                        <Label>Renewal Notice Days</Label>
                                         <Input
                                             type="number"
                                             className="bg-white border-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -327,9 +327,9 @@ const AmcContractEdit = () => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label className="text-gray-700 font-medium">Terms & Conditions</Label>
+                                <Label>Terms & Conditions</Label>
                                 <Textarea
-                                    className="bg-white border-gray-300 text-gray-900 min-h-[100px] focus:ring-[#C72030]"
+                                    className="min-h-[88px]"
                                     placeholder="Enter terms and conditions..."
                                     value={formData.terms_conditions}
                                     onChange={(e) => handleChange('terms_conditions', e.target.value)}
@@ -337,9 +337,9 @@ const AmcContractEdit = () => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label className="text-gray-700 font-medium">Remarks</Label>
+                                <Label>Remarks</Label>
                                 <Textarea
-                                    className="bg-white border-gray-300 text-gray-900 min-h-[80px] focus:ring-[#C72030]"
+                                    className="min-h-[88px]"
                                     placeholder="Any additional remarks..."
                                     value={formData.remarks}
                                     onChange={(e) => handleChange('remarks', e.target.value)}
@@ -348,10 +348,10 @@ const AmcContractEdit = () => {
 
                         </CardContent>
                         <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-lg flex justify-end gap-3">
-                            <Button type="button" variant="outline" onClick={() => navigate('/amc')} className="border-gray-300 bg-white hover:bg-gray-50">
+                            <Button type="button" variant="outline" onClick={() => navigate('/amc')} className="fm-button-fix">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand px-6 py-2">
+                            <Button type="submit" disabled={isLoading} className="fm-button-fix fm-button-brand">
                                 {isLoading ? <Spinner className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                                 Update Contract
                             </Button>

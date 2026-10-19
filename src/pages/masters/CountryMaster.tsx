@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { MetaChip } from '@/components/ui/status-pill';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
@@ -242,9 +243,9 @@ const CountryMaster = () => {
                     </div>
                 );
             case 'phone_code':
-                return <Badge variant="secondary">{country.phone_code || 'N/A'}</Badge>;
+                return <MetaChip>{country.phone_code || 'N/A'}</MetaChip>;
             case 'currency_code':
-                return <Badge variant="success">{country.currency_code || 'N/A'}</Badge>;
+                return <MetaChip>{country.currency_code || 'N/A'}</MetaChip>;
             case 'status':
                 return (
                     <Select
@@ -320,7 +321,7 @@ const CountryMaster = () => {
             <div className="flex items-center justify-between">
                 <PageHeader title="Country Master" description="Manage countries with their codes and currency information" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogContent className="max-w-2xl bg-white">
+                    <DialogContent>
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingCountry ? 'Edit Country' : 'Add New Country'}

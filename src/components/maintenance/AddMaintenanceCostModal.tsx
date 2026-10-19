@@ -86,7 +86,7 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[800px] bg-white max-h-[90vh] overflow-y-auto">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                         Add Maintenance Costs
@@ -147,7 +147,7 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
                                     <Textarea
                                         value={cost.description}
                                         onChange={(e) => updateRow(index, 'description', e.target.value)}
-                                        className="bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium min-h-[80px]"
+                                        className="min-h-[88px]"
                                         placeholder="Enter description..."
                                     />
                                 </div>
@@ -170,7 +170,6 @@ const AddMaintenanceCostModal = ({ isOpen, onClose, maintenanceRequestId, onSucc
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className=""
                     >
                         Cancel
                     </Button>

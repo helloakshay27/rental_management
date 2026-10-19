@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { StatsGrid } from '@/components/ui/page';
+import { KpiGrid } from '@/components/ui/stats-card';
 import { Building2, DollarSign, Users, AlertTriangle, TrendingUp, MapPin, Calendar, FileText, Shield, Wrench, Receipt, BarChart3 } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
@@ -21,7 +21,7 @@ const LandlordAnalyticalDashboard = () => {
   return (
     <div className="space-y-5">
       {/* Enhanced Stats Grid */}
-      <StatsGrid>
+      <KpiGrid>
         <StatCard
           title="Total Portfolio Value"
           value="₹245.8Cr"
@@ -58,10 +58,10 @@ const LandlordAnalyticalDashboard = () => {
           color="bg-brand"
           backgroundColor="bg-brand-card-bg"
         />
-      </StatsGrid>
+      </KpiGrid>
 
       {/* Additional KPI Row */}
-      <StatsGrid>
+      <KpiGrid>
         <StatCard
           title="Average Rent/SqFt"
           value="₹125"
@@ -98,7 +98,7 @@ const LandlordAnalyticalDashboard = () => {
           color="bg-brand"
           backgroundColor="bg-brand-card-bg"
         />
-      </StatsGrid>
+      </KpiGrid>
 
       {/* Quick Actions */}
       <QuickActions />

@@ -59,8 +59,18 @@ const TenantLeaseExpiryChart = ({ data }: { data?: LeaseExpiryData }) => {
               ))}
             </Pie>
             <ChartTooltip
-              content={<ChartTooltipContent />}
-              formatter={(value, name) => [`${value} properties`, name]}
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  className="rounded-[9px] px-[9px] py-[5px] text-[11px] font-semibold"
+                  formatter={(value, name) => (
+                    <div className="flex w-full items-center justify-between gap-3">
+                      <span className="text-muted-foreground">{name}</span>
+                      <span className="tabular-nums">{`${value} properties`}</span>
+                    </div>
+                  )}
+                />
+              }
             />
             <Legend
               formatter={(value, entry) => {

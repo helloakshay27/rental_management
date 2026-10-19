@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { StatsGrid } from '@/components/ui/page';
 import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
+import { StatusPill } from '@/components/ui/status-pill';
+import { formatCurrency as formatInr } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +25,7 @@ const columns: ColumnConfig[] = [
   { key: 'invoice_number', label: 'Invoice ID', sortable: true, draggable: true },
   { key: 'tenant_name', label: 'Tenant', sortable: true, draggable: true },
   { key: 'property_name', label: 'Property', sortable: true, draggable: true },
-  { key: 'amount', label: 'Amount', sortable: true, draggable: true },
+  { key: 'amount', label: 'Amount', sortable: true, draggable: true, align: 'right' },
   { key: 'due_date', label: 'Due Date', sortable: true, draggable: true },
   { key: 'status', label: 'Status', sortable: true, draggable: true },
 ];
@@ -144,20 +145,8 @@ const InvoiceManagement = () => {
     description: ''
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge className="bg-green-100 text-green-700">Paid</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-700">Pending</Badge>;
-      case 'overdue':
-        return <Badge className="bg-red-100 text-red-700">Overdue</Badge>;
-      case 'draft':
-        return <Badge className="bg-gray-100 text-gray-700">Draft</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
+  // Shared low-tint state pill; enum keys (e.g. partially_paid) display humanised.
+  const getStatusBadge = (status: string) => <StatusPill status={status} />;
 
   const handlePay = (invoice: any) => {
     setPaymentFormData({
@@ -231,7 +220,7 @@ const InvoiceManagement = () => {
       case 'property_name':
         return invoice.billable?.property_name || 'N/A';
       case 'amount':
-        return `₹${invoice.amount?.toLocaleString()}`;
+        return formatInr(invoice.amount);
       case 'status':
         return getStatusBadge(invoice.status);
       default:
@@ -294,7 +283,7 @@ const InvoiceManagement = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard
           title="Total Outstanding"
           value={formatCurrency(stats.outstanding)}
@@ -307,7 +296,7 @@ const InvoiceManagement = () => {
           value={`${stats.collection_rate}%`}
           icon={<CheckCircle />}
         />
-      </StatsGrid>
+      </KpiGrid>
 
       <Tabs defaultValue="invoices" className="space-y-6">
         <TabsList>
@@ -362,7 +351,7 @@ const InvoiceManagement = () => {
       </Tabs>
 
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
-        <DialogContent className="sm:max-w-[500px] bg-white">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">Record Invoice Payment</DialogTitle>
             <DialogDescription>
@@ -372,27 +361,26 @@ const InvoiceManagement = () => {
 
           <div className="grid gap-6 py-4">
             <div className="space-y-2">
-              <Label htmlFor="invoice_display" className="text-gray-900 font-medium">
+              <Label htmlFor="invoice_display">
                 Invoice ID (Record ID)
               </Label>
               <Input
                 id="invoice_display"
                 value={paymentFormData.invoice_id}
                 disabled
-                className="bg-gray-50 border-2 border-gray-200 text-gray-500 font-medium"
+                className="bg-gray-50 text-gray-500"
               />
               <p className="text-xs text-gray-400">Invoice Number: {paymentFormData.invoice_number}</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amount" className="text-gray-900 font-medium">
+              <Label htmlFor="amount">
                 Amount (₹) *
               </Label>
               <Input
                 id="amount"
                 type="number"
                 placeholder="0.00"
-                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.amount}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, amount: e.target.value }))}
               />
@@ -400,52 +388,49 @@ const InvoiceManagement = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="payment_date" className="text-gray-900 font-medium">
+                <Label htmlFor="payment_date">
                   Payment Date
                 </Label>
                 <Input
                   id="payment_date"
                   type="date"
-                  className="bg-white border-gray-300 text-gray-900"
                   value={paymentFormData.payment_date}
                   onChange={(e) => setPaymentFormData(prev => ({ ...prev, payment_date: e.target.value }))}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="payment_type" className="text-gray-900 font-medium">
+                <Label htmlFor="payment_type">
                   Payment Type
                 </Label>
                 <Input
                   id="payment_type"
                   value="rent"
                   disabled
-                  className="bg-gray-50 border-2 border-gray-200 text-gray-500 font-medium"
+                  className="bg-gray-50 text-gray-500"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="transaction_id" className="text-gray-900 font-medium">
+              <Label htmlFor="transaction_id">
                 Transaction ID *
               </Label>
               <Input
                 id="transaction_id"
                 placeholder="UPI / Bank Ref No."
-                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.transaction_id}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, transaction_id: e.target.value }))}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-gray-900 font-medium">
+              <Label htmlFor="description">
                 Description
               </Label>
               <Input
                 id="description"
                 placeholder="Optional notes"
-                className="bg-white border-gray-300 text-gray-900"
                 value={paymentFormData.description}
                 onChange={(e) => setPaymentFormData(prev => ({ ...prev, description: e.target.value }))}
               />
@@ -456,14 +441,14 @@ const InvoiceManagement = () => {
             <Button
               variant="outline"
               onClick={() => setIsPaymentModalOpen(false)}
-              className="border-gray-300 text-gray-700"
+              className="fm-button-fix"
             >
               Cancel
             </Button>
             <Button
               onClick={handlePaymentSubmit}
               disabled={isSubmittingPayment}
-              className="fm-button-fix fm-button-brand px-6 py-2"
+              className="fm-button-fix fm-button-brand"
             >
               {isSubmittingPayment ? "Processing..." : "Submit Payment"}
             </Button>

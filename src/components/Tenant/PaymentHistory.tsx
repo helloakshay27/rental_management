@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SectionLoader } from '@/components/ui/loader';
-import { StatsGrid } from '@/components/ui/page';
 import { TableFilterDialog, FilterField } from '@/components/enhanced-table/TableFilterDialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
+import { StatsCard, KpiGrid } from '@/components/ui/stats-card';
+import { formatCompactCurrency } from '@/lib/format';
 import { CreditCard, DollarSign, Clock, CheckCircle } from 'lucide-react';
 import PaymentTable from './PaymentTable';
 import { getAuth } from '@/lib/api';
@@ -77,31 +77,32 @@ const PaymentHistory = () => {
   return (
     <div className="space-y-5">
       {/* Summary Cards */}
-      <StatsGrid>
+      <KpiGrid>
         <StatsCard title="Total Payments" value={payments.length} icon={<CreditCard />} />
         <StatsCard
           title="Total Paid"
-          value={`₹${totalPaid.toLocaleString()}`}
+          value={formatCompactCurrency(totalPaid)}
           icon={<CheckCircle />}
         />
         <StatsCard
           title="Pending Amount"
-          value={`₹${totalPending.toLocaleString()}`}
+          value={formatCompactCurrency(totalPending)}
           icon={<Clock />}
         />
         <StatsCard
           title="This Month"
-          value={`₹${payments
-            .filter(
-              (p) =>
-                p.paymentDate &&
-                new Date(p.paymentDate).getMonth() === new Date().getMonth()
-            )
-            .reduce((sum, p) => sum + p.amount, 0)
-            .toLocaleString()}`}
+          value={formatCompactCurrency(
+            payments
+              .filter(
+                (p) =>
+                  p.paymentDate &&
+                  new Date(p.paymentDate).getMonth() === new Date().getMonth()
+              )
+              .reduce((sum, p) => sum + p.amount, 0)
+          )}
           icon={<DollarSign />}
         />
-      </StatsGrid>
+      </KpiGrid>
 
       <div>
           {loading ? (

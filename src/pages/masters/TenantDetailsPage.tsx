@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { StatusPill } from '@/components/ui/status-pill';
 import { getAuth } from '@/lib/api';
 import { User, Mail, Phone, MapPin, Building2, Briefcase, FileText, ArrowLeft, Edit } from 'lucide-react';
 import { toast } from 'sonner';
@@ -69,9 +70,7 @@ const TenantDetailsPage = () => {
                 actions={
                     <>
                 <div className="flex items-center gap-3">
-                    <Badge variant={tenant.status === 'Active' ? 'default' : 'secondary'} className="h-fit py-1 px-3">
-                        {tenant.status || 'Active'}
-                    </Badge>
+                    <StatusPill status={tenant.status || 'Active'} />
                     </div>
                     </>
                 }
@@ -83,7 +82,7 @@ const TenantDetailsPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-5">
                                 <div className="flex items-start gap-3">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <User className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -93,7 +92,7 @@ const TenantDetailsPage = () => {
                                 </div>
 
                                 <div className="flex items-start gap-3">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <Mail className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -103,7 +102,7 @@ const TenantDetailsPage = () => {
                                 </div>
 
                                 <div className="flex items-start gap-3">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <Phone className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -118,7 +117,7 @@ const TenantDetailsPage = () => {
 
                             <div className="space-y-5">
                                 <div className="flex items-start gap-3">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <Building2 className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -128,7 +127,7 @@ const TenantDetailsPage = () => {
                                 </div>
 
                                 <div className="flex items-start gap-3">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <Briefcase className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -138,7 +137,7 @@ const TenantDetailsPage = () => {
                                 </div>
 
                                 <div className="flex items-start gap-3">
-                                    <div className="rounded-md bg-brand-light p-2 text-brand">
+                                    <div className="rounded-md bg-[#F5F4F0] p-2 text-[rgba(26,26,24,0.72)]">
                                         <MapPin className="h-4 w-4" />
                                     </div>
                                     <div>

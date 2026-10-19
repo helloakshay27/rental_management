@@ -665,6 +665,7 @@ export function EnhancedTable<T extends Record<string, any>>({
         id={column.key}
         sortable={column.sortable !== false}
         draggable={column.draggable}
+        align={column.align}
         rowSpan={rowSpan}
         sortDirection={
           sortState.column === column.key ? sortState.direction : null
@@ -679,7 +680,8 @@ export function EnhancedTable<T extends Record<string, any>>({
           }
         }}
         className={cn(
-          "bg-brand-card-bg text-left text-brand-text min-w-32 sticky top-0",
+          "bg-brand-card-bg text-brand-text min-w-32 sticky top-0",
+          column.align === "right" ? "text-right" : "text-left",
           frozenConfig?.isFrozen && "frozen-header-cell",
           frozenConfig?.isLastFrozen && "frozen-last-cell"
         )}
@@ -1974,7 +1976,10 @@ className="flex w-full items-center justify-center gap-1 border-t border-brand-b
                               <TableCell
                                 key={column.key}
                                 className={cn(
-                                  "p-4 text-left min-w-32",
+                                  "p-4 min-w-32",
+                                  column.align === "right"
+                                    ? "text-right tabular-nums"
+                                    : "text-left",
                                   frozenConfig?.isFrozen && "frozen-body-cell",
                                   frozenConfig?.isLastFrozen &&
                                     "frozen-last-cell"

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { StatusPill } from '@/components/ui/status-pill';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { putAuth } from '@/lib/api';
 import { toast } from 'sonner';
@@ -190,7 +191,7 @@ const SecurityTab = () => {
                   <p className="text-xs text-gray-500">Active now</p>
                 </div>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+              <StatusPill status="active" />
             </div>
           </div>
         </div>

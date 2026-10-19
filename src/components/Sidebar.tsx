@@ -16,27 +16,6 @@ import {
   Receipt,
   ShieldCheck,
   Hammer,
-  LayoutGrid,
-  Building2,
-  UserCog,
-  Users,
-  Truck,
-  User,
-  KeyRound,
-  Lock,
-  Palette,
-  Sparkles,
-  Factory,
-  ClipboardCheck,
-  ListPlus,
-  Tags,
-  PiggyBank,
-  Globe,
-  Map,
-  MapPinned,
-  LandPlot,
-  Building,
-  CircleDot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -49,7 +28,7 @@ interface NavItem {
   icon: React.ElementType;
   label: string;
   path: string;
-  subItems?: { label: string; path: string; icon: React.ElementType }[];
+  subItems?: { label: string; path: string }[];
 }
 
 /**
@@ -71,29 +50,29 @@ const menuItems: NavItem[] = [
     label: 'Masters',
     path: '/masters',
     subItems: [
-      { icon: LayoutGrid, label: 'Overview', path: '/masters' },
-      { icon: Building2, label: 'Properties', path: '/masters/properties' },
-      { icon: UserCog, label: 'Landlords', path: '/masters/landlords' },
-      { icon: Users, label: 'Lessees', path: '/masters/tenants' },
-      { icon: Truck, label: 'Vendors', path: '/masters/vendors' },
-      { icon: ShieldCheck, label: 'Compliances', path: '/masters/compliances' },
-      { icon: User, label: 'Users', path: '/masters/users' },
-      { icon: KeyRound, label: 'Roles', path: '/masters/roles' },
-      { icon: Lock, label: 'Access Control', path: '/masters/access' },
-      { icon: Palette, label: 'Branding', path: '/masters/branding' },
-      { icon: Sparkles, label: 'Amenities', path: '/masters/amenities' },
-      { icon: Factory, label: 'Facility Types', path: '/masters/facility-types' },
-      { icon: ClipboardCheck, label: 'Takeover Conditions', path: '/masters/takeover-conditions' },
-      { icon: ListPlus, label: 'Lease Custom Fields', path: '/masters/lease-custom-fields' },
-      { icon: Tags, label: 'Expense Categories', path: '/masters/expense-categories' },
-      { icon: PiggyBank, label: 'Budgets', path: '/masters/budgets' },
-      { icon: Wrench, label: 'Service Types', path: '/masters/service-types' },
-      { icon: Globe, label: 'Countries', path: '/masters/countries' },
-      { icon: Map, label: 'States', path: '/masters/states' },
-      { icon: MapPinned, label: 'Regions', path: '/masters/regions' },
-      { icon: LandPlot, label: 'Zones', path: '/masters/zones' },
-      { icon: Building, label: 'Cities', path: '/masters/cities' },
-      { icon: CircleDot, label: 'Circles', path: '/masters/circles' },
+      { label: 'Overview', path: '/masters' },
+      { label: 'Properties', path: '/masters/properties' },
+      { label: 'Landlords', path: '/masters/landlords' },
+      { label: 'Lessees', path: '/masters/tenants' },
+      { label: 'Vendors', path: '/masters/vendors' },
+      { label: 'Compliances', path: '/masters/compliances' },
+      { label: 'Users', path: '/masters/users' },
+      { label: 'Roles', path: '/masters/roles' },
+      { label: 'Access Control', path: '/masters/access' },
+      { label: 'Branding', path: '/masters/branding' },
+      { label: 'Amenities', path: '/masters/amenities' },
+      { label: 'Facility Types', path: '/masters/facility-types' },
+      { label: 'Takeover Conditions', path: '/masters/takeover-conditions' },
+      { label: 'Lease Custom Fields', path: '/masters/lease-custom-fields' },
+      { label: 'Expense Categories', path: '/masters/expense-categories' },
+      { label: 'Budgets', path: '/masters/budgets' },
+      { label: 'Service Types', path: '/masters/service-types' },
+      { label: 'Countries', path: '/masters/countries' },
+      { label: 'States', path: '/masters/states' },
+      { label: 'Regions', path: '/masters/regions' },
+      { label: 'Zones', path: '/masters/zones' },
+      { label: 'Cities', path: '/masters/cities' },
+      { label: 'Circles', path: '/masters/circles' },
     ],
   },
   { icon: Bell, label: 'Notifications', path: '/notifications' },
@@ -105,8 +84,21 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-  /** A leaf is active on exact match; a group is active anywhere in its subtree. */
-  const isActiveRoute = (path: string) => location.pathname === path;
+  /**
+   * A group's active child is resolved from the current route, so a page reached
+   * from the Masters overview cards (or a detail page beneath it) highlights the
+   * same child as direct sidebar entry. Longest matching prefix wins, so
+   * Overview (/masters) is active only on the overview itself.
+   */
+  const resolveActiveChild = (item: NavItem) =>
+    (item.subItems ?? [])
+      .filter(
+        (sub) =>
+          location.pathname === sub.path ||
+          (sub.path !== item.path && location.pathname.startsWith(`${sub.path}/`))
+      )
+      .sort((a, b) => b.path.length - a.path.length)[0]?.path;
+  /** A group is active anywhere in its subtree. */
   const isInSection = (item: NavItem) =>
     location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
 
@@ -229,6 +221,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
               const hasSubItems = !!item.subItems?.length;
               const active = isInSection(item);
               const isExpanded = expandedItems.includes(item.label);
+              const activeChild = hasSubItems ? resolveActiveChild(item) : undefined;
 
               if (hasSubItems) {
                 return (
@@ -254,22 +247,29 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                     </button>
 
                     {isExpanded && (
-                      <div className="ml-8 mt-1 space-y-1.5">
+                      <div className="mt-0.5 space-y-0.5">
                         {item.subItems!.map((subItem) => {
-                          const SubIcon = subItem.icon;
-                          const subActive = isActiveRoute(subItem.path);
+                          const subActive = subItem.path === activeChild;
                           return (
                             <Link
                               key={subItem.path}
                               to={subItem.path}
+                              aria-current={subActive ? 'page' : undefined}
                               className={cn(
-                                'group relative flex items-center w-full px-3 py-[9px] rounded-[10px] text-[13.5px] transition-colors duration-150',
+                                // Indented child row: 7px 10px 7px 40px, radius 8px, 12.5px text, 4px dot.
+                                'relative flex items-center gap-2.5 w-full py-[7px] pr-[10px] pl-[40px] rounded-[8px] text-[12.5px] transition-colors duration-150',
                                 subActive
                                   ? 'bg-brand-sidebar-active text-[#1A1A18] font-medium'
                                   : 'text-[rgba(26,26,24,0.62)] hover:bg-brand-sidebar-hover hover:text-[#1A1A18]'
                               )}
                             >
-                              <SubIcon className="mr-2 h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5" />
+                              <span
+                                aria-hidden
+                                className={cn(
+                                  'h-1 w-1 shrink-0 rounded-full',
+                                  subActive ? 'bg-[#1A1A18]' : 'bg-[rgba(26,26,24,0.38)]'
+                                )}
+                              />
                               {subItem.label}
                             </Link>
                           );

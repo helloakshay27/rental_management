@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts';
@@ -16,15 +17,15 @@ const maintenanceData = [
 const chartConfig = {
   preventive: {
     label: 'Preventive',
-    color: '#12A150'
+    color: ANALYTICS_PALETTE[0]
   },
   reactive: {
     label: 'Reactive',
-    color: '#2F6FE0'
+    color: ANALYTICS_PALETTE[1]
   },
   emergency: {
     label: 'Emergency',
-    color: '#E5484D'
+    color: ANALYTICS_PALETTE[2]
   }
 };
 

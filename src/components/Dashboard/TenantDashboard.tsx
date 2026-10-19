@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PageLoader } from '@/components/ui/loader';
-import { StatsGrid } from '@/components/ui/page';
+import { KpiGrid } from '@/components/ui/stats-card';
 import { Home, CreditCard, Calendar, AlertTriangle, FileText, Clock, CheckCircle, DollarSign, TrendingUp, MapPin, Users, Building, Shield, Wrench, LayoutDashboard } from 'lucide-react';
 import StatCard from './StatCard';
 import QuickActions from './QuickActions';
@@ -165,7 +165,7 @@ const TenantDashboard = () => {
   return (
     <div className="space-y-5">
       {/* Enhanced Stats Grid for Large-Scale Operations */}
-      <StatsGrid>
+      <KpiGrid>
         <StatCard
           title="Total Properties"
           value={dashboardData?.summary?.total_properties ?? 0}
@@ -202,7 +202,7 @@ const TenantDashboard = () => {
           color="bg-brand"
           backgroundColor="bg-brand-card-bg"
         />
-      </StatsGrid>
+      </KpiGrid>
 
       {/* Quick Actions for Tenant Operations */}
       <QuickActions />
@@ -265,7 +265,7 @@ const TenantDashboard = () => {
                       No critical alerts at this time
                     </div>
                   )}
-                  <Button className="w-full fm-button-fix fm-button-brand px-6 py-2">
+                  <Button variant="outline" className="w-full fm-button-fix px-6 py-2">
                     View All Alerts
                   </Button>
                 </div>

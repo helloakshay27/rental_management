@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { FileUploadZone } from '@/components/ui/file-upload-zone';
 import { FormSection, FormActions } from '@/components/ui/form-section';
 import './add-rental.css';
 import { RentalPartyDetails } from '@/components/Rental/RentalPartyDetails';
@@ -474,8 +475,7 @@ const AddRentalPage = () => {
                 <h2>{STEPS[step]}</h2><p>{STEP_HELP[step]}</p></div>
 
             <div role="tabpanel" tabIndex={0} id="rental-step-0" aria-labelledby="rental-tab-0" hidden={step !== 0} className="rental-step-panel">
-                <section className="rental-card">
-                    <h2>Property & Lessee</h2>
+                <FormSection title="Property & Lessee">
                     <div className="rental-field-grid">
                         <div className="space-y-2 w-full">
                             <Label className="text-sm text-gray-900 font-medium">Circle *</Label>
@@ -533,12 +533,11 @@ const AddRentalPage = () => {
                                     <SelectItem value="inactive">Inactive</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div></div></section>
+                        </div></div></FormSection>
                 <RentalPartyDetails property={selectedPropertyDetails} tenant={selectedTenantDetails} />
             </div>
             <div role="tabpanel" tabIndex={0} id="rental-step-1" aria-labelledby="rental-tab-1" hidden={step !== 1} className="rental-step-panel">
-                <section className="rental-card">
-                    <h2>Agreement Details</h2>
+                <FormSection title="Agreement Details">
                     <div className="rental-field-grid">
                         <div className="space-y-1.5">
                             <Label className="text-sm text-gray-900 font-medium">Property Takeover Condition *</Label>
@@ -610,9 +609,8 @@ const AddRentalPage = () => {
                                 value={formData.stamp_duty_sharing}
                                 onChange={(e) => setFormData(prev => ({ ...prev, stamp_duty_sharing: e.target.value }))}
                             />
-                        </div></div></section>
-                <section className="rental-card">
-                    <h2>Lease Dates & Periods</h2>
+                        </div></div></FormSection>
+                <FormSection title="Lease Dates & Periods">
                     <div className="rental-field-grid">
                         <div className="space-y-1.5">
                             <Label className="text-sm text-gray-900 font-medium">Agreement Sign off Date</Label>
@@ -681,12 +679,11 @@ const AddRentalPage = () => {
                                 value={formData.lock_in_period_days || ''}
                                 onChange={(e) => setFormData(prev => ({ ...prev, lock_in_period_days: parseInt(e.target.value) || 0 }))}
                             />
-                        </div></div></section></div>
+                        </div></div></FormSection></div>
             <div role="tabpanel" tabIndex={0} id="rental-step-2" aria-labelledby="rental-tab-2" hidden={step !== 2} className="rental-step-panel">
-                <section className="rental-card">
-                    <h2>Rent & Taxes</h2>
+                <FormSection title="Rent & Taxes">
                     <div>
-                        <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand">Rent Breakdown</h3>
+                        <h3 className="mb-4 text-[14px] font-semibold text-brand-text">Rent Breakdown</h3>
 
                         <div className="space-y-4">
                             <div className="space-y-1.5">
@@ -963,14 +960,13 @@ const AddRentalPage = () => {
                             </div>
 
                         </div>
-                    </div></section></div>
+                    </div></FormSection></div>
             <div role="tabpanel" tabIndex={0} id="rental-step-3" aria-labelledby="rental-tab-3" hidden={step !== 3} className="rental-step-panel">
-                <section className="rental-card">
-                    <h2>Payment Schedule</h2>
+                <FormSection title="Payment Schedule">
                     <div className="space-y-4">
                         <div className="flex justify-start items-center gap-2">
                             <Clock className="h-5 w-5 text-gray-900" />
-                            <h3 className="text-brand-body-3 font-semibold uppercase text-brand">Rent Due Configuration</h3>
+                            <h3 className="text-[14px] font-semibold text-brand-text">Rent Due Configuration</h3>
                         </div>
                         <div className="space-y-3">
                             <Label className="text-sm text-gray-900 font-medium">Rent Payment Type</Label>
@@ -1006,9 +1002,9 @@ const AddRentalPage = () => {
                             </Select>
                             <p className="text-xs text-gray-500">Rent will be due on this date before each month begins</p>
                         </div>
-                    </div></section>
+                    </div></FormSection>
                 <div className="space-y-5 rounded-lg border border-brand-border bg-white p-5">
-                    <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand">Escalation & Penalty Settings</h3>
+                    <h3 className="mb-4 text-[14px] font-semibold text-brand-text">Escalation & Penalty Settings</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
@@ -1114,7 +1110,7 @@ const AddRentalPage = () => {
                         )}
                     </div>
                 </div>
-                <FormSection collapsible={false} title="Notice Period & Terms">
+                <FormSection title="Notice Period & Terms">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
@@ -1176,22 +1172,11 @@ const AddRentalPage = () => {
                     </div>
                 </FormSection></div>
             <div role="tabpanel" tabIndex={0} id="rental-step-4" aria-labelledby="rental-tab-4" hidden={step !== 4} className="rental-step-panel">
-                <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-brand-body-3 font-semibold uppercase text-brand">Parking Details</h3>
-                        <Button
-                            type="button"
-                            onClick={addParking}
-                            className="fm-button-fix fm-button-brand px-6 py-2"
-                        >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Parking
-                        </Button>
-                    </div>
+                <FormSection title="Parking Details">
 
                     <div className="space-y-4">
                         {parkings.map((parking, index) => (
-                            <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-gray-200 rounded-md">
+                            <div key={index} className="grid grid-cols-1 md:grid-cols-[repeat(4,minmax(0,1fr))_auto] gap-4 p-4 border border-gray-200 rounded-md">
                                 <div className="space-y-1.5">
                                     <Label className="text-sm text-gray-900 font-medium">Vehicle Type</Label>
                                     <Select
@@ -1268,46 +1253,53 @@ const AddRentalPage = () => {
                                     />
                                 </div>
 
-                                <div className="flex items-end">
+                                <div className="flex items-end pb-1.5">
                                     <Button
                                         type="button"
-                                        variant="outline"
+                                        variant="ghost"
+                                        size="icon"
                                         onClick={() => removeParking(index)}
                                         disabled={parkings.length === 1}
-                                        className="w-full"
+                                        aria-label="Remove parking row"
+                                        title="Remove parking row"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
                         ))}
+                        <button
+                            type="button"
+                            onClick={addParking}
+                            className="flex w-full items-center justify-center gap-2 rounded-[12px] border-2 border-dashed border-[rgba(26,26,24,0.16)] p-3 text-[13px] font-semibold text-[#1A1A18] transition-colors hover:bg-[#F7F6F2]"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Add parking row
+                        </button>
                     </div>
-                </div>
-                <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm sm:p-6">
+                </FormSection>
+                <FormSection title="Common Amenities">
                     <div className="space-y-1.5">
-                        <h3 className="mb-4 text-brand-body-3 font-semibold uppercase text-brand"> Common Amenities</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-md">
                             {amenities.map((amenity) => (
                                 <label key={amenity.id} className="flex items-center space-x-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
+                                    <Checkbox
                                         checked={formData.amenities.includes(amenity.id)}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
+                                        onCheckedChange={(checked) => {
+                                            if (checked === true) {
                                                 setFormData({ ...formData, amenities: [...formData.amenities, amenity.id] });
                                             } else {
                                                 setFormData({ ...formData, amenities: formData.amenities.filter(a => a !== amenity.id) });
                                             }
                                         }}
-                                        className="w-4 h-4 text-[#C72030] border-gray-300 rounded focus:ring-[#C72030]"
                                     />
                                     <span className="text-sm text-gray-700">{amenity.name}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
-                </div></div>
-            <div role="tabpanel" tabIndex={0} id="rental-step-5" aria-labelledby="rental-tab-5" hidden={step !== 5} className="rental-step-panel">{customFields.length > 0 && (<FormSection collapsible={false} title="Additional Details">
+                </FormSection></div>
+            <div role="tabpanel" tabIndex={0} id="rental-step-5" aria-labelledby="rental-tab-5" hidden={step !== 5} className="rental-step-panel">{customFields.length > 0 && (<FormSection title="Additional Details">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Dynamic Custom Fields */}
@@ -1350,8 +1342,7 @@ const AddRentalPage = () => {
                         </div>
                     ))}
                 </div>
-            </FormSection>)}<section className="rental-card">
-                    <h2>Notes & Agreement Document</h2>
+            </FormSection>)}<FormSection title="Notes & Agreement Document">
                     <div className="rental-field-grid">
                         <div className="space-y-1.5">
                             <Label className="text-sm text-gray-900 font-medium">Additional Notes</Label>
@@ -1365,18 +1356,16 @@ const AddRentalPage = () => {
                     <div className="mt-8 space-y-6">
                         <div className="space-y-1.5">
                             <Label className="text-sm text-gray-900 font-medium">Agreement File</Label>
-                            <Input
-                                type="file"
+                            <FileUploadZone
                                 accept=".pdf,.doc,.docx"
-                                className="bg-white border-gray-300 text-gray-900 h-9 text-[13px]"
+                                fileName={(formData.agreementFile as File | null)?.name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, agreementFile: e.target.files?.[0] || null }))}
                             />
                         </div>
 
 
-                    </div></section>
-                <section className="rental-card">
-                    <h2>Review Rental</h2><p className="rental-help">Check the key details before creating this rental. Use the steps above to make changes.</p>
+                    </div></FormSection>
+                <FormSection title="Review Rental"><p className="rental-help">Check the key details before creating this rental. Use the steps above to make changes.</p>
                     <dl className="rental-review">{[
                         ['Property', selectedPropertyDetails?.name || properties.find(p => String(p.id) === formData.property)?.name],
                         ['Lessee', selectedTenantDetails?.company_name || selectedTenantDetails?.name || tenants.find(t => String(t.id) === formData.tenant)?.name],
@@ -1385,12 +1374,12 @@ const AddRentalPage = () => {
                         ['Monthly rent', 'INR ' + (formData.basicRent + formData.gstAmount - formData.tdsAmount).toFixed(2)],
                         ['Security deposit', 'INR ' + formData.securityDeposit],
                         ['Agreement file', (formData.agreementFile as File | null)?.name || 'No file attached'],
-                    ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{renderValue(value) || 'Not provided'}</dd></div>)}</dl></section></div>
+                    ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{renderValue(value) || 'Not provided'}</dd></div>)}</dl></FormSection></div>
             <FormActions>
                 <Button
                     variant="outline"
                     onClick={() => (step === 0 ? navigate(-1) : goToStep(step - 1))}
-                    className="fm-button-fix h-9 px-5 text-[13px]"
+                    className="fm-button-fix"
                     disabled={isSubmitting}
                 >
                     {step === 0 ? 'Cancel' : 'Back'}
@@ -1398,14 +1387,14 @@ const AddRentalPage = () => {
                 {step < STEPS.length - 1 ? (
                     <Button
                         onClick={() => goToStep(step + 1)}
-                        className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]"
+                        className="fm-button-fix fm-button-brand"
                     >
                         Next
                     </Button>
                 ) : (
                     <Button
                         onClick={handleSubmit}
-                        className="fm-button-fix fm-button-brand h-9 px-5 text-[13px]"
+                        className="fm-button-fix fm-button-brand"
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? 'Adding...' : 'Add Rental'}

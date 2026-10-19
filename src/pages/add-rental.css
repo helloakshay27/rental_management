@@ -52,7 +52,6 @@
 }
 
 .rental-wizard .rental-card,
-.rental-wizard .rental-step-panel>.asset-form-section,
 .rental-wizard .rental-step-panel>div.rounded-lg {
   padding: 22px 24px;
   background: white;
@@ -357,7 +356,8 @@ html body .rental-wizard .rental-step-panel textarea {
   overflow-wrap: anywhere;
 }
 
-#rental-step-2 .rental-card>div>h3 {
+#rental-step-2 .rental-card>div>h3,
+#rental-step-2 .form-section-content>div>h3 {
   display: none;
 }
 
@@ -368,14 +368,16 @@ html body .rental-wizard .rental-step-panel textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  #rental-step-2 .rental-card>div>.space-y-4 {
+  #rental-step-2 .rental-card>div>.space-y-4,
+  #rental-step-2 .form-section-content>div>.space-y-4 {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
     align-items: start;
   }
 
-  #rental-step-2 .rental-card>div>.space-y-4>* {
+  #rental-step-2 .rental-card>div>.space-y-4>*,
+  #rental-step-2 .form-section-content>div>.space-y-4>* {
     margin-top: 0;
   }
 }
@@ -383,8 +385,12 @@ html body .rental-wizard .rental-step-panel textarea {
 @media (max-width: 639px) {
 
   .rental-wizard .rental-card,
-  .rental-wizard .rental-step-panel>.asset-form-section,
-  .rental-wizard .rental-step-panel>div.rounded-lg {
+    .rental-wizard .rental-step-panel>div.rounded-lg {
     padding: 18px 16px;
   }
+}
+/* Sections are FormSection shells (collapsible header + icon, as on Add Compliance);
+   the shell and its header/content carry their own padding. */
+.rental-wizard .rental-step-panel>.asset-form-section {
+  margin: 0;
 }

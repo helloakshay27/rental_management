@@ -166,16 +166,19 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           {/* Notifications Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl p-0 hover:bg-transparent focus-visible:ring-0 [&_svg]:!text-brand-text">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-selected">
-                  <Bell className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                </span>
+              {/* Matches fm-matrix-revamp's Header bell: white tile, orange bell, orange count badge. */}
+              <button
+                type="button"
+                className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-white transition-colors hover:bg-[#f6f4ee] sm:h-10 sm:w-10"
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5 text-[#DA7756]" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -left-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-semibold leading-none text-white">
+                  <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#DA7756] p-0 text-xs font-semibold text-white">
                     {unreadCount}
                   </span>
                 )}
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[min(360px,calc(100vw-2rem))] bg-brand-card border-brand-border shadow-dropdown p-0">
               <div className="flex items-center justify-between px-4 py-3 border-b border-brand-border">

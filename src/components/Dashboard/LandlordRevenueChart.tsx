@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ANALYTICS_PALETTE } from '@/styles/chartPalette';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { LineChart, Line, XAxis, YAxis, Legend } from 'recharts';
@@ -16,15 +17,15 @@ const revenueData = [
 const chartConfig = {
   actualRevenue: {
     label: 'Actual Revenue',
-    color: '#5A4BE0'
+    color: ANALYTICS_PALETTE[0]
   },
   projectedRevenue: {
     label: 'Projected Revenue',
-    color: '#2F6FE0'
+    color: ANALYTICS_PALETTE[1]
   },
   previousYear: {
     label: 'Previous Year',
-    color: '#888780'
+    color: ANALYTICS_PALETTE[2]
   }
 };
 

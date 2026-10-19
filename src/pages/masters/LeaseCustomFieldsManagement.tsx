@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { MetaChip } from '@/components/ui/status-pill';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { EnhancedTable } from '@/components/enhanced-table/EnhancedTable';
 import { ColumnConfig } from '@/hooks/useEnhancedTable';
@@ -217,7 +218,7 @@ const LeaseCustomFieldsManagement = () => {
                     </div>
                 );
             case 'field_type':
-                return <Badge variant="secondary" className="capitalize">{field.field_type}</Badge>;
+                return <MetaChip className="capitalize">{field.field_type}</MetaChip>;
             case 'required':
                 return field.required ? (
                     <Badge variant="destructive">
@@ -304,7 +305,7 @@ const LeaseCustomFieldsManagement = () => {
             <div className="flex items-center justify-between">
                 <PageHeader title="Lease Custom Fields" description="Manage custom fields for lease agreements" backTo="/masters" />
                 <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-                    <DialogContent className="max-w-2xl bg-white">
+                    <DialogContent className="bg-white">
                         <DialogHeader>
                             <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">
                                 {editingField ? 'Edit Custom Field' : 'Add New Custom Field'}

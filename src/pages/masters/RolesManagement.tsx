@@ -352,7 +352,7 @@ const RolesManagement = () => {
       <div className="flex items-center justify-between">
         <PageHeader title="Roles Management" description="Define and manage user roles and responsibilities" backTo="/masters" />
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
-          <DialogContent className="max-w-3xl bg-white">
+          <DialogContent className="bg-white">
             <DialogHeader>
               <DialogTitle className="text-brand-body-2 font-semibold text-brand-text">{editingRole ? 'Edit Role' : 'Create New Role'}</DialogTitle>
               <DialogDescription className="text-gray-600">{editingRole ? 'Update the role details and permissions' : 'Define a new role with specific permissions'}</DialogDescription>
@@ -394,28 +394,28 @@ const RolesManagement = () => {
                     </label>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-full">
                   <Label htmlFor="role-description" className="text-gray-900 font-medium">Description</Label>
                   <Textarea
                     id="role-description"
                     placeholder="Enter role description"
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="bg-white border-gray-300 focus:ring-[#C72030] text-gray-900 min-h-[100px]"
+                    className="min-h-[88px]"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-full">
                   <Label className="text-gray-900 font-medium">Permissions</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-4 border-gray-300 rounded-md bg-white">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 max-h-56 overflow-y-auto rounded-[12px] border border-[rgba(26,26,24,0.08)] p-4 bg-white">
                     {availablePermissions.map((permission) => (
-                      <div key={permission} className="flex items-center space-x-2">
+                      <div key={permission} className="flex min-w-0 items-center gap-2">
                         <Checkbox
                           id={permission}
                           checked={formData.permissions.includes(permission)}
                           onCheckedChange={() => handlePermissionToggle(permission)}
                           className="border-brand data-[state=checked]:bg-brand data-[state=checked]:border-brand data-[state=checked]:text-white"
                         />
-                        <Label htmlFor={permission} className="text-sm text-gray-900 cursor-pointer">{permission}</Label>
+                        <Label htmlFor={permission} className="min-w-0 truncate text-[12px] font-medium leading-tight text-[#1A1A18] cursor-pointer" title={permission}>{permission}</Label>
                       </div>
                     ))}
                   </div>
@@ -425,7 +425,6 @@ const RolesManagement = () => {
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                className="border-2 border-[#C72030] text-[#C72030] hover:bg-[#C72030] hover:text-white"
                 onClick={handleCloseDialog}
                 disabled={isLoading}
               >
