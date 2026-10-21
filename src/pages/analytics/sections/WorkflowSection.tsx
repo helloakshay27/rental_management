@@ -13,6 +13,9 @@ interface SectionProps {
   /** The chip currently selected; null while the tree is still loading. */
   activeModule: string | null;
   onModuleChange: (module: string) => void;
+  subModules: ModuleRow[] | null;
+  activeSubModule: string | null;
+  onSubModuleChange: (subModule: string) => void;
   targets: Record<string, number | null>;
   setTarget: (id: string, value: number | null) => void;
   /** Live data for the selected module; null until the query answers. */
@@ -23,8 +26,9 @@ interface SectionProps {
 
 export function WorkflowSection({
   active, palette, modules, activeModule, onModuleChange, targets, setTarget,
-  workflow, loading, error,
+  workflow, loading, error, subModules, activeSubModule, onSubModuleChange,
 }: SectionProps) {
+  const workflowName = [activeModule, activeSubModule].filter(Boolean).join(' / ');
   /* The API derives and measures the step sequence; nothing here is catalogued. */
   const funnelRows = (workflow?.funnel ?? []).map((f, i) => ({
     step: f.step,
@@ -39,8 +43,7 @@ export function WorkflowSection({
       <div className="section-head">
         <h2>Workflow Usage</h2>
         <span className="sd">
-          Admin completion per module — pick a module below to scope the funnel, its step-level events and its
-          submodule league table. The chips are the analytics API's own module tree for the selected range.
+          Pick a module and submodule to view workflow completion and step-level events for the selected period.
         </span>
       </div>
 
@@ -51,14 +54,34 @@ export function WorkflowSection({
               key={m.name}
               type="button"
               className={m.name === activeModule ? 'on' : undefined}
+              aria-pressed={m.name === activeModule}
               onClick={() => onModuleChange(m.name)}
               title={`${m.users} admin(s) · ${m.events} events · ${m.sessions} sessions`}
             >
               {m.name}
-              <span className="mcount">{m.users}</span>
+              {m.name === activeModule && subModules && (
+                <span className="mcount">{subModules.length}</span>
+              )}
             </button>
           ))}
         </div>
+        {activeModule && (
+          <div className="mnav-mods">
+            <div className="segbar" aria-label="Submodules">
+              {(subModules ?? []).map((m) => (
+                <button
+                  key={m.name}
+                  type="button"
+                  className={m.name === activeSubModule ? 'on' : undefined}
+                  aria-pressed={m.name === activeSubModule}
+                  onClick={() => onSubModuleChange(m.name)}
+                >
+                  {m.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
           <div className="tiles tiles-4col">
@@ -97,7 +120,7 @@ export function WorkflowSection({
           <ChartCard
             style={{ margin: '16px 0' }}
             eyebrow="Workflow funnel (measured event sequence)"
-            title={activeModule ? `${activeModule} — completion funnel` : 'Completion funnel'}
+            title={workflowName ? `${workflowName} — completion funnel` : 'Completion funnel'}
             purpose="Step-by-step completion and drop-off for the selected module, measured by the analytics API over the selected range."
           >
             {funnelRows.length ? (
@@ -129,7 +152,7 @@ export function WorkflowSection({
             style={{ marginTop: 12 }}
             eyebrow="All steps in this module"
             title="All steps in this module"
-            purpose={`Every event in ${activeModule ?? 'the selected module'}, with distinct Admins (confirmed user_id), event counts, sessions and completion rate for each — the module-scoped equivalent of the funnel above, at the individual-event level.`}
+            purpose={`Every event in ${workflowName || 'the selected workflow'}, with distinct Admins (confirmed user_id), event counts, sessions and completion rate for each — the module-scoped equivalent of the funnel above, at the individual-event level.`}
           >
             {workflow?.flows.length ? (
               <table className="pathtbl">

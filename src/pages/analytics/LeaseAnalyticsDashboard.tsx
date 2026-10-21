@@ -11,6 +11,7 @@ import {
   useAdoptionTrend,
   useGrowth,
   useModules,
+  useSubModules,
   useRetention,
   useTrafficSession,
   useUsageAndDistribution,
@@ -112,6 +113,8 @@ const LeaseAnalyticsDashboard = () => {
   // the chips are built from the live tree, so there is nothing to preselect before then.
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
 
+  const [selectedSubModule, setSelectedSubModule] = useState<string | null>(null);
+
   const [requestId, setRequestId] = useState(0);
 
   const palette = usePalette(rootRef, theme);
@@ -156,7 +159,19 @@ const LeaseAnalyticsDashboard = () => {
       ? selectedModule
       : (moduleNames[0] ?? null);
 
-  const workflowFilters: QueryFilters = { ...filters, module: activeModule };
+  const subModulesQ = useSubModules(
+    { ...filters, enabled: filters.enabled && modulesQ.isSuccess }, activeModule,
+  );
+  const subModules = buildModules(subModulesQ.data);
+  const activeSubModule = (subModules ?? []).some((m) => m.name === selectedSubModule)
+    ? selectedSubModule
+    : (subModules?.[0]?.name ?? null);
+  const workflowFilters: QueryFilters = {
+    ...filters,
+    module: activeModule,
+    subModule: activeSubModule,
+    enabled: filters.enabled && !!activeModule && subModulesQ.isSuccess,
+  };
   const workflowQ = useWorkflowUsage(workflowFilters);
 
   const traffic = buildTraffic(trafficQ.data);
@@ -176,10 +191,10 @@ const LeaseAnalyticsDashboard = () => {
     growthQ,
     retentionQ,
     modulesQ,
+    subModulesQ,
     workflowQ,
   ];
   const isFetching = queries.some((q) => q.isFetching);
-  const failed = queries.filter((q) => q.isError).length;
 
   useEffect(() => {
     trackViewed("Analytics Dashboard", { source: "analytics_route" });
@@ -376,15 +391,6 @@ const LeaseAnalyticsDashboard = () => {
             <path d="M10 1.8v1.7M10 16.5v1.7M18.2 10h-1.7M3.5 10H1.8M15.8 4.2l-1.2 1.2M5.4 14.6l-1.2 1.2M15.8 15.8l-1.2-1.2M5.4 5.4 4.2 4.2" />
           </svg>
         </button>
-        {/* Only the failure state is surfaced here; the healthy "Live · <scope>" badge was noise. */}
-        {failed > 0 && (
-          <span
-            className="badge-sample"
-            title="One or more analytics queries failed — affected cards show the error"
-          >
-            Analytics unavailable
-          </span>
-        )}
         <button
           className="iconbtn"
           onClick={() => setRequestId((n) => n + 1)}
@@ -460,7 +466,7 @@ const LeaseAnalyticsDashboard = () => {
           </nav>
 
           <RecentActivitySidebar
-            filters={filters}
+            filters={{ ...filters }}
             sitesSettled={!modulesQ.isLoading}
           />
         </aside>
@@ -506,12 +512,14 @@ const LeaseAnalyticsDashboard = () => {
                   <div className="dr-custom-row">
                     <input
                       type="date"
+                      aria-label="Start date"
                       value={dateFrom}
                       onChange={(e) => setDateFrom(e.target.value)}
                     />
                     <span className="dr-to">–</span>
                     <input
                       type="date"
+                      aria-label="End date"
                       value={dateTo}
                       onChange={(e) => setDateTo(e.target.value)}
                     />
@@ -568,6 +576,7 @@ const LeaseAnalyticsDashboard = () => {
             targets={targets}
             setTarget={setTarget}
             adoption={adoption}
+            activeUsers={trafficQ.data?.tiles.active_users ?? null}
             trend={trend}
             growth={growth}
             cohorts={cohorts}
@@ -576,14 +585,16 @@ const LeaseAnalyticsDashboard = () => {
               adoptionQ.isLoading ||
               trendQ.isLoading ||
               growthQ.isLoading ||
-              retentionQ.isLoading
+              retentionQ.isLoading ||
+              modulesQ.isLoading ||
+              trafficQ.isLoading
             }
             error={
               adoptionQ.error ??
               trendQ.error ??
               growthQ.error ??
               retentionQ.error ??
-              modulesQ.error
+              modulesQ.error ?? trafficQ.error
             }
           />
           <WorkflowSection
@@ -591,12 +602,18 @@ const LeaseAnalyticsDashboard = () => {
             palette={palette}
             modules={modules}
             activeModule={activeModule}
-            onModuleChange={setSelectedModule}
+            onModuleChange={(module) => {
+              setSelectedModule(module);
+              setSelectedSubModule(null);
+            }}
+            subModules={subModules}
+            activeSubModule={activeSubModule}
+            onSubModuleChange={setSelectedSubModule}
             targets={targets}
             setTarget={setTarget}
             workflow={workflow}
-            loading={modulesQ.isLoading || workflowQ.isLoading}
-            error={workflowQ.error}
+            loading={modulesQ.isLoading || subModulesQ.isLoading || workflowQ.isLoading}
+            error={modulesQ.error ?? subModulesQ.error ?? workflowQ.error}
           />
 
           <div className="footer">

@@ -11,6 +11,7 @@ import {
   fetchRecentActiveUsers,
   RecentActivityApiFilters,
   ANALYTICS_PROJECT_CODE,
+  analyticsTenantUrl,
 } from './analyticsApi';
 
 /**
@@ -63,7 +64,7 @@ export function dateRangeFor(days: number): { from: string; to: string } {
   return { from: ymd(from), to: ymd(to) };
 }
 
-const keyBase = (f: QueryFilters) => [f.from, f.to, f.requestId];
+const keyBase = (f: QueryFilters) => [ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.from, f.to, f.requestId];
 
 export function useTrafficSession(f: QueryFilters) {
   return useQuery({
@@ -95,7 +96,7 @@ export function useAdoptionEngagement(f: QueryFilters) {
 
 export function useAdoptionTrend(f: QueryFilters) {
   return useQuery({
-    queryKey: ['lm-analytics', 'adoption_trend', f.to, f.requestId],
+    queryKey: ['lm-analytics', 'adoption_trend', ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.to, f.requestId],
     queryFn: () => fetchAdoptionTrend({ to: f.to, weeks: TREND_WEEKS }),
     enabled: f.enabled,
     ...CACHE,
@@ -104,7 +105,7 @@ export function useAdoptionTrend(f: QueryFilters) {
 
 export function useGrowth(f: QueryFilters) {
   return useQuery({
-    queryKey: ['lm-analytics', 'growth', f.to, f.requestId],
+    queryKey: ['lm-analytics', 'growth', ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.to, f.requestId],
     queryFn: () => fetchGrowth({ to: f.to, weeks: GROWTH_WEEKS }),
     enabled: f.enabled,
     ...CACHE,
@@ -113,7 +114,7 @@ export function useGrowth(f: QueryFilters) {
 
 export function useRetention(f: QueryFilters) {
   return useQuery({
-    queryKey: ['lm-analytics', 'retention', f.to, f.requestId],
+    queryKey: ['lm-analytics', 'retention', ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.to, f.requestId],
     queryFn: () => fetchRetention({ to: f.to, weeks: RETENTION_WEEKS }),
     enabled: f.enabled,
     ...CACHE,
@@ -152,7 +153,7 @@ export function useWorkflowUsage(f: QueryFilters) {
         module: f.module ?? undefined,
         subModule: f.subModule ?? undefined,
       }),
-    enabled: f.enabled,
+    enabled: f.enabled && !!f.module,
     ...CACHE,
   });
 }
@@ -177,6 +178,7 @@ export function useRecentActiveUsers(
     queryKey: [
       'lm-analytics',
       'recent_active_users',
+      analyticsTenantUrl(),
       project,
       sitesKey,
       device,

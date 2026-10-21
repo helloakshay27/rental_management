@@ -138,10 +138,6 @@ export function TrafficSection({
           delta={formatDelta(traffic?.delta?.bounce_rate)}
           sub="lower is better"
         />
-        <Tile
-          id="recentlyActive" label="Recently Active" val={metricText(traffic?.recentlyActive)}
-          dir="flat" sub="active in last 30 min"
-        />
       </div>
 
       <div className="grid2">

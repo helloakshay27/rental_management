@@ -23,21 +23,22 @@ interface SectionProps {
   growth: GrowthModel | null;
   cohorts: CohortRow[] | null;
   modules: ModuleRow[] | null;
+  activeUsers: number | null;
   loading: boolean;
   error: unknown;
 }
 
 export function AdoptionSection({
   active, showPrev, palette, targets, setTarget, adoption, trend, growth, cohorts, modules,
-  loading, error,
+  loading, error, activeUsers,
 }: SectionProps) {
   const heat = (t: number) => `rgba(${palette.heatRgb},${(palette.heatA0 + t * palette.heatA1).toFixed(2)})`;
 
-  const breadthRows: [string, number, string][] = (modules ?? [])
+  const breadthRows: [string, number, string][] = (activeUsers != null && activeUsers > 0 ? modules ?? [] : [])
     .slice()
     .sort((a, b) => b.share - a.share)
     .slice(0, 10)
-    .map((m) => [m.name, m.share, palette.blue]);
+    .map((m) => [m.name, Math.min(1, m.users / activeUsers), palette.blue]);
 
   const cohortCols = cohorts?.[0]?.cells.length ?? 6;
 
@@ -102,11 +103,6 @@ export function AdoptionSection({
               : '—'
           }
           dir="flat" sub="modules used this period"
-        />
-        <Tile
-          id="dormantAdmins" label="Dormant Admins"
-          val={metricText(adoption?.dormant)}
-          dir="flat" sub="no activity in 14+ days"
         />
       </div>
 
@@ -206,8 +202,8 @@ export function AdoptionSection({
         </ChartCard>
       </div>
 
+      <div className="grid2">
       <ChartCard
-        style={{ marginTop: 12 }}
         eyebrow="Module breadth"
         title="Which modules are Admins actually using?"
         purpose="Share of active Admins who touched each module at least once this period, from the API's module tree."
@@ -218,6 +214,23 @@ export function AdoptionSection({
           <EmptyState loading={loading} error={error} empty="No module-level activity in this period." />
         )}
       </ChartCard>
+
+      <ChartCard
+        eyebrow="Dormant Admins"
+        title="Dormant Admins"
+        purpose="Registered Admin accounts (by confirmed user_id) with no activity in the last 14 days — out of scope for the 14-Day Activation tile above."
+      >
+        {adoption ? (
+          <KeyValue
+            k="Dormant Admins"
+            v={metricText(adoption.dormant)}
+            u="no activity 14+ days"
+          />
+        ) : (
+          <EmptyState loading={loading} error={error} empty="No dormant Admin data available for this period." />
+        )}
+      </ChartCard>
+      </div>
 
       <ChartCard
         style={{ marginTop: 12 }}

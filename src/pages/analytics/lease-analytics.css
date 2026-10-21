@@ -454,7 +454,7 @@
 /* ============ DATE RANGE CONTROL ============ */
 .lm-root .daterange{position:relative;display:inline-block}
 .lm-root .daterange-pop{
-  position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:250px;
+  position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:340px;max-width:calc(100vw - 32px);
   background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
   box-shadow:var(--shadow-pop);padding:10px;display:none;
 }
@@ -468,18 +468,22 @@
 .lm-root .dr-preset.on{background:var(--surface-2);font-weight:500}
 .lm-root .dr-custom-label{font-size:11.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
 .lm-root .dr-custom-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.lm-root .dr-custom-row input[type=date]{
-  flex:1;min-width:0;font:inherit;font-size:12.5px;color:var(--ink);background:var(--surface);
-  border:1px solid var(--border);border-radius:var(--r-xs);padding:5px 6px;
+/* Outrank the host form styles, including their input :not() selectors. */
+.lm-root .daterange .daterange-pop .dr-custom .dr-custom-row input[type=date]{
+  flex:1;min-width:0;width:0;font:inherit;
+  font-size:12.5px !important;font-weight:400 !important;
+  color:var(--ink) !important;background-color:var(--surface-2) !important;
+  border:1px solid var(--border-2) !important;border-radius:var(--r-xs) !important;
+  min-height:36px !important;padding:5px 6px;color-scheme:inherit;
 }
 .lm-root .dr-custom-row input[type=date]:focus{outline:none;border-color:var(--blue);box-shadow:var(--focus-ring)}
 .lm-root .dr-to{color:var(--faint);font-size:12px}
 .lm-root .dr-apply{
-  width:100%;font:inherit;font-size:12.5px;font-weight:500;color:var(--on-ink);background:var(--ink);
+  width:100%;font:inherit;font-size:12.5px;font-weight:500;color:var(--on-ink) !important;background:var(--ink) !important;
   border:none;border-radius:var(--r-xs);padding:8px;cursor:pointer;
 }
 .lm-root .dr-apply:hover{opacity:.9}
-.lm-root .dr-apply.applied{background:var(--mint);color:var(--ink)}
+.lm-root .dr-apply.applied{background:var(--mint) !important;color:var(--on-ink) !important}
 
 .lm-root .seg, .lm-root .charttabs, .lm-root .devtoggle{
   display:inline-flex;gap:2px;padding:3px;
@@ -718,7 +722,10 @@
 }
 .lm-root table.league tbody td, .lm-root table.pathtbl tbody td{border-bottom:1px solid var(--surface-2);transition:background .12s}
 .lm-root table.league tbody tr:last-child td, .lm-root table.pathtbl tbody tr:last-child td{border-bottom:none}
-.lm-root table.league tbody tr:hover, .lm-root table.pathtbl tbody tr:hover{background:var(--surface-2)}
+/* Override the host app's !important light table hover in both dashboard themes. */
+.lm-root table.league tbody tr:hover, .lm-root table.pathtbl tbody tr:hover{
+  background-color:var(--surface-2) !important;
+}
 .lm-root .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:400}
 .lm-root .strong{font-weight:500}
 .lm-root .arrow{font-weight:400;font-size:12px}

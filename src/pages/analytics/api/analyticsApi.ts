@@ -30,23 +30,7 @@ const BASE_URL = (
   (import.meta.env.DEV ? '/analytics-api' : 'https://posthog-api.lockated.com')
 ).replace(/\/+$/, '');
 
-/**
- * How this product is identified to the analytics service.
- *
- * FM Matrix scopes by host (`url=fm-matrix.lockated.com`) and Vi by `app_id`, because those
- * are the identifiers their events carry. Lease Management stamps `project_code` /
- * `project_id` on *every* event (§6.1 of the Chart Calculation & Instrumentation Reference,
- * and §7.1's cross-cutting controls: "every query in this section is implicitly scoped to
- * project_code = LMV-01 / project_id = P-274"), so that is the selector used here.
- *
- * It is also the more accurate one: this app runs on three hosts (rental-web,
- * rental-uat-web, local-web) and a host filter would see only one of them. Verified against
- * the live service — `url=rental-uat.lockated.com` returns zeros while
- * `project_code=LMV-01` returns the real sessions.
- *
- * Setting VITE_LM_ANALYTICS_TENANT_URL switches back to host scoping for a deployment that
- * needs to look at exactly one host.
- */
+/** Product scope, combined with the tenant URL on every request. */
 export const ANALYTICS_PROJECT_CODE =
   (import.meta.env.VITE_LM_ANALYTICS_PROJECT_CODE as string | undefined)?.trim() || 'LMV-01';
 
@@ -54,19 +38,7 @@ const TENANT_URL_OVERRIDE = (
   import.meta.env.VITE_LM_ANALYTICS_TENANT_URL as string | undefined
 )?.trim();
 
-/**
- * The host sent as `url`, the way FM Matrix sends `url=fm-matrix.lockated.com`.
- *
- * Resolution order: an env override, then the browser's own hostname on a real deployment,
- * then the session's stored base URL (localStorage `baseUrl`, written at login by
- * `lib/api.ts`) while running locally.
- *
- * Worth knowing when reading a local dashboard: PostHog fills `url` from `$current_url`, so
- * it is the FRONT-END origin events were fired from, not the API host the session talks to.
- * A stored base URL of `rental-uat.lockated.com` therefore ANDs the query down to zero rows
- * — verified against the live service — while `rental.lockated.com` returns the real
- * sessions. Set VITE_LM_ANALYTICS_TENANT_URL locally to look at a deployed host's data.
- */
+/** Tenant: env override, deployed frontend host, or local session base URL. */
 export function analyticsTenantUrl(): string {
   if (TENANT_URL_OVERRIDE) return TENANT_URL_OVERRIDE;
 
@@ -82,7 +54,7 @@ export const ANALYTICS_BASE_URL = BASE_URL;
 
 /** What the badge shows as the current scope. */
 export function analyticsScopeLabel(): string {
-  return ANALYTICS_PROJECT_CODE;
+  return `${ANALYTICS_PROJECT_CODE} / ${analyticsTenantUrl()}`;
 }
 
 /** Requests are multi-second ClickHouse scans; give them room but never hang the page. */
@@ -100,10 +72,10 @@ export interface WeeklyFilters {
 
 /**
  * Identifier scoped to `project_code` (stamped on every event this app sends).
- * `url` is omitted from the payload to avoid restrictive host filtering.
+ * Tenant base URL is sent as `url`, matching the PATM API contract.
  */
 function baseParams(): Record<string, string> {
-  return { project_code: ANALYTICS_PROJECT_CODE };
+  return { project_code: ANALYTICS_PROJECT_CODE, url: analyticsTenantUrl() };
 }
 
 const rangeParams = (f: RangeFilters) => ({ ...baseParams(), from: f.from, to: f.to });
@@ -406,7 +378,7 @@ export function buildRecentActivityParams(
   filters: RecentActivityApiFilters = {},
   limit?: number,
 ): Record<string, string> {
-  const params: Record<string, string> = {};
+  const params: Record<string, string> = { url: analyticsTenantUrl() };
 
   const projectCode =
     filters.project_code || filters.project || filters.tenant || ANALYTICS_PROJECT_CODE;
