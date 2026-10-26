@@ -1,9 +1,18 @@
-import React from 'react';
+import React from "react";
 import {
-  ChartCard, EmptyState, metricText, Note, Tile,
-} from '../components/primitives';
-import type { Palette } from '../lib/palette';
-import { deltaDir, formatDelta, type ModuleRow, type WorkflowModel } from '../data/metrics';
+  ChartCard,
+  EmptyState,
+  metricText,
+  Note,
+  Tile,
+} from "../components/primitives";
+import type { Palette } from "../lib/palette";
+import {
+  deltaDir,
+  formatDelta,
+  type ModuleRow,
+  type WorkflowModel,
+} from "../data/metrics";
 
 interface SectionProps {
   active: boolean;
@@ -25,10 +34,23 @@ interface SectionProps {
 }
 
 export function WorkflowSection({
-  active, palette, modules, activeModule, onModuleChange, targets, setTarget,
-  workflow, loading, error, subModules, activeSubModule, onSubModuleChange,
+  active,
+  palette,
+  modules,
+  activeModule,
+  onModuleChange,
+  targets,
+  setTarget,
+  workflow,
+  loading,
+  error,
+  subModules,
+  activeSubModule,
+  onSubModuleChange,
 }: SectionProps) {
-  const workflowName = [activeModule, activeSubModule].filter(Boolean).join(' / ');
+  const workflowName = [activeModule, activeSubModule]
+    .filter(Boolean)
+    .join(" / ");
   /* The API derives and measures the step sequence; nothing here is catalogued. */
   const funnelRows = (workflow?.funnel ?? []).map((f, i) => ({
     step: f.step,
@@ -39,21 +61,25 @@ export function WorkflowSection({
   }));
 
   return (
-    <section className={`page${active ? ' on' : ''}`} id="pgFlows">
+    <section className={`page${active ? " on" : ""}`} id="pgFlows">
       <div className="section-head">
         <h2>Workflow Usage</h2>
         <span className="sd">
-          Pick a module and submodule to view workflow completion and step-level events for the selected period.
+          Pick a module and submodule to view workflow completion and step-level
+          events for the selected period.
         </span>
       </div>
 
-      <div className="mnav" title="Choose a module — every card below is scoped to it">
+      <div
+        className="mnav"
+        title="Choose a module — every card below is scoped to it"
+      >
         <div className="mnav-buckets">
           {(modules ?? []).map((m) => (
             <button
               key={m.name}
               type="button"
-              className={m.name === activeModule ? 'on' : undefined}
+              className={m.name === activeModule ? "on" : undefined}
               aria-pressed={m.name === activeModule}
               onClick={() => onModuleChange(m.name)}
               title={`${m.users} admin(s) · ${m.events} events · ${m.sessions} sessions`}
@@ -72,7 +98,7 @@ export function WorkflowSection({
                 <button
                   key={m.name}
                   type="button"
-                  className={m.name === activeSubModule ? 'on' : undefined}
+                  className={m.name === activeSubModule ? "on" : undefined}
                   aria-pressed={m.name === activeSubModule}
                   onClick={() => onSubModuleChange(m.name)}
                 >
@@ -84,135 +110,177 @@ export function WorkflowSection({
         )}
       </div>
 
-          <div className="tiles tiles-4col">
-            <Tile
-              id="wfAdoption" label="Workflow Adoption"
-              val={metricText(workflow?.adoption, (n) => `${Math.round(n)}%`)}
-              dir={deltaDir(workflow?.deltas.adoption)} delta={formatDelta(workflow?.deltas.adoption)}
-              sub="entrants ÷ active Admins"
-            />
-            <Tile
-              id="wfCompletion" label="Completion Rate"
-              val={metricText(workflow?.completion, (n) => `${Math.round(n)}%`)}
-              dir={deltaDir(workflow?.deltas.completion)} delta={formatDelta(workflow?.deltas.completion)}
-              sub="reached final step"
-            />
-            <Tile
-              id="biggestStepDrop" label="Biggest Step Drop"
-              val={metricText(workflow?.biggestStepDropPct, (n) => `${Math.round(n)}%`)}
-              dir="dn" delta={workflow?.biggestStepLabel ?? undefined}
-              sub={workflow?.biggestStepLabel ? `at ${workflow.biggestStepLabel}` : undefined}
-            />
-            <Tile
-              id="usageVolume" label="Usage Volume" val={metricText(workflow?.volume)}
-              dir="up" delta="this period" sub="completions"
-            />
-          </div>
+      <div className="tiles tiles-4col">
+        <Tile
+          loading={loading}
+          id="wfAdoption"
+          label="Workflow Adoption"
+          val={metricText(workflow?.adoption, (n) => `${Math.round(n)}%`)}
+          dir={deltaDir(workflow?.deltas.adoption)}
+          delta={formatDelta(workflow?.deltas.adoption)}
+          sub="entrants ÷ active Admins"
+        />
+        <Tile
+          loading={loading}
+          id="wfCompletion"
+          label="Completion Rate"
+          val={metricText(workflow?.completion, (n) => `${Math.round(n)}%`)}
+          dir={deltaDir(workflow?.deltas.completion)}
+          delta={formatDelta(workflow?.deltas.completion)}
+          sub="reached final step"
+        />
+        <Tile
+          loading={loading}
+          id="biggestStepDrop"
+          label="Biggest Step Drop"
+          val={metricText(
+            workflow?.biggestStepDropPct,
+            (n) => `${Math.round(n)}%`,
+          )}
+          dir="dn"
+          delta={workflow?.biggestStepLabel ?? undefined}
+          sub={
+            workflow?.biggestStepLabel
+              ? `at ${workflow.biggestStepLabel}`
+              : undefined
+          }
+        />
+        <Tile
+          loading={loading}
+          id="usageVolume"
+          label="Usage Volume"
+          val={metricText(workflow?.volume)}
+          dir="up"
+          delta="this period"
+          sub="completions"
+        />
+      </div>
 
-          <div>
+      {/* <div>
             <Note tone="good" style={{ marginTop: 18, marginBottom: 16 }}>
               <b>Confirmed identity, applies to every module here.</b> A real user_id property exists on every event
               in this catalogue — Workflow Adoption, Completion Rate and Usage Volume above are all built on that
               confirmed join key, not a proposed distinct_id workaround.
             </Note>
+          </div> */}
+
+      <ChartCard
+        style={{ margin: "16px 0" }}
+        eyebrow="Workflow funnel (measured event sequence)"
+        title={
+          workflowName
+            ? `${workflowName} — completion funnel`
+            : "Completion funnel"
+        }
+        purpose="Step-by-step completion and drop-off for the selected module, measured by the analytics API over the selected range."
+      >
+        {funnelRows.length ? (
+          <div className="funnel">
+            {funnelRows.map((f) => (
+              <React.Fragment key={f.step}>
+                {f.drop != null ? (
+                  <div className="fdrop">▼ {f.drop}% drop-off</div>
+                ) : null}
+                <div
+                  className="fstep"
+                  style={{
+                    width: `${f.width}%`,
+                    background: palette.blue,
+                    opacity: f.opacity,
+                    borderRadius: 8,
+                  }}
+                  title={`${f.step}: ${f.remaining}% of entrants remain`}
+                >
+                  {f.step}
+                  <span className="fsub">{f.remaining}% of entrants</span>
+                </div>
+              </React.Fragment>
+            ))}
           </div>
+        ) : (
+          <EmptyState
+            loading={loading}
+            error={error}
+            empty="No funnel for this module in the selected period. The API derives its steps from the custom events fired in scope, and returns none until enough have been recorded."
+          />
+        )}
+      </ChartCard>
 
-          <ChartCard
-            style={{ margin: '16px 0' }}
-            eyebrow="Workflow funnel (measured event sequence)"
-            title={workflowName ? `${workflowName} — completion funnel` : 'Completion funnel'}
-            purpose="Step-by-step completion and drop-off for the selected module, measured by the analytics API over the selected range."
-          >
-            {funnelRows.length ? (
-              <div className="funnel">
-                {funnelRows.map((f) => (
-                  <React.Fragment key={f.step}>
-                    {f.drop != null ? <div className="fdrop">▼ {f.drop}% drop-off</div> : null}
-                    <div
-                      className="fstep"
-                      style={{ width: `${f.width}%`, background: palette.blue, opacity: f.opacity, borderRadius: 8 }}
-                      title={`${f.step}: ${f.remaining}% of entrants remain`}
-                    >
-                      {f.step}
-                      <span className="fsub">{f.remaining}% of entrants</span>
-                    </div>
-                  </React.Fragment>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                loading={loading}
-                error={error}
-                empty="No funnel for this module in the selected period. The API derives its steps from the custom events fired in scope, and returns none until enough have been recorded."
-              />
-            )}
-          </ChartCard>
+      <ChartCard
+        style={{ marginTop: 12 }}
+        eyebrow="All steps in this module"
+        title="All steps in this module"
+        purpose={`Every event in ${workflowName || "the selected workflow"}, with distinct Admins (confirmed user_id), event counts, sessions and completion rate for each — the module-scoped equivalent of the funnel above, at the individual-event level.`}
+      >
+        {workflow?.flows.length ? (
+          <table className="pathtbl">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th className="num">Admins (confirmed user_id)</th>
+                <th className="num">Events</th>
+                <th className="num">Sessions</th>
+                <th className="num">Completion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {workflow.flows.map((row) => (
+                <tr key={row.path}>
+                  <td>{row.path}</td>
+                  <td className="num">{row.users.toLocaleString()}</td>
+                  <td className="num">{row.events.toLocaleString()}</td>
+                  <td className="num">{row.sessions.toLocaleString()}</td>
+                  <td className="num">
+                    {row.comp != null ? `${Math.round(row.comp)}%` : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <EmptyState
+            loading={loading}
+            error={error}
+            empty="No step-level events recorded for this workflow."
+          />
+        )}
+      </ChartCard>
 
-          <ChartCard
-            style={{ marginTop: 12 }}
-            eyebrow="All steps in this module"
-            title="All steps in this module"
-            purpose={`Every event in ${workflowName || 'the selected workflow'}, with distinct Admins (confirmed user_id), event counts, sessions and completion rate for each — the module-scoped equivalent of the funnel above, at the individual-event level.`}
-          >
-            {workflow?.flows.length ? (
-              <table className="pathtbl">
-                <thead>
-                  <tr>
-                    <th>Event</th>
-                    <th className="num">Admins (confirmed user_id)</th>
-                    <th className="num">Events</th>
-                    <th className="num">Sessions</th>
-                    <th className="num">Completion</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {workflow.flows.map((row) => (
-                    <tr key={row.path}>
-                      <td>{row.path}</td>
-                      <td className="num">{row.users.toLocaleString()}</td>
-                      <td className="num">{row.events.toLocaleString()}</td>
-                      <td className="num">{row.sessions.toLocaleString()}</td>
-                      <td className="num">{row.comp != null ? `${Math.round(row.comp)}%` : '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <EmptyState loading={loading} error={error} empty="No step-level events recorded for this workflow." />
-            )}
-          </ChartCard>
-
-          <ChartCard
-            style={{ marginTop: 12 }}
-            eyebrow="Top entry screens"
-            title="Top entry screens"
-            purpose="The first screen property seen in each session — measured across the console, not scoped to the selected workflow."
-          >
-            {workflow?.entryScreens.length ? (
-              <table className="pathtbl">
-                <thead>
-                  <tr>
-                    <th>Screen</th>
-                    <th className="num">Admins (confirmed user_id)</th>
-                    <th className="num">Views</th>
-                    <th className="num">Bounce</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {workflow.entryScreens.map((row) => (
-                    <tr key={row.path}>
-                      <td>{row.path}</td>
-                      <td className="num">{row.visitors.toLocaleString()}</td>
-                      <td className="num">{row.views.toLocaleString()}</td>
-                      <td className="num">{Math.round(row.bounce)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <EmptyState loading={loading} error={error} empty="No entry screens recorded in this period." />
-            )}
-          </ChartCard>
+      <ChartCard
+        style={{ marginTop: 12 }}
+        eyebrow="Top entry screens"
+        title="Top entry screens"
+        purpose="The first screen property seen in each session — measured across the console, not scoped to the selected workflow."
+      >
+        {workflow?.entryScreens.length ? (
+          <table className="pathtbl">
+            <thead>
+              <tr>
+                <th>Screen</th>
+                <th className="num">Admins (confirmed user_id)</th>
+                <th className="num">Views</th>
+                <th className="num">Bounce</th>
+              </tr>
+            </thead>
+            <tbody>
+              {workflow.entryScreens.map((row) => (
+                <tr key={row.path}>
+                  <td>{row.path}</td>
+                  <td className="num">{row.visitors.toLocaleString()}</td>
+                  <td className="num">{row.views.toLocaleString()}</td>
+                  <td className="num">{Math.round(row.bounce)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <EmptyState
+            loading={loading}
+            error={error}
+            empty="No entry screens recorded in this period."
+          />
+        )}
+      </ChartCard>
     </section>
   );
 }

@@ -113,7 +113,9 @@ const LeaseAnalyticsDashboard = () => {
   // the chips are built from the live tree, so there is nothing to preselect before then.
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
 
-  const [selectedSubModule, setSelectedSubModule] = useState<string | null>(null);
+  const [selectedSubModule, setSelectedSubModule] = useState<string | null>(
+    null,
+  );
 
   const [requestId, setRequestId] = useState(0);
 
@@ -160,10 +162,13 @@ const LeaseAnalyticsDashboard = () => {
       : (moduleNames[0] ?? null);
 
   const subModulesQ = useSubModules(
-    { ...filters, enabled: filters.enabled && modulesQ.isSuccess }, activeModule,
+    { ...filters, enabled: filters.enabled && modulesQ.isSuccess },
+    activeModule,
   );
   const subModules = buildModules(subModulesQ.data);
-  const activeSubModule = (subModules ?? []).some((m) => m.name === selectedSubModule)
+  const activeSubModule = (subModules ?? []).some(
+    (m) => m.name === selectedSubModule,
+  )
     ? selectedSubModule
     : (subModules?.[0]?.name ?? null);
   const workflowFilters: QueryFilters = {
@@ -424,7 +429,9 @@ const LeaseAnalyticsDashboard = () => {
               className="bm-full"
               style={{ fontFamily: "'Source Serif 4', Georgia, serif" }}
             >
-              Lease<br />Management
+              Lease
+              <br />
+              Management
             </span>
             <span
               className="bm-mini"
@@ -545,6 +552,29 @@ const LeaseAnalyticsDashboard = () => {
               <span className="ic">↺</span> Previous period{" "}
               {showPrev ? "✓" : ""}
             </label>
+            <button
+              type="button"
+              className="ctrl"
+              onClick={() => setRequestId((n) => n + 1)}
+              disabled={isFetching}
+              aria-label="Refresh analytics"
+              title={isFetching ? "Refreshing…" : "Refresh analytics"}
+            >
+              <svg
+                className={`ctrl-svg${isFetching ? " recent-activity-spinner" : ""}`}
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M16.5 10a6.5 6.5 0 1 1-1.9-4.6" />
+                <path d="M16.6 3.2v3.2h-3.2" />
+              </svg>
+              {isFetching ? "Refreshing…" : "Refresh"}
+            </button>
             <div className="spacer" />
             <span className="pill">
               <span className="dot" />
@@ -594,7 +624,8 @@ const LeaseAnalyticsDashboard = () => {
               trendQ.error ??
               growthQ.error ??
               retentionQ.error ??
-              modulesQ.error ?? trafficQ.error
+              modulesQ.error ??
+              trafficQ.error
             }
           />
           <WorkflowSection
@@ -612,104 +643,11 @@ const LeaseAnalyticsDashboard = () => {
             targets={targets}
             setTarget={setTarget}
             workflow={workflow}
-            loading={modulesQ.isLoading || subModulesQ.isLoading || workflowQ.isLoading}
+            loading={
+              modulesQ.isLoading || subModulesQ.isLoading || workflowQ.isLoading
+            }
             error={modulesQ.error ?? subModulesQ.error ?? workflowQ.error}
           />
-
-          <div className="footer">
-            <b>Wireframe note.</b> Lease Management is a{" "}
-            <b>
-              web-only React single-page application for internal Admin
-              back-office use
-            </b>{" "}
-            (posthog-js SDK, <code>src/lib/posthog.ts</code>, browser session
-            recording, <code>history_change</code>-based pageview capture) — the
-            catalogue's <code>platform</code> global property's only example
-            value is <code>web</code>, and every <code>client</code> value is a{" "}
-            <code>-web</code>-suffixed hostname (rental-web / rental-uat-web /
-            local-web); routes are web-style (e.g. <code>/rental/:id</code>).
-            There is <b>no device/platform toggle</b> on this dashboard, and no
-            mobile SDK, app-store version, or build-number property exists
-            anywhere in the catalogue — every series here is scaled only by the
-            date-range picker and the previous-period toggle.{" "}
-            <b>Persona is single-tier: Admin only</b>, by explicit client
-            scoping decision — a <code>user_role</code> Global Property does
-            exist in the data, but filtering by it was descoped for this
-            dashboard, so there is no persona/role filter here; treat this as a
-            scoping choice, not a data gap. <b>User identity is confirmed</b>:
-            Global Properties include a real <code>user_id</code> and{" "}
-            <code>email</code>, with a genuine <code>$identify</code>/
-            <code>$set</code> event firing at login — "Active Admins" and
-            session metrics use this real join key.
-            <br />
-            <br />
-            <b>Event-count reconciliation (derived finding).</b> The source
-            catalogue's Summary sheet states Total Custom Events = <b>422</b>{" "}
-            without breaking the figure down; this dashboard derived and
-            verified that breakdown directly from the sheets: <b>143</b> named
-            custom events (Custom Events sheet) + <b>205</b> parametric List
-            events (41 list-entity prefixes × 5 event-name variants each: List
-            Searched / List Filtered / List Exported / List Paged / Viewed) +{" "}
-            <b>74</b> Page View events (one{" "}
-            <code>&lt;Page&gt; Page Viewed</code> per route) = <b>422</b>{" "}
-            exactly. Total Events = 422 custom + <b>5</b> automatic ($pageview,
-            $pageleave, $autocapture, $rageclick, Session Recording) ={" "}
-            <b>427</b>. <code>project_id = "P-274"</code>,{" "}
-            <code>project_code = "LMV-01"</code> (both confirmed, Global
-            Properties).
-            <br />
-            <br />
-            <b>Module distribution and Masters dominance.</b> There are{" "}
-            <b>15</b> confirmed product modules (Modules sheet): Dashboard,
-            Rental, Property, Maintenance, Utility, Compliance, Invoicing, Opex,
-            AMC, Masters, Tenant, Reports, Settings, Notifications, Auth. Of the
-            143 named custom events, Masters alone accounts for <b>96</b> — it
-            is the reference/configuration-data module spanning roughly 21
-            near-identical submodules, each firing its own
-            Created/Updated/Deleted/Form Opened/Viewed set. Because of this
-            shape,{" "}
-            <b>
-              Master Data Admin is presented as a league/ranking table of
-              submodules, not a funnel
-            </b>{" "}
-            — these are reference-data CRUD actions, not multi-step user
-            workflows. Note also that{" "}
-            <b>
-              "Platform" and "Other" are raw-sheet labels, not official modules
-            </b>
-            .
-            <br />
-            <br />
-            <b>Disclosed instrumentation gaps.</b> (1) <b>Lease Renewals</b>{" "}
-            appear only as a List-prefix surface — there is no explicit "Lease
-            Renewal Created" or "Lease Renewal Completed" event, so renewals are
-            tracked as a list-view surface only. (2){" "}
-            <b>Invoicing has almost no lifecycle instrumentation</b>:{" "}
-            <code>Invoice Viewed</code> is essentially the only Invoicing-owned
-            custom event, and <code>Payment Created</code> fires from
-            Dashboard/Tenant-adjacent component code, not from an
-            Invoicing-owned page. (3){" "}
-            <code>Compliance Created/Updated/Viewed</code> and{" "}
-            <code>Compliance Requirement …</code> are{" "}
-            <b>two distinct real event families, not a duplicate</b>.
-            <br />
-            <br />
-            <b>
-              Every volume, rate and trend on this dashboard is queried live
-            </b>{" "}
-            from the PostHog Adoption Analytics API for the selected date range,
-            scoped to <code>{analyticsScopeLabel()}</code> — nothing is seeded
-            or illustrative. A card that renders empty means the period
-            genuinely has no events for it; a card showing an error means its
-            query failed. The{" "}
-            <b>
-              module names, event names, workflow step sequences and reconciled
-              counts
-            </b>{" "}
-            quoted above are the documented facts from the instrumentation
-            catalogue, and are the only static content on this page. Hover the{" "}
-            <code>i</code> on any tile or chart for its exact definition.
-          </div>
         </main>
       </div>
     </div>

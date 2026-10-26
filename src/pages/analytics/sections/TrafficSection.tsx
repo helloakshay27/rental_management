@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  ChartCard, ChartTabs, EmptyState, HBars, KeyValue, Legend, metricText, Note, Tile,
-} from '../components/primitives';
-import { LineChart } from '../charts/LineChart';
-import { fmtC } from '../lib/format';
-import type { Palette } from '../lib/palette';
+  ChartCard,
+  ChartTabs,
+  EmptyState,
+  HBars,
+  KeyValue,
+  Legend,
+  metricText,
+  Note,
+  Tile,
+} from "../components/primitives";
+import { LineChart } from "../charts/LineChart";
+import { fmtC } from "../lib/format";
+import type { Palette } from "../lib/palette";
 import {
-  deltaDir, formatDelta, formatDuration,
-  type ModuleRow, type TrafficModel, type UsageModel,
-} from '../data/metrics';
+  deltaDir,
+  formatDelta,
+  formatDuration,
+  type ModuleRow,
+  type TrafficModel,
+  type UsageModel,
+} from "../data/metrics";
 
 interface SectionProps {
   active: boolean;
@@ -24,7 +36,7 @@ interface SectionProps {
   error: unknown;
 }
 
-type UsageTab = 'staff' | 'views' | 'sessions';
+type UsageTab = "staff" | "views" | "sessions";
 
 /**
  * Top-level areas the session-mix card rolls the module tree up into. §7.1 U8 tags this
@@ -32,13 +44,19 @@ type UsageTab = 'staff' | 'views' | 'sessions';
  * property — the shares themselves are measured, only the grouping is editorial.
  */
 const AREAS: [label: string, modules: string[]][] = [
-  ['Rental & Property', ['rental', 'rentals', 'property', 'properties']],
-  ['Financial Ops (Invoicing/Opex/AMC)', ['invoicing', 'opex', 'amc']],
-  ['Compliance & Maintenance', ['compliance', 'maintenance', 'utilities', 'utility']],
-  ['Masters & other modules', []], // everything the first three did not claim
+  ["Rental & Property", ["rental", "rentals", "property", "properties"]],
+  ["Financial Ops (Invoicing/Opex/AMC)", ["invoicing", "opex", "amc"]],
+  [
+    "Compliance & Maintenance",
+    ["compliance", "maintenance", "utilities", "utility"],
+  ],
+  ["Masters & other modules", []], // everything the first three did not claim
 ];
 
-function areaRows(modules: ModuleRow[], palette: Palette): [React.ReactNode, number, string][] {
+function areaRows(
+  modules: ModuleRow[],
+  palette: Palette,
+): [React.ReactNode, number, string][] {
   const colors = [palette.blue, palette.violet, palette.mint, palette.green];
   const total = modules.reduce((a, m) => a + m.sessions, 0) || 1;
   const claimed = new Set<string>();
@@ -61,78 +79,113 @@ function areaRows(modules: ModuleRow[], palette: Palette): [React.ReactNode, num
 }
 
 export function TrafficSection({
-  active, showPrev, palette, targets, setTarget, traffic, usage, modules, loading, error,
+  active,
+  showPrev,
+  palette,
+  targets,
+  setTarget,
+  traffic,
+  usage,
+  modules,
+  loading,
+  error,
 }: SectionProps) {
-  const [usageTab, setUsageTab] = useState<UsageTab>('staff');
+  const [usageTab, setUsageTab] = useState<UsageTab>("staff");
 
   const series = usage
-    ? { staff: usage.visitors, views: usage.views, sessions: usage.sessions }[usageTab]
+    ? { staff: usage.visitors, views: usage.views, sessions: usage.sessions }[
+        usageTab
+      ]
     : null;
 
-  const tabStyle: Record<UsageTab, { color: string; fill: string; label: string }> = {
-    staff: { color: palette.blue, fill: palette.fill, label: 'Active Admins' },
-    views: { color: palette.violet, fill: palette.violetTint, label: 'Views' },
-    sessions: { color: palette.green, fill: palette.greenTint, label: 'Sessions' },
+  const tabStyle: Record<
+    UsageTab,
+    { color: string; fill: string; label: string }
+  > = {
+    staff: { color: palette.blue, fill: palette.fill, label: "Active Admins" },
+    views: { color: palette.violet, fill: palette.violetTint, label: "Views" },
+    sessions: {
+      color: palette.green,
+      fill: palette.greenTint,
+      label: "Sessions",
+    },
   };
   const style = tabStyle[usageTab];
 
   return (
-    <section className={`page${active ? ' on' : ''}`} id="pgTraffic">
+    <section className={`page${active ? " on" : ""}`} id="pgTraffic">
       <div className="section-head">
         <div className="eyebrow-sec" />
         <h2>Traffic &amp; Session</h2>
         <span className="sd">
-          Monitor overall admin console traffic and session behavior across the Lease Management back office.
+          Monitor overall admin console traffic and session behavior across the
+          Lease Management back office.
         </span>
       </div>
 
       <div className="qbox">
         <b>Key questions</b>
         <ul>
-          <li>How many admins are actively using the console, and how frequently?</li>
           <li>
-            Are admin sessions concentrated in a few heavy users, or spread across the whole back office, and is
-            day-over-day activity holding up?
+            How many admins are actively using the console, and how frequently?
+          </li>
+          <li>
+            Are admin sessions concentrated in a few heavy users, or spread
+            across the whole back office, and is day-over-day activity holding
+            up?
           </li>
         </ul>
       </div>
 
-      <Note tone="good" style={{ marginTop: 14, marginBottom: 16 }}>
+      {/* <Note tone="good" style={{ marginTop: 14, marginBottom: 16 }}>
         <b>Identity is confirmed for this product.</b> Lease Management's Global Properties include a real{' '}
         <code>user_id</code> (number) and <code>email</code>, and a genuine <code>$identify</code>/<code>$set</code>{' '}
         automatic event fires at login carrying person properties (email, name, role, company, is_internal). "Active
         Admins" and every session figure below are therefore built on a <b>real user_id join key</b>, not a proposed
         distinct_id/browser-fingerprint workaround — no undercount/overcount caveat is needed here.
-      </Note>
+      </Note> */}
 
       <div className="tiles tiles-3col">
         <Tile
-          id="activeAdmins" label="Active Admins" val={metricText(traffic?.activeAdmins)}
+          loading={loading}
+          id="activeAdmins"
+          label="Active Admins"
+          val={metricText(traffic?.activeAdmins)}
           dir={deltaDir(traffic?.delta?.active_users)}
           delta={formatDelta(traffic?.delta?.active_users)}
           sub="confirmed user_id this period"
         />
         <Tile
-          id="screenViews" label="Screen Views" val={metricText(traffic?.screenViews, fmtC)}
+          loading={loading}
+          id="screenViews"
+          label="Screen Views"
+          val={metricText(traffic?.screenViews, fmtC)}
           dir={deltaDir(traffic?.delta?.screen_views)}
           delta={formatDelta(traffic?.delta?.screen_views)}
           sub="total across modules"
         />
         <Tile
-          id="totalSessions" label="Sessions" val={metricText(traffic?.sessions)}
+          loading={loading}
+          id="totalSessions"
+          label="Sessions"
+          val={metricText(traffic?.sessions)}
           dir={deltaDir(traffic?.delta?.sessions)}
           delta={formatDelta(traffic?.delta?.sessions)}
           sub="browser sessions, by user_id"
         />
         <Tile
-          id="avgSessionDur" label="Session Duration"
-          val={traffic ? formatDuration(traffic.avgSessionSeconds) : '—'}
+          loading={loading}
+          id="avgSessionDur"
+          label="Session Duration"
+          val={traffic ? formatDuration(traffic.avgSessionSeconds) : "—"}
           dir={deltaDir(traffic?.delta?.avg_session_seconds)}
           delta={formatDelta(traffic?.delta?.avg_session_seconds)}
           sub="per session"
         />
         <Tile
-          id="bounceRate" label="Bounce Rate"
+          loading={loading}
+          id="bounceRate"
+          label="Bounce Rate"
           val={metricText(traffic?.bounceRate, (n) => `${Math.round(n)}%`)}
           dir={deltaDir(traffic?.delta?.bounce_rate, false)}
           delta={formatDelta(traffic?.delta?.bounce_rate)}
@@ -151,22 +204,36 @@ export function TrafficSection({
             value={usageTab}
             onChange={(key) => setUsageTab(key as UsageTab)}
             tabs={[
-              { key: 'staff', label: 'Active Admins' },
-              { key: 'views', label: 'Views' },
-              { key: 'sessions', label: 'Sessions' },
+              { key: "staff", label: "Active Admins" },
+              { key: "views", label: "Views" },
+              { key: "sessions", label: "Sessions" },
             ]}
           />
           {series?.cur.length ? (
             <div>
               <LineChart
-                cur={series.cur} prev={series.prev} showPrev={showPrev} labels={usage?.labels}
-                color={style.color} fill={style.fill} palette={palette}
+                cur={series.cur}
+                prev={series.prev}
+                showPrev={showPrev}
+                labels={usage?.labels}
+                color={style.color}
+                fill={style.fill}
+                palette={palette}
                 seriesName={style.label}
               />
-              <Legend items={[{ label: style.label, color: style.color }, { label: 'Previous period', dash: true }]} />
+              <Legend
+                items={[
+                  { label: style.label, color: style.color },
+                  { label: "Previous period", dash: true },
+                ]}
+              />
             </div>
           ) : (
-            <EmptyState loading={loading} error={error} empty="No sessions recorded in this period." />
+            <EmptyState
+              loading={loading}
+              error={error}
+              empty="No sessions recorded in this period."
+            />
           )}
         </ChartCard>
 

@@ -450,6 +450,9 @@
   -webkit-appearance:none;appearance:none;padding-right:2px;
 }
 .lm-root .ctrl.toggle-on{border-color:var(--border-2);background:var(--surface-2);color:var(--ink)}
+.lm-root .ctrl .ctrl-svg{width:14px;height:14px;display:block;color:var(--faint)}
+.lm-root .ctrl:disabled{cursor:default;opacity:.7}
+.lm-root .ctrl:disabled:hover{background:var(--surface)}
 
 /* ============ DATE RANGE CONTROL ============ */
 .lm-root .daterange{position:relative;display:inline-block}
@@ -891,6 +894,12 @@
 .lm-root table.league tbody td .strong, .lm-root table.pathtbl tbody td .strong{font-weight:500 !important}
 .lm-root table.league tbody td .status, .lm-root table.pathtbl tbody td .status{font-size:11.5px !important;font-weight:500 !important}
 .lm-root table.league tbody td .arrow, .lm-root table.pathtbl tbody td .arrow{font-size:12px !important}
+/* asset-controls.css also draws a hard-coded white divider between header cells (meant for
+   its light header fill) and light-only row rules — both glare in the dark theme. */
+.lm-root table.league th, .lm-root table.pathtbl th, .lm-root .rt th{border-right:none !important}
+.lm-root table.league thead th, .lm-root table.pathtbl thead th{border-bottom:1px solid var(--border) !important}
+.lm-root table.league tbody td, .lm-root table.pathtbl tbody td{border-bottom:1px solid var(--border) !important}
+.lm-root table.league tbody tr:last-child td, .lm-root table.pathtbl tbody tr:last-child td{border-bottom:none !important}
 .lm-root .rt th{font-size:11.5px !important;font-weight:400 !important;color:var(--faint) !important;background:none !important}
 .lm-root .rt td{font-size:12px !important;font-weight:400 !important}
 .lm-root .rt td.lbl{color:var(--muted) !important}
@@ -910,3 +919,36 @@
   text-align:center;
 }
 .lm-root .lm-state-error{ color:var(--red); }
+
+/* Skeleton placeholders shown while live queries are in flight. */
+.lm-root .lm-skel{
+  display:block;
+  border-radius:var(--r-xs);
+  background:linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%);
+  background-size:400% 100%;
+  animation:lm-shimmer 1.4s ease infinite;
+}
+.lm-root .lm-skel-val{ width:58%; height:30px; }
+.lm-root .lm-skel-line{ height:10px; }
+.lm-root .lm-skel-avatar{ flex:none; width:26px; height:26px; border-radius:50%; margin-top:1px; }
+.lm-root .lm-skel-chart{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:8px 0 4px;
+}
+.lm-root .lm-skel-bars{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  height:170px;
+  border-bottom:1px solid var(--chart-grid);
+}
+.lm-root .lm-skel-bars .lm-skel{ flex:1; border-radius:var(--r-xs) var(--r-xs) 0 0; }
+@keyframes lm-shimmer {
+  from { background-position:100% 50%; }
+  to { background-position:0 50%; }
+}
+@media (prefers-reduced-motion: reduce){
+  .lm-root .lm-skel{ animation:none; }
+}

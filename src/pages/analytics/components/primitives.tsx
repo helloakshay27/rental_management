@@ -48,27 +48,31 @@ export interface TileProps {
   /** Current target for this tile, and the setter the dashboard owns. */
   target?: number | null;
   onTargetChange?: (id: string, value: number | null) => void;
+  /** While the tile's query is in flight, the value and footer render as skeleton bars. */
+  loading?: boolean;
 }
 
 const ARROW = { up: '▲', dn: '▼', flat: '—' } as const;
 
 export function Tile({
-  id, label, val, dir = 'flat', delta, sub,
+  id, label, val, dir = 'flat', delta, sub, loading,
 }: TileProps) {
   return (
-    <div className="tile" id={id ? `tile-${id}` : undefined}>
+    <div className="tile" id={id ? `tile-${id}` : undefined} aria-busy={loading || undefined}>
       <div className="tophead">
         <div className="lbl">{label}</div>
         <KpiInfoPop label={label} />
       </div>
-      <div className="val">{val}</div>
+      <div className="val">{loading ? <Skeleton className="lm-skel-val" /> : val}</div>
       <div className="tile-foot">
-        {delta != null ? (
+        {loading ? (
+          <Skeleton className="lm-skel-line" style={{ width: '55%' }} />
+        ) : delta != null ? (
           <div className={`delta ${dir}`}>
             {ARROW[dir]} {delta}
           </div>
         ) : null}
-        {sub ? <div className="sub2">{sub}</div> : null}
+        {!loading && sub ? <div className="sub2">{sub}</div> : null}
       </div>
     </div>
   );
@@ -217,6 +221,25 @@ export function useTargets(defaults: Record<string, number>) {
   return { targets, setTarget };
 }
 
+/** A shimmering placeholder bar, sized by the caller. Purely decorative. */
+export function Skeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return <span className={`lm-skel${className ? ' ' + className : ''}`} style={style} aria-hidden="true" />;
+}
+
+/** Placeholder for a chart card body while its query is in flight. */
+export function ChartSkeleton() {
+  return (
+    <div className="lm-skel-chart" role="status" aria-label="Loading">
+      <div className="lm-skel-bars">
+        {[45, 70, 55, 85, 60, 75, 40, 65].map((h, i) => (
+          <Skeleton key={i} style={{ height: `${h}%` }} />
+        ))}
+      </div>
+      <Skeleton className="lm-skel-line" style={{ width: '40%' }} />
+    </div>
+  );
+}
+
 /**
  * What a card shows when its query has no rows to draw.
  *
@@ -231,7 +254,7 @@ export function EmptyState({
   empty?: React.ReactNode;
   children?: React.ReactNode;
 }) {
-  if (loading) return <div className="lm-state">Loading…</div>;
+  if (loading) return <ChartSkeleton />;
   if (error) {
     const message = error instanceof Error ? error.message : 'Analytics request failed.';
     return <div className="lm-state lm-state-error">{message}</div>;

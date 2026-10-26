@@ -5,6 +5,7 @@ import {
   downloadActiveUsersExport,
 } from '../api/analyticsApi';
 import { useRecentActiveUsers } from '../api/queries';
+import { Skeleton } from './primitives';
 
 export interface RecentActivitySidebarProps {
   /** The current filters applied to the dashboard (tenant/project, sites, devices, range, etc.) */
@@ -151,9 +152,17 @@ export const RecentActivitySidebar: React.FC<RecentActivitySidebarProps> = ({
       </div>
 
       {isLoading ? (
-        <div className="recent-activity-status" role="status" aria-live="polite">
-          Loading…
-        </div>
+        <ul className="recent-activity-list" role="status" aria-label="Loading recent activity">
+          {[70, 55, 80, 60, 65].map((w, idx) => (
+            <li key={idx} className="recent-activity-item" aria-hidden="true">
+              <Skeleton className="lm-skel-avatar" />
+              <div className="recent-activity-content">
+                <Skeleton className="lm-skel-line" style={{ width: `${w}%` }} />
+                <Skeleton className="lm-skel-line" style={{ width: `${w - 25}%`, marginTop: 6 }} />
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : users.length === 0 ? (
         <div className="recent-activity-empty" role="status">
           No recent activity yet.
