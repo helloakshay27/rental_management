@@ -1,4 +1,5 @@
 import { fetchWithSlowWarning } from "@/lib/slowRequest";
+import { fetchGet, runExportJob, type ExportPhase } from './exportJob';
 /**
  * Lease Management analytics API — the PostHog Adoption Analytics service.
  *
@@ -395,14 +396,16 @@ export async function fetchRecentActiveUsers(
   }
 }
 
+/** The .xlsx of every event in the range, made in the background on the server (see ./exportJob). */
 export async function downloadActiveUsersExport(
   filters: RecentActivityApiFilters = {},
+  onPhase?: (phase: ExportPhase) => void,
 ): Promise<void> {
   const params = buildRecentActivityParams(filters);
   const baseUrl = (filters.baseUrl || BASE_URL).replace(/\/+$/, '');
   const headers: Record<string, string> = {
     Accept:
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, */*',
+      'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, */*',
   };
   if (filters.authToken) {
     headers.Authorization = `Bearer ${filters.authToken}`;
@@ -411,20 +414,16 @@ export async function downloadActiveUsersExport(
   const qs = new URLSearchParams(params).toString();
   const url = `${adoptionUrl(baseUrl, 'active_users_export')}${qs ? `?${qs}` : ''}`;
 
-  const { res, blob } = await fetchWithSlowWarning(url, { headers }, async (res) => {
-    if (!res.ok) {
-      throw new Error(`active_users_export failed: ${res.status} ${res.statusText}`);
-    }
-    return { res, blob: await res.blob() };
+  const { blob, filename: serverName } = await runExportJob({
+    exportUrl: url,
+    adoptionUrl: adoptionUrl(baseUrl, '').replace(/\/$/, ''),
+    get: fetchGet({ headers }),
+    onPhase,
   });
 
   let filename = 'active_users.xlsx';
-  const disposition = res.headers.get('content-disposition');
-  if (disposition) {
-    const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i);
-    if (match && match[1]) {
-      filename = decodeURIComponent(match[1].trim());
-    }
+  if (serverName) {
+    filename = serverName;
   } else if (filters.from && filters.to) {
     filename = `active_users_${filters.from}_to_${filters.to}.xlsx`;
   }
@@ -436,6 +435,7 @@ export async function downloadActiveUsersExport(
   document.body.appendChild(link);
   link.click();
   link.parentNode?.removeChild(link);
-  window.URL.revokeObjectURL(blobUrl);
+  // Revoking straight away can cancel the download in Safari.
+  setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
 }
 

@@ -12,6 +12,7 @@ import {
   RecentActivityApiFilters,
   ANALYTICS_API_PATH,
 } from './analyticsApi';
+import { liveRefetchInterval } from './liveRefresh';
 
 /**
  * React Query hooks for the analytics endpoints, following the caching and key structure of
@@ -45,6 +46,7 @@ const CACHE = {
   staleTime: 5 * 60_000,
   gcTime: 30 * 60_000,
   refetchOnWindowFocus: false,
+  refetchInterval: liveRefetchInterval, // live numbers while the page is on screen (./liveRefresh)
   refetchOnMount: false,
   retry: false,
 } as const;

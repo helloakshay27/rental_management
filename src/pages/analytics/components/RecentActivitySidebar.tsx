@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   RecentActiveUser,
   RecentActivityApiFilters,
@@ -6,6 +6,7 @@ import {
 } from '../api/analyticsApi';
 import { useRecentActiveUsers } from '../api/queries';
 import { Skeleton } from './primitives';
+import { ExportStatus, useExportDownload } from './ExportProgress';
 
 export interface RecentActivitySidebarProps {
   /** The current filters applied to the dashboard (tenant/project, sites, devices, range, etc.) */
@@ -72,7 +73,8 @@ export const RecentActivitySidebar: React.FC<RecentActivitySidebarProps> = ({
   className = '',
   onDownloadError,
 }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
+  const exportJob = useExportDownload();
+  const isDownloading = exportJob.busy;
 
   // Gated execution: Do not make the request until site/filter data has settled.
   const isEnabled = sitesSettled && filters.enabled !== false;
@@ -86,20 +88,17 @@ export const RecentActivitySidebar: React.FC<RecentActivitySidebarProps> = ({
 
   const users: RecentActiveUser[] = data?.users ?? [];
 
-  const handleDownload = async () => {
-    if (isDownloading) return; // Prevent duplicate concurrent downloads
-    setIsDownloading(true);
-    try {
-      await downloadActiveUsersExport(filters);
-    } catch (err) {
-      console.error('Failed to export active users:', err);
-      if (onDownloadError) {
-        onDownloadError(err);
+  // The server makes the file in the background; the loader below says what is happening.
+  // A second click while it runs starts nothing.
+  const handleDownload = () =>
+    exportJob.run(async (onPhase) => {
+      try {
+        await downloadActiveUsersExport(filters, onPhase);
+      } catch (err) {
+        onDownloadError?.(err);
+        throw err;
       }
-    } finally {
-      setIsDownloading(false); // Restore button state
-    }
-  };
+    });
 
   return (
     <div className={`recent-activity ${className}`.trim()}>
@@ -114,7 +113,8 @@ export const RecentActivitySidebar: React.FC<RecentActivitySidebarProps> = ({
           disabled={isDownloading}
           aria-label="Download active users report"
           aria-disabled={isDownloading}
-          title={isDownloading ? 'Downloading…' : 'Export active users (.xlsx)'}
+          aria-busy={isDownloading}
+          title={isDownloading ? 'Preparing the download…' : 'Export active users (.xlsx)'}
         >
           {isDownloading ? (
             <svg
@@ -150,6 +150,7 @@ export const RecentActivitySidebar: React.FC<RecentActivitySidebarProps> = ({
           )}
         </button>
       </div>
+      <ExportStatus phase={exportJob.phase} startedAt={exportJob.startedAt} error={exportJob.error} />
 
       {isLoading ? (
         <ul className="recent-activity-list" role="status" aria-label="Loading recent activity">
