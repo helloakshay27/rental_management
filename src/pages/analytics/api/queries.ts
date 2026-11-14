@@ -10,8 +10,7 @@ import {
   fetchWorkflowUsage,
   fetchRecentActiveUsers,
   RecentActivityApiFilters,
-  ANALYTICS_PROJECT_CODE,
-  analyticsTenantUrl,
+  ANALYTICS_API_PATH,
 } from './analyticsApi';
 
 /**
@@ -64,7 +63,7 @@ export function dateRangeFor(days: number): { from: string; to: string } {
   return { from: ymd(from), to: ymd(to) };
 }
 
-const keyBase = (f: QueryFilters) => [ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.from, f.to, f.requestId];
+const keyBase = (f: QueryFilters) => [ANALYTICS_API_PATH, f.from, f.to, f.requestId];
 
 export function useTrafficSession(f: QueryFilters) {
   return useQuery({
@@ -96,7 +95,7 @@ export function useAdoptionEngagement(f: QueryFilters) {
 
 export function useAdoptionTrend(f: QueryFilters) {
   return useQuery({
-    queryKey: ['lm-analytics', 'adoption_trend', ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.to, f.requestId],
+    queryKey: ['lm-analytics', 'adoption_trend', ANALYTICS_API_PATH, f.to, f.requestId],
     queryFn: () => fetchAdoptionTrend({ to: f.to, weeks: TREND_WEEKS }),
     enabled: f.enabled,
     ...CACHE,
@@ -105,7 +104,7 @@ export function useAdoptionTrend(f: QueryFilters) {
 
 export function useGrowth(f: QueryFilters) {
   return useQuery({
-    queryKey: ['lm-analytics', 'growth', ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.to, f.requestId],
+    queryKey: ['lm-analytics', 'growth', ANALYTICS_API_PATH, f.to, f.requestId],
     queryFn: () => fetchGrowth({ to: f.to, weeks: GROWTH_WEEKS }),
     enabled: f.enabled,
     ...CACHE,
@@ -114,7 +113,7 @@ export function useGrowth(f: QueryFilters) {
 
 export function useRetention(f: QueryFilters) {
   return useQuery({
-    queryKey: ['lm-analytics', 'retention', ANALYTICS_PROJECT_CODE, analyticsTenantUrl(), f.to, f.requestId],
+    queryKey: ['lm-analytics', 'retention', ANALYTICS_API_PATH, f.to, f.requestId],
     queryFn: () => fetchRetention({ to: f.to, weeks: RETENTION_WEEKS }),
     enabled: f.enabled,
     ...CACHE,
@@ -163,25 +162,11 @@ export function useRecentActiveUsers(
   enabled: boolean = true,
   limit: number = 10,
 ) {
-  const project =
-    filters.project_code ?? filters.project ?? filters.tenant ?? ANALYTICS_PROJECT_CODE;
-  const sites = filters.site_ids ?? filters.siteIds ?? '-';
-  const sitesKey = Array.isArray(sites) ? sites.join(',') : String(sites);
-  const device =
-    filters.devPlatform ??
-    filters.device ??
-    (Array.isArray(filters.devices) ? filters.devices.join(',') : undefined) ??
-    filters.platform ??
-    '-';
-
   return useQuery({
     queryKey: [
       'lm-analytics',
       'recent_active_users',
-      analyticsTenantUrl(),
-      project,
-      sitesKey,
-      device,
+      ANALYTICS_API_PATH,
       filters.from ?? '-',
       filters.to ?? '-',
       filters.requestId ?? 0,
@@ -193,4 +178,3 @@ export function useRecentActiveUsers(
     ...CACHE,
   });
 }
-

@@ -48,7 +48,9 @@ export function WorkflowSection({
   activeSubModule,
   onSubModuleChange,
 }: SectionProps) {
-  const workflowName = [activeModule, activeSubModule]
+  const label = (rows: ModuleRow[] | null, key: string | null) =>
+    key ? (rows ?? []).find((m) => m.key === key)?.name ?? key : null;
+  const workflowName = [label(modules, activeModule), label(subModules, activeSubModule)]
     .filter(Boolean)
     .join(" / ");
   /* The API derives and measures the step sequence; nothing here is catalogued. */
@@ -77,15 +79,15 @@ export function WorkflowSection({
         <div className="mnav-buckets">
           {(modules ?? []).map((m) => (
             <button
-              key={m.name}
+              key={m.key}
               type="button"
-              className={m.name === activeModule ? "on" : undefined}
-              aria-pressed={m.name === activeModule}
-              onClick={() => onModuleChange(m.name)}
+              className={m.key === activeModule ? "on" : undefined}
+              aria-pressed={m.key === activeModule}
+              onClick={() => onModuleChange(m.key)}
               title={`${m.users} admin(s) · ${m.events} events · ${m.sessions} sessions`}
             >
               {m.name}
-              {m.name === activeModule && subModules && (
+              {m.key === activeModule && subModules && (
                 <span className="mcount">{subModules.length}</span>
               )}
             </button>
@@ -96,11 +98,11 @@ export function WorkflowSection({
             <div className="segbar" aria-label="Submodules">
               {(subModules ?? []).map((m) => (
                 <button
-                  key={m.name}
+                  key={m.key}
                   type="button"
-                  className={m.name === activeSubModule ? "on" : undefined}
-                  aria-pressed={m.name === activeSubModule}
-                  onClick={() => onSubModuleChange(m.name)}
+                  className={m.key === activeSubModule ? "on" : undefined}
+                  aria-pressed={m.key === activeSubModule}
+                  onClick={() => onSubModuleChange(m.key)}
                 >
                   {m.name}
                 </button>
@@ -152,7 +154,7 @@ export function WorkflowSection({
           val={metricText(workflow?.volume)}
           dir="up"
           delta="this period"
-          sub="completions"
+          sub="users who completed"
         />
       </div>
 

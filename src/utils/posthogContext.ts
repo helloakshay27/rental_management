@@ -150,6 +150,18 @@ export interface PostHogSuperProperties {
   release_version: string;
   client_company?: string;
   user_role?: string;
+  /**
+   * The signed-in user's id. A super-property, so PostHog's own $pageview / $pageleave /
+   * $autocapture carry it too: the analytics API counts people by user_id, and page views sent
+   * without it counted no one (every module showed 0 users).
+   */
+  user_id?: number;
+}
+
+/** The stored user's numeric id, or undefined when signed out. */
+function resolveUserId(): number | undefined {
+  const n = Number(getStoredUser()?.id);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 
 export function getPostHogSuperProperties(): PostHogSuperProperties {
@@ -162,5 +174,6 @@ export function getPostHogSuperProperties(): PostHogSuperProperties {
     release_version: (import.meta.env.VITE_APP_VERSION as string) ?? 'dev',
     client_company: resolveClientCompany(),
     user_role: resolveUserRole(),
+    user_id: resolveUserId(),
   };
 }

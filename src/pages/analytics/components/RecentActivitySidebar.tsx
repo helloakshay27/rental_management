@@ -171,6 +171,12 @@ export const RecentActivitySidebar: React.FC<RecentActivitySidebarProps> = ({
         <ul className="recent-activity-list" aria-label="Recent active users">
           {users.map((user, idx) => {
             const screenOrEvent = user.path || user.last_event || 'Active';
+            // The API sends user_name (and email); display_name is the older field.
+            const who =
+              user.user_name?.trim() ||
+              user.display_name?.trim() ||
+              user.email?.split('@')[0] ||
+              (user.user_id ? `User ${user.user_id}` : 'Anonymous User');
             const timeAgo = formatRelativeTime(user.minutes_ago);
             return (
               <li
@@ -178,15 +184,15 @@ export const RecentActivitySidebar: React.FC<RecentActivitySidebarProps> = ({
                 className="recent-activity-item"
               >
                 <div className="recent-activity-avatar" aria-hidden="true">
-                  {getInitials(user.display_name)}
+                  {getInitials(who)}
                 </div>
                 <div className="recent-activity-content">
                   <div className="recent-activity-top">
                     <span
                       className="recent-activity-name"
-                      title={user.display_name || 'Anonymous User'}
+                      title={who}
                     >
-                      {user.display_name || 'Anonymous User'}
+                      {who}
                     </span>
                     <span className="recent-activity-time">{timeAgo}</span>
                   </div>

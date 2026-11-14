@@ -155,7 +155,8 @@ const LeaseAnalyticsDashboard = () => {
   // from it: hold the selection only while it still exists in the current range, otherwise
   // fall back to the busiest module. A stale name would query a module with no events.
   const moduleTree = buildModules(modulesQ.data);
-  const moduleNames = (moduleTree ?? []).map((m) => m.name);
+  // Selection and requests use the API's own module key; the chips show its label.
+  const moduleNames = (moduleTree ?? []).map((m) => m.key);
   const activeModule =
     selectedModule && moduleNames.includes(selectedModule)
       ? selectedModule
@@ -167,10 +168,10 @@ const LeaseAnalyticsDashboard = () => {
   );
   const subModules = buildModules(subModulesQ.data);
   const activeSubModule = (subModules ?? []).some(
-    (m) => m.name === selectedSubModule,
+    (m) => m.key === selectedSubModule,
   )
     ? selectedSubModule
-    : (subModules?.[0]?.name ?? null);
+    : (subModules?.[0]?.key ?? null);
   const workflowFilters: QueryFilters = {
     ...filters,
     module: activeModule,

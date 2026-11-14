@@ -63,7 +63,7 @@ function areaRows(
   const sums = AREAS.map(([, names]) => {
     let sum = 0;
     for (const m of modules) {
-      const key = m.name.toLowerCase();
+      const key = m.key.toLowerCase();
       if (names.some((n) => key === n || key.startsWith(n))) {
         sum += m.sessions;
         claimed.add(m.name);
@@ -162,7 +162,7 @@ export function TrafficSection({
           val={metricText(traffic?.screenViews, fmtC)}
           dir={deltaDir(traffic?.delta?.screen_views)}
           delta={formatDelta(traffic?.delta?.screen_views)}
-          sub="total across modules"
+          sub="page views"
         />
         <Tile
           loading={loading}
@@ -171,7 +171,7 @@ export function TrafficSection({
           val={metricText(traffic?.sessions)}
           dir={deltaDir(traffic?.delta?.sessions)}
           delta={formatDelta(traffic?.delta?.sessions)}
-          sub="browser sessions, by user_id"
+          sub="sessions in period"
         />
         <Tile
           loading={loading}
@@ -240,7 +240,7 @@ export function TrafficSection({
         <ChartCard
           eyebrow="Session mix"
           title="What Admins touch in a session"
-          purpose="Share of sessions that touch each top-level area at least once — a rollup of the API's module tree, since the area grouping is not itself a catalogued property."
+          purpose="Each area's share of module visits: the sessions of every module in the API's module tree, added up by area (a session that opens two modules counts in both)."
         >
           {modules?.length ? (
             <>

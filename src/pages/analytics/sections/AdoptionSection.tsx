@@ -12,7 +12,6 @@ import {
 import { LineChart } from "../charts/LineChart";
 import { StackedBarChart } from "../charts/StackedBarChart";
 import type { Palette } from "../lib/palette";
-import { TOTAL_MODULES } from "../lib/catalogue";
 import {
   deltaDir,
   formatDelta,
@@ -152,15 +151,16 @@ export function AdoptionSection({
           val={metricText(adoption?.activation, (n) => `${Math.round(n)}%`)}
           dir={deltaDir(adoption?.deltas.activation)}
           delta={formatDelta(adoption?.deltas.activation)}
-          sub="of newly created Admin accounts"
+          sub="of new users"
         />
         <Tile
           loading={loading}
           id="moduleBreadth2"
           label="Module Breadth"
           val={
-            adoption
-              ? `${adoption.moduleBreadthInUse} / ${adoption.moduleBreadthTotal || TOTAL_MODULES}`
+            // The API's own total: page sections at least 3 Admins have used. None yet → "—".
+            adoption && adoption.moduleBreadthTotal > 0
+              ? `${adoption.moduleBreadthInUse} / ${adoption.moduleBreadthTotal}`
               : "—"
           }
           dir="flat"

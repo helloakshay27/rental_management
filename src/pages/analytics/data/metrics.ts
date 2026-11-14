@@ -130,7 +130,8 @@ export interface AdoptionModel {
   usedSeats: number;
   stickiness: number;
   adoptionTrend: number | null;
-  activation: number;
+  /** null when the period has no new users (the API sends no value). */
+  activation: number | null;
   moduleBreadthInUse: number;
   moduleBreadthTotal: number;
   dormant: number;
@@ -148,7 +149,7 @@ export function buildAdoption(res?: AdoptionEngagementResponse | null): Adoption
     usedSeats: res.seat_utilisation?.used_seats ?? 0,
     stickiness: res.stickiness?.value ?? 0,
     adoptionTrend: res.adoption_trend?.value ?? null,
-    activation: res.activation?.value ?? 0,
+    activation: res.activation?.value ?? null,
     moduleBreadthInUse: res.module_breadth?.in_use ?? 0,
     moduleBreadthTotal: res.module_breadth?.total ?? 0,
     dormant: res.dormant_users?.value ?? 0,
@@ -225,6 +226,9 @@ export function buildRetention(res?: RetentionResponse | null, cols = 6): Cohort
 }
 
 export interface ModuleRow {
+  /** The API's own name for the module (a page-path segment): what a request sends as module. */
+  key: string;
+  /** The label shown on screen. */
   name: string;
   users: number;
   events: number;
@@ -238,6 +242,7 @@ export function buildModules(res?: ModulesResponse | null): ModuleRow[] | null {
   if (!tree?.length) return null;
   const maxUsers = Math.max(...tree.map((m) => m.users), 1);
   return tree.map((m) => ({
+    key: m.name,
     name: prettyLabel(m.name),
     users: m.users,
     events: m.events,

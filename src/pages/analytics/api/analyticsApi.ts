@@ -3,10 +3,11 @@ import { fetchWithSlowWarning } from "@/lib/slowRequest";
  * Lease Management analytics API — the PostHog Adoption Analytics service.
  *
  * Ported from fm-matrix-revamp's `/posthog-dashboard` feature
- * (`src/features/posthog-dashboard/api/adoptionApi.ts`); the `/vi-posthog-dashboard` build
- * uses the same nine endpoints and the same response shapes, differing only in how the
- * tenant is identified (`app_id` for the mobile product, `url` for a web one). Lease
- * Management is web-only, so it identifies itself with `url`, exactly like FM Matrix.
+ * (`src/features/posthog-dashboard/api/adoptionApi.ts`), same endpoints and response shapes.
+ * Lease Management has its own API in the analytics backend, `/commercial/lease/adoption/*`,
+ * and that API fixes on the server which events it reads: project_code LMV-01 from the live
+ * web build (client rental-web, is_test false). So a request carries only the filters
+ * (from / to / weeks / module / sub_module / limit); no project_code or url is sent.
  *
  * Contract notes carried over from the reference implementation:
  *   • No auth header — the service is unauthenticated and `team` is fixed server-side.
@@ -16,7 +17,6 @@ import { fetchWithSlowWarning } from "@/lib/slowRequest";
  *     filtering by `user_role` was explicitly descoped, so the date range is the only filter.
  */
  
-import { getBaseUrlDomain } from '@/lib/api';
 
 /**
  * Where the analytics service lives.
@@ -30,31 +30,14 @@ const BASE_URL = (
   (import.meta.env.DEV ? '/analytics-api' : 'https://posthog-api.lockated.com')
 ).replace(/\/+$/, '');
 
-/** Product scope, combined with the tenant URL on every request. */
-export const ANALYTICS_PROJECT_CODE =
-  (import.meta.env.VITE_LM_ANALYTICS_PROJECT_CODE as string | undefined)?.trim() || 'LMV-01';
-
-const TENANT_URL_OVERRIDE = (
-  import.meta.env.VITE_LM_ANALYTICS_TENANT_URL as string | undefined
-)?.trim();
-
-/** Tenant: env override, deployed frontend host, or local session base URL. */
-export function analyticsTenantUrl(): string {
-  if (TENANT_URL_OVERRIDE) return TENANT_URL_OVERRIDE;
-
-  const host = (typeof window !== 'undefined' && window.location.hostname) || '';
-  const isLocal = !host || host === 'localhost' || host === '127.0.0.1' || host === '::1';
-
-  // A dev machine is not a tenant: `url=localhost` would scope the query to events fired on
-  // someone's laptop. Fall back to the session's configured base URL instead.
-  return isLocal ? getBaseUrlDomain() : host;
-}
+/** Lease Management's own analytics API (Commercial::LeaseController in the analytics backend). */
+export const ANALYTICS_API_PATH = 'commercial/lease';
 
 export const ANALYTICS_BASE_URL = BASE_URL;
 
-/** What the badge shows as the current scope. */
+/** What the analytics read: the API's fixed scope, for labels. */
 export function analyticsScopeLabel(): string {
-  return `${ANALYTICS_PROJECT_CODE} / ${analyticsTenantUrl()}`;
+  return 'Lease Management live web app (LMV-01)';
 }
 
 /** Requests are multi-second ClickHouse scans; give them room but never hang the page. */
@@ -70,23 +53,18 @@ export interface WeeklyFilters {
   weeks: number;
 }
 
-/**
- * Identifier scoped to `project_code` (stamped on every event this app sends).
- * Tenant base URL is sent as `url`, matching the PATM API contract.
- */
-function baseParams(): Record<string, string> {
-  return { project_code: ANALYTICS_PROJECT_CODE, url: analyticsTenantUrl() };
-}
+/** Only the filters: the API fixes the scope (project_code LMV-01, live web build) itself. */
+const rangeParams = (f: RangeFilters) => ({ from: f.from, to: f.to });
+const weeklyParams = (f: WeeklyFilters) => ({ to: f.to, weeks: String(f.weeks) });
 
-const rangeParams = (f: RangeFilters) => ({ ...baseParams(), from: f.from, to: f.to });
-const weeklyParams = (f: WeeklyFilters) => ({ ...baseParams(), to: f.to, weeks: String(f.weeks) });
+const adoptionUrl = (base: string, path: string) => `${base}/${ANALYTICS_API_PATH}/adoption/${path}`;
 
 async function get<T>(path: string, params: Record<string, string>): Promise<T> {
   const qs = new URLSearchParams(params).toString();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    return await fetchWithSlowWarning(`${BASE_URL}/fm/adoption/${path}?${qs}`, {
+    return await fetchWithSlowWarning(`${adoptionUrl(BASE_URL, path)}?${qs}`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     }, async (res) => {
@@ -343,7 +321,11 @@ export const fetchWorkflowUsage = (f: RangeFilters & { module?: string; subModul
 
 export interface RecentActiveUser {
   user_id: string;
-  display_name: string;
+  /** "First Last" as the API sends it. */
+  user_name?: string | null;
+  email?: string | null;
+  /** Older API field; the API now sends user_name. */
+  display_name?: string | null;
   path: string | null;
   last_event: string | null;
   minutes_ago: number | null;
@@ -374,36 +356,15 @@ export interface RecentActivityApiFilters {
   [key: string]: unknown;
 }
 
+/** Recent Activity / download: the date range and row limit only (the API fixes the scope). */
 export function buildRecentActivityParams(
   filters: RecentActivityApiFilters = {},
   limit?: number,
 ): Record<string, string> {
-  const params: Record<string, string> = { url: analyticsTenantUrl() };
-
-  const projectCode =
-    filters.project_code || filters.project || filters.tenant || ANALYTICS_PROJECT_CODE;
-  if (projectCode) params.project_code = String(projectCode);
-
-  if (limit != null) {
-    params.limit = String(limit);
-  }
-
-  const rawSites = filters.site_ids ?? filters.siteIds;
-  if (rawSites != null) {
-    const s = Array.isArray(rawSites) ? rawSites.filter(Boolean).join(',') : String(rawSites);
-    if (s.trim()) params.site_ids = s.trim();
-  }
-
-  const dev =
-    filters.devPlatform ||
-    filters.device ||
-    (Array.isArray(filters.devices) && filters.devices.length ? filters.devices.join(',') : undefined) ||
-    filters.platform;
-  if (dev) params.device = String(dev);
-
+  const params: Record<string, string> = {};
+  if (limit != null) params.limit = String(limit);
   if (filters.from) params.from = String(filters.from);
   if (filters.to) params.to = String(filters.to);
-
   return params;
 }
 
@@ -422,7 +383,7 @@ export async function fetchRecentActiveUsers(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    return await fetchWithSlowWarning(`${baseUrl}/fm/adoption/recent_active_users?${qs}`, {
+    return await fetchWithSlowWarning(`${adoptionUrl(baseUrl, 'recent_active_users')}?${qs}`, {
       signal: controller.signal,
       headers,
     }, async (res) => {
@@ -448,7 +409,7 @@ export async function downloadActiveUsersExport(
   }
 
   const qs = new URLSearchParams(params).toString();
-  const url = `${baseUrl}/fm/adoption/active_users_export${qs ? `?${qs}` : ''}`;
+  const url = `${adoptionUrl(baseUrl, 'active_users_export')}${qs ? `?${qs}` : ''}`;
 
   const { res, blob } = await fetchWithSlowWarning(url, { headers }, async (res) => {
     if (!res.ok) {
