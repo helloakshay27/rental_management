@@ -1,4 +1,5 @@
 import { fetchWithSlowWarning } from "@/lib/slowRequest";
+import { getToken } from "@/lib/api";
 import { fetchGet, runExportJob, type ExportPhase } from './exportJob';
 /**
  * Lease Management analytics API — the PostHog Adoption Analytics service.
@@ -60,6 +61,16 @@ const weeklyParams = (f: WeeklyFilters) => ({ to: f.to, weeks: String(f.weeks) }
 
 const adoptionUrl = (base: string, path: string) => `${base}/${ANALYTICS_API_PATH}/adoption/${path}`;
 
+/**
+ * The signed-in user's login token for the analytics API, which checks it on every request
+ * (`Authorization: Bearer <token>`, the JWT this app's backend returns at login). An explicit one
+ * (the Recent Activity filters' authToken) wins.
+ */
+function authHeaders(explicit?: string): Record<string, string> {
+  const token = explicit || getToken() || '';
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function get<T>(path: string, params: Record<string, string>): Promise<T> {
   const qs = new URLSearchParams(params).toString();
   const controller = new AbortController();
@@ -67,7 +78,7 @@ async function get<T>(path: string, params: Record<string, string>): Promise<T> 
   try {
     return await fetchWithSlowWarning(`${adoptionUrl(BASE_URL, path)}?${qs}`, {
       signal: controller.signal,
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', ...authHeaders() },
     }, async (res) => {
       if (!res.ok) throw new Error(`${path} failed: ${res.status} ${res.statusText}`);
       return (await res.json()) as T;
@@ -376,9 +387,7 @@ export async function fetchRecentActiveUsers(
   const params = buildRecentActivityParams(filters, limit);
   const baseUrl = (filters.baseUrl || BASE_URL).replace(/\/+$/, '');
   const headers: Record<string, string> = { Accept: 'application/json' };
-  if (filters.authToken) {
-    headers.Authorization = `Bearer ${filters.authToken}`;
-  }
+  Object.assign(headers, authHeaders(filters.authToken));
 
   const qs = new URLSearchParams(params).toString();
   const controller = new AbortController();
@@ -407,9 +416,7 @@ export async function downloadActiveUsersExport(
     Accept:
       'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, */*',
   };
-  if (filters.authToken) {
-    headers.Authorization = `Bearer ${filters.authToken}`;
-  }
+  Object.assign(headers, authHeaders(filters.authToken));
 
   const qs = new URLSearchParams(params).toString();
   const url = `${adoptionUrl(baseUrl, 'active_users_export')}${qs ? `?${qs}` : ''}`;
